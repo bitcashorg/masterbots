@@ -33,14 +33,8 @@ export default function PlanCard({
 	const duration = plan.unit_amount === 0 ? 'free' : plan.recurring.interval
 	const price = (plan.unit_amount ? plan.unit_amount / 100 : 0).toFixed(2)
 
-	const bg_dark =
-		duration === 'year'
-			? 'dark:bg-[url(/paid_plan_bg_yearly.png)]'
-			: 'dark:bg-[url(/paid_plan_bg.png)]'
-	const bg_light =
-		duration === 'year'
-			? 'bg-[url(/paid_plan_bg_light_yearly.png)]'
-			: 'bg-[url(/paid_plan_bg_light.png)]'
+	const bg_dark = 'dark:bg-[url(/free_plan_bg.png)]'
+	const bg_light = 'bg-[url(/free_plan_bg_light.png)]'
 
 	return (
 		<div
@@ -54,7 +48,7 @@ export default function PlanCard({
 		>
 			<div
 				className={cn(
-					'transition-all size-[calc(100%_-_10px)] absolute top-[5px] left-[5px] rounded-[11px] bg-transparent',
+					'transition-all size-[calc(100%_-_10px)] absolute top-[5px] left-[5px] rounded-[11px] bg-transparent z-10',
 					{
 						'bg-tertiary': selectedPlan === duration,
 					},
@@ -75,10 +69,10 @@ export default function PlanCard({
 				className="flex justify-center items-center w-full h-full"
 			>
 				<div
-					className={`flex flex-col p-5 my-auto h-full inner-content ${bg_dark} ${bg_light}`}
+					className={`flex relative z-20 flex-col p-5 my-auto h-full inner-content ${bg_dark} ${bg_light}`}
 				>
 					{isPurchased && (
-						<span className="absolute top-0 leading-7 font-black text-[13px] text-tertiary ">
+						<span className="absolute top-0 pb-4 leading-7 font-black text-[13px] text-tertiary ">
 							PURCHASED
 						</span>
 					)}
@@ -88,14 +82,16 @@ export default function PlanCard({
 								{duration}
 							</span>
 							<h3 className="dark:text-white  text-black text-[36px] font-bold">
-								${price}
-								<span className="text-[24px]">
-									{plan.product.name.toLowerCase().includes('annual')
-										? '/yr'
-										: '/mo'}
-								</span>{' '}
+								{duration === 'free' ? 'Free' : `$${price}`}
+								{duration !== 'free' && (
+									<span className="text-[24px]">
+										{plan.product.name.toLowerCase().includes('annual')
+											? '/yr'
+											: '/mo'}
+									</span>
+								)}{' '}
 							</h3>
-							{plan.product.name.toLowerCase().includes('annual') && (
+							{plan.product.name.toLowerCase().includes('annual') && duration !== 'free' && (
 								<span className="text-sm text-muted-foreground">
 									${(Number(price) / 12).toFixed(2)}/mo
 								</span>

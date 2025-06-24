@@ -29,6 +29,7 @@ import {
 } from '@/app/actions/subscriptions.actions'
 import PlanCard from '@/components/routes/subscription/plan-card'
 import { IconArrowRightNoFill } from '@/components/ui/icons'
+import { Switch } from '@/components/ui/switch'
 import { usePayment } from '@/lib/hooks/use-payment'
 import { cn } from '@/lib/utils'
 import type { PlansPros } from '@/types/types'
@@ -63,6 +64,7 @@ export function Plans({ next, goTo }: PlansPros) {
 	}
 
 	const [selectedPlan, setSelectedPlan] = useState(plan?.duration || 'free')
+	const [isYearly, setIsYearly] = useState(false)
 	const [showPromoInput, setShowPromoInput] = useState(false)
 	const [promoValidated, setPromoValidated] = useState(false)
 	const [promoValidationError, setPromoValidationError] = useState('')
@@ -92,8 +94,24 @@ export function Plans({ next, goTo }: PlansPros) {
 		return subscriptionInterval === planInterval
 	}
 
+	// Get the current paid plan based on the switch state
+	const getCurrentPaidPlan = () => {
+		if (!plans) return null
+		const paidPlans = plans.filter(
+			(plan) => plan.active && plan.unit_amount !== 0,
+		)
+		const targetInterval = isYearly ? 'year' : 'month'
+		return paidPlans.find((plan) => plan.recurring.interval === targetInterval)
+	}
+
 	const handlePlanChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setSelectedPlan(e.target.value)
+	}
+
+	const handleSwitchChange = (checked: boolean) => {
+		setIsYearly(checked)
+		const targetInterval = checked ? 'year' : 'month'
+		setSelectedPlan(targetInterval)
 	}
 
 	const handleCloseWizard = async () => {
@@ -154,14 +172,20 @@ export function Plans({ next, goTo }: PlansPros) {
 	const submitSubscription = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
 		handleSetLoading(true)
-		const formData = new FormData(e.currentTarget)
-		const plan = formData.get('plan')
-		const paymentPlan = plans?.find((p) => p.recurring.interval === plan)
-		if (plan === 'free') {
+
+		if (selectedPlan === 'free') {
 			alert('Please select a paid plan to use this feature')
 			handleSetLoading(false)
 			return
 		}
+
+		const paymentPlan = getCurrentPaidPlan()
+		if (!paymentPlan) {
+			handleSetError('No plan available')
+			handleSetLoading(false)
+			return
+		}
+
 		handlePlan(paymentPlan)
 
 		if (!secret) {
@@ -197,125 +221,84 @@ export function Plans({ next, goTo }: PlansPros) {
 				</span>
 			</div>
 			<div className="flex flex-col justify-center px-4 space-y-3 size-full">
-				{/* Render free plan from Stripe */}
+				{/* Free Plan Card */}
 				{plans?.find((plan) => plan.unit_amount === 0) &&
 					(() => {
 						const freePlan = plans.find((plan) => plan.unit_amount === 0)!
 						return (
-							<div
-								className={cn(
-									'border-gradient w-[340px] md:w-full h-[275px] z-0 dark:[&>_div]:hover:bg-tertiary',
-									{
-										selected: selectedPlan === 'free',
-									},
-								)}
-								id="free-plan"
-							>
-								<div
-									className={cn(
-										'transition-all size-[calc(100%_-_10px)] absolute top-[5px] left-[5px] rounded-[11px] bg-transparent',
-										{
-											'bg-tertiary ': selectedPlan === 'free',
-										},
-									)}
-								/>
-								<input
-									type="radio"
-									id="free"
-									name="plan"
-									value="free"
-									onChange={handlePlanChange}
-									checked={selectedPlan === 'free'}
-									className="hidden"
-									required
-								/>
-								<label htmlFor="free" className="block w-full h-full">
-									<div className="flex flex-col p-5 inner-content rounded-2xl dark:bg-[url(/free_plan_bg.png)] bg-[url(/free_plan_bg_light.png)] h-full">
-										{isPlanPurchased('free') && (
-											<span className="absolute top-0 leading-7 font-black text-[13px] text-tertiary ">
-												PURCHASED
-											</span>
-										)}
-										{/* Fixed header section */}
-										<div className="flex justify-between mb-3 w-full">
-											<div>
-												<span className="text-muted-foreground font-extrabold text-[16px] capitalize">
-													Free
-												</span>
-												<h3 className="dark:text-white  text-black text-[36px] font-bold">
-													Free
-												</h3>
-											</div>
-											<span
-												className={cn(
-													'size-3.5 rounded-full border-[3px] border-border/80',
-													selectedPlan === 'free'
-														? 'bg-tertiary '
-														: 'bg-mirage',
-												)}
-											/>
-										</div>
-										{/* Scrollable content section */}
-										<div className="overflow-y-auto flex-1 hide-scrollbar">
-											<div className="pr-2 space-y-1 text-black dark:text-white">
-												<p>
-													With the <strong>Free</strong> plan you obtain:
-												</p>
-												<ul className="pl-5 list-disc">
-													{freePlan.product.marketing_features?.map(
-														(feature, index) => (
-															<li key={`free-feature-${index}`}>
-																{feature.name
-																	?.split(/\*\*(.*?)\*\*/g)
-																	.map((text, textIndex) =>
-																		textIndex % 2 === 0 ? (
-																			text
-																		) : (
-																			<strong key={text}>{text}</strong>
-																		),
-																	)
-																	.filter(Boolean)}
-															</li>
-														),
-													) || (
-														<>
-															<li>Browse any thread and category.</li>
-															<li>Chat with the Masterbots.</li>
-														</>
-													)}
-												</ul>
-											</div>
-										</div>
-									</div>
-								</label>
-							</div>
+							<PlanCard
+								key={freePlan.id}
+								selectedPlan={selectedPlan}
+								handlePlanChange={handlePlanChange}
+								plan={freePlan}
+								isPurchased={isPlanPurchased('free')}
+							/>
 						)
 					})()}
-				<div className="flex flex-col space-y-3 md:space-x-3 md:flex-row md:space-y-0">
-					{plans?.length &&
-						plans
-							?.filter((plan) => plan.active && plan.unit_amount !== 0)
-							.sort((a, b) => a.created - b.created)
-							.map((plan) => (
-								<PlanCard
-									key={plan.id}
-									selectedPlan={selectedPlan}
-									handlePlanChange={handlePlanChange}
-									plan={plan}
-									isPurchased={isPlanPurchased(plan.recurring.interval)}
+				{/* Paid Plan Section with Switch */}
+				{plans &&
+					plans.filter((plan) => plan.active && plan.unit_amount !== 0).length >
+						0 && (
+						<div className="space-y-4">
+							{/* Switch Toggle */}
+							<div className="flex justify-center items-center p-4 space-x-4 rounded-lg bg-muted/20">
+								<span
+									className={cn(
+										'text-sm font-medium transition-colors',
+										!isYearly ? 'text-foreground' : 'text-muted-foreground',
+									)}
+								>
+									Monthly
+								</span>
+								<Switch
+									checked={isYearly}
+									onCheckedChange={handleSwitchChange}
+									className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-primary/50 data-[state=checked]:hover:bg-primary/90 data-[state=unchecked]:hover:bg-primary/90 transition-colors"
 								/>
-							))}
-					{loadingPlans && !plans && (
-						<>
-							<div className="w-full h-[274px] bg-muted-foreground/20 rounded-2xl animate-pulse" />
-							<div className="w-full h-[274px] bg-muted-foreground/20 rounded-2xl animate-pulse" />
-						</>
+								<span
+									className={cn(
+										'text-sm font-medium transition-colors',
+										isYearly ? 'text-foreground' : 'text-muted-foreground',
+									)}
+								>
+									Annually
+									<span className="ml-1 text-xs text-green-600 dark:text-green-400">
+										(Save 20%)
+									</span>
+								</span>
+							</div>
+
+							{/* Paid Plan Card */}
+							{(() => {
+								const currentPaidPlan = getCurrentPaidPlan()
+								if (!currentPaidPlan || !currentPaidPlan.recurring) return null
+								const { interval } = currentPaidPlan.recurring as {
+									interval: string
+								}
+								return (
+									<PlanCard
+										key={currentPaidPlan.id}
+										selectedPlan={selectedPlan}
+										handlePlanChange={handlePlanChange}
+										plan={currentPaidPlan}
+										isPurchased={isPlanPurchased(interval)}
+									/>
+								)
+							})()}
+						</div>
 					)}
-					{(!plans && !loadingPlans) ||
-						(plans && !plans.length && !loadingPlans && (
-							<div>No plans available</div>
-						))}
-				</div>
+
+				{loadingPlans && !plans && (
+					<>
+						<div className="w-full h-[274px] bg-muted-foreground/20 rounded-2xl animate-pulse" />
+						<div className="w-full h-[274px] bg-muted-foreground/20 rounded-2xl animate-pulse" />
+					</>
+				)}
+				{(!plans && !loadingPlans) ||
+					(plans && !plans.length && !loadingPlans && (
+						<div>No plans available</div>
+					))}
+
 				<div>
 					{!showPromoInput ? (
 						<button
