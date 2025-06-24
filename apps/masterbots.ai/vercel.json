@@ -7,6 +7,10 @@
 		{
 			"path": "/api/cron/delete-requested-accounts",
 			"schedule": "0 3 * * *"
+		},
+		{
+			"path": "/api/cron/refresh-attachment-links",
+			"schedule": "*/10 * * * *"
 		}
 	],
 	"redirects": [
