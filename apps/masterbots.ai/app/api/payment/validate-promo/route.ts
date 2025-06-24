@@ -53,10 +53,39 @@ export async function POST(request: Request) {
 			)
 		}
 
-		//? Return the promotion code ID if valid
+		//? Get the coupon details to extract trial period information
+		const coupon = promotionCode.coupon
+		let trialPeriodDays = 0
+		let discountInfo = ''
+
+		if (coupon) {
+			//? Check if the coupon has a trial period
+			if (coupon.duration === 'repeating' && coupon.duration_in_months) {
+				//? For repeating coupons, we might want to show the duration
+				trialPeriodDays = 0 // Repeating coupons don't have trial periods
+				discountInfo = `${coupon.percent_off ? `${coupon.percent_off}% off` : ''} for ${coupon.duration_in_months} months`
+			} else if (coupon.duration === 'once') {
+				//? For one-time coupons, check if there's a trial period
+				trialPeriodDays = 0
+				discountInfo = coupon.percent_off ? `${coupon.percent_off}% off` : 'Discount applied'
+			} else if (coupon.duration === 'forever') {
+				trialPeriodDays = 0
+				discountInfo = coupon.percent_off ? `${coupon.percent_off}% off forever` : 'Permanent discount'
+			}
+		}
+
+		//? Return the promotion code ID and trial period information if valid
 		return NextResponse.json({
 			valid: true,
 			promotionCodeId: promotionCode.id,
+			trialPeriodDays,
+			discountInfo,
+			couponDetails: coupon ? {
+				duration: coupon.duration,
+				percent_off: coupon.percent_off,
+				amount_off: coupon.amount_off,
+				duration_in_months: coupon.duration_in_months,
+			} : null,
 		})
 	} catch (error) {
 		console.error('Error validating promotion code:', error)

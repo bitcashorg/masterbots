@@ -205,7 +205,17 @@
 		border-radius: 3px;
 	}
 	.scrollbar::-webkit-scrollbar-thumb:hover {
-		background: hsla(var(--accent));
+		background: var(--scrollbar-thumb-hover);
+	}
+
+	/* Hide scrollbar completely */
+	.hide-scrollbar::-webkit-scrollbar {
+		display: none;
+	}
+
+	.hide-scrollbar {
+		-ms-overflow-style: none;  /* IE and Edge */
+		scrollbar-width: none;  /* Firefox */
 	}
 
 	@media screen and (min-width: 1024px) {

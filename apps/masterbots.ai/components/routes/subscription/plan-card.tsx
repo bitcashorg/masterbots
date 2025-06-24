@@ -20,6 +20,7 @@ import { cn } from '@/lib/utils'
  * - selectedPlan: The currently selected plan duration (e.g., 'monthly' or 'yearly')
  * - handlePlanChange: Function to handle changes in the selected plan
  * - plan: The plan object containing details such as price, description, and features
+ * - isPurchased: Indicates whether the plan is purchased (default: false)
  */
 import type { PlanCardProps } from '@/types/types'
 
@@ -27,6 +28,7 @@ export default function PlanCard({
 	selectedPlan,
 	handlePlanChange,
 	plan,
+	isPurchased = false,
 }: PlanCardProps) {
 	const duration = plan.unit_amount === 0 ? 'free' : plan.recurring.interval
 	const price = (plan.unit_amount ? plan.unit_amount / 100 : 0).toFixed(2)
@@ -70,64 +72,70 @@ export default function PlanCard({
 			/>
 			<label
 				htmlFor={duration}
-				className="flex items-center justify-center w-full h-full"
+				className="flex justify-center items-center w-full h-full"
 			>
 				<div
-					className={`flex flex-col  inner-content ${bg_dark} ${bg_light} my-auto p-5`}
+					className={`flex flex-col p-5 my-auto h-full inner-content ${bg_dark} ${bg_light}`}
 				>
-					<div className="flex justify-between w-full">
+					{isPurchased && (
+						<span className="absolute top-0 leading-7 font-black text-[13px] text-tertiary ">
+							PURCHASED
+						</span>
+					)}
+					<div className="flex justify-between mb-3 w-full">
 						<div>
 							<span className="text-muted-foreground font-extrabold text-[16px] capitalize">
 								{duration}
 							</span>
 							<h3 className="dark:text-white  text-black text-[36px] font-bold">
-								$
-								{plan.product.name.toLowerCase().includes('year')
-									? Number(price) / 12
-									: price}
-								<span className="text-[24px]">/mo</span>{' '}
+								${price}
+								<span className="text-[24px]">
+									{plan.product.name.toLowerCase().includes('annual')
+										? '/yr'
+										: '/mo'}
+								</span>{' '}
 							</h3>
+							{plan.product.name.toLowerCase().includes('annual') && (
+								<span className="text-sm text-muted-foreground">
+									${(Number(price) / 12).toFixed(2)}/mo
+								</span>
+							)}
 						</div>
 						<span
 							className={cn(
-								'h-3.5 w-3.5 rounded-full border-[3px] border-border/80',
+								'size-3.5 rounded-full border-[3px] border-border/80',
 								selectedPlan === duration ? 'bg-tertiary ' : 'bg-mirage',
 							)}
 						/>
 					</div>
-					<div className="space-y-1 text-black dark:text-white">
-						<p>
-							{plan.product.description
-								?.split(/\*\*(.*?)\*\*/g)
-								.map((text, index) =>
-									index % 2 === 0 ? text : <strong key={text}>{text}</strong>,
-								)
-								.filter(Boolean)}
-						</p>
-						<ul className="pl-5 list-disc">
-							{plan.product.marketing_features.map((feature, index) => (
-								<li key={`feature-${feature.name}`}>
-									{/* // Grab content that it is between ** ** and make it bold */}
-									{feature.name
-										?.split(/\*\*(.*?)\*\*/g)
-										.map((text, index) =>
-											index % 2 === 0 ? (
-												text
-											) : (
-												<strong key={text}>{text}</strong>
-											),
-										)
-										.filter(Boolean)}
-								</li>
-							))}
-						</ul>
-						{/* <p>{ plan.product.description}</p> */}
-
-						{/* <ul className="pl-5 list-disc">
-                { plan.features.map((feature, index) => (
-                    <li key={`feature-${index}`}>{ feature }</li>
-                ))}
-                </ul> */}
+					<div className="overflow-y-auto flex-1 hide-scrollbar">
+						<div className="pr-2 space-y-1 text-black dark:text-white">
+							<p>
+								{plan.product.description
+									?.split(/\*\*(.*?)\*\*/g)
+									.map((text, index) =>
+										index % 2 === 0 ? text : <strong key={text}>{text}</strong>,
+									)
+									.filter(Boolean)}
+							</p>
+							<ul className="pl-5 list-disc">
+								{plan.product.marketing_features.map((feature) => (
+									<li key={`feature-${feature.name}`}>
+										{/* // Grab content that it is between ** ** and make it bold */}
+										{feature.name
+											?.split(/\*\*(.*?)\*\*/g)
+											.map((text, index) =>
+												index % 2 === 0 ? (
+													text
+												) : (
+													<strong key={text}>{text}</strong>
+												),
+											)
+											.filter(Boolean)}
+									</li>
+								))}
+							</ul>
+						</div>
 					</div>
 				</div>
 			</label>

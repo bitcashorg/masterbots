@@ -17,6 +17,14 @@ type USER = {
 	hasuraJwt: string
 }
 
+interface PromoState {
+	code: string
+	applied: boolean
+	codeId: string | undefined
+	trialDays: number
+	discountInfo: string
+}
+
 interface PaymentContextProps {
 	card: CardProps | null
 	loading: boolean
@@ -42,15 +50,21 @@ interface PaymentContextProps {
 	handleSetStripeSecret: (stripeSecret: string) => void
 	stripePublishkey: string
 	handleSetStripePublishKey: (stripePublishkey: string) => void
-	promoCode: string
-	promoApplied: boolean
-	promoCodeId: string | undefined
-	handleSetPromoCode: (code: string) => void
-	handleSetPromoApplied: (applied: boolean) => void
-	handleSetPromoCodeId: (id: string | undefined) => void
+	// Promotion code related props
+	promo: PromoState
+	handleSetPromo: (updates: Partial<PromoState>) => void
+	handleResetPromo: () => void
 	handleValidatePromoCode: (
 		code: string,
-	) => Promise<{ valid: boolean; error?: string; promotionCodeId?: string }>
+	) => Promise<{ 
+		valid: boolean; 
+		error?: string; 
+		promotionCodeId?: string;
+		trialPeriodDays?: number;
+		discountInfo?: string;
+		couponDetails?: any;
+	}>
+	handleApplyPromoCode: () => void
 }
 
 const PaymentContext = createContext<PaymentContextProps | undefined>(undefined)
@@ -79,10 +93,15 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
 	const [secret, setSecret] = useState<string>('')
 	const [stripeSecret, setStripeSecret] = useState<string>('')
 	const [stripePublishkey, setStripePublishKey] = useState<string>('')
-	//? Promotion code state
-	const [promoCode, setPromoCode] = useState('')
-	const [promoApplied, setPromoApplied] = useState(false)
-	const [promoCodeId, setPromoCodeId] = useState<string | undefined>(undefined)
+	
+	// Unified promotion code state
+	const [promo, setPromo] = useState<PromoState>({
+		code: '',
+		applied: false,
+		codeId: undefined,
+		trialDays: 0,
+		discountInfo: '',
+	})
 
 	const handleSetConfirmationToken = (token: string | undefined) => {
 		setConfirmationToken(token)
@@ -134,17 +153,19 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
 		setStripePublishKey(stripePublishkey)
 	}
 
-	//? Promotion code handlers
-	const handleSetPromoCode = (code: string) => {
-		setPromoCode(code)
+	//? Unified promotion code handlers
+	const handleSetPromo = (updates: Partial<PromoState>) => {
+		setPromo(prev => ({ ...prev, ...updates }))
 	}
 
-	const handleSetPromoApplied = (applied: boolean) => {
-		setPromoApplied(applied)
-	}
-
-	const handleSetPromoCodeId = (id: string | undefined) => {
-		setPromoCodeId(id)
+	const handleResetPromo = () => {
+		setPromo({
+			code: '',
+			applied: false,
+			codeId: undefined,
+			trialDays: 0,
+			discountInfo: '',
+		})
 	}
 
 	const handleValidatePromoCode = async (code: string) => {
@@ -158,14 +179,26 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
 			})
 
 			const data = await response.json()
-			if (data.valid && data.promotionCodeId) {
-				handleSetPromoCodeId(data.promotionCodeId)
+			if (data.valid) {
+				//? Update promo state with validation details but don't mark as applied yet
+				handleSetPromo({
+					codeId: data.promotionCodeId,
+					trialDays: data.trialPeriodDays || 0,
+					discountInfo: data.discountInfo || '',
+				})
 			}
 			return data
 		} catch (error) {
 			console.error('Error validating promotion code:', error)
 			return { valid: false, error: 'Error validating promotion code' }
 		}
+	}
+
+	const handleApplyPromoCode = () => {
+		//? Mark the validated promotion code as applied
+		handleSetPromo({
+			applied: true
+		})
 	}
 
 	return (
@@ -180,9 +213,9 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
 				confirmationToken,
 				stripeSecret,
 				stripePublishkey,
-				promoCode,
-				promoApplied,
-				promoCodeId,
+				promo,
+				handleSetPromo,
+				handleResetPromo,
 				handlePlan,
 				handleSetCard,
 				handleSetError,
@@ -193,10 +226,8 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
 				handleSetStripeSecret,
 				handleSetStripePublishKey,
 				handleSetConfirmationToken,
-				handleSetPromoCode,
-				handleSetPromoApplied,
-				handleSetPromoCodeId,
 				handleValidatePromoCode,
+				handleApplyPromoCode,
 			}}
 		>
 			{children}

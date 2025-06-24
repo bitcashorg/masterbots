@@ -29,6 +29,34 @@ export async function checkIfCustomerHasActiveSub(email: string) {
 	return Boolean(!data.active)
 }
 
+export async function getUserCurrentSubscription(email: string) {
+	try {
+		const response = await fetch('/api/payment/subscription', {
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({ email }),
+		})
+
+		const data: {
+			error?: string
+			active: boolean
+			subscription?: Subscription
+		} = await response.json()
+
+		if (data.error) {
+			console.error('Error while checking customer data: ', data.error)
+			return null
+		}
+
+		return data.active ? data.subscription : null
+	} catch (error) {
+		console.error('Error fetching user subscription:', error)
+		return null
+	}
+}
+
 export async function getSubscriptionPlans({
 	handleSetStripePublishKey,
 	handleSetStripeSecret,
@@ -60,12 +88,14 @@ export async function getSubscriptionPlans({
 		handleSetStripePublishKey(data.stripe_publishable)
 		handleSetStripeSecret(data.stripeSecret)
 
-		// Filter out free plans and sort by price
-		data.plans = data.plans.filter((plan: PlanList) => plan.unit_amount !== 0)
+		// Sort plans by price (free plans first, then by amount)
 		data.plans.sort((a: PlanList, b: PlanList) => {
 			const amountA = a.unit_amount ?? 0
 			const amountB = b.unit_amount ?? 0
-			return amountB - amountA
+			// Free plans come first, then sort by amount
+			if (amountA === 0 && amountB !== 0) return -1
+			if (amountA !== 0 && amountB === 0) return 1
+			return amountA - amountB
 		})
 
 		//? If we have plans from Stripe, we use them
