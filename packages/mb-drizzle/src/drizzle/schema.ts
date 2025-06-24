@@ -35,52 +35,6 @@ export const category = pgTable(
 	(table) => [unique('category_name_key').on(table.name)],
 )
 
-export const chatbot = pgTable(
-	'chatbot',
-	{
-		chatbotId: serial('chatbot_id').primaryKey().notNull(),
-		name: text().notNull(),
-		description: text(),
-		avatar: text(),
-		createdBy: text('created_by').notNull(),
-		defaultTone: text('default_tone'),
-		defaultLength: text('default_length'),
-		defaultType: text('default_type'),
-		defaultComplexity: text('default_complexity'),
-	},
-	(table) => [
-		foreignKey({
-			columns: [table.defaultComplexity],
-			foreignColumns: [complexityEnum.value],
-			name: 'chatbot_default_complexity_fkey',
-		})
-			.onUpdate('restrict')
-			.onDelete('restrict'),
-		foreignKey({
-			columns: [table.defaultLength],
-			foreignColumns: [lengthEnum.value],
-			name: 'chatbot_default_length_fkey',
-		})
-			.onUpdate('restrict')
-			.onDelete('restrict'),
-		foreignKey({
-			columns: [table.defaultTone],
-			foreignColumns: [toneEnum.value],
-			name: 'chatbot_default_tone_fkey',
-		})
-			.onUpdate('restrict')
-			.onDelete('restrict'),
-		foreignKey({
-			columns: [table.defaultType],
-			foreignColumns: [typeEnum.value],
-			name: 'chatbot_default_type_fkey',
-		})
-			.onUpdate('restrict')
-			.onDelete('restrict'),
-		unique('chatbot_name_key').on(table.name),
-	],
-)
-
 export const messageTypeEnum = pgTable('message_type_enum', {
 	value: text().primaryKey().notNull(),
 })
@@ -188,29 +142,6 @@ export const preference = pgTable(
 	],
 )
 
-export const referral = pgTable(
-	'referral',
-	{
-		referralCode: varchar('referral_code', { length: 6 })
-			.primaryKey()
-			.notNull(),
-		userId: uuid('user_id').notNull(),
-		referrerId: uuid('referrer_id').notNull(),
-	},
-	(table) => [
-		foreignKey({
-			columns: [table.userId],
-			foreignColumns: [user.userId],
-			name: 'referral_user_id_fkey',
-		}),
-		foreignKey({
-			columns: [table.referrerId],
-			foreignColumns: [user.userId],
-			name: 'referral_referrer_id_fkey',
-		}),
-	],
-)
-
 export const user = pgTable(
 	'user',
 	{
@@ -243,6 +174,7 @@ export const user = pgTable(
 			withTimezone: true,
 			mode: 'string',
 		}),
+		promoCode: text('promo_code'),
 	},
 	(table) => [
 		index('idx_users_role').using(
@@ -252,6 +184,29 @@ export const user = pgTable(
 		unique('user_username_key').on(table.username),
 		unique('user_email_key').on(table.email),
 		unique('unique_slug').on(table.slug),
+	],
+)
+
+export const referral = pgTable(
+	'referral',
+	{
+		referralCode: varchar('referral_code', { length: 6 })
+			.primaryKey()
+			.notNull(),
+		userId: uuid('user_id').notNull(),
+		referrerId: uuid('referrer_id').notNull(),
+	},
+	(table) => [
+		foreignKey({
+			columns: [table.userId],
+			foreignColumns: [user.userId],
+			name: 'referral_user_id_fkey',
+		}),
+		foreignKey({
+			columns: [table.referrerId],
+			foreignColumns: [user.userId],
+			name: 'referral_referrer_id_fkey',
+		}),
 	],
 )
 
@@ -267,6 +222,53 @@ export const modelsEnum = pgTable(
 			table.value.asc().nullsLast().op('text_ops'),
 		),
 		unique('models_enum_value_key').on(table.value),
+	],
+)
+
+export const chatbot = pgTable(
+	'chatbot',
+	{
+		chatbotId: serial('chatbot_id').primaryKey().notNull(),
+		name: text().notNull(),
+		description: text(),
+		avatar: text(),
+		createdBy: text('created_by').notNull(),
+		defaultTone: text('default_tone'),
+		defaultLength: text('default_length'),
+		defaultType: text('default_type'),
+		defaultComplexity: text('default_complexity'),
+		disabled: boolean().default(false),
+	},
+	(table) => [
+		foreignKey({
+			columns: [table.defaultComplexity],
+			foreignColumns: [complexityEnum.value],
+			name: 'chatbot_default_complexity_fkey',
+		})
+			.onUpdate('restrict')
+			.onDelete('restrict'),
+		foreignKey({
+			columns: [table.defaultLength],
+			foreignColumns: [lengthEnum.value],
+			name: 'chatbot_default_length_fkey',
+		})
+			.onUpdate('restrict')
+			.onDelete('restrict'),
+		foreignKey({
+			columns: [table.defaultTone],
+			foreignColumns: [toneEnum.value],
+			name: 'chatbot_default_tone_fkey',
+		})
+			.onUpdate('restrict')
+			.onDelete('restrict'),
+		foreignKey({
+			columns: [table.defaultType],
+			foreignColumns: [typeEnum.value],
+			name: 'chatbot_default_type_fkey',
+		})
+			.onUpdate('restrict')
+			.onDelete('restrict'),
+		unique('chatbot_name_key').on(table.name),
 	],
 )
 
@@ -596,14 +598,14 @@ export const thread = pgTable(
 		chatbotId: integer('chatbot_id').notNull(),
 		threadId: uuid('thread_id').defaultRandom().notNull(),
 		userId: uuid('user_id'),
-		isPublic: boolean('is_public').default(true),
+		isPublic: boolean('is_public').default(false),
 		model: varchar({ length: 30 }).default('openAi').notNull(),
 		isApproved: boolean('is_approved').default(false),
 		isBlocked: boolean('is_blocked').default(false),
 		parentThreadId: uuid('parent_thread_id'),
 		slug: text().notNull(),
 		shortLink: text('short_link'),
-		metadata: jsonb(),
+		metadata: jsonb('metadata').default(null),
 	},
 	(table) => [
 		foreignKey({
