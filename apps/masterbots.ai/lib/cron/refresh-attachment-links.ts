@@ -4,9 +4,19 @@ import { Storage } from '@google-cloud/storage'
 import { eq, isNotNull, sql } from 'drizzle-orm'
 import { db, thread } from 'mb-drizzle'
 import { appConfig } from 'mb-env'
+import pLimit from 'p-limit'
 
 const EXPIRATION_BUFFER_MS = 1000 * 60 * 15 // 15 minutes before expiry
 const NEW_EXPIRY_DURATION_MS = 1000 * 60 * 60 * 24 * 7 // 7 days
+const CONCURRENT_LIMIT = 4 // Process 4 threads concurrently
+const BUCKET_KEY_PREFIX = 'attachments/' // Configurable bucket key prefix
+
+interface ProcessResult {
+	threadId: string
+	slug: string
+	attachmentsRefreshed: number
+	errors: string[]
+}
 
 export async function refreshAttachmentLinks() {
 	console.log('Starting attachment link refresh job...')
@@ -42,111 +52,155 @@ export async function refreshAttachmentLinks() {
 		`Found ${threadsWithAttachments.length} threads with metadata to update`,
 	)
 
+	// Set up concurrent processing with limit
+	const limit = pLimit(CONCURRENT_LIMIT)
+
+	// Process threads concurrently with batching
+	const results = await Promise.allSettled(
+		threadsWithAttachments.map((threadRecord) =>
+			limit(() => processThread(threadRecord, bucket)),
+		),
+	)
+
+	// Aggregate results
 	let threadsUpdated = 0
 	let attachmentsRefreshed = 0
 	const errors: string[] = []
 
-	for (const threadRecord of threadsWithAttachments) {
-		try {
-			const metadata = threadRecord.metadata as ThreadMetadata | null
-			if (!metadata?.attachments?.length) continue
-
-			const attachments = metadata.attachments as FileAttachment[]
-			let threadUpdated = false
-
-			for (const attachment of attachments) {
-				try {
-					if (!attachment.expires) continue
-
-					const expiry = new Date(attachment.expires).getTime()
-					const now = Date.now()
-
-					// Check if the attachment link is expiring soon
-					if (expiry - now < EXPIRATION_BUFFER_MS) {
-						console.log(
-							`Refreshing expiring link for attachment: ${attachment.name} in thread: ${threadRecord.slug}`,
-						)
-
-						// The content field should contain the bucket key from uploadAttachmentToBucket
-						const bucketKey = attachment.content as string
-
-						if (
-							typeof bucketKey !== 'string' ||
-							!bucketKey.startsWith('attachments/')
-						) {
-							console.warn(
-								`Invalid bucket key for attachment ${attachment.id}: ${bucketKey}`,
-							)
-							continue
-						}
-
-						const file = bucket.file(bucketKey)
-
-						// Check if file exists in bucket
-						const [exists] = await file.exists()
-						if (!exists) {
-							console.warn(`File not found in bucket: ${bucketKey}`)
-							continue
-						}
-
-						// Generate new signed URL
-						const newExpiry = now + NEW_EXPIRY_DURATION_MS
-						const [signedUrl] = await file.getSignedUrl({
-							version: 'v4',
-							action: 'read',
-							expires: newExpiry,
-						})
-
-						// Update attachment with new URL and expiry
-						attachment.url = signedUrl
-						attachment.expires = new Date(newExpiry).toISOString()
-
-						threadUpdated = true
-						attachmentsRefreshed++
-
-						console.log(
-							`Successfully refreshed link for attachment: ${attachment.name}`,
-						)
-					}
-				} catch (attachmentError) {
-					const errorMsg = `Error processing attachment ${attachment.id} in thread ${threadRecord.threadId}: ${attachmentError instanceof Error ? attachmentError.message : 'Unknown error'}`
-					console.error(errorMsg)
-					errors.push(errorMsg)
-				}
-			}
-
-			// Update the thread if any attachments were refreshed
-			if (threadUpdated) {
-				await db
-					.update(thread)
-					.set({
-						metadata: {
-							...metadata,
-							attachments,
-						},
-					})
-					.where(eq(thread.threadId, threadRecord.threadId))
-
+	for (const result of results) {
+		if (result.status === 'fulfilled') {
+			const processResult = result.value
+			if (processResult.attachmentsRefreshed > 0) {
 				threadsUpdated++
-				console.log(
-					`Updated thread ${threadRecord.slug} with refreshed attachment links`,
-				)
 			}
-		} catch (threadError) {
-			const errorMsg = `Error processing thread ${threadRecord.threadId}: ${threadError instanceof Error ? threadError.message : 'Unknown error'}`
-			console.error(errorMsg)
-			errors.push(errorMsg)
+			attachmentsRefreshed += processResult.attachmentsRefreshed
+			errors.push(...processResult.errors)
+		} else {
+			errors.push(`Promise rejected: ${result.reason}`)
 		}
 	}
 
-	const result = {
+	const finalResult = {
 		threadsProcessed: threadsWithAttachments.length,
 		threadsUpdated,
 		attachmentsRefreshed,
 		errors,
 	}
 
-	console.log('Attachment link refresh job completed:', result)
+	console.log('Attachment link refresh job completed:', finalResult)
+
+	return finalResult
+}
+
+async function processThread(
+	threadRecord: { threadId: string; slug: string; metadata: any },
+	bucket: any,
+): Promise<ProcessResult> {
+	const result: ProcessResult = {
+		threadId: threadRecord.threadId,
+		slug: threadRecord.slug,
+		attachmentsRefreshed: 0,
+		errors: [],
+	}
+
+	try {
+		const metadata = threadRecord.metadata as ThreadMetadata | null
+		if (!metadata?.attachments?.length) return result
+
+		const attachments = metadata.attachments as FileAttachment[]
+		const updatedAttachments = [...attachments] // Create a copy for updates
+		let hasUpdates = false
+
+		for (let i = 0; i < updatedAttachments.length; i++) {
+			const attachment = updatedAttachments[i]
+
+			try {
+				if (!attachment.expires) continue
+
+				const expiry = new Date(attachment.expires).getTime()
+				const now = Date.now()
+
+				// Check if the attachment link is expiring soon
+				if (expiry - now < EXPIRATION_BUFFER_MS) {
+					console.log(
+						`Refreshing expiring link for attachment: ${attachment.name} in thread: ${threadRecord.slug}`,
+					)
+
+					const bucketKey = attachment.content as string
+
+					if (
+						typeof bucketKey !== 'string' ||
+						!bucketKey.startsWith(BUCKET_KEY_PREFIX)
+					) {
+						const errorMsg = `Invalid bucket key for attachment ${attachment.id}: ${bucketKey}`
+						console.warn(errorMsg)
+						result.errors.push(errorMsg)
+						continue
+					}
+
+					const file = bucket.file(bucketKey)
+
+					// Check if file exists in bucket
+					const [exists] = await file.exists()
+					if (!exists) {
+						const errorMsg = `File not found in bucket: ${bucketKey}`
+						console.warn(errorMsg)
+						result.errors.push(errorMsg)
+						continue
+					}
+
+					// Generate new signed URL
+					const newExpiry = now + NEW_EXPIRY_DURATION_MS
+					const [signedUrl] = await file.getSignedUrl({
+						version: 'v4',
+						action: 'read',
+						expires: newExpiry,
+					})
+
+					// Update attachment with new URL and expiry
+					updatedAttachments[i] = {
+						...attachment,
+						url: signedUrl,
+						expires: new Date(newExpiry).toISOString(),
+					}
+
+					hasUpdates = true
+					result.attachmentsRefreshed++
+
+					console.log(
+						`Successfully refreshed link for attachment: ${attachment.name}`,
+					)
+				}
+			} catch (attachmentError) {
+				const errorMsg = `Error processing attachment ${attachment.id} in thread ${threadRecord.threadId}: ${attachmentError instanceof Error ? attachmentError.message : 'Unknown error'}`
+				console.error(errorMsg)
+				result.errors.push(errorMsg)
+			}
+		}
+
+		// Update the thread in a transaction if any attachments were refreshed
+		if (hasUpdates) {
+			await db.transaction(async (tx) => {
+				await tx
+					.update(thread)
+					.set({
+						metadata: {
+							...metadata,
+							attachments: updatedAttachments,
+						},
+					})
+					.where(eq(thread.threadId, threadRecord.threadId))
+			})
+
+			console.log(
+				`Updated thread ${threadRecord.slug} with ${result.attachmentsRefreshed} refreshed attachment links`,
+			)
+		}
+	} catch (threadError) {
+		const errorMsg = `Error processing thread ${threadRecord.threadId}: ${threadError instanceof Error ? threadError.message : 'Unknown error'}`
+		console.error(errorMsg)
+		result.errors.push(errorMsg)
+	}
 
 	return result
 }
