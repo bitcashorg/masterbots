@@ -34,7 +34,7 @@ export async function refreshAttachmentLinks() {
           EXISTS (
             SELECT 1 FROM jsonb_array_elements(${thread.metadata}::jsonb->'attachments') AS attachment
             WHERE attachment ? 'expires' 
-            AND (attachment->>'expires')::timestamp <= (NOW() + INTERVAL '${EXPIRATION_BUFFER_MS} milliseconds')
+            AND (attachment->>'expires')::timestamptz <= (NOW() + INTERVAL '${EXPIRATION_BUFFER_MS} milliseconds')
           )`,
 		)
 
