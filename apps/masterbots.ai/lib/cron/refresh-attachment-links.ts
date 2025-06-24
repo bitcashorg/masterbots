@@ -30,6 +30,9 @@ export async function refreshAttachmentLinks() {
 	})
 	const bucket = storage.bucket(appConfig.features.storageBucketName)
 
+	// Convert milliseconds to seconds for PostgreSQL interval
+	const expirationBufferSeconds = Math.floor(EXPIRATION_BUFFER_MS / 1000)
+
 	// Get all threads that have metadata with attachments that have expiry dates
 	const threadsWithAttachments = await db
 		.select({
@@ -44,7 +47,9 @@ export async function refreshAttachmentLinks() {
           EXISTS (
             SELECT 1 FROM jsonb_array_elements(${thread.metadata}::jsonb->'attachments') AS attachment
             WHERE attachment ? 'expires' 
-            AND (attachment->>'expires')::timestamptz <= (NOW() + INTERVAL '${EXPIRATION_BUFFER_MS} milliseconds')
+            AND (attachment->>'expires')::timestamptz <= (NOW() + INTERVAL '${sql.raw(
+							expirationBufferSeconds.toString(),
+						)} seconds')
           )`,
 		)
 
