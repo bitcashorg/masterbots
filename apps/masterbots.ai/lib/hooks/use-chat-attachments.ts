@@ -76,7 +76,7 @@ export function useFileAttachments(
 		loading,
 		error,
 	} = useAsync(async () => {
-		if (!mounted || !session?.user || (loadingState && activeThread)) {
+		if (!mounted || !session?.user || (activeThread && loadingState)) {
 			return (activeThread?.metadata?.attachments || []) as IndexedDBItem[]
 		}
 
@@ -106,7 +106,7 @@ export function useFileAttachments(
 
 		currentRequestId.current = null
 		return indexedDBAttachments
-	}, [session?.user, activeThread, loadingState])
+	}, [session?.user, mounted, activeThread, loadingState])
 
 	const { customSonner } = useSonner()
 	const { selectedModel } = useModel()
