@@ -21,7 +21,14 @@ import { toSlug } from 'mb-lib'
 import { wordsToRemove } from 'mb-lib/src/constants/slug-seo-words'
 import { type ZodSchema, z } from 'zod'
 
-type PathParams = any
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+type PathParams = {
+	category: string
+	domain: string
+	chatbot: string
+	threadSlug: string
+	threadQuestionSlug: string
+}
 
 // Zod schema for validating slug strings
 export const SlugSchema: ZodSchema<string> = z
@@ -874,21 +881,15 @@ async function findUniqueSlugRecursive(
 
 export function parsePath(pathname: string): PathParams {
 	const segments = pathname.split('/').filter(Boolean)
-	console.log({
-		segments,
-	})
 	const isProfileThread = segments[0] === 'u' && segments[2] === 't'
 
 	if (isProfileThread) {
 		return {
-			username: segments[1],
 			category: segments[3],
 			domain: segments[4],
 			chatbot: segments[5],
 			threadSlug: segments[6],
 			threadQuestionSlug: segments[7],
-			isProfileThread: true,
-			isPublicThread: false,
 		}
 	}
 
@@ -898,7 +899,5 @@ export function parsePath(pathname: string): PathParams {
 		chatbot: segments[2],
 		threadSlug: segments[3],
 		threadQuestionSlug: segments[4],
-		isProfileThread: false,
-		isPublicThread: true,
 	}
 }
