@@ -76,37 +76,45 @@ export function useFileAttachments(
 		loading,
 		error,
 	} = useAsync(async () => {
-		if (!mounted || !session?.user || (activeThread && loadingState)) {
+		if (
+			!mounted ||
+			!session?.user ||
+			!loadingState ||
+			(activeThread && loadingState !== 'finished')
+		) {
 			return (activeThread?.metadata?.attachments || []) as IndexedDBItem[]
 		}
 
-		const requestId = nanoid(8)
-		currentRequestId.current = requestId
-
-		if (appConfig.features.devMode) {
-			console.info(`Starting user attachments request: ${requestId}`)
-		}
-
-		const indexedDBAttachments = await indexedDBActions.getAllItems()
-
 		// Check if this request is still current
-		if (currentRequestId.current !== requestId) {
+		if (!currentRequestId.current) {
+			currentRequestId.current = nanoid(8)
+		} else {
 			if (appConfig.features.devMode) {
-				console.info(`Request ${requestId} was superseded, ignoring results`)
+				console.info(
+					`Request ${currentRequestId.current} was superseded, ignoring results`,
+				)
 			}
 			return (activeThread?.metadata?.attachments || []) as IndexedDBItem[]
 		}
 
 		if (appConfig.features.devMode) {
 			console.info(
-				`IndexedDB attachments retrieved successfully for request: ${requestId}`,
+				`Starting user attachments request: ${currentRequestId.current}`,
+			)
+		}
+
+		const indexedDBAttachments = await indexedDBActions.getAllItems()
+
+		if (appConfig.features.devMode) {
+			console.info(
+				`IndexedDB attachments retrieved successfully for request: ${currentRequestId.current}`,
 				indexedDBAttachments,
 			)
 		}
 
 		currentRequestId.current = null
 		return indexedDBAttachments
-	}, [session?.user, mounted, activeThread, loadingState])
+	}, [session?.user, mounted, loadingState])
 
 	const { customSonner } = useSonner()
 	const { selectedModel } = useModel()
@@ -288,14 +296,21 @@ export function useFileAttachments(
 				if (item.kind === 'string') {
 					event.stopPropagation()
 					event.preventDefault()
-
+				}
+				if (item.kind === 'string' && item.type === 'text/plain') {
 					console.warn('Pasted item is a string, not a file:', item)
 					item.getAsString((str) => {
-						// Roughly check if the string has more than 49 words
+						// Remove empty new lines and roughly check if the string has more than 49 words
 						// This is a very basic check, we might want to improve it
-						if (str.split(' ').length <= 49) return
+						const stringWordLength = str.replace(/\n/g, '').split(' ').length
+						console.log('stringWordLength --> ', stringWordLength)
+						if (stringWordLength <= 32) return
+						const pasteContextFileNames = state.attachments.filter(
+							(attachment) => attachment.name.includes('Pasted Context'),
+						)
+						const pasteContextFileName = `Pasted Context${pasteContextFileNames.length ? ` (${pasteContextFileNames.length})` : ''}.txt`
 						addAttachment(
-							new File([str], `pasted-context-${nanoid(8)}.txt`, {
+							new File([str], pasteContextFileName, {
 								type: 'text/plain',
 							}),
 						)
