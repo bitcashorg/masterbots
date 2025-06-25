@@ -96,25 +96,8 @@ export function MessagePairAccordion({
 			if (isFirstQuestion) return
 			setIsAccordionFocused(isOpen)
 
-			// ? Chat Thread URL
-			// const [
-			// 	,
-			// 	base,
-			// 	category,
-			// 	domain,
-			// 	chatbot,
-			// 	threadSlug,
-			// 	threadQuestionSlug,
-			// ] = window.location.pathname.split('/')
-
-			const {
-				username,
-				category,
-				domain,
-				chatbot,
-				threadSlug,
-				threadQuestionSlug,
-			} = parsePath(window.location.pathname)
+			const { category, domain, chatbot, threadSlug, threadQuestionSlug } =
+				parsePath(window.location.pathname)
 
 			const paramUserSlug = params.userSlug as string | undefined
 
@@ -129,14 +112,7 @@ export function MessagePairAccordion({
 				usernameSlug: paramUserSlug || '',
 			}
 
-			console.log('navigationParts', navigationParts)
-			console.log('user slug', params.userSlug)
-
 			if (!threadQuestionSlug && isOpen) {
-				console.log('No threadQuestionSlug, navigating to thread URL', {
-					navigationParts,
-				})
-
 				navigateTo({
 					urlType: isProfile
 						? 'profilesThreadQuestionUrl'
@@ -154,10 +130,6 @@ export function MessagePairAccordion({
 				})
 			}
 			if (threadQuestionSlug && !isOpen) {
-				console.log('ThreadQuestionSlug exists, navigating to thread URL', {
-					navigationParts,
-				})
-
 				navigateTo({
 					urlType: isProfile ? 'profilesThreadUrl' : 'threadUrl',
 					shallow: true,
