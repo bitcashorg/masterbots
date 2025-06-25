@@ -12,6 +12,7 @@ import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import type { MessagePair } from '@/lib/threads'
+import { parsePath } from '@/lib/url'
 import { cn, getRouteType } from '@/lib/utils'
 import type { SendMessageFromResponseMessageData } from '@/types/types'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -94,25 +95,48 @@ export function MessagePairAccordion({
 		(isOpen: boolean, isFirstQuestion: boolean) => {
 			if (isFirstQuestion) return
 			setIsAccordionFocused(isOpen)
+
 			// ? Chat Thread URL
-			const [
-				,
-				base,
+			// const [
+			// 	,
+			// 	base,
+			// 	category,
+			// 	domain,
+			// 	chatbot,
+			// 	threadSlug,
+			// 	threadQuestionSlug,
+			// ] = window.location.pathname.split('/')
+
+			const {
+				username,
 				category,
 				domain,
 				chatbot,
 				threadSlug,
 				threadQuestionSlug,
-			] = window.location.pathname.split('/')
+			} = parsePath(window.location.pathname)
+
+			const paramUserSlug = params.userSlug as string | undefined
+
 			const navigationParts = {
-				category: isPublic ? base : category,
-				domain: isPublic ? category : domain,
-				chatbot: isPublic ? domain : chatbot,
-				threadSlug: isPublic ? chatbot : threadSlug,
-				threadQuestionSlug: pair.userMessage.slug,
+				category,
+				domain,
+				chatbot,
+				threadSlug,
+				threadQuestionSlug: threadQuestionSlug
+					? threadQuestionSlug
+					: pair.userMessage.slug,
+				usernameSlug: paramUserSlug || '',
 			}
 
+			console.log('navigationParts', navigationParts)
+			console.log('user slug', params.userSlug)
+
 			if (!threadQuestionSlug && isOpen) {
+				console.log('No threadQuestionSlug, navigating to thread URL', {
+					navigationParts,
+				})
+
 				navigateTo({
 					urlType: isProfile
 						? 'profilesThreadQuestionUrl'
@@ -120,7 +144,7 @@ export function MessagePairAccordion({
 					shallow: true,
 					navigationParams: isProfile
 						? {
-								type: 'chatbot',
+								type: 'user',
 								...navigationParts,
 							}
 						: {
@@ -130,12 +154,16 @@ export function MessagePairAccordion({
 				})
 			}
 			if (threadQuestionSlug && !isOpen) {
+				console.log('ThreadQuestionSlug exists, navigating to thread URL', {
+					navigationParts,
+				})
+
 				navigateTo({
 					urlType: isProfile ? 'profilesThreadUrl' : 'threadUrl',
 					shallow: true,
 					navigationParams: isProfile
 						? {
-								type: 'chatbot',
+								type: 'user',
 								...navigationParts,
 							}
 						: {
