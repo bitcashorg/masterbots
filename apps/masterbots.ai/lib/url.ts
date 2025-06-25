@@ -21,7 +21,6 @@ import { toSlug } from 'mb-lib'
 import { wordsToRemove } from 'mb-lib/src/constants/slug-seo-words'
 import { type ZodSchema, z } from 'zod'
 
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 type PathParams = {
 	category: string
 	domain: string
