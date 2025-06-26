@@ -245,7 +245,7 @@ export function Plans({ next, goTo }: PlansPros) {
 								<span
 									className={cn(
 										'text-sm font-medium transition-colors',
-										!isYearly ? 'text-foreground' : 'text-muted-foreground',
+										!isYearly ? 'text-accent' : 'text-muted-foreground',
 									)}
 								>
 									Monthly
@@ -258,11 +258,11 @@ export function Plans({ next, goTo }: PlansPros) {
 								<span
 									className={cn(
 										'text-sm font-medium transition-colors',
-										isYearly ? 'text-foreground' : 'text-muted-foreground',
+										isYearly ? 'text-accent' : 'text-white',
 									)}
 								>
 									Annually
-									<span className="ml-1 text-xs text-green-600 dark:text-green-400">
+									<span className="ml-1 text-xs text-accent">
 										(Save 20%)
 									</span>
 								</span>

@@ -33,15 +33,33 @@ export default function PlanCard({
 	const duration = plan.unit_amount === 0 ? 'free' : plan.recurring.interval
 	const price = (plan.unit_amount ? plan.unit_amount / 100 : 0).toFixed(2)
 
-	const bg_dark = 'dark:bg-[url(/free_plan_bg.png)]'
-	const bg_light = 'bg-[url(/free_plan_bg_light.png)]'
+	const bg_free = 'dark:bg-[url(/background-gradient-free.webp)]'
+	const bg_pro_montly = 'dark:bg-[url(/background-gradient-pro-month.webp)]'
+	const bg_pro_annual = 'bg-[url(/background-gradient-pro-year.webp)]'
+
+	// Determine background classes based on plan type
+	const getBackgroundClasses = () => {
+		if (duration === 'free') {
+			return `${bg_free}`
+		}
+		// For pro plans (monthly or yearly)
+		if (duration === 'month') {
+			return `${bg_pro_montly}`
+		}
+		if (duration === 'year') {
+			return `${bg_pro_annual}`
+		}
+		// Fallback for any other duration
+		return `${bg_pro_montly}`
+	}
 
 	return (
 		<div
 			className={cn(
-				'border-gradient md:w-full w-[340px] h-[275px] dark:[&>_div]:hover:bg-tertiary ',
+				'border-gradient md:w-full w-[340px] h-[275px] dark:[&>_div]:hover:bg-tertiary relative',
 				{
 					selected: selectedPlan === duration,
+					'pro-card': duration !== 'free',
 				},
 			)}
 			id={plan.id}
@@ -51,6 +69,7 @@ export default function PlanCard({
 					'transition-all size-[calc(100%_-_10px)] absolute top-[5px] left-[5px] rounded-[11px] bg-transparent z-10',
 					{
 						'bg-tertiary': selectedPlan === duration,
+						'pro-glow': duration !== 'free' && selectedPlan !== duration,
 					},
 				)}
 			/>
@@ -69,7 +88,7 @@ export default function PlanCard({
 				className="flex justify-center items-center w-full h-full"
 			>
 				<div
-					className={`flex relative z-20 flex-col p-5 my-auto h-full inner-content ${bg_dark} ${bg_light}`}
+					className={`flex relative z-20 flex-col p-5 my-auto h-full inner-content ${getBackgroundClasses()}`}
 				>
 					{isPurchased && (
 						<span className="absolute top-0 pb-4 leading-7 font-black text-[13px] text-tertiary ">
@@ -81,7 +100,12 @@ export default function PlanCard({
 							<span className="text-muted-foreground font-extrabold text-[16px] capitalize">
 								{duration}
 							</span>
-							<h3 className="dark:text-white  text-black text-[36px] font-bold">
+							<h3 className={cn(
+								"text-[36px] font-bold",
+								duration === 'free' 
+										? "dark:text-white text-black"
+										: "text-accent",
+							)}>
 								{duration === 'free' ? 'Free' : `$${price}`}
 								{duration !== 'free' && (
 									<span className="text-[24px]">
@@ -101,36 +125,48 @@ export default function PlanCard({
 							className={cn(
 								'size-3.5 rounded-full border-[3px] border-border/80',
 								selectedPlan === duration ? 'bg-tertiary ' : 'bg-mirage',
+								duration !== 'free' && 'pro-radio'
 							)}
 						/>
 					</div>
 					<div className="overflow-y-auto flex-1 hide-scrollbar">
-						<div className="pr-2 space-y-1 text-black dark:text-white">
-							<p>
-								{plan.product.description
-									?.split(/\*\*(.*?)\*\*/g)
-									.map((text, index) =>
-										index % 2 === 0 ? text : <strong key={text}>{text}</strong>,
-									)
-									.filter(Boolean)}
-							</p>
-							<ul className="pl-5 list-disc">
-								{plan.product.marketing_features.map((feature) => (
-									<li key={`feature-${feature.name}`}>
-										{/* // Grab content that it is between ** ** and make it bold */}
-										{feature.name
+						<div className="pr-2 space-y-3 text-black dark:text-white">
+							{plan.product.description && (
+								<div className="mb-2">
+									<p className="text-sm leading-relaxed text-muted-foreground max-h-[4.5rem] overflow-hidden">
+										{plan.product.description
 											?.split(/\*\*(.*?)\*\*/g)
 											.map((text, index) =>
-												index % 2 === 0 ? (
-													text
-												) : (
-													<strong key={text}>{text}</strong>
-												),
+												index % 2 === 0 ? text : <strong key={text} className="text-foreground">{text}</strong>,
 											)
 											.filter(Boolean)}
-									</li>
-								))}
-							</ul>
+									</p>
+								</div>
+							)}
+							<div className="space-y-2">
+								<h4 className="text-xs font-semibold tracking-wide uppercase text-muted-foreground">
+									Features
+								</h4>
+								<ul className="space-y-2">
+									{plan.product.marketing_features.map((feature) => (
+										<li key={`feature-${feature.name}`} className="flex gap-2 items-start text-sm leading-relaxed">
+											<span className="flex-shrink-0 w-1.5 h-1.5 mt-2 rounded-full bg-tertiary" />
+											<span className="flex-1">
+												{feature.name
+													?.split(/\*\*(.*?)\*\*/g)
+													.map((text, index) =>
+														index % 2 === 0 ? (
+															text
+														) : (
+															<strong key={text} className="font-semibold text-foreground">{text}</strong>
+														),
+													)
+													.filter(Boolean)}
+											</span>
+										</li>
+									))}
+								</ul>
+							</div>
 						</div>
 					</div>
 				</div>
