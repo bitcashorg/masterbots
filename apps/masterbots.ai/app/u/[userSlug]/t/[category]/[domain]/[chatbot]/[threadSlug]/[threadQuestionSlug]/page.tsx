@@ -41,7 +41,6 @@ export default async function ThreadQuestionPage(props: ThreadPageProps) {
 		)
 	}
 
-	const jwt = session ? session.user?.hasuraJwt : ''
 	const { user } = await getUserBySlug({
 		isSameUser: session?.user.slug === userSlug,
 		slug: userSlug as string,
@@ -63,7 +62,8 @@ export default async function ThreadQuestionPage(props: ThreadPageProps) {
 				})
 			}
 
-			if (!session?.user?.hasuraJwt) {
+			const jwt = session ? session.user?.hasuraJwt : null
+			if (!jwt) {
 				throw new Error('Authentication required')
 			}
 
