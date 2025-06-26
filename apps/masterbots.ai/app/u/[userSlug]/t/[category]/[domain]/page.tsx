@@ -1,4 +1,5 @@
 import { authOptions } from '@/auth'
+import { ErrorComponent } from '@/components/shared/error'
 import { getCategories, getUserBySlug } from '@/services/hasura'
 import type { Thread } from 'mb-genql'
 import { toSlug } from 'mb-lib'
@@ -24,18 +25,8 @@ export default async function BrowseCategoryPage(props: {
 		isSameUser: session?.user.slug === slug,
 	})
 
-	if (!category)
-		return (
-			<div className="text-center p-4">
-				Category <strong>{params.category}</strong> not found
-			</div>
-		)
-	if (error)
-		return (
-			<div className="text-center p-4">
-				Error loading profile: <strong>{error}</strong>
-			</div>
-		)
+	if (!category) return <ErrorComponent message="Category not found" />
+	if (error) return <ErrorComponent message={error} />
 
 	return redirect(`/u/${slug}/t/${params.category}`)
 }

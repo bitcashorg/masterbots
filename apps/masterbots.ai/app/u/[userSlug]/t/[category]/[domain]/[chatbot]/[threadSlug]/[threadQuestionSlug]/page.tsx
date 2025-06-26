@@ -28,7 +28,7 @@ interface ThreadPageProps {
 const PAGE_SM_SIZE = 10 // Adjust this based on your needs
 export default async function ThreadQuestionPage(props: ThreadPageProps) {
 	const params = await props.params
-	const { chatbot: chatBotName, category, chatbot, userSlug } = params
+	const { chatbot, userSlug } = params
 	const thread = await getThread({
 		threadSlug: params.threadSlug,
 		jwt: '',
@@ -50,7 +50,7 @@ export default async function ThreadQuestionPage(props: ThreadPageProps) {
 
 	const chatbotName = (await botNames).get(chatbot as string)
 	if (!chatbotName) {
-		throw new Error(`Chatbot name for ${chatbot} not found`)
+		return <ErrorComponent message={`Chatbot name for ${chatbot} not found`} />
 	}
 	const fetchThreads = async () => {
 		try {
