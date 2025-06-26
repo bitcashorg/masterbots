@@ -547,11 +547,9 @@
 
 .dark .pro-glow {
 	box-shadow: 0 0 20px rgba(120, 255, 65, 0.3);
+ 	animation: pro-pulse-dark 2s infinite;
 }
 
-.dark .pro-glow {
-	animation: pro-pulse-dark 2s infinite;
-}
 
 @keyframes pro-pulse-dark {
 	0%, 100% {
