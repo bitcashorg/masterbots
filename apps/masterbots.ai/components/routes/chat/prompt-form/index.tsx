@@ -88,7 +88,9 @@ export interface PromptProps
 }
 
 const DEFAULT_TEXT_FILE_CONTENT = `# Context for the conversation
-This file can contain any relevant information that will help the chatbot understand the context of the conversation. You can add links, notes, or any other text-based content that you think is important.`
+This file can contain any relevant information that will help the chatbot understand the context of the conversation. You can add links, notes, or any other text-based content that you think is important.
+
+`
 const DEFAULT_TEXT_FILE_BASE64_CONTENT = `data:text/plain;base64,${btoa(DEFAULT_TEXT_FILE_CONTENT)}`
 const DEFAULT_FILE_ATTACHMENT: FileAttachment = {
 	id: nanoid(16),
@@ -248,7 +250,7 @@ export function PromptForm({
 	const userHasRelatedAttachment = Boolean(userAttachments.length)
 	// console.log(
 	// 	`User has related attachment: ${userHasRelatedAttachment}`,
-	// 	userAttachments.length,
+	// 	threadContextFileRef.current,
 	// 	attachments.length,
 	// )
 	return (
@@ -308,11 +310,6 @@ export function PromptForm({
 								buttonVariants({ variant: 'ghost', size: 'icon' }),
 								'relative cursor-pointer',
 							)}
-							onClick={(e) => {
-								return
-								// if (userHasRelatedAttachment) return
-								// e.currentTarget.querySelector('input')?.click()
-							}}
 						>
 							<Input
 								onChange={fileAttachmentActions.handleFileSelect}
