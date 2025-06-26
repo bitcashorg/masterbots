@@ -10,7 +10,7 @@ export interface BasePersonalPublicUrlParams {
 }
 
 export interface BaseProfilesUrlParams {
-	type: 'user' | 'chatbot'
+	type: 'user' | 'chatbot' | 'user-chatbot'
 	raw?: boolean
 	usernameSlug?: string
 	category?: string

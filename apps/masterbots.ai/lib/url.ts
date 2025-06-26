@@ -551,8 +551,6 @@ export const urlBuilders = {
 					.map(([key]) => key)
 					.join(', ')
 
-				console.error(`Missing required parameters for profile URL: ${missing}`)
-
 				if (appConfig.features.devMode)
 					console.error(
 						`Missing required parameters for profile URL: ${missing}`,
@@ -568,8 +566,6 @@ export const urlBuilders = {
 							.filter(([_, value]) => !value)
 							.map(([key]) => key)
 							.join(', ')
-
-						console.log('Missing user entries:', userEntries)
 
 						if (appConfig.features.devMode)
 							console.error(
@@ -589,29 +585,7 @@ export const urlBuilders = {
 					].join('/')
 				}
 				case 'chatbot': {
-					if (!usernameSlug || !domain || !category) {
-						const userEntries = { category, usernameSlug, domain }
-						const missing = Object.entries(userEntries)
-							.filter(([_, value]) => !value)
-							.map(([key]) => key)
-							.join(', ')
-
-						if (appConfig.features.devMode)
-							console.error(
-								`Missing required parameters for profile URL: ${missing}`,
-							)
-						return '/'
-					}
-
-					return [
-						'',
-						'u',
-						usernameSlug,
-						't',
-						toSlug(category),
-						normalizeDomainSlug(domain, raw),
-						toSlug(chatbot),
-					].join('/')
+					return ['', 'b', toSlug(chatbot), threadSlug].join('/')
 				}
 				default: {
 					if (appConfig.features.devMode)
