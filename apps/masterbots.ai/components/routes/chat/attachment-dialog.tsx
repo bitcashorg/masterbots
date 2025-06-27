@@ -150,6 +150,28 @@ export function AttachmentDialog({
 
 	const shouldRenderTextEditButton = Boolean(updateAttachment)
 
+	const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+		if (e.key === 'Enter') {
+			e.preventDefault()
+
+			const selection = window.getSelection()
+			if (selection && selection.rangeCount > 0) {
+				const range = selection.getRangeAt(0)
+
+				// Insert a line break
+				const br = document.createElement('br')
+				range.deleteContents()
+				range.insertNode(br)
+
+				// Move cursor after the line break
+				range.setStartAfter(br)
+				range.setEndAfter(br)
+				selection.removeAllRanges()
+				selection.addRange(range)
+			}
+		}
+	}
+
 	return (
 		<Dialog key={`dialog-${id}`} open={open} onOpenChange={toggleDialogOpen}>
 			<DialogTrigger className="w-12" id={id} asChild>
@@ -265,6 +287,7 @@ export function AttachmentDialog({
 										key={`attachment-content-${id}`}
 										contentEditable={contentEditable}
 										tabIndex={0}
+										onKeyDown={handleKeyDown}
 										suppressContentEditableWarning
 									>
 										{typeof window !== 'undefined'
