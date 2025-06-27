@@ -77,7 +77,9 @@ import {
 import { appConfig } from 'mb-env'
 import { useParams } from 'next/navigation'
 import * as React from 'react'
+import { useCallback, useState } from 'react'
 import Textarea from 'react-textarea-autosize'
+import { useSetState } from 'react-use'
 
 export interface PromptProps
 	extends Pick<UseChatHelpers, 'input' | 'setInput'> {
@@ -129,6 +131,20 @@ export function PromptForm({
 		DEFAULT_FILE_ATTACHMENT,
 	)
 
+	const onDialogOpenChange = (open: boolean) =>
+		setDialogState((prev) => ({
+			...prev,
+			open,
+		}))
+
+	const [dialogState, setDialogState] = useSetState<{
+		open: boolean
+		onOpenChange: (open: boolean) => void
+	}>({
+		open: false,
+		onOpenChange: onDialogOpenChange,
+	})
+
 	// biome-ignore lint/correctness/useExhaustiveDependencies: not required
 	React.useEffect(() => {
 		handleBotSelection()
@@ -139,6 +155,11 @@ export function PromptForm({
 			inputRef.current.focus()
 		}
 	}, [])
+
+	// * Creating unique instances for each form (popup and main).
+	// ? This is required to prevent the form from submitting when the user presses Enter in the popup.
+	// ? Must be rendered once per form instance. Else it will not work as expected if leave without memoizing (onChange would update this component).
+	const formId = React.useMemo(() => nanoid(16), [])
 
 	const handleBotSelection = () => {
 		if (activeThread?.chatbot) {
@@ -171,6 +192,8 @@ export function PromptForm({
 	}
 
 	const triggerNewTextFileDialog = (e: React.MouseEvent) => {
+		e.preventDefault()
+		e.stopPropagation()
 		// Create a proper File object from the text content
 		const attachmentContextFileName = attachments.some(
 			(attch) => attch.name === 'Thread Context.txt',
@@ -189,6 +212,12 @@ export function PromptForm({
 			size: new Blob([DEFAULT_TEXT_FILE_CONTENT]).size,
 		}
 		fileAttachmentActions.addAttachmentObject(newAttachmentObject)
+
+		const timeout = setTimeout(() => {
+			// Open the dialog after a short delay to ensure the attachment is added
+			onDialogOpenChange(true)
+			clearTimeout(timeout)
+		}, 120)
 	}
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: not required
@@ -230,10 +259,6 @@ export function PromptForm({
 		fileAttachmentActions.clearAttachments()
 	}
 
-	// * Creating unique instances for each form (popup and main).
-	// ? This is required to prevent the form from submitting when the user presses Enter in the popup.
-	// ? Must be rendered once per form instance. Else it will not work as expected if leave without memoizing (onChange would update this component).
-	const formId = React.useMemo(() => nanoid(16), [])
 	const userAttachments =
 		(userData.userAttachments as FileAttachment[]) && allMessages.length
 			? (userData.userAttachments as FileAttachment[]).filter((attachment) =>
@@ -380,6 +405,10 @@ export function PromptForm({
 												className="flex w-full bg-transparent"
 											>
 												<AttachmentDialog
+													dialogState={{
+														open: dialogState.open,
+														onOpenChange: dialogState.onOpenChange,
+													}}
 													attachment={threadContextFileRef.current}
 													updateAttachment={
 														fileAttachmentActions.updateAttachment
@@ -390,6 +419,7 @@ export function PromptForm({
 															size="lg"
 															className="w-full cursor-pointer px-2"
 															onClick={triggerNewTextFileDialog}
+															id={`new-context-${formId}`}
 														>
 															<BookPlusIcon className="size-4" />
 															New Context

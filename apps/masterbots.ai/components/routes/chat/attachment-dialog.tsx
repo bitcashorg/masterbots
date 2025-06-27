@@ -19,7 +19,7 @@ import {
 	XIcon,
 } from 'lucide-react'
 import Image from 'next/image'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 const motionAnimationProps = {
 	initial: { opacity: 0 },
@@ -30,67 +30,128 @@ const motionAnimationProps = {
 
 export function AttachmentDialog({
 	attachment,
+	dialogState,
 	updateAttachment,
 	absolutePosition = false,
 	triggerComponent,
 }: {
 	attachment: FileAttachment | null
+	/**
+	 * Optional dialog state to control the open state of the dialog.
+	 */
+	dialogState?: {
+		open: boolean
+		onOpenChange: (open: boolean) => void
+	}
 	updateAttachment?: (id: string, attachment: Partial<FileAttachment>) => void
 	absolutePosition?: boolean
 	triggerComponent?: React.ReactNode
 }) {
+	const { open, onOpenChange } = dialogState || {}
 	const [contentEditable, setContentEditable] = useState(true)
 	const textContentRef = useRef<HTMLDivElement | null>(null)
 
+	// ? This useLayoutEffect is for controlled dialogs only, if attempting to do this in a non-controlled dialog, it won't be able to interact.
+	// biome-ignore lint/correctness/useExhaustiveDependencies: not required
+	useLayoutEffect(() => {
+		if (!open || !contentEditable || !attachment) return
+
+		const timeout = setTimeout(() => {
+			try {
+				const textElement = textContentRef.current
+
+				if (!textElement) throw new Error('Text content element not found')
+
+				console.log('Setting focus and selection to text element', textElement)
+
+				// Focus the element first
+				textElement.focus()
+
+				// Create and set the selection range
+				const range = document.createRange()
+				range.selectNodeContents(textElement)
+
+				const selection = window.getSelection()
+				if (selection) {
+					selection.removeAllRanges()
+					selection.addRange(range)
+				}
+
+				// Move cursor to end for better UX
+				range.collapse(false) // false = collapse to end
+				selection?.removeAllRanges()
+				selection?.addRange(range)
+			} catch (error) {
+				console.warn('Failed to set text selection:', error)
+			}
+
+			clearTimeout(timeout)
+		}, 120)
+
+		return () => {
+			clearTimeout(timeout)
+		}
+	}, [contentEditable, open, attachment?.id])
+
+	const updateDialogState = () => {
+		if (textContentRef.current) {
+			textContentRef.current = null
+		}
+		setContentEditable(Boolean(open && attachment))
+	}
+
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
-		if (!contentEditable || !attachment) return
+		updateDialogState()
 
-		if (textContentRef.current) {
-			console.log('Setting focus to pre element', textContentRef.current)
-			// Set focus to the pre element to allow editing
-			const range = document.createRange()
-			range.selectNodeContents(textContentRef.current)
-			window.getSelection()?.removeAllRanges() // Clear any existing selection
-			window.getSelection()?.addRange(range) // Select the content of the pre div element
+		return () => {
+			updateDialogState()
 		}
-	}, [contentEditable, textContentRef.current, attachment])
+	}, [open, attachment?.id])
 
 	if (!attachment) return null
 
 	const { id, name, url, contentType, content } = attachment
 
+	const toggleDialogOpen = (isOpen: boolean) => {
+		if (contentEditable) {
+			toggleContentEditable()
+		}
+
+		onOpenChange?.(isOpen)
+	}
+
 	const toggleContentEditable = () => {
-		const newOpenState = !contentEditable
+		const newEditableState = !contentEditable
 		const textElement = textContentRef.current
 
-		setContentEditable(newOpenState)
+		if (!newEditableState && textElement) {
+			const preContent = textElement.innerText
+			// turn the content into a base64 string
+			const base64Content = btoa(preContent)
+			// set the contentType to text/plain
+			const newContentType = 'text/plain'
+			// set the name to the original name with .txt extension
+			const newName = `${attachment.name.split('.')[0]}.txt`
+			// update the state with the new values
+			const newContent = `data:${newContentType};base64,${base64Content}`
+			const byteSize = new Blob([newContent]).size
 
-		if (newOpenState || !textElement) return
+			updateAttachment?.(id, {
+				content: newContent,
+				contentType: newContentType,
+				name: newName,
+				size: byteSize,
+			})
+		}
 
-		const preContent = textElement.innerText
-		// turn the content into a base64 string
-		const base64Content = btoa(preContent)
-		// set the contentType to text/plain
-		const newContentType = 'text/plain'
-		// set the name to the original name with .txt extension
-		const newName = `${attachment.name.split('.')[0]}.txt`
-		// update the state with the new values
-		const newContent = `data:${newContentType};base64,${base64Content}`
-		const byteSize = new Blob([newContent]).size
-
-		updateAttachment?.(id, {
-			content: newContent,
-			contentType: newContentType,
-			name: newName,
-			size: byteSize,
-		})
+		setContentEditable(newEditableState)
 	}
 
 	const shouldRenderTextEditButton = Boolean(updateAttachment)
 
 	return (
-		<Dialog key={`dialog-${id}`}>
+		<Dialog key={`dialog-${id}`} open={open} onOpenChange={toggleDialogOpen}>
 			<DialogTrigger className="w-12" id={id} asChild>
 				{triggerComponent || (
 					<Button
