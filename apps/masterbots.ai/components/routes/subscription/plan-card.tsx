@@ -33,9 +33,9 @@ export default function PlanCard({
 	const duration = plan.unit_amount === 0 ? 'free' : plan.recurring.interval
 	const price = (plan.unit_amount ? plan.unit_amount / 100 : 0).toFixed(2)
 
-	const bg_free = 'dark:bg-[url(/background-gradient-free.webp)]'
-	const bg_pro_montly = 'dark:bg-[url(/background-gradient-pro-month.webp)]'
-	const bg_pro_annual = 'bg-[url(/background-gradient-pro-year.webp)]'
+	const bg_free = 'bg-[url(/background-gradient-free.webp)] dark:bg-[url(/background-gradient-free.webp)]'
+	const bg_pro_montly = 'bg-[url(/background-gradient-pro-month.webp)] dark:bg-[url(/background-gradient-pro-month.webp)]'
+	const bg_pro_annual = 'bg-[url(/background-gradient-pro-year.webp)] dark:bg-[url(/background-gradient-pro-year.webp)]'
 
 	// Determine background classes based on plan type
 	const getBackgroundClasses = () => {
@@ -56,7 +56,7 @@ export default function PlanCard({
 	return (
 		<div
 			className={cn(
-				'border-gradient md:w-full w-[340px] h-[275px] dark:[&>_div]:hover:bg-tertiary relative',
+				'border-gradient md:w-full w-[340px] h-[275px] [&>_div]:hover:bg-tertiary relative',
 				{
 					selected: selectedPlan === duration,
 					'pro-card': duration !== 'free',
@@ -100,12 +100,14 @@ export default function PlanCard({
 							<span className="text-muted-foreground font-extrabold text-[16px] capitalize">
 								{duration}
 							</span>
-							<h3 className={cn(
-								"text-[36px] font-bold",
-								duration === 'free' 
-										? "dark:text-white text-black"
-										: "text-accent",
-							)}>
+							<h3
+								className={cn(
+									'text-[36px] font-bold',
+									duration === 'free'
+										? 'dark:text-white text-black'
+										: 'text-accent',
+								)}
+							>
 								{duration === 'free' ? 'Free' : `$${price}`}
 								{duration !== 'free' && (
 									<span className="text-[24px]">
@@ -115,17 +117,18 @@ export default function PlanCard({
 									</span>
 								)}{' '}
 							</h3>
-							{plan.product.name.toLowerCase().includes('annual') && duration !== 'free' && (
-								<span className="text-sm text-muted-foreground">
-									${(Number(price) / 12).toFixed(2)}/mo
-								</span>
-							)}
+							{plan.product.name.toLowerCase().includes('annual') &&
+								duration !== 'free' && (
+									<span className="text-sm text-muted-foreground">
+										${(Number(price) / 12).toFixed(2)}/mo
+									</span>
+								)}
 						</div>
 						<span
 							className={cn(
 								'size-3.5 rounded-full border-[3px] border-border/80',
 								selectedPlan === duration ? 'bg-tertiary ' : 'bg-mirage',
-								duration !== 'free' && 'pro-radio'
+								duration !== 'free' && 'pro-radio',
 							)}
 						/>
 					</div>
@@ -137,7 +140,13 @@ export default function PlanCard({
 										{plan.product.description
 											?.split(/\*\*(.*?)\*\*/g)
 											.map((text, index) =>
-												index % 2 === 0 ? text : <strong key={text} className="text-foreground">{text}</strong>,
+												index % 2 === 0 ? (
+													text
+												) : (
+													<strong key={text} className="text-foreground">
+														{text}
+													</strong>
+												),
 											)
 											.filter(Boolean)}
 									</p>
@@ -149,8 +158,11 @@ export default function PlanCard({
 								</h4>
 								<ul className="space-y-2">
 									{plan.product.marketing_features.map((feature) => (
-										<li key={`feature-${feature.name}`} className="flex gap-2 items-start text-sm leading-relaxed">
-											<span className="flex-shrink-0 w-1.5 h-1.5 mt-2 rounded-full bg-tertiary" />
+										<li
+											key={`feature-${feature.name}`}
+											className="flex gap-2 items-start text-sm leading-relaxed"
+										>
+											<span className="flex-shrink-0 w-1.5 h-1.5 mt-2 rounded-full bg-primary" />
 											<span className="flex-1">
 												{feature.name
 													?.split(/\*\*(.*?)\*\*/g)
@@ -158,7 +170,12 @@ export default function PlanCard({
 														index % 2 === 0 ? (
 															text
 														) : (
-															<strong key={text} className="font-semibold text-foreground">{text}</strong>
+															<strong
+																key={text}
+																className="font-semibold text-foreground"
+															>
+																{text}
+															</strong>
 														),
 													)
 													.filter(Boolean)}
