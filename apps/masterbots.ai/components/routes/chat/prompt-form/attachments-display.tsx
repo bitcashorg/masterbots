@@ -47,8 +47,9 @@ export function AttachmentsDisplay({
 			{attachments.length > 0 && (
 				<ul className="flex flex-nowrap gap-2 px-2 py-1 mb-2 scrollbar w-full">
 					{attachments.map((attachment) => {
-						const { id, url, name, contentType } = attachment as FileAttachment
-						const base64Hash = url.split(',')[1]
+						const { id, url, content, name, contentType } =
+							attachment as FileAttachment
+						const base64Hash = (content as string).split(',')[1]
 						const readableTextContent = contentType.includes('image')
 							? ''
 							: atob(base64Hash)
@@ -101,7 +102,7 @@ export function AttachmentsDisplay({
 													alt={name}
 													width={224}
 													height={224}
-													className="w-full h-auto max-h-full rounded-lg"
+													className="w-full h-auto max-h-full rounded-lg object-cover"
 												/>
 											) : (
 												<pre className="size-full scrollbar p-2 border rounded-sm border-foreground/20 bg-muted text-sm whitespace-pre-wrap">
@@ -111,7 +112,11 @@ export function AttachmentsDisplay({
 										</figure>
 										<AttachmentDialog
 											attachment={attachment}
-											updateAttachment={onUpdate}
+											updateAttachment={
+												attachment.name.match(/(Pasted Context|Thread Context)/)
+													? onUpdate
+													: undefined
+											}
 											absolutePosition
 										/>
 									</PopoverContent>

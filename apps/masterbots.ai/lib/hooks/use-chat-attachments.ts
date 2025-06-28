@@ -9,6 +9,7 @@ import { nanoid } from 'nanoid'
 import { useSession } from 'next-auth/react'
 import { useCallback, useEffect, useRef } from 'react'
 import { useAsync, useSetState } from 'react-use'
+import slugify from 'slugify'
 
 export type FileAttachment = {
 	id: string
@@ -60,7 +61,7 @@ export function useFileAttachments(
 	},
 ] {
 	const { data: session } = useSession()
-	const { activeThread, loadingState } = useThread()
+	const { activeThread, isNewResponse } = useThread()
 	const dbKeys = getUserIndexedDBKeys(session?.user?.id)
 	const { mounted, ...indexedDBActions } = useIndexedDB(dbKeys)
 	const [state, setState] = useSetState<{
@@ -76,12 +77,7 @@ export function useFileAttachments(
 		loading,
 		error,
 	} = useAsync(async () => {
-		if (
-			!mounted ||
-			!session?.user ||
-			!loadingState ||
-			(activeThread && loadingState !== 'finished')
-		) {
+		if (!mounted || !session?.user || isNewResponse) {
 			return (activeThread?.metadata?.attachments || []) as IndexedDBItem[]
 		}
 
@@ -114,7 +110,7 @@ export function useFileAttachments(
 
 		currentRequestId.current = null
 		return indexedDBAttachments
-	}, [session?.user, mounted, loadingState])
+	}, [session?.user, mounted, isNewResponse])
 
 	const { customSonner } = useSonner()
 	const { selectedModel } = useModel()
@@ -277,85 +273,129 @@ export function useFileAttachments(
 		}
 	}
 
-	// ? When pasting files into the form works... but only for text base files, for images it has hard times to paste them... depends on the browser and OS
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-	const handleFilePaste = useCallback((event: ClipboardEvent) => {
-		const { items } = event.clipboardData as DataTransfer
-		const isValidItems = Array.from(items).some(
-			(item) => item.kind !== 'string',
-		)
-
-		// * We check if there are any valid items in the pasted data that is a file or an image (not a string)
-		// * If we don't have any valid items, we will then check if the items are strings
-		// * and if so, we will create a text file with the content of the string and add it as an attachment
-		// ? If there are no valid items, we will log an error and return
-		if (!isValidItems) {
-			console.error('Invalid pasted items')
-
-			for (const item of items) {
-				if (item.kind === 'string') {
-					event.stopPropagation()
-					event.preventDefault()
-				}
-				if (item.kind === 'string' && item.type === 'text/plain') {
-					console.warn('Pasted item is a string, not a file:', item)
-					item.getAsString((str) => {
-						// Remove empty new lines and roughly check if the string has more than 49 words
-						// This is a very basic check, we might want to improve it
-						const stringWordLength = str.replace(/\n/g, '').split(' ').length
-						console.log('stringWordLength --> ', stringWordLength)
-						if (stringWordLength <= 32) return
-						const pasteContextFileNames = state.attachments.filter(
-							(attachment) => attachment.name.includes('Pasted Context'),
-						)
-						const pasteContextFileName = `Pasted Context${pasteContextFileNames.length ? ` (${pasteContextFileNames.length})` : ''}.txt`
-						addAttachment(
-							new File([str], pasteContextFileName, {
-								type: 'text/plain',
-							}),
-						)
-					})
-				} else {
-					console.warn('Pasted item is not a valid file:', item)
-				}
-			}
-
-			return
-		}
-
-		event.stopPropagation()
-		event.preventDefault()
-
-		const newItems = Array.from(items).map((item) => {
-			return {
-				...item,
-				getAsFile: () => {
-					const currentFile = item.getAsFile()
-					if (!currentFile) {
-						console.error('No file found in the pasted item')
-						return null
-					}
-					const fileName = currentFile.name.split('.')[0]
-					const fileExtension = currentFile.name.split('.').pop() || 'txt'
-					return new File(
-						[currentFile],
-						`${fileName}-${nanoid(8)}.${fileExtension}`,
-						{ type: currentFile.type },
-					)
-				},
-			}
+	const validateTextContent = ({
+		fileString,
+		wordsLength = 49,
+		charactersLength = 320,
+	}: {
+		fileString: string
+		wordsLength?: number
+		charactersLength?: number
+	}) => {
+		// Remove empty new lines and roughly check if the string has more than 49 words
+		// This is a very basic check, we might want to improve it
+		const slugifyWords = slugify(fileString, {
+			lower: true,
+			trim: true,
+			remove: /[^\w\s]/g,
 		})
-		const dataTransfer = new DataTransfer()
+		const stringWordLength = slugifyWords.split('-').length
 
-		for (const item of newItems) {
-			const file = item.getAsFile()
-			if (file) {
-				dataTransfer.items.add(file)
+		return (
+			stringWordLength >= wordsLength || slugifyWords.length >= charactersLength
+		)
+	}
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	const handleFilePaste = useCallback(
+		(event: ClipboardEvent) => {
+			const { items } = event.clipboardData as DataTransfer
+			const isImageValidItem = Array.from(items).some(
+				(item) => item.kind !== 'string',
+			)
+
+			// * We check if there are any valid items in the pasted data that is a file or an image (not a string)
+			// * If we don't have any valid items, we will then check if the items are strings
+			// * and if so, we will create a text file with the content of the string and add it as an attachment
+			// ? If there are no valid items, we will log an error and return
+			if (!isImageValidItem) {
+				const fileString = event.clipboardData?.getData('text/plain')
+
+				if (!fileString) {
+					console.warn('No valid files or text found in the pasted data')
+					return
+				}
+
+				const isValidTextLength = validateTextContent({
+					fileString,
+				})
+
+				if (!isValidTextLength) {
+					return
+				}
+
+				event.preventDefault()
+				event.stopPropagation()
+
+				addAttachment(
+					new File([fileString], 'Pasted Context.txt', {
+						type: 'text/plain',
+					}),
+				)
+
+				return
+			}
+
+			event.preventDefault()
+			event.stopPropagation()
+
+			const newItems = Array.from(items).map((item) => {
+				return {
+					...item,
+					getAsFile: () => {
+						const currentFile = item.getAsFile()
+						if (!currentFile) {
+							console.warn('No file found in the pasted item')
+							return null
+						}
+						const fileName = currentFile.name.split('.')[0]
+						const fileExtension = currentFile.name.split('.').pop() || 'txt'
+						return new File(
+							[currentFile],
+							`${fileName}-${nanoid(8)}.${fileExtension}`,
+							{ type: currentFile.type },
+						)
+					},
+				}
+			})
+			const dataTransfer = new DataTransfer()
+
+			for (const item of newItems) {
+				const file = item.getAsFile()
+				if (file) {
+					dataTransfer.items.add(file)
+				}
+			}
+
+			handleValidFiles(dataTransfer.items)
+		},
+		[state.attachments],
+	)
+
+	//re-arrange Paste Context files and rename depending the paste context position
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	useEffect(() => {
+		if (state.attachments.length > 0) {
+			const pasteContextFiles = state.attachments
+				.filter((attch) => attch.name.includes('Pasted Context'))
+				.sort((a, b) => {
+					// Sort by the expires date from older to last (last are last in list)
+					const aExpiresDate = new Date(a.expires).getTime()
+					const bExpiresDate = new Date(b.expires).getTime()
+
+					return aExpiresDate - bExpiresDate
+				})
+
+			const newPasteItems = pasteContextFiles.map((file, index) => ({
+				...file,
+				name: `Paste Context${index ? ` (${index + 1})` : ''}.txt`,
+			}))
+
+			for (const newItem of newPasteItems) {
+				updateAttachment(newItem.id, newItem)
 			}
 		}
-
-		handleValidFiles(dataTransfer.items)
-	}, [])
+	}, [handleFilePaste])
 
 	const handleDragOver = (event: React.DragEvent<HTMLFormElement>) => {
 		event.preventDefault()

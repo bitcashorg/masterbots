@@ -179,18 +179,6 @@ export function PromptForm({
 		setIsFocused(false)
 	}
 
-	const triggerNativeFileInput = (e: React.MouseEvent) => {
-		const $document = e.currentTarget.ownerDocument
-		if (!$document) return
-
-		const $input = $document.getElementById(`file-attachments-${formId}`)
-		if (!$input) return
-
-		$input.removeAttribute('disabled')
-		$input.click()
-		$input.setAttribute('disabled', '')
-	}
-
 	const triggerNewTextFileDialog = (e: React.MouseEvent) => {
 		e.preventDefault()
 		e.stopPropagation()
@@ -231,7 +219,8 @@ export function PromptForm({
 					const bCount = Number(b.name.match(/\((\d+)\)/)?.[1] || '0')
 					return bCount - aCount
 				})
-			threadContextFileRef.current = threadContextFiles[0] || null
+			threadContextFileRef.current =
+				threadContextFiles[0] || DEFAULT_FILE_ATTACHMENT
 		}
 	}, [triggerNewTextFileDialog])
 
@@ -333,26 +322,11 @@ export function PromptForm({
 						<PopoverTrigger
 							className={cn(
 								buttonVariants({ variant: 'ghost', size: 'icon' }),
-								'relative cursor-pointer',
+								'cursor-pointer',
 							)}
 						>
-							<Input
-								onChange={fileAttachmentActions.handleFileSelect}
-								tabIndex={-1}
-								id={`file-attachments-${formId}`}
-								className={cn(
-									'absolute opacity-0 size-full !cursor-pointer p-0 disabled:opacity-0',
-								)}
-								accept={
-									selectedModel.match(/(DeepSeekR1|GroqDeepSeek)/)
-										? 'text/*'
-										: 'image/*,text/*'
-								}
-								type="file"
-								disabled
-								multiple
-							/>
 							<PaperclipIcon className="p-0.5 z-0 cursor-pointer" />
+							<span className="sr-only">Add attachments</span>
 						</PopoverTrigger>
 						<PopoverContent className="w-[320px]">
 							<Command>
@@ -388,16 +362,33 @@ export function PromptForm({
 												<Button
 													variant="outline"
 													size="lg"
-													className="w-full cursor-pointer px-2"
-													onClick={triggerNativeFileInput}
+													className="relative w-full cursor-pointer px-2"
 													title={
 														selectedModel.match(/(DeepSeekR1|GroqDeepSeek)/)
 															? 'Add text files only'
 															: 'Add image or text files'
 													}
+													asChild
 												>
-													<FilePlusIcon className="size-4" />
-													New File(s)
+													<div>
+														<Input
+															onChange={fileAttachmentActions.handleFileSelect}
+															tabIndex={-1}
+															id={`file-attachments-${formId}`}
+															className={cn(
+																'absolute opacity-0 z-0 size-full !cursor-pointer p-0 inset-0',
+															)}
+															accept={
+																selectedModel.match(/(DeepSeekR1|GroqDeepSeek)/)
+																	? 'text/*'
+																	: 'image/*,text/*'
+															}
+															type="file"
+															multiple
+														/>
+														<FilePlusIcon className="size-4" />
+														New File(s)
+													</div>
 												</Button>
 											</CommandItem>
 											<CommandItem

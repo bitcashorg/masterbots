@@ -137,12 +137,15 @@ export function AttachmentDialog({
 			const newContent = `data:${newContentType};base64,${base64Content}`
 			const byteSize = new Blob([newContent]).size
 
-			updateAttachment?.(id, {
-				content: newContent,
-				contentType: newContentType,
-				name: newName,
-				size: byteSize,
-			})
+			if (updateAttachment) {
+				updateAttachment(id, {
+					content: newContent,
+					url: newContent,
+					contentType: newContentType,
+					name: newName,
+					size: byteSize,
+				})
+			}
 		}
 
 		setContentEditable(newEditableState)
@@ -153,6 +156,7 @@ export function AttachmentDialog({
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
 		if (e.key === 'Enter') {
 			e.preventDefault()
+			e.stopPropagation()
 
 			const selection = window.getSelection()
 			if (selection && selection.rangeCount > 0) {
@@ -170,7 +174,69 @@ export function AttachmentDialog({
 				selection.addRange(range)
 			}
 		}
+
+		// ! WIP — @andler
+		// Prevent default behaviour for tab and shift + tab.
+		// if (e.key === 'Tab' || (e.key === 'Tab' && e.shiftKey)) {
+		// 	e.preventDefault()
+		// 	e.stopPropagation()
+
+		// 	// If we have selected text, we want to make sure to keep it selected
+		// 	const selection = window.getSelection()
+		// 	if (selection && selection.rangeCount > 0) {
+		// 		const range = selection.getRangeAt(0)
+
+		// 		// Insert a tab character
+		// 		const tabNode = document.createTextNode('\t')
+
+		// 		// Insert the new node at the beginning of every line within the range
+		// 		const lines = range.toString().split('\n')
+		// 		range.deleteContents()
+		// 		lines.forEach((line, index) => {
+		// 			const lineNode = document.createTextNode(line)
+		// 			range.insertNode(lineNode)
+
+		// 			// If it's not the last line, insert a line break
+		// 			if (index < lines.length - 1) {
+		// 				range.insertNode(document.createElement('br'))
+		// 			}
+		// 		})
+
+		// 		// Move cursor after the tab character
+		// 		range.setStartAfter(tabNode)
+		// 		range.setEndAfter(tabNode)
+		// 		selection.removeAllRanges()
+		// 		selection.addRange(range)
+		// 	}
+		// }
 	}
+
+	const contentEditablePasteControl = (
+		event: React.ClipboardEvent<HTMLDivElement>,
+	) => {
+		if (!contentEditable) return
+		if (!textContentRef.current) return
+
+		event.preventDefault()
+		event.stopPropagation()
+
+		const text = event.clipboardData.getData('text/plain')
+		const selection = window.getSelection()
+
+		if (!selection || selection?.rangeCount === 0) return
+
+		const range = selection.getRangeAt(0)
+
+		range.deleteContents()
+		range.insertNode(document.createTextNode(text))
+		range.collapse(false) // Move cursor to end
+		selection.removeAllRanges()
+		selection.addRange(range)
+	}
+
+	const sizeInMB = (attachment.size / 1024 / 1024).toFixed(2)
+	const sizeInKB = (attachment.size / 1024).toFixed(2)
+	const attachmentLabel = `${name} | ${sizeInMB === '0.00' ? `${sizeInKB}KB` : `${sizeInMB}MB`}`
 
 	return (
 		<Dialog key={`dialog-${id}`} open={open} onOpenChange={toggleDialogOpen}>
@@ -227,7 +293,7 @@ export function AttachmentDialog({
 								<>
 									{shouldRenderTextEditButton && (
 										<motion.div
-											className="flex w-full gap-1.5 items-center mb-2"
+											className="flex w-full gap-1.5 items-center mb-2 z-10 absolute left-8 top-8"
 											key={`attachment-edit-buttons-${id}`}
 											{...motionAnimationProps}
 										>
@@ -251,10 +317,13 @@ export function AttachmentDialog({
 												<motion.button
 													key="cancel-edit-button"
 													type="button"
-													className={buttonVariants({
-														variant: 'destructive',
-														size: 'icon',
-													})}
+													className={cn(
+														buttonVariants({
+															variant: 'destructive',
+															size: 'icon',
+														}),
+														'z-10 bg-destructive/50',
+													)}
 													onClick={() => {
 														setContentEditable(false)
 													}}
@@ -272,7 +341,7 @@ export function AttachmentDialog({
 											variant="ghost"
 											size="icon"
 											radius="full"
-											className="z-10 absolute right-4 top-4 bg-background/50"
+											className="z-10 absolute right-8 top-8 bg-background/50"
 										>
 											<Minimize2Icon className="size-4" />
 										</Button>
@@ -282,12 +351,13 @@ export function AttachmentDialog({
 										// biome-ignore lint/a11y/useSemanticElements: we need a div here for contentEditable
 										role="textbox"
 										ref={textContentRef}
-										className="!font-mono w-full min-h-[80vh] max-h-full scrollbar p-2 border rounded-sm border-foreground/20 bg-muted text-sm whitespace-pre-wrap"
+										className="!font-mono w-full min-h-[80vh] max-h-[calc(90vh-48px)] scrollbar px-2 py-10 border rounded-sm border-foreground/20 bg-muted text-sm whitespace-pre-wrap"
 										title={`attachment-content-${id}`}
 										key={`attachment-content-${id}`}
 										contentEditable={contentEditable}
 										tabIndex={0}
 										onKeyDown={handleKeyDown}
+										onPaste={contentEditablePasteControl}
 										suppressContentEditableWarning
 									>
 										{typeof window !== 'undefined'
@@ -300,7 +370,7 @@ export function AttachmentDialog({
 					)}
 				</DialogDescription>
 				<DialogFooter className="fixed -bottom-10 flex items-center !justify-center text-center w-full">
-					{name} | {(attachment.size / 1024 / 1024).toFixed(2)}MB
+					{attachmentLabel}
 				</DialogFooter>
 			</DialogContent>
 		</Dialog>
