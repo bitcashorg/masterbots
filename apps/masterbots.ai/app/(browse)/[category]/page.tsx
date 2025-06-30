@@ -46,7 +46,7 @@ export async function generateMetadata(props: {
 
 	const seoData = {
 		title: category?.name || '',
-		description: `Browse the threads and find the one that suits your needs, from the ${category?.name} category`,
+		description: `Browse the threads and find the one that suits your needs, from the ${category?.name} topic`,
 		ogType: 'website',
 		ogImageUrl: `${process.env.BASE_URL}/api/og`,
 		twitterCard: 'summary',

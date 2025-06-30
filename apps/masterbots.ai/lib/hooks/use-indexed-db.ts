@@ -114,7 +114,13 @@ export function useIndexedDB({
 				const currentAttachmentCheck =
 					prepareThreadAttachmentCheck(currentUserMetadata)
 
-				if (isEqual(newAttachmentCheck, currentAttachmentCheck)) {
+				if (
+					isEqual(newAttachmentCheck, currentAttachmentCheck) &&
+					isEqual(
+						newAttachmentCheck.map((att) => att.messageIds),
+						currentAttachmentCheck.map((att) => att.messageIds),
+					)
+				) {
 					if (appConfig.features.devMode) {
 						console.warn('No update required. Local is sync with remote')
 					}
@@ -200,12 +206,14 @@ export function useIndexedDB({
 				}
 
 				// Filter out attachments that are currently being processed or already processed
-				const attachmentsToProcess = (
-					newAttachments as FileAttachment[]
-				).filter(
-					(attachment) =>
-						!processingAttachmentsRef.current.has(attachment.id) &&
-						!processedAttachmentIds.includes(attachment.id),
+				const filterAttachments = (attachment: FileAttachment) =>
+					attachment.messageIds.length !==
+						currentUserMetadata?.find((att) => att.id === attachment.id)
+							?.messageIds.length ||
+					(!processingAttachmentsRef.current.has(attachment.id) &&
+						!processedAttachmentIds.includes(attachment.id))
+				let attachmentsToProcess = (newAttachments as FileAttachment[]).filter(
+					filterAttachments,
 				)
 
 				if (attachmentsToProcess.length === 0) {
@@ -257,14 +265,11 @@ export function useIndexedDB({
 						}
 
 						// Ensuring remote would have the latest attachments related messageIds
-						newAttachments = uniqBy(
-							[
-								...((thread.metadata as ThreadMetadata | null)?.attachments ||
-									[]),
-								...newAttachments,
-							],
-							'id',
-						).map((att) => {
+						newAttachments = [
+							...((thread.metadata as ThreadMetadata | null)?.attachments ||
+								[]),
+							...newAttachments,
+						].map((att) => {
 							if (att.id === attachment.id) {
 								return {
 									...att,
@@ -319,21 +324,91 @@ export function useIndexedDB({
 					]
 					setProcessedAttachmentIds(updatedProcessedIds)
 
-					const messagesIds = newAttachments.flatMap(
+					// * Creating a new version of attachments to process for metadata update
+					// * This is to ensure that we only update the thread metadata with the new attachments metadata refs
+					attachmentsToProcess = (newAttachments as FileAttachment[]).filter(
+						filterAttachments,
+					)
+					const messagesIds = attachmentsToProcess.flatMap(
 						(att) => (att as FileAttachment).messageIds,
 					)
-					const metadataUpdateResults = await updateThreadMetadata(
-						messagesIds,
-						{
-							attachments: newAttachments,
-						},
+
+					// Log the payload bytes size
+					const payloadSize = new TextEncoder().encode(
+						JSON.stringify({ attachments: attachmentsToProcess, messagesIds }),
+					).length
+					console.log(
+						`Updating thread metadata with ${attachmentsToProcess.length} attachments, total payload size: ${payloadSize} bytes`,
 					)
-					console.log('metadataUpdateResults', metadataUpdateResults)
+					const MAX_CHUNK_SIZE = 4e6 // 4MB in bytes
+
+					if (payloadSize > MAX_CHUNK_SIZE) {
+						console.warn(
+							`Payload size exceeds ${MAX_CHUNK_SIZE / 1e6}MB, splitting the update into smaller chunks`,
+						)
+						const chunks: FileAttachment[][] = []
+						let currentChunk: FileAttachment[] = []
+						let currentChunkSize = 0
+
+						for (const attachment of attachmentsToProcess) {
+							const attachmentSize = new TextEncoder().encode(
+								JSON.stringify(attachment),
+							).length
+							if (
+								currentChunkSize + attachmentSize > MAX_CHUNK_SIZE &&
+								currentChunk.length > 0
+							) {
+								chunks.push(currentChunk)
+								currentChunk = []
+								currentChunkSize = 0
+							}
+							currentChunk.push(attachment)
+							currentChunkSize += attachmentSize
+						}
+						if (currentChunk.length > 0) {
+							chunks.push(currentChunk)
+						}
+
+						const metadataUpdateResults = await Promise.allSettled(
+							chunks.map((chunk) =>
+								updateThreadMetadata(
+									chunk.flatMap((att) => (att as FileAttachment).messageIds),
+									{
+										attachments: chunk,
+									},
+								),
+							),
+						)
+						const failedChunks = metadataUpdateResults.filter(
+							(result) => result.status === 'rejected',
+						)
+						console.info(
+							failedChunks.length > 0
+								? 'Some chunks failed to update metadata:'
+								: 'All chunks updated metadata successfully  ——> chunk strategy.',
+							{
+								failedChunks,
+							},
+						)
+					} else {
+						const metadataUpdateResults = await updateThreadMetadata(
+							messagesIds,
+							{
+								attachments: attachmentsToProcess,
+							},
+						)
+						if (appConfig.features.devMode) {
+							console.log(
+								'metadataUpdateResults ——> no chunk strategy',
+								metadataUpdateResults,
+							)
+						}
+					}
 
 					// If new attachments are not equal from remote/local
 					if (!isEqual(attachments, newAttachments)) {
 						console.log(
-							'Detected attachments not equal with new attachments hence, either the new attachments or local has to be updates',
+							'Detected attachments not equal with new attachments hence, either the new attachments or local has to be updates. Remote has a url, local a base64 hash.',
 							{
 								newAttachments: {
 									length: newAttachments.length,

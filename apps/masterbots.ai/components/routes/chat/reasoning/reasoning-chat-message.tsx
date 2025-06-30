@@ -48,7 +48,10 @@ export function ReasoningChatMessage({
 	}
 
 	return (
-		<div className={cn('group relative flex items-start p-1')} {...props}>
+		<div
+			className={cn('group relative flex items-start p-1 w-full')}
+			{...props}
+		>
 			<div className="flex-1 pr-1 space-y-6 overflow-hidden">
 				{/* First show the reasoning part (if available) */}
 				{reasoningContent && (
