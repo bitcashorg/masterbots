@@ -218,15 +218,6 @@
 		scrollbar-width: none; /* Firefox */
 	}
 
-	.scrollbar-hide::-webkit-scrollbar {
-		display: none;
-	}
-
-	.scrollbar-hide {
-		-ms-overflow-style: none;
-		scrollbar-width: none;
-	}
-
 	@media screen and (min-width: 1024px) {
 		.scrollbar::-webkit-scrollbar {
 			width: 6px;
