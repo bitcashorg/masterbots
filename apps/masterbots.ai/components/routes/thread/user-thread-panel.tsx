@@ -38,7 +38,7 @@ import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { searchThreadContent } from '@/lib/search'
-import { cn } from '@/lib/utils'
+import { cn, getRouteType } from '@/lib/utils'
 import {
 	getBrowseThreads,
 	getCategory,
@@ -107,6 +107,8 @@ export default function UserThreadPanel({
 	const fetchIdRef = useRef<number>(0)
 	const prevPathRef = useRef('')
 	const pathname = usePathname()
+	const routeType = getRouteType(pathname)
+	const isChatRoute = routeType === 'chat'
 	const [state, setState] = useSetState<{
 		threads: Thread[]
 		count: number
@@ -400,15 +402,18 @@ export default function UserThreadPanel({
 	return (
 		<>
 			{!isContinuousThread && (threads.length !== 0 || searchTerm) && (
-				<div className={searchInputContainerClassName}>
-					<ThreadSearchInput setThreads={setState} onSearch={setSearchTerm} />
-				</div>
+				<>
+					{isChatRoute && <ChatChatbotDetails />}
+					<div className={searchInputContainerClassName}>
+						<ThreadSearchInput setThreads={setState} onSearch={setSearchTerm} />
+					</div>
+				</>
 			)}
 			{loading && threads.length === 0 && !searchTerm && (
 				<div className={searchInputContainerClassName}>
-					<div className="relative w-full max-w-screen-xl mx-auto flex items-center justify-center">
-						<Skeleton className="w-full mx-auto h-12 rounded-full flex absolute" />
-						<Skeleton className="size-6 rounded-full mr-auto ml-3 bg-foreground/10" />
+					<div className="flex relative justify-center items-center mx-auto w-full max-w-screen-xl">
+						<Skeleton className="flex absolute mx-auto w-full h-12 rounded-full" />
+						<Skeleton className="mr-auto ml-3 rounded-full size-6 bg-foreground/10" />
 					</div>
 				</div>
 			)}
@@ -424,7 +429,7 @@ export default function UserThreadPanel({
 							description={`There are no threads available for ${userProps?.username} yet.`}
 						/>
 					) : (
-						<ChatChatbotDetails />
+						isChatRoute && <ChatChatbotDetails />
 					)
 				) : (
 					<ThreadList
@@ -435,7 +440,7 @@ export default function UserThreadPanel({
 					/>
 				)}
 				{totalThreads === count && threads.length > 0 && !loading && (
-					<hr className="w-full border-t-2 border-t-foreground/15 mt-12" />
+					<hr className="mt-12 w-full border-t-2 border-t-foreground/15" />
 				)}
 				{showNoResults && (
 					<NoResults

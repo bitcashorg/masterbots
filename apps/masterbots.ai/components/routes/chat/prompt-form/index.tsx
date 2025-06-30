@@ -112,6 +112,30 @@ export function PromptForm({
 		}
 	}, [])
 
+	// Listen for example question clicks
+	React.useEffect(() => {
+		const handleExampleQuestion = (event: CustomEvent) => {
+			const { question } = event.detail
+			setInput(question)
+			// Focus the textarea after setting the input
+			if (inputRef.current) {
+				inputRef.current.focus()
+			}
+		}
+
+		window.addEventListener(
+			'exampleQuestionSelected',
+			handleExampleQuestion as EventListener,
+		)
+
+		return () => {
+			window.removeEventListener(
+				'exampleQuestionSelected',
+				handleExampleQuestion as EventListener,
+			)
+		}
+	}, [setInput])
+
 	const handleBotSelection = () => {
 		if (activeThread?.chatbot) {
 			setActiveChatbot(activeThread.chatbot)

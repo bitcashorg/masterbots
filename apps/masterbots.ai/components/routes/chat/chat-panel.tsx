@@ -133,19 +133,19 @@ export function ChatPanel({
 	return (
 		<div
 			className={cn(
-				'z-20 fixed inset-x-0 bottom-0 w-full',
+				'fixed inset-x-0 bottom-0 z-20 w-full',
 				'pb-4',
-				'animate-in duration-300 ease-in-out',
+				'duration-300 ease-in-out animate-in',
 				'bg-gradient-to-b from-background/50 to-background',
 				'dark:from-background/0 dark:to-background/80',
 				'lg:pl-[250px] xl:pl-[300px]',
 				className,
 			)}
 		>
-			<div className="relative w-full mx-auto">
+			<div className="relative mx-auto w-full">
 				{/* Header Section */}
 				<div className="flex flex-col items-center justify-between w-full px-2 py-3.5 space-y-2 bg-background md:flex-row md:space-y-0">
-					<div className="flex items-center justify-between w-full gap-4 mx-2">
+					<div className="flex gap-4 justify-between items-center mx-2 w-full">
 						<div className="flex items-center space-x-6 w-full max-w-[60%] overflow-y-hidden scrollbar scrollbar-thin">
 							{/* Feature Toggles */}
 							<FeatureToggle
@@ -206,7 +206,7 @@ export function ChatPanel({
 									size="icon"
 									className={cn(
 										hiddenAnimationClasses,
-										'bg-yellow-500/10 hover:bg-yellow-500/20 border-yellow-500/30 text-yellow-500',
+										'text-yellow-500 bg-yellow-500/10 hover:bg-yellow-500/20 border-yellow-500/30',
 									)}
 									onClick={() => handleContinueGeneration()}
 								>
@@ -242,8 +242,8 @@ export function ChatPanel({
 				{/* Prompt Form Section */}
 				<div
 					className={cn(
-						'relative flex flex-col w-full',
-						'p-2 md:px-4 space-y-2 sm:space-y-4',
+						'flex relative flex-col w-full',
+						'p-2 space-y-2 md:px-4 sm:space-y-4',
 						'border-t shadow-lg bg-background',
 						'dark:border-zinc-800 border-zinc-200',
 						isOpenPopup ? 'dark:border-mirage border-iron' : '',

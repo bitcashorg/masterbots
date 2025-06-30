@@ -214,8 +214,17 @@
 	}
 
 	.hide-scrollbar {
-		-ms-overflow-style: none;  /* IE and Edge */
-		scrollbar-width: none;  /* Firefox */
+		-ms-overflow-style: none; /* IE and Edge */
+		scrollbar-width: none; /* Firefox */
+	}
+
+	.scrollbar-hide::-webkit-scrollbar {
+		display: none;
+	}
+
+	.scrollbar-hide {
+		-ms-overflow-style: none;
+		scrollbar-width: none;
 	}
 
 	@media screen and (min-width: 1024px) {
@@ -537,7 +546,8 @@
 }
 
 @keyframes pro-card-float {
-	0%, 100% {
+	0%,
+	100% {
 		transform: translateY(0px);
 	}
 	50% {
@@ -546,7 +556,7 @@
 }
 
 .pro-card::before {
-	content: '';
+	content: "";
 	position: absolute;
 	top: 0;
 	left: -100%;
@@ -572,7 +582,8 @@
 }
 
 @keyframes pro-pulse {
-	0%, 100% {
+	0%,
+	100% {
 		box-shadow: 0 0 25px rgba(131, 229, 106, 0.4);
 	}
 	50% {
@@ -582,11 +593,12 @@
 
 .dark .pro-glow {
 	box-shadow: 0 0 25px rgba(131, 229, 106, 0.5);
- 	animation: pro-pulse-dark 2s infinite;
+	animation: pro-pulse-dark 2s infinite;
 }
 
 @keyframes pro-pulse-dark {
-	0%, 100% {
+	0%,
+	100% {
 		box-shadow: 0 0 25px rgba(131, 229, 106, 0.5);
 	}
 	50% {
@@ -652,13 +664,17 @@
 }
 
 .pro-card.border-gradient::after {
-	content: '';
+	content: "";
 	position: absolute;
 	top: -2px;
 	left: -2px;
 	right: -2px;
 	bottom: -2px;
-	background: linear-gradient(45deg, rgba(131, 229, 106, 0.3), rgba(131, 229, 106, 0.6));
+	background: linear-gradient(
+		45deg,
+		rgba(131, 229, 106, 0.3),
+		rgba(131, 229, 106, 0.6)
+	);
 	border-radius: inherit;
 	z-index: -1;
 	opacity: 0.4;
@@ -717,7 +733,8 @@
 }
 
 @keyframes pro-radio-pulse {
-	0%, 100% {
+	0%,
+	100% {
 		transform: scale(1);
 	}
 	50% {
@@ -726,13 +743,17 @@
 }
 
 .pro-radio::before {
-	content: '';
+	content: "";
 	position: absolute;
 	top: 50%;
 	left: 50%;
 	width: 0;
 	height: 0;
-	background: radial-gradient(circle, rgba(131, 229, 106, 0.8) 0%, transparent 70%);
+	background: radial-gradient(
+		circle,
+		rgba(131, 229, 106, 0.8) 0%,
+		transparent 70%
+	);
 	transform: translate(-50%, -50%);
 	transition: all 0.3s ease;
 	opacity: 0;
@@ -763,13 +784,17 @@
 }
 
 .pro-card .inner-content::before {
-	content: '';
+	content: "";
 	position: absolute;
 	top: 0;
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background: linear-gradient(135deg, rgba(131, 229, 106, 0.08) 0%, transparent 50%);
+	background: linear-gradient(
+		135deg,
+		rgba(131, 229, 106, 0.08) 0%,
+		transparent 50%
+	);
 	pointer-events: none;
 	z-index: -1;
 	animation: pro-content-glow 3s ease-in-out infinite alternate;
@@ -785,7 +810,11 @@
 }
 
 .dark .pro-card .inner-content::before {
-	background: linear-gradient(135deg, rgba(131, 229, 106, 0.1) 0%, transparent 50%);
+	background: linear-gradient(
+		135deg,
+		rgba(131, 229, 106, 0.1) 0%,
+		transparent 50%
+	);
 }
 
 /* Free card inner content hover effects */
