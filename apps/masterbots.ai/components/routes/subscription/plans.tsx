@@ -262,9 +262,7 @@ export function Plans({ next, goTo }: PlansPros) {
 									)}
 								>
 									Annually
-									<span className="ml-1 text-xs text-accent">
-										(Save 20%)
-									</span>
+									<span className="ml-1 text-xs text-accent">(Save 20%)</span>
 								</span>
 							</div>
 
