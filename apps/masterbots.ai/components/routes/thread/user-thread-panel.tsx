@@ -359,8 +359,7 @@ export default function UserThreadPanel({
 			: customMessage
 	const showNoResults = !loading && searchTerm && threads.length === 0
 	const showChatbotDetails = !loading && !searchTerm && !threads.length
-	const searchInputContainerClassName =
-		'flex justify-between py-5 lg:max-w-full'
+	const searchInputContainerClassName = 'flex justify-between lg:max-w-full'
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const debouncedSearch = useMemo(
