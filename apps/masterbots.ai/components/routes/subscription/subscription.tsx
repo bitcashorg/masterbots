@@ -41,7 +41,11 @@ const steps: WizardStep[] = [
 	{ component: SuccessContent, name: 'Success' },
 ]
 
-export default function Subscription() {
+interface SubscriptionProps {
+	isOpen?: boolean
+}
+
+export default function Subscription({ isOpen = false }: SubscriptionProps) {
 	const router = useRouter()
 	const { data: session } = useSession()
 	const { email } = (session?.user as Session['user']) || {
@@ -53,10 +57,6 @@ export default function Subscription() {
 		handleSetError,
 		paymentIntent,
 	} = usePayment()
-
-	const { value: openDialog } = useAsync(
-		async () => await checkIfCustomerHasActiveSub(email),
-	)
 
 	const handleCloseWizard = async () => {
 		if (typeof paymentIntent === 'object' && paymentIntent !== '')
@@ -71,7 +71,7 @@ export default function Subscription() {
 		<div className="flex items-center justify-center">
 			<DialogWizard
 				handleCloseWizard={handleCloseWizard}
-				dialogOpen={Boolean(openDialog)}
+				dialogOpen={isOpen}
 				steps={steps}
 				headerTitle="Masterbots Subscription plans"
 				errorComponent={<ErrorContent />}

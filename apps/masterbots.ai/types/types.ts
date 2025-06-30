@@ -85,6 +85,7 @@ export type PlanCardProps = {
 	selectedPlan: string
 	handlePlanChange: (e: React.ChangeEvent<HTMLInputElement>) => void
 	plan: StripePlan
+	isPurchased?: boolean
 }
 
 export interface StripePlan extends Stripe.Plan, Stripe.Plan.Tier {
