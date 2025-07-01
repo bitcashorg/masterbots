@@ -69,10 +69,10 @@ export function OnboardingChatbotExamples({
 						</p>
 
 						{isWelcomeView && (
-							<div className="flex flex-col justify-center items-center space-y-4">
-								<h2 className="flex items-center text-2xl font-semibold selected-bot-text">
+							<div className="flex flex-col justify-start items-start space-y-1">
+								<h2 className="flex items-center text-base font-medium selected-bot-text">
 									<ArrowBigLeft className="mr-2 size-6 selected-bot-icon" />
-									Go To Sidebar And Select One Bot
+									Go to sidebar and select one bot
 								</h2>
 							</div>
 						)}
