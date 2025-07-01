@@ -383,33 +383,37 @@ export function ChatPanel({
 				open={exampleQuestionsOpen}
 				onOpenChange={setExampleQuestionsOpen}
 			>
-				<DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden">
-					<DialogHeader>
-						<DialogTitle className="flex gap-2 items-center">
-							Example Questions
+				<DialogContent className="max-w-4xl max-h-[85vh] overflow-hidden">
+					<DialogHeader className="pb-4">
+						<DialogTitle className="flex gap-4 items-center text-xl">
+							Example questions
 						</DialogTitle>
 					</DialogHeader>
-					<div className="overflow-y-auto max-h-[60vh]">
-						<div className="grid grid-cols-1 gap-3 p-4 md:grid-cols-2 lg:grid-cols-3">
+
+					<div className="overflow-y-auto max-h-[60vh] scrollbar-thin">
+						<div className="flex flex-col p-4 space-y-2">
 							{mockExampleQuestions.map((example) => (
 								<Button
 									key={example.id}
 									variant="outline"
 									className={cn(
-										'justify-start text-left h-auto min-h-[80px] p-4 border-2 transition-all duration-300',
+										'justify-start text-left h-auto min-h-[70px] w-full p-4 border-2 transition-all duration-300',
 										'hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-950/20',
-										'hover:shadow-lg',
+										'hover:shadow-lg hover:-translate-y-0.5',
 										'group relative overflow-hidden',
 										selectedExample === example.id
-											? 'border-purple-500 bg-purple-50 dark:bg-purple-950/20 shadow-lg'
+											? 'border-purple-500 bg-purple-50 dark:bg-purple-950/20 shadow-lg -translate-y-0.5'
 											: 'border-zinc-200 dark:border-zinc-700 hover:border-purple-400',
 									)}
 									onClick={() => handleExampleClick(example.prompt, example.id)}
 								>
-									<div className="flex flex-col space-y-2 w-full">
+									<div className="flex justify-between items-center w-full">
 										<p className="text-sm font-medium leading-relaxed transition-colors duration-200 text-zinc-950 dark:text-gray-300 group-hover:text-purple-900 dark:group-hover:text-purple-100">
 											{example.prompt}
 										</p>
+										<span className="text-xs opacity-0 transition-opacity text-muted-foreground group-hover:opacity-100">
+											Click to use
+										</span>
 									</div>
 								</Button>
 							))}
