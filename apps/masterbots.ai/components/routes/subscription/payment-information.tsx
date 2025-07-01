@@ -94,7 +94,7 @@ export function PaymentInformation({ prev, next }: WizardStepProps) {
 				</div>
 			</div>
 
-			<div className="flex items-center justify-center p-5 space-x-10 bg-white border-t dark:bg-black border-t-black">
+			<div className="flex justify-center items-center p-5 space-x-10 bg-white border-t dark:bg-black border-t-black">
 				<button
 					onClick={prev}
 					type="button"
@@ -106,7 +106,7 @@ export function PaymentInformation({ prev, next }: WizardStepProps) {
 					disabled={isLoading}
 					type="submit"
 					className={cn(
-						'dark:bg-white bg-black text-white dark:text-black rounded-full font-bold py-2 px-4',
+						'px-4 py-2 font-bold text-white bg-black rounded-full dark:bg-white dark:text-black',
 						{ 'opacity-50': isLoading },
 					)}
 				>
