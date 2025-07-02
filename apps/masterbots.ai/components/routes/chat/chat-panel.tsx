@@ -71,6 +71,7 @@ export function ChatPanel({
 	const { isDeepThinking, toggleDeepThinking } = useDeepThinking()
 	const [shareDialogOpen, setShareDialogOpen] = useState(false)
 	const {
+		isCutOff,
 		getContinuationPrompt,
 		continueGeneration,
 		setIsCutOff,
@@ -230,7 +231,7 @@ export function ChatPanel({
 								className={hiddenAnimationClasses}
 								textClassName={hiddenAnimationItemClasses}
 							/>
-							{messages?.length >= 2 && (
+							{messages?.length >= 2 && isCutOff && (
 								<Button
 									variant="outline"
 									size="icon"
