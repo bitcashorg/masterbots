@@ -67,10 +67,14 @@ export async function POST(request: Request) {
 			} else if (coupon.duration === 'once') {
 				//? For one-time coupons, check if there's a trial period
 				trialPeriodDays = 0
-				discountInfo = coupon.percent_off ? `${coupon.percent_off}% off` : 'Discount applied'
+				discountInfo = coupon.percent_off
+					? `${coupon.percent_off}% off`
+					: 'Discount applied'
 			} else if (coupon.duration === 'forever') {
 				trialPeriodDays = 0
-				discountInfo = coupon.percent_off ? `${coupon.percent_off}% off forever` : 'Permanent discount'
+				discountInfo = coupon.percent_off
+					? `${coupon.percent_off}% off forever`
+					: 'Permanent discount'
 			}
 		}
 
@@ -80,12 +84,14 @@ export async function POST(request: Request) {
 			promotionCodeId: promotionCode.id,
 			trialPeriodDays,
 			discountInfo,
-			couponDetails: coupon ? {
-				duration: coupon.duration,
-				percent_off: coupon.percent_off,
-				amount_off: coupon.amount_off,
-				duration_in_months: coupon.duration_in_months,
-			} : null,
+			couponDetails: coupon
+				? {
+						duration: coupon.duration,
+						percent_off: coupon.percent_off,
+						amount_off: coupon.amount_off,
+						duration_in_months: coupon.duration_in_months,
+					}
+				: null,
 		})
 	} catch (error) {
 		console.error('Error validating promotion code:', error)

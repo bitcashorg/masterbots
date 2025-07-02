@@ -25,7 +25,7 @@ export function BotProfileThreadSection({
 			) : (
 				''
 			)}
-			<div className="flex flex-col w-full max-w-screen-xl gap-10 px-4 pt-5 mx-auto h-full md:px-10">
+			<div className="flex flex-col gap-5 px-4 pt-5 mx-auto w-full max-w-screen-xl h-full md:px-10">
 				<UserThreadPanel
 					threads={threads}
 					count={count}

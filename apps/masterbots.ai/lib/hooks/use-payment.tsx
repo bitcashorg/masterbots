@@ -54,15 +54,13 @@ interface PaymentContextProps {
 	promo: PromoState
 	handleSetPromo: (updates: Partial<PromoState>) => void
 	handleResetPromo: () => void
-	handleValidatePromoCode: (
-		code: string,
-	) => Promise<{ 
-		valid: boolean; 
-		error?: string; 
-		promotionCodeId?: string;
-		trialPeriodDays?: number;
-		discountInfo?: string;
-		couponDetails?: any;
+	handleValidatePromoCode: (code: string) => Promise<{
+		valid: boolean
+		error?: string
+		promotionCodeId?: string
+		trialPeriodDays?: number
+		discountInfo?: string
+		couponDetails?: any
 	}>
 	handleApplyPromoCode: () => void
 }
@@ -93,7 +91,7 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
 	const [secret, setSecret] = useState<string>('')
 	const [stripeSecret, setStripeSecret] = useState<string>('')
 	const [stripePublishkey, setStripePublishKey] = useState<string>('')
-	
+
 	// Unified promotion code state
 	const [promo, setPromo] = useState<PromoState>({
 		code: '',
@@ -155,7 +153,7 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
 
 	//? Unified promotion code handlers
 	const handleSetPromo = (updates: Partial<PromoState>) => {
-		setPromo(prev => ({ ...prev, ...updates }))
+		setPromo((prev) => ({ ...prev, ...updates }))
 	}
 
 	const handleResetPromo = () => {
@@ -197,7 +195,7 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
 	const handleApplyPromoCode = () => {
 		//? Mark the validated promotion code as applied
 		handleSetPromo({
-			applied: true
+			applied: true,
 		})
 	}
 
