@@ -25,13 +25,13 @@ export function OnboardingChatbotExamples({
 
 	return (
 		<div
-			className="mt-5 hidden h-[calc(100vh-196px)] md:flex items-center justify-center -translate-y-8 relative"
+			className="mt-10 hidden h-[calc(50vh-196px)] md:flex items-center justify-center -translate-y-8 relative"
 			data-route={routeType}
 		>
-			<Card className="w-[95vw] max-w-[1100px] min-w-[320px] bg-white dark:bg-[#09090B] relative z-10 overflow-hidden rounded-2xl">
+			<Card className="max-w-screen-lg min-w-[320px] bg-white dark:bg-[#09090B] relative z-10 overflow-hidden rounded-2xl">
 				{/* Background image layer */}
 				<div
-					className={`absolute inset-0 bg-center bg-cover opacity-10 ${bgImage}`}
+					className={`absolute inset-0 bg-center bg-cover opacity-20 ${bgImage}`}
 				/>
 
 				{/* Content layer */}
