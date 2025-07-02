@@ -268,15 +268,19 @@ export function ChatPanel({
 							)}
 
 							{/* Example Questions Toggle */}
-							<FeatureToggle
-								id="exampleQuestions"
-								name="Example Questions"
-								icon={<Sparkles />}
-								activeIcon={<Sparkles />}
-								isActive={exampleQuestionsOpen}
-								onChange={() => setExampleQuestionsOpen(!exampleQuestionsOpen)}
-								activeColor="cyan"
-							/>
+							{appConfig.features.exampleQuestions && (
+								<FeatureToggle
+									id="exampleQuestions"
+									name="Example Questions"
+									icon={<Sparkles />}
+									activeIcon={<Sparkles />}
+									isActive={exampleQuestionsOpen}
+									onChange={() =>
+										setExampleQuestionsOpen(!exampleQuestionsOpen)
+									}
+									activeColor="cyan"
+								/>
+							)}
 						</div>
 
 						{/* Right side controls */}
