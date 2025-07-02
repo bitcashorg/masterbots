@@ -713,7 +713,7 @@ export const urlBuilders = {
 					)
 				return '/'
 			}
-			return ['', 'b', toSlug(chatbot), normalizeDomainSlug(domain)].join('/')
+			return ['', 'b', toSlug(chatbot)].join('/')
 		} catch (error) {
 			if (appConfig.features.devMode)
 				console.error('Error constructing profile URL:', error)

@@ -193,8 +193,14 @@ export function SharedAccordion({
 				},
 			})
 		} else if (botProfile) {
+			console.log({
+				type: 'chatbot',
+				chatbot: fullThread?.chatbot?.name || 'Masterbots',
+				threadSlug: fullThread?.slug || (params.threadSlug as string),
+			})
 			navigateTo({
 				urlType: 'profilesThreadUrl',
+				shallow: true,
 				navigationParams: {
 					type: 'chatbot',
 					chatbot: fullThread?.chatbot?.name || 'Masterbots',
