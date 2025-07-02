@@ -21,13 +21,15 @@ export function AttachmentsDisplay({
 	isDragging,
 	attachments,
 	onRemove,
+	onUpdate,
 }: {
 	isDragging: boolean
 	attachments: FileAttachment[]
 	onRemove: (id: string) => void
+	onUpdate: (id: string, attachment: Partial<FileAttachment>) => void
 }) {
 	return (
-		<AnimatePresence>
+		<AnimatePresence mode="wait">
 			{isDragging && (
 				<motion.div
 					className="absolute left-0 top-0 pointer-events-none dark:bg-zinc-900/90 size-full rounded-md z-10 justify-center items-center flex flex-col gap-1 bg-zinc-100/90"
@@ -45,11 +47,19 @@ export function AttachmentsDisplay({
 			{attachments.length > 0 && (
 				<ul className="flex flex-nowrap gap-2 px-2 py-1 mb-2 scrollbar w-full">
 					{attachments.map((attachment) => {
-						const { id, url, name, contentType } = attachment as FileAttachment
-						const base64Hash = url.split(',')[1]
-						const readableTextContent = contentType.includes('image')
-							? ''
-							: atob(base64Hash)
+						const { id, url, content, name, contentType } =
+							attachment as FileAttachment
+						const base64Hash = (content as string).split(',')[1]
+
+						let readableTextContent = ''
+						if (!contentType.includes('image') && base64Hash) {
+							try {
+								readableTextContent = atob(base64Hash)
+							} catch (error) {
+								console.error('Failed to decode base64 content:', error)
+								readableTextContent = '🔴 Unable to decode file content'
+							}
+						}
 
 						return (
 							<motion.li
@@ -99,16 +109,21 @@ export function AttachmentsDisplay({
 													alt={name}
 													width={224}
 													height={224}
-													className="w-full h-auto max-h-full rounded-lg"
+													className="w-full h-auto max-h-full rounded-lg object-cover"
 												/>
 											) : (
-												<pre className="text-xs whitespace-pre-wrap scrollbar size-full bg-muted p-2">
+												<pre className="size-full scrollbar p-2 border rounded-sm border-foreground/20 bg-muted text-sm whitespace-pre-wrap">
 													{readableTextContent}
 												</pre>
 											)}
 										</figure>
 										<AttachmentDialog
 											attachment={attachment}
+											updateAttachment={
+												attachment.name.match(/(Pasted Context|Thread Context)/)
+													? onUpdate
+													: undefined
+											}
 											absolutePosition
 										/>
 									</PopoverContent>
