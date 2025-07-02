@@ -7,8 +7,6 @@ export function useAttachmentDialog({
 	dialogState,
 	updateAttachment,
 }: AttachmentDialogProps) {
-	if (!attachment) return {}
-
 	const { open, onOpenChange } = dialogState || {}
 	const [contentEditable, setContentEditable] = useState(true)
 	const [fetchedContent, setFetchedContent] = useState<string>('')
@@ -81,6 +79,10 @@ export function useAttachmentDialog({
 		}
 	}, [contentEditable, open, attachment?.id])
 
+	const { id, name, content, url, contentType } = attachment as FileAttachment
+	const shouldRenderContent =
+		content && !(content as string).includes('attachments/')
+
 	const updateDialogState = () => {
 		if (textContentRef.current) {
 			textContentRef.current = null
@@ -88,8 +90,6 @@ export function useAttachmentDialog({
 		setContentEditable(Boolean(open && attachment))
 
 		if (!attachment || fetchedContent) return
-
-		const { url, contentType } = attachment
 
 		if (!shouldRenderContent && url && contentType?.includes('text')) {
 			// Only fetch if it's a text file and content is not available
@@ -110,8 +110,6 @@ export function useAttachmentDialog({
 			updateDialogState()
 		}
 	}, [open, attachment?.id])
-
-	const { id, name, content } = attachment as FileAttachment
 
 	const toggleDialogOpen = (isOpen: boolean) => {
 		if (contentEditable) {
@@ -289,9 +287,6 @@ export function useAttachmentDialog({
 		}
 		return '[NO CONTENT AVAILABLE]'
 	}
-
-	const shouldRenderContent =
-		content && !(content as string).includes('attachments/')
 
 	return {
 		open,

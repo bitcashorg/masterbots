@@ -208,11 +208,12 @@ export function PromptForm({
 		}, 120)
 	}
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: not required
 	React.useEffect(() => {
-		if (attachments.length > 0) {
+		const filterAttachmentByName = (attch: FileAttachment) =>
+			attch.name.includes('Thread Context')
+		if (attachments.length > 0 && attachments.some(filterAttachmentByName)) {
 			const threadContextFiles = attachments
-				.filter((attch) => attch.name.includes('Thread Context'))
+				.filter(filterAttachmentByName)
 				.sort((a, b) => {
 					// Sort by the latest thread context file first
 					const aCount = Number(a.name.match(/\((\d+)\)/)?.[1] || '0')
@@ -222,7 +223,7 @@ export function PromptForm({
 			threadContextFileRef.current =
 				threadContextFiles[0] || DEFAULT_FILE_ATTACHMENT
 		}
-	}, [triggerNewTextFileDialog])
+	}, [attachments])
 
 	const submitPrompt = async (e: React.FormEvent) => {
 		e.preventDefault()

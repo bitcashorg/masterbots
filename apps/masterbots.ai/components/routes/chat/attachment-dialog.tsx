@@ -36,8 +36,6 @@ export function AttachmentDialog({
 	absolutePosition = false,
 	triggerComponent,
 }: AttachmentDialogProps) {
-	if (!attachment) return null
-
 	const {
 		open,
 		contentEditable,
@@ -218,7 +216,7 @@ function SkeletonFallback() {
 }
 
 export interface AttachmentDialogProps {
-	attachment: FileAttachment | null
+	attachment: FileAttachment
 	/**
 	 * Optional dialog state to control the open state of the dialog.
 	 */
