@@ -156,6 +156,30 @@ export function PromptForm({
 		}
 	}, [])
 
+	// Listen for example question clicks
+	React.useEffect(() => {
+		const handleExampleQuestion = (event: CustomEvent) => {
+			const { question } = event.detail
+			setInput(question)
+			// Focus the textarea after setting the input
+			if (inputRef.current) {
+				inputRef.current.focus()
+			}
+		}
+
+		window.addEventListener(
+			'exampleQuestionSelected',
+			handleExampleQuestion as EventListener,
+		)
+
+		return () => {
+			window.removeEventListener(
+				'exampleQuestionSelected',
+				handleExampleQuestion as EventListener,
+			)
+		}
+	}, [setInput])
+
 	// * Creating unique instances for each form (popup and main).
 	// ? This is required to prevent the form from submitting when the user presses Enter in the popup.
 	// ? Must be rendered once per form instance. Else it will not work as expected if leave without memoizing (onChange would update this component).

@@ -8,6 +8,12 @@ import { ImageGenerationToggle } from '@/components/shared/feature-toggle-image'
 import { ImageGenerator } from '@/components/shared/image-generator'
 import { LoadingIndicator } from '@/components/shared/loading-indicator'
 import { Button } from '@/components/ui/button'
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog'
 import { IconShare, IconStop } from '@/components/ui/icons'
 import { useContinueGeneration } from '@/lib/hooks/use-continue-generation'
 import { useDeepThinking } from '@/lib/hooks/use-deep-thinking'
@@ -18,18 +24,59 @@ import { useThread } from '@/lib/hooks/use-thread'
 import { logErrorToSentry } from '@/lib/sentry'
 import { cn } from '@/lib/utils'
 import { getUserBySlug } from '@/services/hasura'
+import type { ExampleQuestion } from '@/types/types'
 import type { Message as AiMessage } from 'ai'
 import type { UseChatHelpers } from 'ai/react'
 import {
 	ChevronsLeftRightEllipsis,
 	GlobeIcon,
 	GraduationCap,
+	Sparkles,
 } from 'lucide-react'
 import { appConfig } from 'mb-env'
 import type { Chatbot } from 'mb-genql'
 import { useSession } from 'next-auth/react'
 import { useCallback, useState } from 'react'
 import { useAsync } from 'react-use'
+
+// Mock example questions - these will come from Hasura eventually
+const mockExampleQuestions: ExampleQuestion[] = [
+	{
+		id: '1',
+		prompt: 'What are the best practices for React performance optimization?',
+		category: 'Development',
+	},
+	{
+		id: '2',
+		prompt: 'How can I implement authentication in a Next.js application?',
+		category: 'Development',
+	},
+	{
+		id: '3',
+		prompt: 'What are the key differences between TypeScript and JavaScript?',
+		category: 'Development',
+	},
+	{
+		id: '4',
+		prompt: 'What are the key differences between TypeScript and JavaScript?',
+		category: 'Development',
+	},
+	{
+		id: '5',
+		prompt: 'What are the key differences between TypeScript and JavaScript?',
+		category: 'Development',
+	},
+	{
+		id: '6',
+		prompt: 'What are the key differences between TypeScript and JavaScript?',
+		category: 'Development',
+	},
+	{
+		id: '7',
+		prompt: 'What are the key differences between TypeScript and JavaScript?',
+		category: 'Development',
+	},
+]
 
 export interface ChatPanelProps
 	extends Pick<
@@ -70,6 +117,8 @@ export function ChatPanel({
 	const { isPowerUp, togglePowerUp } = usePowerUp()
 	const { isDeepThinking, toggleDeepThinking } = useDeepThinking()
 	const [shareDialogOpen, setShareDialogOpen] = useState(false)
+	const [exampleQuestionsOpen, setExampleQuestionsOpen] = useState(false)
+	const [selectedExample, setSelectedExample] = useState<string | null>(null)
 	const {
 		isCutOff,
 		getContinuationPrompt,
@@ -98,6 +147,18 @@ export function ChatPanel({
 
 		return userResults.user
 	}, [session?.user?.hasuraJwt])
+
+	const handleExampleClick = (question: string, id: string) => {
+		setSelectedExample(id)
+		setInput(question)
+		setExampleQuestionsOpen(false)
+
+		//? Custom event for other components that might need to know
+		const event = new CustomEvent('exampleQuestionSelected', {
+			detail: { question },
+		})
+		window.dispatchEvent(event)
+	}
 
 	const handleContinueGeneration = async () => {
 		if (formDisabled) {
@@ -162,19 +223,19 @@ export function ChatPanel({
 	return (
 		<div
 			className={cn(
-				'z-20 fixed inset-x-0 bottom-0 w-full',
+				'fixed inset-x-0 bottom-0 z-20 w-full',
 				'pb-4',
-				'animate-in duration-300 ease-in-out',
+				'duration-300 ease-in-out animate-in',
 				'bg-gradient-to-b from-background/50 to-background',
 				'dark:from-background/0 dark:to-background/80',
 				'lg:pl-[250px] xl:pl-[300px]',
 				className,
 			)}
 		>
-			<div className="relative w-full mx-auto">
+			<div className="relative mx-auto w-full">
 				{/* Header Section */}
 				<div className="flex flex-col items-center justify-between w-full px-2 py-3.5 space-y-2 bg-background md:flex-row md:space-y-0">
-					<div className="flex items-center justify-between w-full gap-4 mx-2">
+					<div className="flex gap-4 justify-between items-center mx-2 w-full">
 						<div className="flex items-center space-x-6 w-full max-w-[60%] overflow-y-hidden scrollbar scrollbar-thin">
 							{/* Feature Toggles */}
 							<FeatureToggle
@@ -202,6 +263,21 @@ export function ChatPanel({
 										console.log('ChatPanel: Toggle Web Search:', newValue)
 										setWebSearch()
 									}}
+									activeColor="cyan"
+								/>
+							)}
+
+							{/* Example Questions Toggle */}
+							{appConfig.features.exampleQuestions && (
+								<FeatureToggle
+									id="exampleQuestions"
+									name="Example Questions"
+									icon={<Sparkles />}
+									activeIcon={<Sparkles />}
+									isActive={exampleQuestionsOpen}
+									onChange={() =>
+										setExampleQuestionsOpen(!exampleQuestionsOpen)
+									}
 									activeColor="cyan"
 								/>
 							)}
@@ -237,7 +313,7 @@ export function ChatPanel({
 									size="icon"
 									className={cn(
 										hiddenAnimationClasses,
-										'bg-yellow-500/10 hover:bg-yellow-500/20 border-yellow-500/30 text-yellow-500',
+										'text-yellow-500 bg-yellow-500/10 hover:bg-yellow-500/20 border-yellow-500/30',
 									)}
 									onClick={() => handleContinueGeneration()}
 								>
@@ -273,8 +349,8 @@ export function ChatPanel({
 				{/* Prompt Form Section */}
 				<div
 					className={cn(
-						'relative flex flex-col w-full',
-						'p-2 md:px-4 space-y-2 sm:space-y-4',
+						'flex relative flex-col w-full',
+						'p-2 space-y-2 md:px-4 sm:space-y-4',
 						'border-t shadow-lg bg-background',
 						'dark:border-zinc-800 border-zinc-200',
 						isOpenPopup ? 'dark:border-mirage border-iron' : '',
@@ -306,6 +382,50 @@ export function ChatPanel({
 					)}
 				</div>
 			</div>
+
+			{/* Example Questions Modal */}
+			<Dialog
+				open={exampleQuestionsOpen}
+				onOpenChange={setExampleQuestionsOpen}
+			>
+				<DialogContent className="max-w-4xl max-h-[85vh] overflow-hidden">
+					<DialogHeader className="pb-4">
+						<DialogTitle className="flex gap-4 items-center text-xl">
+							Example questions
+						</DialogTitle>
+					</DialogHeader>
+
+					<div className="overflow-y-auto max-h-[60vh] scrollbar-thin">
+						<div className="flex flex-col p-4 space-y-2">
+							{mockExampleQuestions.map((example) => (
+								<Button
+									key={example.id}
+									variant="outline"
+									className={cn(
+										'justify-start text-left h-auto min-h-[70px] w-full p-4 border-2 transition-all duration-300',
+										'hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-950/20',
+										'hover:shadow-lg hover:-translate-y-0.5',
+										'group relative overflow-hidden',
+										selectedExample === example.id
+											? 'border-purple-500 bg-purple-50 dark:bg-purple-950/20 shadow-lg -translate-y-0.5'
+											: 'border-zinc-200 dark:border-zinc-700 hover:border-purple-400',
+									)}
+									onClick={() => handleExampleClick(example.prompt, example.id)}
+								>
+									<div className="flex justify-between items-center w-full">
+										<p className="text-sm font-medium leading-relaxed transition-colors duration-200 text-zinc-950 dark:text-gray-300 group-hover:text-purple-900 dark:group-hover:text-purple-100">
+											{example.prompt}
+										</p>
+										<span className="text-xs opacity-0 transition-opacity text-muted-foreground group-hover:opacity-100">
+											Click to use
+										</span>
+									</div>
+								</Button>
+							))}
+						</div>
+					</div>
+				</DialogContent>
+			</Dialog>
 		</div>
 	)
 }

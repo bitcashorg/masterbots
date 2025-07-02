@@ -21,13 +21,18 @@ export function SelectedBotMobileView({
 	const botName = activeChatbot?.name || randomChatbot?.name
 	const avatar = activeChatbot?.avatar || randomChatbot?.avatar || ''
 	const description = activeChatbot?.description || randomChatbot?.description
-
+	// Background image class
+	const bgImage = 'bg-[url(/background.webp)] dark:bg-[url(/background.webp)]'
 	return (
 		<div
-			className="md:hidden h-[calc(100vh-196px)] flex items-center justify-center -translate-y-8"
+			className="md:hidden mt-10 h-[calc(50vh-196px)] flex items-center justify-center -translate-y-8"
 			data-route={routeType}
 		>
-			<Card className="w-full bg-white dark:bg-[#09090B]">
+			<Card className="relative w-full bg-white dark:bg-[#09090B]">
+				{/* Background image layer */}
+				<div
+					className={`absolute inset-0 bg-center bg-cover opacity-20 ${bgImage}`}
+				/>
 				<CardHeader>
 					<div className="flex flex-col gap-4">
 						<div className="flex items-start justify-between px-4 pt-2">
@@ -36,14 +41,9 @@ export function SelectedBotMobileView({
 							</h1>
 						</div>
 
-						<div className="flex items-center px-4">
-							<Bot className="mr-2 size-4" />
-							<span className="text-sm">bio:</span>
-						</div>
-
 						<div className="relative">
 							{/* Avatar container positioned absolutely */}
-							<div className="absolute z-10 right-4 -top-8">
+							<div className="absolute z-10 right-4 -top-10">
 								<div
 									className={cn(
 										'size-16 rounded-full relative',
@@ -65,7 +65,7 @@ export function SelectedBotMobileView({
 							<div className="h-[3px] bg-zinc-200 dark:bg-slate-800" />
 						</div>
 
-						<div className="flex items-start justify-between gap-4 p-6">
+						<div className="flex items-start justify-between gap-4 px-4 py-2.5">
 							<p className="flex-1 text-sm text-zinc-500 dark:text-zinc-500">
 								{description}
 							</p>

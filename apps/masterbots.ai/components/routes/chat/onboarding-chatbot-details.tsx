@@ -20,13 +20,19 @@ export function OnboardingChatbotDetails({
 	const botName = activeChatbot?.name || randomChatbot?.name
 	const avatar = activeChatbot?.avatar || randomChatbot?.avatar || ''
 	const description = activeChatbot?.description || randomChatbot?.description
+	// Background image class
+	const bgImage = 'bg-[url(/background.webp)] dark:bg-[url(/background.webp)]'
 
 	return (
 		<div
-			className="hidden h-[calc(100vh-196px)] md:flex items-center justify-center -translate-y-8 relative"
+			className="hidden mt-10 h-[calc(50vh-196px)] md:flex items-center justify-center -translate-y-8 relative"
 			data-route={routeType}
 		>
-			<Card className="w-[600px] bg-white dark:bg-[#09090B] relative z-10">
+			<Card className="w-[600px] relative bg-white dark:bg-[#09090B] relative z-10">
+				{/* Background image layer */}
+				<div
+					className={`absolute inset-0 bg-center bg-cover opacity-20 ${bgImage}`}
+				/>
 				<CardHeader className="space-y-3">
 					<h1 className="px-4 pt-4 text-2xl font-bold text-zinc-950 dark:text-gray-300">
 						{isWelcomeView ? 'Welcome to Masterbots!' : botName}
