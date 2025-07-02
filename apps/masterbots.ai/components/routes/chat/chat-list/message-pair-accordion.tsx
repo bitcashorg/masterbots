@@ -70,17 +70,23 @@ export function MessagePairAccordion({
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
-		if (!params.threadQuestionSlug) return
+		let setFocuse = false
+		if (!params.threadQuestionSlug) {
+			// If no threadQuestionSlug in URL, focus on the last message of the pair
+			setFocuse = index === arrayLength - 1 && !isPrevious
+		} else {
+			// If threadQuestionSlug exists, focus on the message with that slug
+			setFocuse =
+				pair.userMessage.slug === (params.threadQuestionSlug as string)
+		}
+
+		if (setFocuse) {
+			setIsAccordionFocused(true)
+		}
 
 		const $questionElement = document.getElementById(
 			params.threadQuestionSlug as string,
 		)
-
-		const setFocuse =
-			pair.userMessage.slug === (params.threadQuestionSlug as string)
-		if (setFocuse) {
-			setIsAccordionFocused(true)
-		}
 
 		if (!$questionElement) return
 
