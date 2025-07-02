@@ -54,19 +54,10 @@ export function AttachmentsDisplay({
 						let readableTextContent = ''
 						if (!contentType.includes('image') && base64Hash) {
 							try {
-								// Use Buffer to properly handle UTF-8 content, similar to toggleContentEditable
-								if (typeof window !== 'undefined') {
-									readableTextContent = Buffer.from(
-										base64Hash,
-										'base64',
-									).toString('utf8')
-								} else {
-									// Fallback for server-side rendering
-									readableTextContent = atob(base64Hash)
-								}
+								readableTextContent = atob(base64Hash)
 							} catch (error) {
-								console.warn('Failed to decode base64 content:', error)
-								readableTextContent = 'Unable to decode file content'
+								console.error('Failed to decode base64 content:', error)
+								readableTextContent = '🔴 Unable to decode file content'
 							}
 						}
 
