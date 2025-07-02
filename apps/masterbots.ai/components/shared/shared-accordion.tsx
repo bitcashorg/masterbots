@@ -437,7 +437,7 @@ export function SharedAccordion({
 			</button>
 
 			{/* Accordion content */}
-			<AnimatePresence initial={false}>
+			<AnimatePresence initial={false} mode="wait">
 				{open && (
 					<motion.div
 						className={cn(

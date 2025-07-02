@@ -327,11 +327,31 @@ export function useFileAttachments(
 				event.preventDefault()
 				event.stopPropagation()
 
-				addAttachment(
-					new File([fileString], 'Pasted Context.txt', {
-						type: 'text/plain',
-					}),
+				const pastedContextFileName = state.attachments.some((attch) =>
+					attch.name.includes('Pasted Context'),
 				)
+					? `Pasted Context (${
+							state.attachments.filter((attch) =>
+								attch.name.includes('Pasted Context'),
+							).length
+						}).txt`
+					: 'Pasted Context.txt'
+				const pastedContextContent = `data:text/plain;base64,${Buffer.from(fileString.normalize('NFD'), 'utf8').toString('base64')}`
+				// Check if the file already exists in the attachments, so we can update it instead of adding a new one (FUTURE)
+				const _pasteContextMatch = state.attachments.find(
+					(attch) => attch.name === pastedContextFileName,
+				)
+				const pasteFile = {
+					id: nanoid(16),
+					name: pastedContextFileName,
+					url: pastedContextContent,
+					contentType: 'text/plain',
+					content: pastedContextContent,
+					messageIds: [],
+					expires: new Date().toISOString(),
+					size: new Blob([fileString]).size,
+				}
+				addAttachmentObject(pasteFile)
 
 				return
 			}
@@ -369,33 +389,8 @@ export function useFileAttachments(
 
 			handleValidFiles(dataTransfer.items)
 		},
-		[state.attachments],
+		[state],
 	)
-
-	//re-arrange Paste Context files and rename depending the paste context position
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-	useEffect(() => {
-		if (state.attachments.length > 0) {
-			const pasteContextFiles = state.attachments
-				.filter((attch) => attch.name.includes('Pasted Context'))
-				.sort((a, b) => {
-					// Sort by the expires date from older to last (last are last in list)
-					const aExpiresDate = new Date(a.expires).getTime()
-					const bExpiresDate = new Date(b.expires).getTime()
-
-					return aExpiresDate - bExpiresDate
-				})
-
-			const newPasteItems = pasteContextFiles.map((file, index) => ({
-				...file,
-				name: `Paste Context${index ? ` (${index + 1})` : ''}.txt`,
-			}))
-
-			for (const newItem of newPasteItems) {
-				updateAttachment(newItem.id, newItem)
-			}
-		}
-	}, [handleFilePaste])
 
 	const handleDragOver = (event: React.DragEvent<HTMLFormElement>) => {
 		event.preventDefault()
@@ -490,36 +485,37 @@ export function useFileAttachments(
 		})
 	}
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: We only required to run this effect once
+	// biome-ignore lint/correctness/useExhaustiveDependencies: We only required to update this effect when the formRef and the state changes
 	useEffect(() => {
 		const form = formRef?.current
 
-		if (form) {
+		if (!form) return
+
+		const formId = form.id.split('-').pop()
+		const formTextarea = form.querySelector(
+			`textarea[id=prompt-textarea-${formId}]`,
+		)
+
+		if (formTextarea) {
+			formTextarea.addEventListener('paste', handleFilePaste as EventListener)
+		}
+
+		return () => {
+			if (!form) return
+
 			const formId = form.id.split('-').pop()
 			const formTextarea = form.querySelector(
 				`textarea[id=prompt-textarea-${formId}]`,
 			)
 
 			if (formTextarea) {
-				formTextarea.addEventListener('paste', handleFilePaste as EventListener)
-			}
-		}
-		return () => {
-			if (form) {
-				const formId = form.id.split('-').pop()
-				const formTextarea = form.querySelector(
-					`textarea[id=prompt-textarea-${formId}]`,
+				formTextarea.removeEventListener(
+					'paste',
+					handleFilePaste as EventListener,
 				)
-
-				if (formTextarea) {
-					formTextarea.addEventListener(
-						'paste',
-						handleFilePaste as EventListener,
-					)
-				}
 			}
 		}
-	}, [formRef?.current])
+	}, [formRef?.current, state])
 
 	// [state, actions]
 	return [

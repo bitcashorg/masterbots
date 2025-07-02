@@ -8,6 +8,7 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog'
+import { Skeleton } from '@/components/ui/skeleton'
 import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
 import { cn } from '@/lib/utils'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -49,7 +50,35 @@ export function AttachmentDialog({
 }) {
 	const { open, onOpenChange } = dialogState || {}
 	const [contentEditable, setContentEditable] = useState(true)
+	const [fetchedContent, setFetchedContent] = useState<string>('')
+	const [isLoadingContent, setIsLoadingContent] = useState(false)
+	const [fetchError, setFetchError] = useState<string>('')
 	const textContentRef = useRef<HTMLDivElement | null>(null)
+
+	// Function to fetch text content from URL
+	const fetchTextContent = async (url: string): Promise<string> => {
+		try {
+			setIsLoadingContent(true)
+			setFetchError('')
+
+			const response = await fetch(url)
+
+			if (!response.ok) {
+				throw new Error(`Failed to fetch content: ${response.statusText}`)
+			}
+
+			const text = await response.text()
+
+			return text
+		} catch (error) {
+			const errorMessage =
+				error instanceof Error ? error.message : 'Unknown error occurred'
+			setFetchError(errorMessage)
+			throw error
+		} finally {
+			setIsLoadingContent(false)
+		}
+	}
 
 	// ? This useLayoutEffect is for controlled dialogs only, if attempting to do this in a non-controlled dialog, it won't be able to interact.
 	// biome-ignore lint/correctness/useExhaustiveDependencies: not required
@@ -98,6 +127,20 @@ export function AttachmentDialog({
 			textContentRef.current = null
 		}
 		setContentEditable(Boolean(open && attachment))
+
+		if (!attachment || fetchedContent) return
+
+		const { url, contentType } = attachment
+
+		if (!shouldRenderContent && url && contentType?.includes('text')) {
+			// Only fetch if it's a text file and content is not available
+			fetchTextContent(url)
+				.then((text) => setFetchedContent(text))
+				.catch((error) => console.warn('Failed to fetch text content:', error))
+		} else {
+			setFetchedContent('')
+			setFetchError('')
+		}
 	}
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
@@ -128,7 +171,7 @@ export function AttachmentDialog({
 		if (!newEditableState && textElement) {
 			const preContent = textElement.innerText
 			// turn the content into a base64 string
-			const base64Content = btoa(preContent)
+			const base64Content = `data:text/plain;base64,${Buffer.from(preContent.normalize('NFD'), 'utf8').toString('base64')}`
 			// set the contentType to text/plain
 			const newContentType = 'text/plain'
 			// set the name to the original name with .txt extension
@@ -238,6 +281,25 @@ export function AttachmentDialog({
 	const sizeInKB = (attachment.size / 1024).toFixed(2)
 	const attachmentLabel = `${name} | ${sizeInMB === '0.00' ? `${sizeInKB}KB` : `${sizeInMB}MB`}`
 
+	// Determine what content to display
+	const getDisplayContent = () => {
+		if (shouldRenderContent) {
+			return typeof window !== 'undefined'
+				? window.atob((content as string).split(',')[1] || '')
+				: ''
+		}
+		if (fetchedContent) {
+			return fetchedContent
+		}
+		if (fetchError) {
+			return `Error loading content: ${fetchError}`
+		}
+		return '[NO CONTENT AVAILABLE]'
+	}
+
+	const shouldRenderContent =
+		content && !(content as string).includes('attachments/')
+
 	return (
 		<Dialog key={`dialog-${id}`} open={open} onOpenChange={toggleDialogOpen}>
 			<DialogTrigger className="w-12" id={id} asChild>
@@ -287,9 +349,10 @@ export function AttachmentDialog({
 							</picture>
 						</>
 					) : (
-						// text render from base64 string
-						<AnimatePresence>
-							{content ? (
+						// text render from base64 string or fetched content
+						<AnimatePresence mode="wait">
+							{!isLoadingContent &&
+							(shouldRenderContent || fetchedContent || fetchError) ? (
 								<>
 									{shouldRenderTextEditButton && (
 										<motion.div
@@ -347,25 +410,28 @@ export function AttachmentDialog({
 										</Button>
 									</DialogClose>
 
-									<div
+									<motion.div
 										// biome-ignore lint/a11y/useSemanticElements: we need a div here for contentEditable
 										role="textbox"
 										ref={textContentRef}
 										className="!font-mono w-full min-h-[80vh] max-h-[calc(90vh-48px)] scrollbar px-2 py-10 border rounded-sm border-foreground/20 bg-muted text-sm whitespace-pre-wrap"
 										title={`attachment-content-${id}`}
 										key={`attachment-content-${id}`}
-										contentEditable={contentEditable}
+										contentEditable={
+											contentEditable && !isLoadingContent && !fetchError
+										}
 										tabIndex={0}
 										onKeyDown={handleKeyDown}
 										onPaste={contentEditablePasteControl}
 										suppressContentEditableWarning
+										{...motionAnimationProps}
 									>
-										{typeof window !== 'undefined'
-											? window.atob((content as string).split(',')[1] || '')
-											: ''}
-									</div>
+										{getDisplayContent()}
+									</motion.div>
 								</>
-							) : null}
+							) : (
+								<SkeletonFallback key={`attachment-skeleton-${id}`} />
+							)}
 						</AnimatePresence>
 					)}
 				</DialogDescription>
@@ -374,5 +440,16 @@ export function AttachmentDialog({
 				</DialogFooter>
 			</DialogContent>
 		</Dialog>
+	)
+}
+
+function SkeletonFallback() {
+	return (
+		<motion.div
+			className="flex items-center justify-center size-full text-muted-foreground bg-background"
+			{...motionAnimationProps}
+		>
+			<Skeleton className="w-full min-h-[80vh]" />
+		</motion.div>
 	)
 }

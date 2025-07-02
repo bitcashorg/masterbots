@@ -29,7 +29,7 @@ export function AttachmentsDisplay({
 	onUpdate: (id: string, attachment: Partial<FileAttachment>) => void
 }) {
 	return (
-		<AnimatePresence>
+		<AnimatePresence mode="wait">
 			{isDragging && (
 				<motion.div
 					className="absolute left-0 top-0 pointer-events-none dark:bg-zinc-900/90 size-full rounded-md z-10 justify-center items-center flex flex-col gap-1 bg-zinc-100/90"
@@ -50,9 +50,25 @@ export function AttachmentsDisplay({
 						const { id, url, content, name, contentType } =
 							attachment as FileAttachment
 						const base64Hash = (content as string).split(',')[1]
-						const readableTextContent = contentType.includes('image')
-							? ''
-							: atob(base64Hash)
+
+						let readableTextContent = ''
+						if (!contentType.includes('image') && base64Hash) {
+							try {
+								// Use Buffer to properly handle UTF-8 content, similar to toggleContentEditable
+								if (typeof window !== 'undefined') {
+									readableTextContent = Buffer.from(
+										base64Hash,
+										'base64',
+									).toString('utf8')
+								} else {
+									// Fallback for server-side rendering
+									readableTextContent = atob(base64Hash)
+								}
+							} catch (error) {
+								console.warn('Failed to decode base64 content:', error)
+								readableTextContent = 'Unable to decode file content'
+							}
+						}
 
 						return (
 							<motion.li

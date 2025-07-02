@@ -186,7 +186,7 @@ export function PromptForm({
 		const attachmentContextFileName = attachments.some(
 			(attch) => attch.name === 'Thread Context.txt',
 		)
-			? `Thread Context (${attachments.filter((attch) => attch.name.includes('Thread Context')).length + 1}).txt`
+			? `Thread Context (${attachments.filter((attch) => attch.name.includes('Thread Context')).length}).txt`
 			: 'Thread Context.txt'
 		// Use the existing file handler to process the file
 		const newAttachmentObject = {
