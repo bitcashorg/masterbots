@@ -120,6 +120,7 @@ export function ChatPanel({
 	const [exampleQuestionsOpen, setExampleQuestionsOpen] = useState(false)
 	const [selectedExample, setSelectedExample] = useState<string | null>(null)
 	const {
+		isCutOff,
 		getContinuationPrompt,
 		continueGeneration,
 		setIsCutOff,
@@ -302,7 +303,7 @@ export function ChatPanel({
 								className={hiddenAnimationClasses}
 								textClassName={hiddenAnimationItemClasses}
 							/>
-							{messages?.length >= 2 && (
+							{messages?.length >= 2 && isCutOff && (
 								<Button
 									variant="outline"
 									size="icon"

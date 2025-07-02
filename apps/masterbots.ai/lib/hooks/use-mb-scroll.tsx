@@ -116,6 +116,7 @@ export function useMBScroll({
 
 	const scrollToTop = useCallback(async () => {
 		try {
+			console.log('scrolling to top!')
 			await new Promise((resolve) => setTimeout(resolve, scrollDelay))
 			if (!threadRef.current) return
 
