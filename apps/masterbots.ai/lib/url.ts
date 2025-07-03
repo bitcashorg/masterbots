@@ -140,9 +140,10 @@ export const urlBuilders = {
 	topicThreadListUrl({ type, category }: TopicThreadListUrlParams): string {
 		try {
 			if (!category) {
-				console.error(
-					`Missing required parameters for profile URL: ${category}`,
-				)
+				if (appConfig.features.devMode)
+					console.error(
+						`Missing required parameters for profile URL: ${category}`,
+					)
 				return '/'
 			}
 
@@ -159,7 +160,8 @@ export const urlBuilders = {
 					basePath = 'pro'
 					break
 				default:
-					console.error('Invalid thread URL type:', type)
+					if (appConfig.features.devMode)
+						console.error('Invalid thread URL type:', type)
 					return '/'
 			}
 
@@ -168,7 +170,8 @@ export const urlBuilders = {
 			pathParts.push(toSlug(category))
 			return pathParts.join('/')
 		} catch (error) {
-			console.error('Error constructing thread URL:', error)
+			if (appConfig.features.devMode)
+				console.error('Error constructing thread URL:', error)
 			return '/'
 		}
 	},
@@ -201,7 +204,10 @@ export const urlBuilders = {
 					.map(([key]) => key)
 					.join(', ')
 
-				console.error(`Missing required parameters for thread URL: ${missing}`)
+				if (appConfig.features.devMode)
+					console.error(
+						`Missing required parameters for thread URL: ${missing}`,
+					)
 				return '/'
 			}
 			let basePath = ''
@@ -217,7 +223,8 @@ export const urlBuilders = {
 					basePath = 'pro'
 					break
 				default:
-					console.error('Invalid thread URL type:', type)
+					if (appConfig.features.devMode)
+						console.error('Invalid thread URL type:', type)
 					return '/'
 			}
 
@@ -230,7 +237,8 @@ export const urlBuilders = {
 			)
 			return pathParts.join('/')
 		} catch (error) {
-			console.error('Error constructing thread URL:', error)
+			if (appConfig.features.devMode)
+				console.error('Error constructing thread URL:', error)
 			return '/'
 		}
 	},
@@ -264,7 +272,10 @@ export const urlBuilders = {
 					.map(([key]) => key)
 					.join(', ')
 
-				console.error(`Missing required parameters for thread URL: ${missing}`)
+				if (appConfig.features.devMode)
+					console.error(
+						`Missing required parameters for thread URL: ${missing}`,
+					)
 				return '/'
 			}
 			let basePath = ''
@@ -280,7 +291,8 @@ export const urlBuilders = {
 					basePath = 'pro'
 					break
 				default:
-					console.error('Invalid thread URL type:', type)
+					if (appConfig.features.devMode)
+						console.error('Invalid thread URL type:', type)
 					return '/'
 			}
 
@@ -294,7 +306,8 @@ export const urlBuilders = {
 			)
 			return pathParts.join('/')
 		} catch (error) {
-			console.error('Error constructing thread URL:', error)
+			if (appConfig.features.devMode)
+				console.error('Error constructing thread URL:', error)
 			return '/'
 		}
 	},
@@ -341,7 +354,10 @@ export const urlBuilders = {
 					.map(([key]) => key)
 					.join(', ')
 
-				console.error(`Missing required parameters for thread URL: ${missing}`)
+				if (appConfig.features.devMode)
+					console.error(
+						`Missing required parameters for thread URL: ${missing}`,
+					)
 				return '/'
 			}
 
@@ -358,7 +374,8 @@ export const urlBuilders = {
 					basePath = 'pro'
 					break
 				default:
-					console.error('Invalid thread URL type:', type)
+					if (appConfig.features.devMode)
+						console.error('Invalid thread URL type:', type)
 					return '/'
 			}
 
@@ -373,7 +390,8 @@ export const urlBuilders = {
 			)
 			return pathParts.join('/')
 		} catch (error) {
-			console.error('Error constructing thread URL:', error)
+			if (appConfig.features.devMode)
+				console.error('Error constructing thread URL:', error)
 			return '/'
 		}
 	},
@@ -417,12 +435,14 @@ export const urlBuilders = {
 					return ['', 'b', toSlug(chatbot)].join('/')
 				}
 				default: {
-					console.error('Invalid profile URL type:', type)
+					if (appConfig.features.devMode)
+						console.error('Invalid profile URL type:', type)
 					return '/'
 				}
 			}
 		} catch (error) {
-			console.error('Error constructing profile URL:', error)
+			if (appConfig.features.devMode)
+				console.error('Error constructing profile URL:', error)
 			return '/'
 		}
 	},
@@ -439,13 +459,17 @@ export const urlBuilders = {
 					.map(([key]) => key)
 					.join(', ')
 
-				console.error(`Missing required parameters for profile URL: ${missing}`)
+				if (appConfig.features.devMode)
+					console.error(
+						`Missing required parameters for profile URL: ${missing}`,
+					)
 				return '/'
 			}
 
 			return ['', 'u', usernameSlug, 't', toSlug(category)].join('/')
 		} catch (error) {
-			console.error('Error constructing profile URL:', error)
+			if (appConfig.features.devMode)
+				console.error('Error constructing profile URL:', error)
 			return '/'
 		}
 	},
@@ -465,7 +489,10 @@ export const urlBuilders = {
 					.map(([key]) => key)
 					.join(', ')
 
-				console.error(`Missing required parameters for profile URL: ${missing}`)
+				if (appConfig.features.devMode)
+					console.error(
+						`Missing required parameters for profile URL: ${missing}`,
+					)
 				return '/'
 			}
 
@@ -479,7 +506,8 @@ export const urlBuilders = {
 				toSlug(chatbot),
 			].join('/')
 		} catch (error) {
-			console.error('Error constructing profile URL:', error)
+			if (appConfig.features.devMode)
+				console.error('Error constructing profile URL:', error)
 			return '/'
 		}
 	},
@@ -515,7 +543,10 @@ export const urlBuilders = {
 					.map(([key]) => key)
 					.join(', ')
 
-				console.error(`Missing required parameters for profile URL: ${missing}`)
+				if (appConfig.features.devMode)
+					console.error(
+						`Missing required parameters for profile URL: ${missing}`,
+					)
 				return '/'
 			}
 
@@ -528,9 +559,10 @@ export const urlBuilders = {
 							.map(([key]) => key)
 							.join(', ')
 
-						console.error(
-							`Missing required parameters for profile URL: ${missing}`,
-						)
+						if (appConfig.features.devMode)
+							console.error(
+								`Missing required parameters for profile URL: ${missing}`,
+							)
 						return '/'
 					}
 					return [
@@ -548,12 +580,14 @@ export const urlBuilders = {
 					return ['', 'b', toSlug(chatbot), threadSlug].join('/')
 				}
 				default: {
-					console.error('Invalid profile URL type:', type)
+					if (appConfig.features.devMode)
+						console.error('Invalid profile URL type:', type)
 					return '/'
 				}
 			}
 		} catch (error) {
-			console.error('Error constructing profile URL:', error)
+			if (appConfig.features.devMode)
+				console.error('Error constructing profile URL:', error)
 			return '/'
 		}
 	},
@@ -592,7 +626,10 @@ export const urlBuilders = {
 					.map(([key]) => key)
 					.join(', ')
 
-				console.error(`Missing required parameters for profile URL: ${missing}`)
+				if (appConfig.features.devMode)
+					console.error(
+						`Missing required parameters for profile URL: ${missing}`,
+					)
 				return '/'
 			}
 
@@ -605,9 +642,10 @@ export const urlBuilders = {
 							.map(([key]) => key)
 							.join(', ')
 
-						console.error(
-							`Missing required parameters for profile URL: ${missing}`,
-						)
+						if (appConfig.features.devMode)
+							console.error(
+								`Missing required parameters for profile URL: ${missing}`,
+							)
 						return '/'
 					}
 					return [
@@ -633,12 +671,14 @@ export const urlBuilders = {
 					].join('/')
 				}
 				default: {
-					console.error('Invalid profile URL type:', type)
+					if (appConfig.features.devMode)
+						console.error('Invalid profile URL type:', type)
 					return '/'
 				}
 			}
 		} catch (error) {
-			console.error('Error constructing profile URL:', error)
+			if (appConfig.features.devMode)
+				console.error('Error constructing profile URL:', error)
 			return '/'
 		}
 	},
@@ -659,12 +699,16 @@ export const urlBuilders = {
 					.map(([key]) => key)
 					.join(', ')
 
-				console.error(`Missing required parameters for profile URL: ${missing}`)
+				if (appConfig.features.devMode)
+					console.error(
+						`Missing required parameters for profile URL: ${missing}`,
+					)
 				return '/'
 			}
 			return ['', 'b', toSlug(chatbot), normalizeDomainSlug(domain)].join('/')
 		} catch (error) {
-			console.error('Error constructing profile URL:', error)
+			if (appConfig.features.devMode)
+				console.error('Error constructing profile URL:', error)
 			return '/'
 		}
 	},

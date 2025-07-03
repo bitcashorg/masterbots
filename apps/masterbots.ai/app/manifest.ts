@@ -2,10 +2,9 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
 	return {
-		name: 'Masterbots.ai',
-		short_name: 'Mbots',
-		description:
-			'Elevating AI Beyond ChatGPT: Specialized Chatbots, Social Sharing and User-Friendly Innovation',
+		name: 'MasterbotsAI',
+		short_name: 'Masterbots',
+		description: 'Where your Ai expertise goes public',
 		start_url: '/',
 		display: 'standalone',
 		background_color: '#0f121f',
