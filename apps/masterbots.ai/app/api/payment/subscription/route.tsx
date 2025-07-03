@@ -135,7 +135,19 @@ export async function PUT(req: NextRequest) {
 		})
 
 		if (subscriptions.data.length > 0) {
-			return new Response(JSON.stringify({ active: true }), {
+			const subscription = subscriptions.data[0]
+			// Expand the subscription to get plan details
+			const expandedSubscription = await stripe.subscriptions.retrieve(
+				subscription.id,
+				{
+					expand: ['items.data.plan', 'customer'],
+				},
+			)
+			
+			return new Response(JSON.stringify({ 
+				active: true,
+				subscription: expandedSubscription
+			}), {
 				status: 200,
 				headers: { 'Content-Type': 'application/json' },
 			})
