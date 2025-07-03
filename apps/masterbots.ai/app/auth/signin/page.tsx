@@ -3,6 +3,8 @@
 'use client'
 
 import SignInForm from '@/components/auth/signin-form'
+import { AppLogo } from '@/lib/utils'
+import { useTheme } from 'next-themes'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
@@ -10,12 +12,14 @@ import { useSearchParams } from 'next/navigation'
 export default function SignInPage() {
 	const searchParams = useSearchParams()
 	const verified = searchParams.get('verified')
+	const { theme } = useTheme()
+	const logoSrc = AppLogo({ theme })
 
 	return (
 		<div className="flex flex-col min-h-[calc(100vh-4rem)] items-center py-6 sm:py-10">
 			<div className="w-full max-w-[320px] sm:max-w-[500px] md:max-w-[726px] relative aspect-[726/200] mb-6 sm:mb-10">
 				<Image
-					src="/images/masterbotslogo.png"
+					src={logoSrc}
 					fill
 					priority
 					alt="Masterbots Logo"

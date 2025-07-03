@@ -1,10 +1,14 @@
 'use client'
 
 import ForgotPasswordForm from '@/components/auth/forgot-password-form'
+import { AppLogo } from '@/lib/utils'
 import { motion } from 'framer-motion'
+import { useTheme } from 'next-themes'
 import Image from 'next/image'
 
 export default function ForgotPasswordPage() {
+	const { theme } = useTheme()
+	const logoSrc = AppLogo({ theme })
 	return (
 		<motion.div
 			className="flex flex-col min-h-[calc(100vh-4rem)] items-center py-6 sm:py-10"
@@ -20,7 +24,7 @@ export default function ForgotPasswordPage() {
 				transition={{ duration: 0.4, delay: 0.1 }}
 			>
 				<Image
-					src="/images/masterbotslogo.png"
+					src={logoSrc}
 					fill
 					priority
 					alt="Masterbots Logo"

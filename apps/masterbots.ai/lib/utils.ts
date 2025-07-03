@@ -359,3 +359,8 @@ export function getRouteColor(
 			return ''
 	}
 }
+
+export const AppLogo = ({ theme }: { theme: string | undefined }) =>
+	theme === 'dark'
+		? '/logos/mb-logo-landing-dark.png'
+		: '/logos/mb-logo-landing-light.png'
