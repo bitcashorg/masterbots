@@ -9,7 +9,7 @@ import { ArrowBigLeft, Bot } from 'lucide-react'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 
-export function OnboardingChatbotExamples({
+export function OnboardingChatbotCard({
 	isWelcomeView = true,
 }: ChatbotDetailsProps) {
 	const routeType = getRouteType(usePathname())
@@ -21,7 +21,7 @@ export function OnboardingChatbotExamples({
 	const description = activeChatbot?.description || randomChatbot?.description
 
 	// Background image class
-	const bgImage = 'bg-[url(/background.webp)] dark:bg-[url(/background.webp)]'
+	const bgImage = 'bg-[url(/background-light.webp)] dark:bg-[url(/background.webp)]'
 
 	return (
 		<div
@@ -37,15 +37,15 @@ export function OnboardingChatbotExamples({
 				{/* Content layer */}
 				<div className="relative z-20">
 					<CardHeader className="space-y-3">
-						<h1 className="px-4 pt-4 text-2xl font-bold text-zinc-950 dark:text-gray-300">
+						<h1 className="px-4 pt-4 text-2xl font-bold text-zinc-950 dark:text-white">
 							{isWelcomeView ? 'Welcome to Masterbots!' : botName}
 						</h1>
-						<div className="h-[3px] bg-zinc-200 dark:bg-slate-800 relative">
+						<div className="h-[3px] bg-white dark:bg-slate-800 relative">
 							<div className="absolute right-6 -top-12">
 								<div
 									className={cn(
 										'relative rounded-full size-32',
-										'bg-zinc-200 dark:bg-black',
+										'bg-white dark:bg-black',
 										'ring-4 selected-bot-avatar', // Using the route-based ring color
 									)}
 								>
@@ -62,7 +62,7 @@ export function OnboardingChatbotExamples({
 					</CardHeader>
 
 					<CardContent className="space-y-1">
-						<p className="pt-2.5 max-w-[calc(100%-160px)] text-base text-zinc-500 dark:text-zinc-500 min-h-24">
+						<p className="pt-2.5 max-w-[calc(100%-160px)] text-base text-black dark:text-white min-h-24">
 							{isWelcomeView
 								? 'Here you can create new threads and share them to your network! Navigate with the sidebar and pick any bot of your interest.'
 								: description}

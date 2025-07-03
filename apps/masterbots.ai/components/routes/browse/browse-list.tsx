@@ -21,6 +21,7 @@
  */
 
 import ThreadComponent from '@/components/routes/thread/thread-component'
+import { OnboardingChatbotCard } from '@/components/shared/onboarding-chatbot-card'
 import { NoResults } from '@/components/shared/no-results-card'
 import { BrowseListSkeleton } from '@/components/shared/skeletons/browse-list-skeleton'
 import { ThreadItemSkeleton } from '@/components/shared/skeletons/browse-skeletons'
@@ -38,6 +39,7 @@ import type { Chatbot, Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
 import React, { useEffect } from 'react'
 import { useAsyncFn } from 'react-use'
+import {BrowseSearchInput} from '@/components/routes/browse/browse-search-input';
 
 export default function BrowseList({
 	initialThreads,
@@ -267,9 +269,15 @@ export default function BrowseList({
 	}
 
 	return (
-		<div className="flex flex-col w-full gap-3 py-5">
+		<div className="flex flex-col gap-3 py-5 w-full">
+			{/* Show onboarding card when no threads are loaded yet or when no results */}
+			{(!hasInitialized || (!loading && filteredThreads.length === 0)) && (
+				<OnboardingChatbotCard isWelcomeView={false} />
+			)}
+			<BrowseSearchInput />
+			
 			{filteredThreads.length > 0 ? (
-				<ul className="flex flex-col size-full gap-3 pb-36">
+				<ul className="flex flex-col gap-3 pb-36 size-full">
 					{filteredThreads.map((thread: Thread, key) => (
 						<ThreadComponent
 							thread={thread}

@@ -65,9 +65,9 @@ export function BrowseChatbotDesktopDetails({
 							<div className="flex absolute right-0 -top-12 flex-col gap-4 items-center px-4">
 								<div
 									className={cn(
-										'size-32 rounded-full overflow-hidden p-0 m-0',
+										'overflow-hidden p-0 m-0 rounded-full size-32',
 										'bg-iron dark:bg-mirage',
-										'ring-4 ring-[#be16e8] dark:ring-[#82e46a]',
+										'ring-4 selected-bot-avatar',
 									)}
 								>
 									<Image
@@ -82,8 +82,7 @@ export function BrowseChatbotDesktopDetails({
 									asChild
 									className={cn(
 										'w-full flex items-center gap-2 px-4 py-2 rounded-md mt-4',
-										'bg-[#be16e8] hover:bg-[#be16e8]/90',
-										'dark:bg-[#82e46a] dark:hover:bg-[#82e46a]/90',
+										'bg-[#82e46a] hover:bg-[#82e46a]/90',
 										'text-white dark:text-zinc-950',
 									)}
 								>
