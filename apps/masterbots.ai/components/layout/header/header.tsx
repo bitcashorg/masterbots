@@ -12,6 +12,8 @@ import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { getCanonicalDomain } from '@/lib/url'
 import { cn, getRouteColor, getRouteType } from '@/lib/utils'
 import { appConfig } from 'mb-env'
+import { useTheme } from 'next-themes'
+import Image from 'next/image'
 
 function HeaderLink({
 	href,
@@ -21,7 +23,7 @@ function HeaderLink({
 	className,
 }: {
 	href: string
-	text: string
+	text: React.ReactNode | string
 	className?: string
 	noActiveColor?: boolean
 	onClick: (event: React.MouseEvent) => void
@@ -74,6 +76,11 @@ export function Header() {
 
 	const publicUrl = '/'
 	const personalUrl = '/c'
+	const { theme } = useTheme()
+	const logoSrc =
+		theme === 'dark'
+			? '/logos/mb-logo-header-dark.png'
+			: '/logos/mb-logo-header-light.png'
 
 	// TODO: Reconsider the logic below for the URLs
 	// if (activeCategory && activeChatbot?.categories[0]?.category?.name) {
@@ -115,7 +122,9 @@ export function Header() {
 					href="/"
 					noActiveColor
 					onClick={resetNavigation}
-					text="MB"
+					text={
+						<Image src={logoSrc} alt="Masterbots Logo" width={30} height={30} />
+					}
 				/>
 
 				<IconSeparator className="size-6 text-muted-foreground/50" />
