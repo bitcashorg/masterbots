@@ -343,6 +343,18 @@ export const urlBuilders = {
 		raw = false,
 	}: ThreadQuestionUrlParams): string {
 		try {
+			if (type === 'bot') {
+				if (!chatbot || !threadSlug || !threadQuestionSlug) {
+					return '/'
+				}
+				if (!threadQuestionSlug) {
+					return ['', 'b', toSlug(chatbot), threadSlug].join('/')
+				}
+				return ['', 'b', toSlug(chatbot), threadSlug, threadQuestionSlug].join(
+					'/',
+				)
+			}
+
 			if (
 				!category ||
 				!chatbot ||
@@ -855,6 +867,17 @@ async function findUniqueSlugRecursive(
 export function parsePath(pathname: string): PathParams {
 	const segments = pathname.split('/').filter(Boolean)
 	const isProfileThread = segments[0] === 'u' && segments[2] === 't'
+	const isBotProfile = segments[0] === 'b'
+
+	if (isBotProfile) {
+		return {
+			chatbot: segments[1],
+			threadSlug: segments[2],
+			threadQuestionSlug: segments[3] || '',
+			category: '',
+			domain: '',
+		}
+	}
 
 	if (isProfileThread) {
 		return {

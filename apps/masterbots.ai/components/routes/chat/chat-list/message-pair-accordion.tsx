@@ -65,6 +65,7 @@ export function MessagePairAccordion({
 	const pathname = usePathname()
 	const isPublic = getRouteType(pathname) === 'public'
 	const isProfile = getRouteType(pathname) === 'profile'
+	const isBot = getRouteType(pathname) === 'bot'
 	const { isSameUser } = useThreadVisibility()
 	const sameUser = activeThread ? isSameUser(activeThread) : false
 
@@ -140,7 +141,7 @@ export function MessagePairAccordion({
 								...navigationParts,
 							}
 						: {
-								type: isPublic ? 'public' : 'personal',
+								type: isPublic ? 'public' : isBot ? 'bot' : 'personal',
 								...navigationParts,
 							},
 				})
@@ -155,7 +156,7 @@ export function MessagePairAccordion({
 								...navigationParts,
 							}
 						: {
-								type: isPublic ? 'public' : 'personal',
+								type: isPublic ? 'public' : isBot ? 'bot' : 'personal',
 								...navigationParts,
 							},
 				})
