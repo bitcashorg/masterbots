@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils'
 import { getUserInfoFromBrowse } from '@/services/hasura'
 import {
 	ChevronRightIcon,
+	CircleUserRound,
 	LogOutIcon,
 	ReceiptIcon,
 	SettingsIcon,
@@ -113,10 +114,10 @@ export function UserMenu({ user }: UserMenuProps) {
 										? user.slug
 										: toSlugWithUnderScore(user?.name || ''),
 								})}
-								className="w-full text-xs"
+								className="flex w-full gap-4 justify-between px-0 text-sm"
 							>
-								<div className="font-medium">{user?.name}</div>
-								<div className="text-zinc-500">{user?.email}</div>
+								Profile
+								<CircleUserRound className="size-4" />
 							</Link>
 							<ChevronRightIcon className="absolute size-3 mt-auto right-2.5 pointer-events-none" />
 						</DropdownMenuItem>
