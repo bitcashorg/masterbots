@@ -224,6 +224,7 @@ export function Plans({ next, goTo }: PlansPros) {
 				{/* Free Plan Card */}
 				{plans?.find((plan) => plan.unit_amount === 0) &&
 					(() => {
+						// biome-ignore lint/style/noNonNullAssertion: <explanation>
 						const freePlan = plans.find((plan) => plan.unit_amount === 0)!
 						return (
 							<PlanCard
