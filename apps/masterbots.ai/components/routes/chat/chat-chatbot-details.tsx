@@ -1,12 +1,14 @@
 import { OnboardingMobileView } from '@/components/routes/chat/chat-onboarding-chatbot-mobile'
 import { SelectedBotMobileView } from '@/components/routes/chat/chat-selected-chatbot-mobile'
 import { OnboardingChatbotDetails } from '@/components/routes/chat/onboarding-chatbot-details'
+import { OnboardingChatbotExamples } from '@/components/routes/chat/onboarding-chatbot-examples'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useSonner } from '@/lib/hooks/useSonner'
+import { getRouteType } from '@/lib/utils'
 import { chatbotFollowOrUnfollow } from '@/services/hasura'
 import type { SocialFollowing } from 'mb-genql'
 import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 export default function ChatChatbotDetails() {
@@ -17,8 +19,14 @@ export default function ChatChatbotDetails() {
 		activeChatbot?.followers || [],
 	)
 	const router = useRouter()
+	const pathname = usePathname()
 	const { customSonner } = useSonner()
 
+	const isWelcomeView = !activeChatbot
+	const routeType = getRouteType(pathname)
+	const isChatRoute = routeType === 'chat'
+
+	// Event handlers
 	const handleFollow = async () => {
 		try {
 			if (!session) {
@@ -95,10 +103,6 @@ export default function ChatChatbotDetails() {
 			setIsFollowLoading(false)
 		}
 	}
-	// #Reason: this is showing on the profile page when visiting the page as guest user
-	// if (!session?.user) return <ChatChatbotDetailsSkeleton />
-
-	const isWelcomeView = !activeChatbot?.name
 
 	// Event handlers
 	const handleNewChat = () => {
@@ -106,21 +110,32 @@ export default function ChatChatbotDetails() {
 		console.log('Starting new chat with:', activeChatbot?.name)
 	}
 
+	//? Handle example question click
+	const handleExampleClick = (question: string) => {
+		console.log('Example question clicked:', question)
+		// TODO: Integrate with PromptForm setInput
+	}
+
 	const sharedProps = {
 		isWelcomeView,
 		followers,
 		onNewChat: handleNewChat,
 		onFollow: handleFollow,
+		onExampleClick: handleExampleClick,
 	}
 
 	return (
 		<>
-			<OnboardingChatbotDetails {...sharedProps} />
+			{isChatRoute ? (
+				<OnboardingChatbotExamples {...sharedProps} />
+			) : (
+				<OnboardingChatbotDetails {...sharedProps} />
+			)}
 			{isWelcomeView ? (
 				<OnboardingMobileView />
 			) : (
 				<SelectedBotMobileView onNewChat={handleNewChat} />
-			)}{' '}
+			)}
 		</>
 	)
 }

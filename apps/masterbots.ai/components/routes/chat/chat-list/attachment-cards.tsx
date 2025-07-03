@@ -52,6 +52,8 @@ export function AttachmentCards({
 							{userAttachments.map((attachment) => {
 								const { id, name, url, contentType } =
 									attachment as FileAttachment
+								const sizeInMB = (attachment.size / 1024 / 1024).toFixed(2)
+								const sizeInKB = (attachment.size / 1024).toFixed(2)
 								return (
 									<motion.div key={id} {...cardSlideUpShowAnimationProps}>
 										<Card
@@ -84,10 +86,12 @@ export function AttachmentCards({
 											>
 												<Tooltip>
 													<TooltipTrigger className="w-full py-1.5">
-														<span className="inline-block items-center align-middle truncate max-w-[66%]">
+														<span className="inline-block items-center align-middle truncate max-w-[70%]">
 															{name}
-														</span>{' '}
-														| {(attachment.size / 1024 / 1024).toFixed(2)}MB
+														</span>
+														{sizeInMB === '0.00'
+															? ` | ${sizeInKB}KB`
+															: ` | ${sizeInMB}MB`}
 													</TooltipTrigger>
 													<TooltipContent
 														sideOffset={5}

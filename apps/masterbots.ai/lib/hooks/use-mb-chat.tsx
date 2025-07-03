@@ -374,7 +374,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						}))
 					: []
 
-				// TODO: Add thread metadata here and keep the local copy for optimizations if doable...
 				for (const attachment of newAttachments) {
 					try {
 						indexedDBActions.updateItem(attachment.id, attachment)
@@ -479,7 +478,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 				throttle(async () => {
 					const thread = await updateActiveThread()
-					console.log('thread', thread)
+					// console.log('thread', thread)
 					if (
 						isNewChat ||
 						isContinuousThread ||
@@ -500,7 +499,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 							},
 						})
 					}
-				}, 0)()
+				}, 140)()
 			} catch (error) {
 				console.error('Error saving new message: ', error)
 				logErrorToSentry('Error saving new message', {
@@ -798,10 +797,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 		const thread = await updateActiveThread(optimisticThread)
 
-		if (!isOpenPopup) {
-			setIsOpenPopup(true)
-		}
-
 		try {
 			await tunningUserContent(userMessage, thread)
 			// ! At this point, the UI respond and provides a feedback to the user... before it is now even showing the updated active thread, event though that it does update the active thread...
@@ -813,6 +808,9 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 			)
 		}
 
+		if (!isOpenPopup) {
+			setIsOpenPopup(true)
+		}
 		return await appendNewMessage(userMessage, chatRequestOptions)
 	}
 
@@ -964,19 +962,21 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 			setLoadingState('generating')
 			messageAttachments.current =
-				chatMessagesOptions?.experimental_attachments as FileAttachment[]
+				(chatMessagesOptions?.experimental_attachments ||
+					[]) as FileAttachment[]
 			const appendResponse = await append(
 				{
 					...userMessage,
-					content: isNewThread
-						? userContentRef.current // improved user message
-						: followingQuestionsPrompt(
-								userContentRef.current,
-								previousAiUserMessages.concat(
-									allMessages,
-								) as unknown as Message[],
-								clickedContentRef.current,
-							),
+					content:
+						!allMessages.length && isNewChat && chatbot
+							? userContentRef.current // improved user message
+							: followingQuestionsPrompt(
+									userContentRef.current,
+									previousAiUserMessages.concat(
+										allMessages,
+									) as unknown as Message[],
+									clickedContentRef.current,
+								),
 				},
 				chatMessagesOptions,
 			)
