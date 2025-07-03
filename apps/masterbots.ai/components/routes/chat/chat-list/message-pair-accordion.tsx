@@ -243,12 +243,12 @@ export function MessagePairAccordion({
 					)}
 				</AnimatePresence>
 				<div className="w-full ml-auto flex gap-1.5 items-start justify-between group">
-					{shouldShowUserMessage && (
+					{/* {shouldShowUserMessage && (
 						<MessageRenderer
 							actionRequired={false}
 							message={pair.userMessage}
 						/>
-					)}
+					)} */}
 
 					{activeThread && shouldShowUserMessage && sameUser && (
 						<ChatOptions
