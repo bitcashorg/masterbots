@@ -40,7 +40,7 @@ export function OnboardingChatbotCard({
 						<h1 className="px-4 pt-4 text-2xl font-bold text-zinc-950 dark:text-white">
 							{isWelcomeView ? 'Welcome to Masterbots!' : botName}
 						</h1>
-						<div className="h-[3px] bg-white dark:bg-slate-800 relative">
+						<div className="h-[3px] bg-zinc-300 dark:bg-slate-800 relative">
 							<div className="absolute right-6 -top-12">
 								<div
 									className={cn(
