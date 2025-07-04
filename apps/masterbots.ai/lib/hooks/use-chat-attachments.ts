@@ -115,7 +115,7 @@ export function useFileAttachments(
 
 		currentRequestId.current = null
 		return indexedDBAttachments
-	}, [session?.user, mounted, isNewResponse, activeThread])
+	}, [session?.user, mounted, isNewResponse, activeThread, loadingState])
 
 	const { customSonner } = useSonner()
 	const { selectedModel } = useModel()

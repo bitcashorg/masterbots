@@ -20,6 +20,7 @@ export function UserAttachments({
 		const attachment = attach as FileAttachment
 		const attachmentType = attachment.contentType?.split('/')[0]
 		if (!attachment) return null
+		console.log('attachment content ——>', { attachment: attachment.content })
 		return (
 			<CommandItem key={attachment.id} value={attachment.id} className="w-full">
 				<Tooltip>
