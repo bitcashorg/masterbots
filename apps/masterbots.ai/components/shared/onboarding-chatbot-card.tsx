@@ -21,7 +21,16 @@ export function OnboardingChatbotCard({
 	const description = activeChatbot?.description || randomChatbot?.description
 
 	// Background image class
-	const bgImage = 'bg-[url(/background-light.webp)] dark:bg-[url(/background.webp)]'
+	const bgImage =
+		'bg-[url(/background-light.webp)] dark:bg-[url(/background.webp)]'
+
+	// Get appropriate CTA text based on route type
+	const getCTAText = () => {
+		if (routeType === 'public' || routeType === 'bot') {
+			return 'Browse and select a bot to explore conversations'
+		}
+		return 'Go to sidebar and select one bot'
+	}
 
 	return (
 		<div
@@ -72,7 +81,7 @@ export function OnboardingChatbotCard({
 							<div className="flex flex-col justify-start items-start space-y-1">
 								<h2 className="flex items-center text-base font-medium selected-bot-text">
 									<ArrowBigLeft className="mr-2 size-6 selected-bot-icon" />
-									Go to sidebar and select one bot
+									{getCTAText()}
 								</h2>
 							</div>
 						)}

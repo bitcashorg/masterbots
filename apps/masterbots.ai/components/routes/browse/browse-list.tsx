@@ -20,9 +20,12 @@
  * - count: A number representing the total number of threads fetched.
  */
 
+import { BrowseSearchInput } from '@/components/routes/browse/browse-search-input'
+import { OnboardingMobileView } from '@/components/routes/chat/chat-onboarding-chatbot-mobile'
+import { SelectedBotMobileView } from '@/components/routes/chat/chat-selected-chatbot-mobile'
 import ThreadComponent from '@/components/routes/thread/thread-component'
-import { OnboardingChatbotCard } from '@/components/shared/onboarding-chatbot-card'
 import { NoResults } from '@/components/shared/no-results-card'
+import { OnboardingChatbotCard } from '@/components/shared/onboarding-chatbot-card'
 import { BrowseListSkeleton } from '@/components/shared/skeletons/browse-list-skeleton'
 import { ThreadItemSkeleton } from '@/components/shared/skeletons/browse-skeletons'
 import { PAGE_SIZE } from '@/lib/constants/hasura'
@@ -269,12 +272,29 @@ export default function BrowseList({
 
 	return (
 		<div className="flex flex-col gap-3 py-5 w-full">
-			{/* Show onboarding card when no threads are loaded yet */}
-			{!hasInitialized && !loading && (
-				<OnboardingChatbotCard isWelcomeView={false} />
+			{/* Show welcome onboarding card when no category or chatbot is selected */}
+			{!activeCategory && !activeChatbot && !chatbot && !categoryId && (
+				<>
+					<OnboardingChatbotCard isWelcomeView={true} />
+					<OnboardingMobileView />
+					<BrowseSearchInput />
+				</>
 			)}
 
-			{/* Show threads when available */}
+			{/* Show onboarding card when no threads are loaded yet (for selected categories/bots) */}
+			{!hasInitialized &&
+				!loading &&
+				(activeCategory || activeChatbot || chatbot || categoryId) && (
+					<>
+						<OnboardingChatbotCard isWelcomeView={false} />
+						<SelectedBotMobileView
+							onNewChat={() => console.log('New chat clicked')}
+						/>
+						<BrowseSearchInput />
+					</>
+				)}
+
+			{/* Show threads when available and a category/bot is selected */}
 			{filteredThreads.length > 0 ? (
 				<ul className="flex flex-col gap-3 pb-36 size-full">
 					{filteredThreads.map((thread: Thread, key) => (
@@ -293,7 +313,8 @@ export default function BrowseList({
 				/* Show no results only after initialization and when not loading */
 				hasInitialized &&
 				!loading &&
-				!filteredThreads.length && (
+				!filteredThreads.length &&
+				(activeCategory || activeChatbot || chatbot || categoryId) && (
 					<NoResults searchTerm={keyword} totalItems={threads.length} />
 				)
 			)}

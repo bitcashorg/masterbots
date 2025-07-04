@@ -8,6 +8,15 @@ export function OnboardingMobileView() {
 	const routeType = getRouteType(pathname)
 	// Background image class
 	const bgImage = 'bg-[url(/background.webp)] dark:bg-[url(/background.webp)]'
+
+	// Get appropriate CTA text based on route type
+	const getCTAText = () => {
+		if (routeType === 'public' || routeType === 'bot') {
+			return 'Browse and select a bot to explore conversations'
+		}
+		return 'Go To Sidebar And Select One Bot'
+	}
+
 	return (
 		<div
 			className="md:hidden mt-10 h-[calc(50vh-196px)] flex items-center justify-center -translate-y-8"
@@ -36,9 +45,7 @@ export function OnboardingMobileView() {
 						<div className="flex flex-col items-center py-4">
 							<div className="flex items-center py-2 space-x-4">
 								<PanelLeft className="size-6 selected-bot-text" />
-								<p className="text-lg selected-bot-text">
-									Go To Sidebar And Select One Bot
-								</p>
+								<p className="text-lg selected-bot-text">{getCTAText()}</p>
 							</div>
 						</div>
 					</div>
