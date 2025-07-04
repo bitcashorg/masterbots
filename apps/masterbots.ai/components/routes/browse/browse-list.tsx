@@ -39,7 +39,6 @@ import type { Chatbot, Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
 import React, { useEffect } from 'react'
 import { useAsyncFn } from 'react-use'
-import {BrowseSearchInput} from '@/components/routes/browse/browse-search-input';
 
 export default function BrowseList({
 	initialThreads,
@@ -270,12 +269,12 @@ export default function BrowseList({
 
 	return (
 		<div className="flex flex-col gap-3 py-5 w-full">
-			{/* Show onboarding card when no threads are loaded yet or when no results */}
-			{(!hasInitialized || (!loading && filteredThreads.length === 0)) && (
+			{/* Show onboarding card when no threads are loaded yet */}
+			{!hasInitialized && !loading && (
 				<OnboardingChatbotCard isWelcomeView={false} />
 			)}
-			<BrowseSearchInput />
-			
+
+			{/* Show threads when available */}
 			{filteredThreads.length > 0 ? (
 				<ul className="flex flex-col gap-3 pb-36 size-full">
 					{filteredThreads.map((thread: Thread, key) => (
@@ -291,6 +290,7 @@ export default function BrowseList({
 					{loading && <ThreadItemSkeleton />}
 				</ul>
 			) : (
+				/* Show no results only after initialization and when not loading */
 				hasInitialized &&
 				!loading &&
 				!filteredThreads.length && (

@@ -34,11 +34,11 @@ export default function PlanCard({
 	const price = (plan.unit_amount ? plan.unit_amount / 100 : 0).toFixed(2)
 
 	const bg_free =
-		'bg-[url(/background-gradient-free.webp)] dark:bg-[url(/background-gradient-free.webp)]'
+		'bg-[url(/background-gradient-free-light.webp)] dark:bg-[url(/background-gradient-free.webp)]'
 	const bg_pro_montly =
-		'bg-[url(/background-gradient-pro-month.webp)] dark:bg-[url(/background-gradient-pro-month.webp)]'
+		'bg-[url(/background-gradient-pro-month-light.webp)] dark:bg-[url(/background-gradient-pro-month.webp)]'
 	const bg_pro_annual =
-		'bg-[url(/background-gradient-pro-year.webp)] dark:bg-[url(/background-gradient-pro-year.webp)]'
+		'bg-[url(/background-gradient-pro-year-light.webp)] dark:bg-[url(/background-gradient-pro-year.webp)]'
 
 	// Determine background classes based on plan type
 	const getBackgroundClasses = () => {
