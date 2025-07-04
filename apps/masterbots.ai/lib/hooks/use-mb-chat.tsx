@@ -442,14 +442,16 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						},
 					]
 
-					return await Promise.all([
+					return (await Promise.all([
 						saveNewMessage(newUserMessage),
 						saveNewMessage(newAssistantMessage),
-					])
+					])) as Message[]
 				}
 
+				let newThreadMessages: Message[] = []
+
 				try {
-					await uploadNewMessages()
+					newThreadMessages = await uploadNewMessages()
 				} catch (error) {
 					console.error('Error generating message slugs: ', error)
 
@@ -472,34 +474,51 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					newSearchParams.delete('continuousThreadId')
 					setIsContinuousThread(false)
 				}
-				setIsNewResponse(false)
+
+				const newThread = activeThread
+					? {
+							...activeThread,
+							messages: [...activeThread.messages, ...newThreadMessages],
+							metadata: newAttachments.length
+								? {
+										attachments: uniqBy(
+											[
+												...newAttachments,
+												...(activeThread.metadata.attachments || []),
+											],
+											'id',
+										),
+									}
+								: undefined,
+						}
+					: undefined
+				const thread = await updateActiveThread(newThread)
+
+				if (
+					isNewChat ||
+					isContinuousThread ||
+					(thread.messages.length > 0 && thread.messages.length <= 2)
+				) {
+					// console.log('thread', thread)
+					const canonicalDomain = getCanonicalDomain(
+						activeChatbot?.name || 'blankbot',
+					)
+					navigateTo({
+						urlType: 'threadUrl',
+						shallow: true,
+						navigationParams: {
+							type: 'personal',
+							category: activeChatbot?.categories[0].category.name || '',
+							domain: canonicalDomain,
+							chatbot: activeChatbot?.name || '',
+							threadSlug: thread.slug,
+						},
+					})
+				}
+
 				setLoadingState('finished')
 				setActiveTool(undefined)
-
-				throttle(async () => {
-					const thread = await updateActiveThread()
-					// console.log('thread', thread)
-					if (
-						isNewChat ||
-						isContinuousThread ||
-						(thread.messages.length > 0 && thread.messages.length <= 2)
-					) {
-						const canonicalDomain = getCanonicalDomain(
-							activeChatbot?.name || 'blankbot',
-						)
-						navigateTo({
-							urlType: 'threadUrl',
-							shallow: true,
-							navigationParams: {
-								type: 'personal',
-								category: activeChatbot?.categories[0].category.name || '',
-								domain: canonicalDomain,
-								chatbot: activeChatbot?.name || '',
-								threadSlug: thread.slug,
-							},
-						})
-					}
-				}, 140)()
+				setIsNewResponse(false)
 			} catch (error) {
 				console.error('Error saving new message: ', error)
 				logErrorToSentry('Error saving new message', {
@@ -561,11 +580,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				type: 'error',
 				text: 'Failed to send message. Please try again.',
 			})
-			setLoadingState(undefined)
-			setActiveTool(undefined)
-			setIsNewResponse(false)
-
-			clickedContentRef.current = ''
 
 			if (isNewChat) {
 				await deleteThread({
@@ -574,6 +588,12 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					userId: session?.user.id,
 				})
 			}
+
+			setLoadingState(undefined)
+			setActiveTool(undefined)
+			setIsNewResponse(false)
+
+			clickedContentRef.current = ''
 		},
 	})
 

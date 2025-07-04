@@ -6,7 +6,7 @@ import {
 } from '@/components/ui/tooltip'
 import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
 import type { IndexedDBItem } from '@/lib/hooks/use-indexed-db'
-import { FileIcon } from 'lucide-react'
+import { FileIcon, FileTextIcon } from 'lucide-react'
 import Image from 'next/image'
 
 export function UserAttachments({
@@ -45,7 +45,7 @@ export function UserAttachments({
 										className="size-10 object-cover rounded"
 									/>
 								) : (
-									<FileIcon className="size-5" />
+									<FileTextIcon className="size-5" />
 								)}
 							</div>
 							<span className="truncate w-full">{attachment.name}</span>
