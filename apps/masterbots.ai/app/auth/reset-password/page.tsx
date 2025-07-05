@@ -13,6 +13,7 @@ export default function ResetPasswordPage(props: {
 	const searchParams = use(props.searchParams)
 	const { theme } = useTheme()
 	const logoSrc = AppLogo({ theme })
+
 	return (
 		<motion.div
 			className="flex flex-col min-h-[calc(100vh-4rem)] items-center py-6 sm:py-10"
@@ -22,7 +23,7 @@ export default function ResetPasswordPage(props: {
 		>
 			{/* Logo container with animation */}
 			<motion.div
-				className="w-full max-w-[320px] sm:max-w-[500px] md:max-w-[726px] relative aspect-[726/200] mb-6 sm:mb-10"
+				className="w-full max-w-[1006px] sm:max-w-[500px] md:max-w-[1006px]  relative aspect-[726/200] mb-6 sm:mb-10"
 				initial={{ y: 20 }}
 				animate={{ y: 0 }}
 				transition={{ duration: 0.4, delay: 0.1 }}

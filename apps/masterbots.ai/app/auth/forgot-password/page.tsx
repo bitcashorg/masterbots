@@ -18,7 +18,7 @@ export default function ForgotPasswordPage() {
 		>
 			{/* Logo container with animation */}
 			<motion.div
-				className="w-full max-w-[320px] sm:max-w-[500px] md:max-w-[726px] relative aspect-[726/200] mb-6 sm:mb-10"
+				className="w-full max-w-[1006px] sm:max-w-[500px] md:max-w-[1006px]  relative aspect-[726/200] mb-6 sm:mb-10"
 				initial={{ y: 20 }}
 				animate={{ y: 0 }}
 				transition={{ duration: 0.4, delay: 0.1 }}
