@@ -51,13 +51,15 @@ export function SelectedBotMobileView({
 										'ring-4 selected-bot-avatar',
 									)}
 								>
-									<Image
-										src={avatar}
-										alt={`${botName} avatar`}
-										height={64}
-										width={64}
-										className="object-cover rounded-full"
-									/>
+									{avatar && (
+										<Image
+											src={avatar}
+											alt={`${botName} avatar`}
+											height={128}
+											width={128}
+											className="object-cover rounded-full"
+										/>
+									)}
 								</div>
 							</div>
 

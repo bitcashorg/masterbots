@@ -18,25 +18,13 @@ export function ChatChatbotDetailsSkeleton() {
 
 				{/* Description */}
 				<div className="p-2 px-4 mr-2 md:p-3 md:px-6 md:mr-4">
-					<Skeleton className="h-16 w-[80%]" />
+					<Skeleton className="h-16 w-[75%]" />
 				</div>
 
 				{/* Card Content */}
-				<div className="px-4 pb-4 md:px-6 md:pb-6 flex flex-col items-center justify-start gap-1.5">
-					<div className="w-full mb-3 text-center md:mb-4">
-						<Skeleton className="w-48 h-8 mx-auto mb-2" />
-						<Skeleton className="h-6 mx-auto w-36" />
-					</div>
-
-					<div className="flex flex-col items-center w-full gap-3">
-						<div className="flex items-center justify-center gap-4 md:gap-6">
-							<Skeleton className="w-24 h-6" />
-							<Skeleton className="w-32 h-6" />
-							<Skeleton className="w-20 h-8" />
-						</div>
-
-						<Skeleton className="w-48 h-10" />
-					</div>
+				<div className="w-full px-4 pb-4 md:px-6 md:pb-6 flex flex-col items-start justify-start gap-1.5">
+					<Skeleton className="w-48 h-8 mx-auto mb-2" />
+					<Skeleton className="h-6 mx-auto w-36" />
 				</div>
 			</div>
 		</div>

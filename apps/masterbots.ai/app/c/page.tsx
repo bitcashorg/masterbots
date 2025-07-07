@@ -1,6 +1,6 @@
 import { authOptions } from '@/auth'
-import ChatThreadListPanel from '@/components/routes/chat/chat-thread-list-panel'
-import ThreadPanel from '@/components/routes/thread/thread-panel'
+import { MainContentSkeleton } from '@/components/shared/skeletons/chat-page-skeleton'
+import { ChatPanelSkeleton } from '@/components/shared/skeletons/chat-panel-skeleton'
 import { PAGE_SIZE } from '@/lib/constants/hasura'
 import { generateMetadataFromSEO } from '@/lib/metadata'
 import { type RoleTypes, isAdminOrModeratorRole } from '@/lib/utils'
@@ -9,7 +9,22 @@ import type { PageProps } from '@/types/types'
 import { isTokenExpired } from 'mb-lib'
 import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
+import dynamic from 'next/dynamic'
 import { redirect } from 'next/navigation'
+
+const ThreadPanel = dynamic(
+	() => import('@/components/routes/thread/thread-panel'),
+	{
+		loading: () => <MainContentSkeleton />,
+	},
+)
+const ChatThreadListPanel = dynamic(
+	() => import('@/components/routes/chat/chat-thread-list-panel'),
+	{
+		loading: () => <ChatPanelSkeleton />,
+	},
+)
+
 export default async function IndexPage() {
 	const session = await getServerSession(authOptions)
 
