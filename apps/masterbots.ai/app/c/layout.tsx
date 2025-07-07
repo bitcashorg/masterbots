@@ -21,8 +21,8 @@ const ChatLayoutSection = dynamic(
 		),
 	{
 		loading: () => (
-			<div className="flex h-full">
-				<div className="flex-1">
+			<div className="flex h-screen">
+				<div className="flex-1 mt-16">
 					<MainContentSkeleton />
 				</div>
 			</div>
@@ -44,12 +44,7 @@ export default async function ChatLayout({ children }: ChatLayoutProps) {
 			<main className="relative flex flex-col h-[calc(100vh-4rem)] overflow-hidden">
 				{/* <NextTopLoader color="#1ED761" initialPosition={0.2} /> */}
 				<ResponsiveSidebar />
-				{/* <ChatLayoutSection>{children}</ChatLayoutSection> */}
-				<div className="flex h-screen">
-					<div className="flex-1">
-						<MainContentSkeleton />
-					</div>
-				</div>
+				<ChatLayoutSection>{children}</ChatLayoutSection>
 				{/* <FooterCT /> */}
 			</main>
 		</BrowseProvider>
