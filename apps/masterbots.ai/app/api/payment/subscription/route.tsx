@@ -130,13 +130,18 @@ export async function PUT(req: NextRequest) {
 
 		const subscriptions = await stripe.subscriptions.list({
 			customer: customer.id,
-			status: 'active',
-			limit: 1,
+			status: 'all',
+			limit: 100,
 		})
 
-		if (subscriptions.data.length > 0) {
-			const subscription = subscriptions.data[0]
-			// Expand the subscription to get plan details
+		//? Filter for active or trialing subscriptions
+		const activeSubscriptions = subscriptions.data.filter(
+			(sub) => sub.status === 'active' || sub.status === 'trialing'
+		)
+
+		if (activeSubscriptions.length > 0) {
+			const subscription = activeSubscriptions[0]
+			//? Expand the subscription to get plan details
 			const expandedSubscription = await stripe.subscriptions.retrieve(
 				subscription.id,
 				{
@@ -144,10 +149,31 @@ export async function PUT(req: NextRequest) {
 				},
 			)
 
+			//? Transform the subscription data to match the expected format
+			const customer = expandedSubscription.customer as Stripe.Customer
+			const plan = expandedSubscription.items.data[0]?.plan as any
+			const product = plan?.product as Stripe.Product
+			
+			const transformedSubscription = {
+				customer: {
+					name: customer?.name || '',
+				},
+				plan: {
+					amount: plan?.unit_amount || 0,
+					interval: plan?.interval || 'month',
+					product: {
+						name: product?.name || 'Pro Plan',
+					},
+				},
+				current_period_start: expandedSubscription.current_period_start,
+				current_period_end: expandedSubscription.current_period_end,
+				status: expandedSubscription.status,
+			}
+
 			return new Response(
 				JSON.stringify({
 					active: true,
-					subscription: expandedSubscription,
+					subscription: transformedSubscription,
 				}),
 				{
 					status: 200,
