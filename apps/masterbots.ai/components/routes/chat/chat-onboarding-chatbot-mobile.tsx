@@ -37,16 +37,16 @@ export function OnboardingMobileView() {
 						<div className="h-[3px] bg-zinc-200 dark:bg-slate-800" />
 
 						<div className="flex flex-col justify-center gap-4 px-4">
-							<p className="w-full text-sm text-zinc-500 dark:text-zinc-500 min-h-24">
+							<p className="w-full min-h-24">
 								Here you can create new threads and share them to your network!
 								Navigate with the sidebar and pick any bot of your interest.
 							</p>
 						</div>
-						<div className="flex flex-col items-center py-4">
-							<div className="flex items-center py-2 space-x-4">
-								<PanelLeft className="size-6 selected-bot-text" />
-								<p className="text-lg selected-bot-text">{getCTAText()}</p>
-							</div>
+						<div className="flex font-semibold w-full items-center p-4 gap-4">
+							<PanelLeft className="size-6 selected-bot-text" />
+							<p className="text-lg selected-bot-text text-sm">
+								{getCTAText()}
+							</p>
 						</div>
 					</div>
 				</CardHeader>

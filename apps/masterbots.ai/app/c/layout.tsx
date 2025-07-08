@@ -13,12 +13,10 @@ export default async function ChatLayout({ children }: ChatLayoutProps) {
 		// * This is a workaround for the issue with the use of the browse hook
 		// ! We should find a better solution for this in the future for chats or rename hook for better understanding
 		<BrowseProvider>
-			<main className="relative flex flex-col h-[calc(100vh-4rem)] overflow-hidden">
-				{/* <NextTopLoader color="#1ED761" initialPosition={0.2} /> */}
-				<ResponsiveSidebar />
-				<ChatLayoutSection>{children}</ChatLayoutSection>
-				{/* <FooterCT /> */}
-			</main>
+			{/* <NextTopLoader color="#1ED761" initialPosition={0.2} /> */}
+			<ResponsiveSidebar />
+			<ChatLayoutSection>{children}</ChatLayoutSection>
+			{/* <FooterCT /> */}
 		</BrowseProvider>
 	)
 }

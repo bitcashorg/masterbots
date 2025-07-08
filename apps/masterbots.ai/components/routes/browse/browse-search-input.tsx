@@ -32,23 +32,24 @@ export function BrowseSearchInput() {
 	}
 
 	return (
-		<form className="flex relative justify-center items-center pt-5 mx-auto w-full max-w-screen-xl lg:px-6">
+		<form className="relative w-full max-w-screen-xl mx-auto flex items-center justify-center">
 			<div className="relative w-full">
-				<div className="absolute inset-0 rounded-full opacity-0 transition-opacity duration-300 group-focus-within:opacity-100">
-					<div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#83E56A]/5 to-[#83E56A]/5 blur-lg animate-pulse" />
+				<div className="absolute inset-0 transition-opacity duration-300 rounded-full opacity-0 group-focus-within:opacity-100">
+					<div className="absolute inset-0 rounded-full bg-gradient-to-r from-accent/10 to-accent/10 blur-lg animate-pulse" />
 				</div>
 
 				<div
 					className={cn(
 						'group relative w-full flex items-center',
 						'rounded-full',
-						'border border-[#83E56A]/10',
-						'focus-within:border-[#83E56A]',
-						'focus-within:ring-1 focus-within:ring-[#83E56A]',
+						'bg-background/60',
+						'border border-accent/10',
+						'focus-within:border-accent',
+						'focus-within:ring-1 focus-within:ring-accent',
 						'transition-all duration-200',
 					)}
 				>
-					<Search className="absolute w-5 h-5 left-4 text-zinc-400 group-focus-within:text-[#83E56A]" />
+					<Search className="absolute w-5 h-5 left-4 text-zinc-400 group-focus-within:text-accent" />
 					<Input
 						id="search-input-form"
 						value={searchTerm}
