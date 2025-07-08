@@ -1,6 +1,6 @@
 'use client'
 
-import { fetchPayment } from '@/app/actions/subscriptions.actions'
+import { fetchPayment, getUserCurrentSubscription } from '@/app/actions/subscriptions.actions'
 import Subscription from '@/components/routes/subscription/subscription'
 import { Button } from '@/components/ui/button'
 import { IconArrowRight, IconCreditCard, IconHelp } from '@/components/ui/icons'
@@ -38,6 +38,15 @@ export function SubscriptionPageComponent() {
 	const { data: session, status } = useSession()
 	const { card, plan, paymentIntent } = usePayment()
 
+	// Fetch current user subscription
+	const { value: currentSubscription } = useAsync(async () => {
+		if (session?.user?.email) {
+			return await getUserCurrentSubscription(session.user.email)
+		}
+		return null
+	}, [session?.user?.email])
+
+	// Fetch subscription data from payment intent (for recent transactions)
 	const { value: subscriptionData } = useAsync(async () => {
 		if (paymentIntent) {
 			return await fetchPayment(paymentIntent)
@@ -95,19 +104,22 @@ export function SubscriptionPageComponent() {
 					<h2 className="text-2xl font-semibold text-foreground">
 						Current Plan
 					</h2>
-					{plan ? (
+					{currentSubscription ? (
 						<div className="space-y-4 w-full">
 							<div className="flex justify-between items-center">
 								<div className="space-y-1">
 									<h3 className="text-xl font-medium text-foreground">
-										{plan.product.name}
+										{currentSubscription.plan?.product?.name || 'Pro Plan'}
 									</h3>
 									<p className="text-sm text-muted-foreground">
 										$
-										{plan.unit_amount
-											? (plan.unit_amount / 100).toFixed(2)
+										{currentSubscription.plan?.amount
+											? (currentSubscription.plan.amount / 100).toFixed(2)
 											: '0.00'}
-										/{plan.recurring.interval}
+										/{currentSubscription.plan?.interval || 'month'}
+									</p>
+									<p className="text-xs text-muted-foreground">
+										Status: {currentSubscription.status}
 									</p>
 								</div>
 								<Button
@@ -135,7 +147,7 @@ export function SubscriptionPageComponent() {
 				</motion.div>
 
 				{/* Pro Plan Benefits - shown for non-subscribed users */}
-				{!plan && (
+				{!currentSubscription && (
 					<motion.div
 						variants={itemVariants}
 						className="flex flex-col gap-4 items-center p-8 w-full max-w-2xl rounded-xl border shadow-sm transition-shadow duration-300 hover:shadow-md bg-card"
@@ -174,11 +186,11 @@ export function SubscriptionPageComponent() {
 					<h2 className="text-2xl font-semibold text-foreground">
 						Payment Method
 					</h2>
-					{card ? (
+					{card || subscriptionData?.card?.last4 ? (
 						<div className="flex items-center p-4 space-x-3 w-full rounded-lg border backdrop-blur-sm bg-muted/50">
 							<IconCreditCard className="fill-primary" />
 							<span className="text-foreground">
-								Card ending with <strong>****{card.last4}</strong>
+								Card ending with <strong>****{(card?.last4 || subscriptionData?.card?.last4)}</strong>
 							</span>
 							<Button
 								variant="outline"
@@ -212,7 +224,7 @@ export function SubscriptionPageComponent() {
 						Transaction History
 					</h2>
 					<div className="space-y-4 w-full">
-						{subscriptionData?.subscription ? (
+						{currentSubscription ? (
 							<motion.div
 								initial={{ opacity: 0, scale: 0.95 }}
 								animate={{ opacity: 1, scale: 1 }}
@@ -224,12 +236,12 @@ export function SubscriptionPageComponent() {
 									<p className="text-sm text-muted-foreground">
 										Due on{' '}
 										{new Date(
-											subscriptionData.subscription.current_period_end * 1000,
+											currentSubscription.current_period_end * 1000,
 										).toLocaleDateString()}
 									</p>
 								</div>
 								<Link
-									href={`/u/${session?.user.slug}/s/subs/${paymentIntent}`}
+									href={`/u/${session?.user.slug}/s/subs`}
 									className="flex items-center space-x-2 transition-colors text-primary hover:text-primary/80"
 								>
 									<span>View Details</span>
