@@ -1,6 +1,35 @@
-import { ResponsiveSidebar } from '@/components/layout/sidebar/sidebar-responsive'
-import { ChatLayoutSection } from '@/components/routes/chat/chat-layout-section'
+import {
+	MainContentSkeleton,
+	SidebarSkeleton,
+} from '@/components/shared/skeletons/chat-page-skeleton'
+import { Skeleton } from '@/components/ui/skeleton'
 import { BrowseProvider } from '@/lib/hooks/use-browse'
+import dynamic from 'next/dynamic'
+
+const ResponsiveSidebar = dynamic(
+	() =>
+		import('@/components/layout/sidebar/sidebar-responsive').then(
+			(mod) => mod.ResponsiveSidebar,
+		),
+	{
+		loading: () => <SidebarSkeleton />,
+	},
+)
+const ChatLayoutSection = dynamic(
+	() =>
+		import('@/components/routes/chat/chat-layout-section').then(
+			(mod) => mod.ChatLayoutSection,
+		),
+	{
+		loading: () => (
+			<div className="flex h-screen">
+				<div className="flex-1 mt-16">
+					<Skeleton className="size-full absolute inset-0 z-0 opacity-80" />
+				</div>
+			</div>
+		),
+	},
+)
 
 interface ChatLayoutProps {
 	children: React.ReactNode

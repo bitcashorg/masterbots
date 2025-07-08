@@ -52,19 +52,21 @@ export function OnboardingChatbotDetails({
 									'ring-4 selected-bot-avatar', // Using the route-based ring color
 								)}
 							>
-								<Image
-									src={avatar}
-									alt={`${botName} avatar`}
-									height={128}
-									width={128}
-									className="object-cover rounded-full"
-								/>
+								{avatar && (
+									<Image
+										src={avatar}
+										alt={`${botName} avatar`}
+										height={128}
+										width={128}
+										className="object-cover rounded-full"
+									/>
+								)}
 							</div>
 						</div>
 					</div>
 				</CardHeader>
 
-				<CardContent className="space-y-6">
+				<CardContent className="space-y-6 px-4">
 					<p className="pt-2.5 max-w-[calc(100%-160px)] text-base text-zinc-500 dark:text-zinc-500 min-h-24">
 						{isWelcomeView
 							? 'Here you can create new threads and share them to your network! Navigate with the sidebar and pick any bot of your interest.'
@@ -82,7 +84,7 @@ export function OnboardingChatbotDetails({
 				</CardContent>
 
 				{!isWelcomeView && (
-					<CardFooter className="flex flex-col space-y-4">
+					<CardFooter className="flex flex-col px-4 space-y-4">
 						<div className="w-1/2 mx-auto">
 							<div className="flex flex-col items-center justify-center space-y-4">
 								<h2 className="flex items-center text-2xl font-semibold selected-bot-text">

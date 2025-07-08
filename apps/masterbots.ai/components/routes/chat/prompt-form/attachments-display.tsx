@@ -76,6 +76,7 @@ export function AttachmentsDisplay({
 													width={40}
 													height={40}
 													alt={name}
+													loading="lazy"
 													className="size-10 rounded-full object-cover"
 												/>
 											) : (
@@ -109,6 +110,7 @@ export function AttachmentsDisplay({
 													alt={name}
 													width={224}
 													height={224}
+													loading="lazy"
 													className="w-full h-auto max-h-full rounded-lg object-cover"
 												/>
 											) : (

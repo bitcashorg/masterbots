@@ -1,4 +1,3 @@
-'use client'
 import { AdminModeToggle } from '@/components/routes/chat/admin-mode-toggle'
 /**
  * ThreadPanel Component
@@ -19,7 +18,6 @@ import { AdminModeToggle } from '@/components/routes/chat/admin-mode-toggle'
 
 import UserThreadPanel from '@/components/routes/thread/user-thread-panel'
 import type { Thread } from 'mb-genql'
-import { Suspense } from 'react'
 
 export default function ThreadPanel({
 	threads,
@@ -31,7 +29,7 @@ export default function ThreadPanel({
 	isAdminMode?: boolean
 }) {
 	return (
-		<Suspense fallback={null}>
+		<>
 			{isAdminMode && (
 				// TODO: Improve sticky, stops being sticky after 100vh position
 				<div className="flex sticky top-4 z-10 justify-center">
@@ -39,6 +37,6 @@ export default function ThreadPanel({
 				</div>
 			)}
 			<UserThreadPanel threads={threads} count={count} showSearch />
-		</Suspense>
+		</>
 	)
 }

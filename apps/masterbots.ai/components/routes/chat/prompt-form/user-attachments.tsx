@@ -46,6 +46,7 @@ export function UserAttachments({
 									<Image
 										width={40}
 										height={40}
+										loading="lazy"
 										src={attachment.url}
 										alt={attachment.name}
 										className="size-10 object-cover rounded"

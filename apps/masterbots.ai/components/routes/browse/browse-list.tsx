@@ -161,7 +161,6 @@ export default function BrowseList({
 			threads,
 			filteredThreads,
 		})
-		setLoading(true)
 
 		await fetchThreads({
 			categoriesId: selectedCategories,
@@ -169,7 +168,6 @@ export default function BrowseList({
 			keyword,
 			offset: threads.length,
 		})
-		setLoading(false)
 	}
 
 	const verifyPath = () => {
