@@ -240,7 +240,7 @@ export function MessagePairAccordion({
 						/>
 					)}
 
-					{activeThread && shouldShowUserMessage && sameUser && (
+					{activeThread && shouldShowUserMessage && (
 						<ChatOptions
 							threadId={pair.userMessage.threadId}
 							thread={activeThread}

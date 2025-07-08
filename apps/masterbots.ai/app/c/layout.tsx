@@ -2,6 +2,7 @@ import {
 	MainContentSkeleton,
 	SidebarSkeleton,
 } from '@/components/shared/skeletons/chat-page-skeleton'
+import { Skeleton } from '@/components/ui/skeleton'
 import { BrowseProvider } from '@/lib/hooks/use-browse'
 import dynamic from 'next/dynamic'
 
@@ -23,7 +24,7 @@ const ChatLayoutSection = dynamic(
 		loading: () => (
 			<div className="flex h-screen">
 				<div className="flex-1 mt-16">
-					<MainContentSkeleton />
+					<Skeleton className="size-full absolute inset-0 z-0 opacity-80" />
 				</div>
 			</div>
 		),

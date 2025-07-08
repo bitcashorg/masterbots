@@ -18,12 +18,6 @@ const ThreadPanel = dynamic(
 		loading: () => <MainContentSkeleton />,
 	},
 )
-const ChatThreadListPanel = dynamic(
-	() => import('@/components/routes/chat/chat-thread-list-panel'),
-	{
-		loading: () => <ChatPanelSkeleton />,
-	},
-)
 
 export default async function IndexPage() {
 	const session = await getServerSession(authOptions)
@@ -49,7 +43,6 @@ export default async function IndexPage() {
 				count={count}
 				isAdminMode={isAdminOrModeratorRole(role)}
 			/>
-			<ChatThreadListPanel />
 		</>
 	)
 }

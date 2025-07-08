@@ -1,30 +1,40 @@
 import { ThreadItemSkeleton } from '@/components/shared/skeletons/browse-skeletons'
 import { Skeleton } from '@/components/ui/skeleton'
+import { cn } from '@/lib/utils'
 import { ChatChatbotDetailsSkeleton } from './chat-chatbot-details-skeleton'
-import { ChatPanelSkeleton } from './chat-panel-skeleton'
 
 export function SidebarSkeleton() {
 	return (
-		<div className="p-4 space-y-4">
-			<Skeleton className="w-full h-10" />
-			<div className="space-y-2">
-				{Array.from({ length: 8 }).map((_, i) => (
-					<div key={i} className="flex items-center p-4 space-x-4">
-						<div className="space-y-2">
-							<Skeleton className="h-4 w-[200px]" />
+		<aside
+			className={cn(
+				'peer absolute min-h-[inherit] h-full flex flex-col z-40 inset-y-0 z-30 border-r bg-muted',
+				'w-[300px] lg:w-[250px] xl:w-[300px]',
+				'bg-[#fae8ff] dark:bg-[#000000]',
+				'transition-all -translate-x-full duration-500 ease-in-out',
+			)}
+		>
+			<div className="p-4 space-y-4">
+				<Skeleton className="w-full h-10" />
+				<div className="space-y-2">
+					{Array.from({ length: 8 }).map((_, i) => (
+						<div key={i} className="flex items-center p-4 space-x-4">
+							<div className="space-y-2">
+								<Skeleton className="h-4 w-[200px]" />
+							</div>
 						</div>
-					</div>
-				))}
+					))}
+				</div>
 			</div>
-		</div>
+		</aside>
 	)
 }
 
 export function MainContentSkeleton() {
 	return (
-		<div className="flex h-full group w-full overflow-auto animate-in duration-300 ease-in-out relative lg:w-[calc(100%-250px)] xl:w-[calc(100%-300px)] lg:ml-[250px] xl:ml-[300px] max-h-[calc(97vh-210px)] md:max-h-[calc(97vh-182px)]">
+		<div className="flex h-full group w-full overflow-auto animate-in duration-300 ease-in-out relative">
 			<div className="flex flex-col gap-5 px-4 pt-5 mx-auto w-full max-w-screen-xl h-full md:px-10 py-10">
 				<ChatChatbotDetailsSkeleton />
+				<Skeleton className="w-full h-10 mb-4" />
 				<div className="flex w-full flex-col items-center justify-between mb-4 gap-6">
 					<ThreadItemSkeleton />
 					<ThreadItemSkeleton />
@@ -32,7 +42,6 @@ export function MainContentSkeleton() {
 					<ThreadItemSkeleton />
 				</div>
 			</div>
-			<ChatPanelSkeleton />
 		</div>
 	)
 }
