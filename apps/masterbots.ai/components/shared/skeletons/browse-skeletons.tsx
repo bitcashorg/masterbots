@@ -3,7 +3,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 export function ThreadItemSkeleton() {
 	return (
-		<div className="relative">
+		<div className="relative w-full">
 			<div className="dark:hover:bg-mirage hover:bg-gray-300 pl-[8px] py-3 flex flex-col gap-[6px]">
 				{/* Thread Header */}
 				<div className="flex items-center justify-between w-full gap-3 pr-4">

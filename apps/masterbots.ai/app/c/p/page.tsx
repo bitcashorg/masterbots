@@ -1,5 +1,4 @@
 import { authOptions } from '@/auth'
-import ChatThreadListPanel from '@/components/routes/chat/chat-thread-list-panel'
 import Subscription from '@/components/routes/subscription/subscription'
 import ThreadPanel from '@/components/routes/thread/thread-panel'
 import { generateMetadataFromSEO } from '@/lib/metadata'
@@ -28,7 +27,6 @@ export default async function IndexPage() {
 	return (
 		<>
 			<ThreadPanel threads={threads} count={count} />
-			<ChatThreadListPanel />
 			<Subscription />
 		</>
 	)

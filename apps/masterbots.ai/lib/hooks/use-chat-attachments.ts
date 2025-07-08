@@ -2,6 +2,7 @@ import { type IndexedDBItem, useIndexedDB } from '@/lib/hooks/use-indexed-db'
 import { useModel } from '@/lib/hooks/use-model'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useSonner } from '@/lib/hooks/useSonner'
+import { getRouteType } from '@/lib/utils'
 import type * as OpenAi from 'ai'
 import { uniqBy } from 'lodash'
 import { appConfig } from 'mb-env'
@@ -81,7 +82,8 @@ export function useFileAttachments(
 			!mounted ||
 			!session?.user ||
 			isNewResponse ||
-			(loadingState && loadingState !== 'finished')
+			(loadingState && loadingState !== 'finished') ||
+			getRouteType(window.location.pathname) !== 'chat'
 		) {
 			return (activeThread?.metadata?.attachments || []) as IndexedDBItem[]
 		}

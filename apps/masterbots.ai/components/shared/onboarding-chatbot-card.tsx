@@ -58,13 +58,15 @@ export function OnboardingChatbotCard({
 										'ring-4 selected-bot-avatar', // Using the route-based ring color
 									)}
 								>
-									<Image
-										src={avatar}
-										alt={`${botName} avatar`}
-										height={128}
-										width={128}
-										className="object-cover rounded-full"
-									/>
+									{avatar && (
+										<Image
+											src={avatar}
+											alt={`${botName} avatar`}
+											height={128}
+											width={128}
+											className="object-cover rounded-full"
+										/>
+									)}
 								</div>
 							</div>
 						</div>

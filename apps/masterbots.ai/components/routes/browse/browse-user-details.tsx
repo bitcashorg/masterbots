@@ -79,6 +79,7 @@ export default function BrowseChatbotDetails({ user }: { user?: User | null }) {
 							className="transition-opacity duration-300 rounded-full select-none size-full ring-1 ring-zinc-100/10 hover:opacity-80"
 							src={user?.profilePicture || ''}
 							alt={user?.username || 'UserAvatar'}
+							loading="lazy"
 							height={96}
 							width={96}
 						/>

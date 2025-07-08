@@ -3,7 +3,7 @@
 import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
 import type { ThreadMetadata } from '@/lib/hooks/use-indexed-db'
 import { Storage } from '@google-cloud/storage'
-import { eq, inArray, isNotNull } from 'drizzle-orm'
+import { eq, inArray, isNotNull, sql } from 'drizzle-orm'
 import { uniqBy } from 'lodash'
 import { db, message, thread } from 'mb-drizzle'
 import { appConfig } from 'mb-env'
@@ -63,6 +63,40 @@ export async function getAllUserThreadMetadata() {
 	if (results.length === 0) return null
 
 	const metadata = results.flatMap(
+		(result) => (result.metadata as ThreadMetadata).attachments,
+	)
+
+	return metadata
+}
+
+export async function getMissingUserThreadMetadata(
+	currentAttachments: FileAttachment[],
+) {
+	const currentAttachmentIds = currentAttachments.map((att) => att.id)
+	const currentAttachmentMessageIds = currentAttachments.flatMap(
+		(att) => att.messageIds,
+	)
+
+	if (currentAttachmentIds.length === 0) return null
+
+	// Use raw SQL to filter JSONB data at database level
+	const results = await db.execute(sql`
+		SELECT metadata
+		FROM thread 
+		WHERE metadata IS NOT NULL 
+		AND metadata->'attachments' IS NOT NULL
+		AND EXISTS (
+			SELECT 1 
+			FROM jsonb_array_elements(metadata->'attachments') AS att
+			WHERE att->>'id' = ANY(ARRAY[${sql.join(currentAttachmentIds.map((id) => sql.raw(`'${id}'`)))}])
+			AND att->'messageIds' <@ ${JSON.stringify(currentAttachmentMessageIds)}::jsonb
+			AND jsonb_array_length(att->'messageIds') < ${currentAttachmentMessageIds.length}
+		)
+	`)
+
+	if (results.rows.length === 0) return null
+
+	const metadata = results.rows.flatMap(
 		(result) => (result.metadata as ThreadMetadata).attachments,
 	)
 
