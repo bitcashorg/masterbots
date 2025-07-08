@@ -336,10 +336,10 @@ export function UserCard({ user: userProps, loading }: UserCardProps) {
 				<>
 					{/* Profile Name */}
 					<div className="px-5 pb-2 pt-7 flex flex-col gap-2.5">
-						<h2 className="flex items-center gap-2 text-xl font-semibold md:text-2xl">
+						<h2 className="flex gap-2 items-center text-xl font-semibold md:text-2xl">
 							@{userData?.username?.toLowerCase()}
 							{userData?.proUserSubscriptionId && (
-								<BadgeCheck className="size-5 text-[#BE17E8] dark:text-[#83E56A]" />
+								<BadgeCheck className="size-5 text-[#83E56A]" />
 							)}
 						</h2>
 						{userData?.threads && userData?.threads?.length > 0 && (
@@ -352,7 +352,7 @@ export function UserCard({ user: userProps, loading }: UserCardProps) {
 
 						<div className="flex items-center space-x-1">
 							<BookUser className="w-4 h-4" />
-							<p className="text-sm ">bio:</p>
+							<p className="text-sm">bio:</p>
 
 							<div className="h-7">
 								{isOwner && (
@@ -374,9 +374,9 @@ export function UserCard({ user: userProps, loading }: UserCardProps) {
 									>
 										{bio ? 're-generate' : 'generate'}
 										{isLoading && generateType === 'bio' ? (
-											<Loader className="w-4 h-4 ml-1" />
+											<Loader className="ml-1 w-4 h-4" />
 										) : (
-											<Wand2 className="w-4 h-4 ml-1" />
+											<Wand2 className="ml-1 w-4 h-4" />
 										)}
 									</Button>
 								)}
@@ -396,7 +396,7 @@ export function UserCard({ user: userProps, loading }: UserCardProps) {
 									className="p-1 text-xs text-gray-500 hover:text-black dark:hover:text-gray-400"
 								>
 									{' '}
-									generate <Wand2 className="w-4 h-4 ml-1" />
+									generate <Wand2 className="ml-1 w-4 h-4" />
 								</Button>
 								to create a Masterbots biography based on your thread history.
 							</p>
@@ -416,7 +416,7 @@ export function UserCard({ user: userProps, loading }: UserCardProps) {
 					<div className="flex flex-col p-6 md:flex-row md:justify-between">
 						<div className="pt-5 space-y-1">
 							{userData?.threads && userData.threads.length > 0 && (
-								<div className="items-center hidden space-x-1 md:flex">
+								<div className="hidden items-center space-x-1 md:flex">
 									<BotIcon className="w-4 h-4" />
 									<span className="">Threads:</span>
 									<span className="text-gray-500">
@@ -438,9 +438,9 @@ export function UserCard({ user: userProps, loading }: UserCardProps) {
                   >
                     {favoriteTopic ? 're-generate' : 'generate'}
                     {isLoading && generateType === 'topic' ? (
-                      <Loader className="w-4 h-4 ml-1" />
+                      <Loader className="ml-1 w-4 h-4" />
                     ) : (
-                      <Wand2 className="w-4 h-4 ml-1" />
+                      <Wand2 className="ml-1 w-4 h-4" />
                     )}
                   </Button>
                 )}
@@ -455,7 +455,7 @@ export function UserCard({ user: userProps, loading }: UserCardProps) {
               </p> */}
 						</div>
 
-						<div className="flex flex-col items-center space-y-3 md:mt-0 mt-7">
+						<div className="flex flex-col items-center mt-7 space-y-3 md:mt-0">
 							{!isOwner && (
 								<Button
 									disabled={isFollowLoading}
@@ -465,16 +465,16 @@ export function UserCard({ user: userProps, loading }: UserCardProps) {
 										userData?.username
 									}`}
 									aria-busy={isFollowLoading}
-									className="px-10 py-1 text-sm text-white  rounded-md bg-[#BE17E8] hover:bg-[#BE17E8] dark:bg-[#83E56A] dark:hover:bg-[#83E56A] dark:text-black transition-colors"
+									className="px-10 py-1 text-sm text-white  rounded-md bg-[#83E56A] hover:bg-[#83E56A] dark:text-black transition-colors"
 								>
 									{isFollowLoading ? (
-										<Loader className="w-4 h-4 mx-auto" />
+										<Loader className="mx-auto w-4 h-4" />
 									) : (
 										<>{followed ? 'Following' : 'Follow'}</>
 									)}
 								</Button>
 							)}
-							<div className="flex space-x-6 md:pt-2 ">
+							<div className="flex space-x-6 md:pt-2">
 								<div className="flex flex-col items-center">
 									<span className="text-sm">Following</span>
 									<div className="flex items-center space-x-1">
@@ -498,11 +498,11 @@ export function UserCard({ user: userProps, loading }: UserCardProps) {
 					</div>
 
 					{/* Profile Image and Follow Button Section */}
-					<div className="absolute flex flex-col items-center space-y-3 origin-top-right md:top-6 top-3 md:right-6 right-3">
+					<div className="flex absolute top-3 right-3 flex-col items-center space-y-3 origin-top-right md:top-6 md:right-6">
 						<div className="relative md:size-32 size-24">
-							<div className="absolute inset-0 border-4 border-[#BE17E8] dark:border-[#83E56A] rounded-full dark:bg-[#131316] bg-white overflow-hidden">
+							<div className="absolute inset-0 border-4 border-[#83E56A] rounded-full dark:bg-[#131316] bg-white overflow-hidden">
 								<Image
-									className="object-cover transition-opacity duration-300 rounded-full select-none size-full ring-1 ring-zinc-100/10 hover:opacity-80"
+									className="object-cover rounded-full ring-1 transition-opacity duration-300 select-none size-full ring-zinc-100/10 hover:opacity-80"
 									src={
 										userProfilePicture
 											? userProfilePicture
@@ -524,7 +524,7 @@ export function UserCard({ user: userProps, loading }: UserCardProps) {
 								<>
 									<Button
 										variant="ghost"
-										className="absolute bottom-0 w-[25px] h-[25px]   right-2  p-1  rounded-full dark:bg-[#83E56A] bg-[#BE17E8]"
+										className="absolute bottom-0 w-[25px] h-[25px]   right-2  p-1  rounded-full bg-[#83E56A]"
 										onClick={() =>
 											document.getElementById('profile-pic-upload')?.click()
 										}

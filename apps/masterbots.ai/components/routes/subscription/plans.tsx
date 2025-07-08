@@ -258,7 +258,7 @@ export function Plans({ next, goTo }: PlansPros) {
 								<span
 									className={cn(
 										'text-sm font-medium transition-colors',
-										isYearly ? 'text-accent' : 'text-white',
+										isYearly ? 'text-accent' : 'text-black dark:text-white',
 									)}
 								>
 									Annually

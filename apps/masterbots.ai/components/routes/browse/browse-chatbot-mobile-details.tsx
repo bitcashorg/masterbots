@@ -26,7 +26,7 @@ export function BrowseChatbotMobileDetails({
 
 	return (
 		<div className="md:hidden w-full relative bg-left-bottom bg-[url('/hero-bg.png')] bg-no-repeat py-6">
-			<div className="absolute inset-0 bg-gradient-to-l from-mirage via-[#6A0D826E]/80 to-[#9412B5BF] dark:via-[#66B252BF]/80 dark:to-[#83E56A6B]/80" />
+			<div className="absolute inset-0 bg-gradient-to-l from-mirage via-[#66B252BF]/80 dark:to-[#83E56A6B]/80" />
 			<div className="relative z-10">
 				<div className="px-2 mx-auto mb-4">
 					<Link
@@ -39,12 +39,12 @@ export function BrowseChatbotMobileDetails({
 				</div>
 				<Card className="relative mx-2 dark:bg-[#09090B] bg-white">
 					<CardHeader>
-						<div className="flex items-start justify-between w-full p-5">
+						<div className="flex justify-between items-start p-5 w-full">
 							<div className="space-y-2">
 								<h1 className="text-xl font-bold text-zinc-950 dark:text-gray-300">
 									{chatbot.name}
 								</h1>
-								<div className="flex items-center gap-2">
+								<div className="flex gap-2 items-center">
 									<MessageSquareIcon className="size-4" />
 									<span className="text-zinc-950 dark:text-gray-300">
 										Threads: {chatbot.threads.length}
@@ -57,9 +57,9 @@ export function BrowseChatbotMobileDetails({
 							</div>
 							<div
 								className={cn(
-									'size-20 rounded-full overflow-hidden',
+									'overflow-hidden rounded-full size-20',
 									'bg-iron dark:bg-mirage',
-									'ring-[3px] ring-[#be16e8] dark:ring-[#82e46a]',
+									'ring-3 selected-bot-avatar',
 								)}
 							>
 								<Image
@@ -87,8 +87,7 @@ export function BrowseChatbotMobileDetails({
 							asChild
 							className={cn(
 								'h-8 px-3 py-2',
-								'bg-[#be16e8] hover:bg-[#be16e8]/90',
-								'dark:bg-[#82e46a] dark:hover:bg-[#82e46a]/90',
+								'bg-[#82e46a] hover:bg-[#82e46a]/90',
 								'rounded-md shadow',
 								'text-white dark:text-zinc-950',
 								'font-normal font-geist leading-none',
@@ -96,7 +95,7 @@ export function BrowseChatbotMobileDetails({
 						>
 							<Link
 								href={botUrl}
-								className="flex items-center justify-center gap-1"
+								className="flex gap-1 justify-center items-center"
 							>
 								<MessageSquarePlusIcon className="size-4" />
 								<span className="text-base">New Chat</span>
@@ -104,7 +103,7 @@ export function BrowseChatbotMobileDetails({
 						</Button>
 
 						<div className="h-[42px] flex-col justify-center items-center inline-flex">
-							<div className="inline-flex items-center justify-center gap-3">
+							<div className="inline-flex gap-3 justify-center items-center">
 								<div className="w-[67px] flex-col justify-end items-center gap-1.5 inline-flex">
 									{/* <div className="w-[70px] h-5 text-center text-zinc-950 dark:text-gray-300 text-[13px] font-normal">
                     Following
@@ -117,11 +116,11 @@ export function BrowseChatbotMobileDetails({
                   </div> */}
 								</div>
 								<div className="flex items-center space-x-5">
-									<div className="inline-flex flex-col items-center justify-center">
+									<div className="inline-flex flex-col justify-center items-center">
 										<div className="w-[70px] h-5 text-center text-zinc-950 dark:text-gray-300 text-[13px] font-normal">
 											Followers
 										</div>
-										<div className="inline-flex items-center justify-start gap-5">
+										<div className="inline-flex gap-5 justify-start items-center">
 											<div className="justify-start items-end gap-1.5 flex">
 												<Users className="size-4 text-zinc-950 dark:text-gray-300" />
 												<div className="text-center text-zinc-500 text-[13px] font-normal">
