@@ -44,7 +44,7 @@ export function OnboardingMobileView() {
 						</div>
 						<div className="flex font-semibold w-full items-center p-4 gap-4">
 							<PanelLeft className="size-6 selected-bot-text" />
-							<p className="text-lg selected-bot-text text-sm">
+							<p className="text-lg selected-bot-text !text-sm">
 								{getCTAText()}
 							</p>
 						</div>
