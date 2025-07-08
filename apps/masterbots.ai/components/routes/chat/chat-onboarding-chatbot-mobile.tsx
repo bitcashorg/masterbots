@@ -8,6 +8,15 @@ export function OnboardingMobileView() {
 	const routeType = getRouteType(pathname)
 	// Background image class
 	const bgImage = 'bg-[url(/background.webp)] dark:bg-[url(/background.webp)]'
+
+	// Get appropriate CTA text based on route type
+	const getCTAText = () => {
+		if (routeType === 'public' || routeType === 'bot') {
+			return 'Browse and select a bot to explore conversations'
+		}
+		return 'Go To Sidebar And Select One Bot'
+	}
+
 	return (
 		<div
 			className="md:hidden mt-10 h-[calc(50vh-196px)] flex items-center justify-center -translate-y-8"
@@ -28,18 +37,14 @@ export function OnboardingMobileView() {
 						<div className="h-[3px] bg-zinc-200 dark:bg-slate-800" />
 
 						<div className="flex flex-col justify-center gap-4 px-4">
-							<p className="w-full text-sm text-zinc-500 dark:text-zinc-500 min-h-24">
+							<p className="w-full min-h-24">
 								Here you can create new threads and share them to your network!
 								Navigate with the sidebar and pick any bot of your interest.
 							</p>
 						</div>
-						<div className="flex flex-col items-center py-4">
-							<div className="flex items-center py-2 space-x-4">
-								<PanelLeft className="size-6 selected-bot-text" />
-								<p className="text-lg selected-bot-text">
-									Go To Sidebar And Select One Bot
-								</p>
-							</div>
+						<div className="flex font-semibold w-full items-center p-4 gap-4">
+							<PanelLeft className="size-6 selected-bot-text" />
+							<p className="text-sm selected-bot-text">{getCTAText()}</p>
 						</div>
 					</div>
 				</CardHeader>
