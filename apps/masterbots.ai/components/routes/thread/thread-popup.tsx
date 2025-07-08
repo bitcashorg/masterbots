@@ -1,8 +1,8 @@
 'use client'
 
-import { Chat } from '@/components/routes/chat/chat'
 import { ChatList } from '@/components/routes/chat/chat-list'
 import { ExternalLink } from '@/components/shared/external-link'
+import { ChatPanelSkeleton } from '@/components/shared/skeletons/chat-panel-skeleton'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { IconClose } from '@/components/ui/icons'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -16,8 +16,19 @@ import { cn, getRouteType } from '@/lib/utils'
 import type { SendMessageFromResponseMessageData } from '@/types/types'
 import type { Message as AiMessage } from 'ai'
 import type { Message } from 'mb-genql'
+import dynamic from 'next/dynamic'
 import { useParams, usePathname } from 'next/navigation'
 import { useMemo, useRef } from 'react'
+
+const Chat = dynamic(
+	() => import('@/components/routes/chat/chat').then((mod) => mod.Chat),
+	{
+		ssr: false,
+		loading: () => (
+			<ChatPanelSkeleton className="!pl-0 rounded-b-[8px] overflow-hidden !absolute" />
+		),
+	},
+)
 
 export function ThreadPopup({ className }: { className?: string }) {
 	const { isOpenPopup, activeThread, isNewResponse } = useThread()

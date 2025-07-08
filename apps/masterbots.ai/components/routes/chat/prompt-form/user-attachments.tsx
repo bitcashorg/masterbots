@@ -6,7 +6,8 @@ import {
 } from '@/components/ui/tooltip'
 import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
 import type { IndexedDBItem } from '@/lib/hooks/use-indexed-db'
-import { FileIcon } from 'lucide-react'
+import { FileIcon, FileTextIcon } from 'lucide-react'
+import { appConfig } from 'mb-env'
 import Image from 'next/image'
 
 export function UserAttachments({
@@ -20,6 +21,11 @@ export function UserAttachments({
 		const attachment = attach as FileAttachment
 		const attachmentType = attachment.contentType?.split('/')[0]
 		if (!attachment) return null
+		if (appConfig.features.devMode) {
+			console.log('attachment content ——>', {
+				attachment: `${(attachment.content as string).substring(0, 100)}...`,
+			})
+		}
 		return (
 			<CommandItem key={attachment.id} value={attachment.id} className="w-full">
 				<Tooltip>
@@ -40,12 +46,13 @@ export function UserAttachments({
 									<Image
 										width={40}
 										height={40}
+										loading="lazy"
 										src={attachment.url}
 										alt={attachment.name}
 										className="size-10 object-cover rounded"
 									/>
 								) : (
-									<FileIcon className="size-5" />
+									<FileTextIcon className="size-5" />
 								)}
 							</div>
 							<span className="truncate w-full">{attachment.name}</span>

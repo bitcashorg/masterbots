@@ -13,7 +13,7 @@ const stripe = new Stripe(stripeSecretKey || '', {
 
 export async function POST(req: NextRequest) {
 	try {
-		const { email, name, planId, trialPeriodDays } = await req.json()
+		const { email, name, planId, trialPeriodDays, promotion_code } = await req.json()
 
 		// Validate request data
 		if (!email || !name || !planId) {
@@ -43,8 +43,8 @@ export async function POST(req: NextRequest) {
 				name,
 			})
 		}
-		// Create a subscription with the provided plan ID and trial period
-		const subscription = await stripe.subscriptions.create({
+		//? Create a subscription with the provided plan ID and trial period
+		const subscriptionData: any = {
 			customer: customer.id,
 			items: [
 				{ price: planId }, // Use 'price' instead of 'plan' as per Stripe's latest API
@@ -52,7 +52,14 @@ export async function POST(req: NextRequest) {
 			trial_period_days: trialPeriodDays || 0,
 			payment_behavior: 'default_incomplete',
 			expand: ['latest_invoice.payment_intent'],
-		})
+		}
+
+		//? Add promotion code if provided
+		if (promotion_code) {
+			subscriptionData.promotion_code = promotion_code
+		}
+
+		const subscription = await stripe.subscriptions.create(subscriptionData)
 
 		// Get the client secret from the PaymentIntent if there is one
 		const invoice = subscription?.latest_invoice

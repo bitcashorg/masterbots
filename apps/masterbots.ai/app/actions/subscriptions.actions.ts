@@ -1,4 +1,5 @@
 import { parseWordwareResponse } from '@/components/shared/wordware-chat'
+import { plans as fallbackPlans } from '@/lib/utils'
 import {
 	type Card,
 	type PlanList,
@@ -28,6 +29,34 @@ export async function checkIfCustomerHasActiveSub(email: string) {
 	return Boolean(!data.active)
 }
 
+export async function getUserCurrentSubscription(email: string) {
+	try {
+		const response = await fetch('/api/payment/subscription', {
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({ email }),
+		})
+
+		const data: {
+			error?: string
+			active: boolean
+			subscription?: Subscription
+		} = await response.json()
+
+		if (data.error) {
+			console.error('Error while checking customer data: ', data.error)
+			return null
+		}
+
+		return data.active ? data.subscription : null
+	} catch (error) {
+		console.error('Error fetching user subscription:', error)
+		return null
+	}
+}
+
 export async function getSubscriptionPlans({
 	handleSetStripePublishKey,
 	handleSetStripeSecret,
@@ -55,19 +84,63 @@ export async function getSubscriptionPlans({
 			stripe_publishable: string
 			error?: string
 		} = await response.json()
-		// remove the free plan from the list
+
 		handleSetStripePublishKey(data.stripe_publishable)
 		handleSetStripeSecret(data.stripeSecret)
 
-		data.plans = data.plans.filter((plan: PlanList) => plan.unit_amount !== 0)
-		// show the plans in ascending order
+		// Sort plans by price (free plans first, then by amount)
+		data.plans.sort((a: PlanList, b: PlanList) => {
+			const amountA = a.unit_amount ?? 0
+			const amountB = b.unit_amount ?? 0
+			// Free plans come first, then sort by amount
+			if (amountA === 0 && amountB !== 0) return -1
+			if (amountA !== 0 && amountB === 0) return 1
+			return amountA - amountB
+		})
 
-		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-		data.plans.sort((a: any, b: any) => b.unit_amount - a.unit_amount)
-
-		plans = data.plans as PlanList[]
+		//? If we have plans from Stripe, we use them
+		if (data.plans.length > 0) {
+			plans = data.plans as PlanList[]
+		} else {
+			//? Fallback to utility plans if no Stripe plans are available
+			console.warn('No plans found in Stripe, using fallback plans')
+			plans = fallbackPlans.map((plan) => ({
+				id: plan.id,
+				active: true,
+				created: Date.now(),
+				product: {
+					name: `${plan.duration.charAt(0).toUpperCase() + plan.duration.slice(1)} Plan`,
+					description: plan.features_title,
+					marketing_features: plan.features.map((feature) => ({
+						name: feature,
+					})),
+				},
+				unit_amount: Math.round(plan.price * 100),
+				recurring: {
+					interval: plan.duration,
+					trial_period_days: 0,
+				},
+			})) as PlanList[]
+		}
 	} catch (error) {
 		console.error('Error fetching plans:', error)
+		//? If there's an error, use fallback plans
+		console.warn('Error fetching plans from Stripe, using fallback plans')
+		plans = fallbackPlans.map((plan) => ({
+			id: plan.id,
+			active: true,
+			created: Date.now(),
+			product: {
+				name: `${plan.duration.charAt(0).toUpperCase() + plan.duration.slice(1)} Plan`,
+				description: plan.features_title,
+				marketing_features: plan.features.map((feature) => ({ name: feature })),
+			},
+			unit_amount: Math.round(plan.price * 100),
+			recurring: {
+				interval: plan.duration,
+				trial_period_days: 0,
+			},
+		})) as PlanList[]
 	}
 
 	return plans
