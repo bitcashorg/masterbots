@@ -7,10 +7,9 @@ export function SidebarSkeleton() {
 	return (
 		<aside
 			className={cn(
-				'peer absolute min-h-[inherit] h-full flex flex-col z-40 inset-y-0 z-30 border-r bg-muted',
+				'peer absolute min-h-[inherit] h-full flex flex-col z-40 inset-y-0 border-r',
 				'w-[300px] lg:w-[250px] xl:w-[300px]',
 				'bg-[#fae8ff] dark:bg-[#000000]',
-				'transition-all -translate-x-full duration-500 ease-in-out',
 			)}
 		>
 			<div className="p-4 space-y-4">
