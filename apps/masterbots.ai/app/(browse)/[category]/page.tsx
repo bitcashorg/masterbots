@@ -20,18 +20,11 @@ export default async function BrowseCategoryPage(props: {
 	})
 
 	return (
-		<div className="w-full max-w-screen-xl pb-10 mx-auto">
-			{/* <BrowseCategoryTabs
-        initialCategory={params.category}
-        categories={categories}
-      /> */}
-			<BrowseSearchInput />
-			<BrowseList
-				initialThreads={threads}
-				categoryId={category?.categoryId}
-				initialCount={count}
-			/>
-		</div>
+		<BrowseList
+			initialThreads={threads}
+			categoryId={category?.categoryId}
+			initialCount={count}
+		/>
 	)
 }
 

@@ -20,7 +20,12 @@ import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
 import { useThread } from '@/lib/hooks/use-thread'
 import { cn } from '@/lib/utils'
 import { AnimatePresence, type MotionProps, motion } from 'framer-motion'
-import { FileIcon, Maximize2Icon, Minimize2Icon } from 'lucide-react'
+import {
+	FileIcon,
+	FileTextIcon,
+	Maximize2Icon,
+	Minimize2Icon,
+} from 'lucide-react'
 import Image from 'next/image'
 
 export const cardSlideUpShowAnimationProps: MotionProps = {
@@ -52,6 +57,8 @@ export function AttachmentCards({
 							{userAttachments.map((attachment) => {
 								const { id, name, url, contentType } =
 									attachment as FileAttachment
+								const sizeInMB = (attachment.size / 1024 / 1024).toFixed(2)
+								const sizeInKB = (attachment.size / 1024).toFixed(2)
 								return (
 									<motion.div key={id} {...cardSlideUpShowAnimationProps}>
 										<Card
@@ -72,7 +79,7 @@ export function AttachmentCards({
 													/>
 												) : (
 													<div className="size-full flex items-center justify-center bg-muted rounded-lg">
-														<FileIcon className="size-5" />
+														<FileTextIcon className="size-24" />
 													</div>
 												)}
 											</CardTitle>
@@ -83,11 +90,13 @@ export function AttachmentCards({
 												)}
 											>
 												<Tooltip>
-													<TooltipTrigger className="w-full py-1.5">
+													<TooltipTrigger className="w-[calc(100%-32px)] py-1.5">
 														<span className="inline-block items-center align-middle truncate max-w-[66%]">
 															{name}
-														</span>{' '}
-														| {(attachment.size / 1024 / 1024).toFixed(2)}MB
+														</span>
+														{sizeInMB === '0.00'
+															? ` | ${sizeInKB}KB`
+															: ` | ${sizeInMB}MB`}
 													</TooltipTrigger>
 													<TooltipContent
 														sideOffset={5}

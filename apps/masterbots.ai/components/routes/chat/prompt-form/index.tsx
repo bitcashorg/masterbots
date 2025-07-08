@@ -24,6 +24,7 @@
  * - Shows clear placeholder text for user guidance
  */
 
+import { AttachmentDialog } from '@/components/routes/chat/attachment-dialog'
 import { ChatCombobox } from '@/components/routes/chat/chat-combobox'
 import { AttachmentsDisplay } from '@/components/routes/chat/prompt-form/attachments-display'
 import { UserAttachments } from '@/components/routes/chat/prompt-form/user-attachments'
@@ -64,11 +65,21 @@ import { useThread } from '@/lib/hooks/use-thread'
 import { cn, nanoid } from '@/lib/utils'
 import type { Attachment, ChatRequestOptions } from 'ai'
 import type { UseChatHelpers } from 'ai/react'
+import { id } from 'date-fns/locale'
 import { motion } from 'framer-motion'
-import { FilePlusIcon, PaperclipIcon, SaveIcon } from 'lucide-react'
+import {
+	BookPlusIcon,
+	FilePlusIcon,
+	PaperclipIcon,
+	PlusIcon,
+	SaveIcon,
+} from 'lucide-react'
+import { appConfig } from 'mb-env'
 import { useParams } from 'next/navigation'
 import * as React from 'react'
+import { useCallback, useState } from 'react'
 import Textarea from 'react-textarea-autosize'
+import { useSetState } from 'react-use'
 
 export interface PromptProps
 	extends Pick<UseChatHelpers, 'input' | 'setInput'> {
@@ -76,6 +87,22 @@ export interface PromptProps
 	isLoading: boolean
 	placeholder: string
 	disabled?: boolean
+}
+
+const DEFAULT_TEXT_FILE_CONTENT = `# Context for the conversation
+This file can contain any relevant information that will help the chatbot understand the context of the conversation. You can add links, notes, or any other text-based content that you think is important.
+
+`
+const DEFAULT_TEXT_FILE_BASE64_CONTENT = `data:text/plain;base64,${btoa(DEFAULT_TEXT_FILE_CONTENT)}`
+const DEFAULT_FILE_ATTACHMENT: FileAttachment = {
+	id: nanoid(16),
+	name: 'Thread Context.txt',
+	url: DEFAULT_TEXT_FILE_BASE64_CONTENT,
+	contentType: 'text/plain',
+	content: DEFAULT_TEXT_FILE_BASE64_CONTENT,
+	messageIds: [],
+	expires: new Date().toISOString(),
+	size: DEFAULT_TEXT_FILE_CONTENT.length,
 }
 
 export function PromptForm({
@@ -100,6 +127,23 @@ export function PromptForm({
 	const [{ attachments, isDragging, userData }, fileAttachmentActions] =
 		useFileAttachments(formRef)
 	const { selectedModel } = useModel()
+	const threadContextFileRef = React.useRef<FileAttachment>(
+		DEFAULT_FILE_ATTACHMENT,
+	)
+
+	const onDialogOpenChange = (open: boolean) =>
+		setDialogState((prev) => ({
+			...prev,
+			open,
+		}))
+
+	const [dialogState, setDialogState] = useSetState<{
+		open: boolean
+		onOpenChange: (open: boolean) => void
+	}>({
+		open: false,
+		onOpenChange: onDialogOpenChange,
+	})
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: not required
 	React.useEffect(() => {
@@ -111,6 +155,35 @@ export function PromptForm({
 			inputRef.current.focus()
 		}
 	}, [])
+
+	// Listen for example question clicks
+	React.useEffect(() => {
+		const handleExampleQuestion = (event: CustomEvent) => {
+			const { question } = event.detail
+			setInput(question)
+			// Focus the textarea after setting the input
+			if (inputRef.current) {
+				inputRef.current.focus()
+			}
+		}
+
+		window.addEventListener(
+			'exampleQuestionSelected',
+			handleExampleQuestion as EventListener,
+		)
+
+		return () => {
+			window.removeEventListener(
+				'exampleQuestionSelected',
+				handleExampleQuestion as EventListener,
+			)
+		}
+	}, [setInput])
+
+	// * Creating unique instances for each form (popup and main).
+	// ? This is required to prevent the form from submitting when the user presses Enter in the popup.
+	// ? Must be rendered once per form instance. Else it will not work as expected if leave without memoizing (onChange would update this component).
+	const formId = React.useMemo(() => nanoid(16), [])
 
 	const handleBotSelection = () => {
 		if (activeThread?.chatbot) {
@@ -130,17 +203,51 @@ export function PromptForm({
 		setIsFocused(false)
 	}
 
-	const triggerNativeFileInput = (e: React.MouseEvent) => {
-		const $document = e.currentTarget.ownerDocument
-		if (!$document) return
+	const triggerNewTextFileDialog = (e: React.MouseEvent) => {
+		e.preventDefault()
+		e.stopPropagation()
+		// Create a proper File object from the text content
+		const attachmentContextFileName = attachments.some(
+			(attch) => attch.name === 'Thread Context.txt',
+		)
+			? `Thread Context (${attachments.filter((attch) => attch.name.includes('Thread Context')).length}).txt`
+			: 'Thread Context.txt'
+		// Use the existing file handler to process the file
+		const newAttachmentObject = {
+			...DEFAULT_FILE_ATTACHMENT,
+			id:
+				attachmentContextFileName !== DEFAULT_FILE_ATTACHMENT.name
+					? nanoid(16)
+					: DEFAULT_FILE_ATTACHMENT.id,
+			name: attachmentContextFileName,
+			expires: new Date().toISOString(),
+			size: new Blob([DEFAULT_TEXT_FILE_CONTENT]).size,
+		}
+		fileAttachmentActions.addAttachmentObject(newAttachmentObject)
 
-		const $input = $document.getElementById(`file-attachments-${formId}`)
-		if (!$input) return
-
-		$input.removeAttribute('disabled')
-		$input.click()
-		$input.setAttribute('disabled', '')
+		const timeout = setTimeout(() => {
+			// Open the dialog after a short delay to ensure the attachment is added
+			onDialogOpenChange(true)
+			clearTimeout(timeout)
+		}, 120)
 	}
+
+	React.useEffect(() => {
+		const filterAttachmentByName = (attch: FileAttachment) =>
+			attch.name.includes('Thread Context')
+		if (attachments.length > 0 && attachments.some(filterAttachmentByName)) {
+			const threadContextFiles = attachments
+				.filter(filterAttachmentByName)
+				.sort((a, b) => {
+					// Sort by the latest thread context file first
+					const aCount = Number(a.name.match(/\((\d+)\)/)?.[1] || '0')
+					const bCount = Number(b.name.match(/\((\d+)\)/)?.[1] || '0')
+					return bCount - aCount
+				})
+			threadContextFileRef.current =
+				threadContextFiles[0] || DEFAULT_FILE_ATTACHMENT
+		}
+	}, [attachments])
 
 	const submitPrompt = async (e: React.FormEvent) => {
 		e.preventDefault()
@@ -166,10 +273,6 @@ export function PromptForm({
 		fileAttachmentActions.clearAttachments()
 	}
 
-	// * Creating unique instances for each form (popup and main).
-	// ? This is required to prevent the form from submitting when the user presses Enter in the popup.
-	// ? Must be rendered once per form instance. Else it will not work as expected if leave without memoizing (onChange would update this component).
-	const formId = React.useMemo(() => nanoid(16), [])
 	const userAttachments =
 		(userData.userAttachments as FileAttachment[]) && allMessages.length
 			? (userData.userAttachments as FileAttachment[]).filter((attachment) =>
@@ -186,7 +289,7 @@ export function PromptForm({
 	const userHasRelatedAttachment = Boolean(userAttachments.length)
 	// console.log(
 	// 	`User has related attachment: ${userHasRelatedAttachment}`,
-	// 	userAttachments.length,
+	// 	threadContextFileRef.current,
 	// 	attachments.length,
 	// )
 	return (
@@ -204,6 +307,7 @@ export function PromptForm({
 				isDragging={isDragging}
 				attachments={attachments}
 				onRemove={fileAttachmentActions.removeAttachment}
+				onUpdate={fileAttachmentActions.updateAttachment}
 			/>
 			<div
 				className={cn(
@@ -243,73 +347,113 @@ export function PromptForm({
 						<PopoverTrigger
 							className={cn(
 								buttonVariants({ variant: 'ghost', size: 'icon' }),
-								'relative cursor-pointer',
+								'cursor-pointer',
 							)}
-							onClick={(e) => {
-								if (userHasRelatedAttachment) return
-								e.currentTarget.querySelector('input')?.click()
-							}}
 						>
-							<Input
-								onChange={fileAttachmentActions.handleFileSelect}
-								tabIndex={-1}
-								id={`file-attachments-${formId}`}
-								className={cn(
-									'absolute opacity-0 size-full !cursor-pointer p-0 disabled:opacity-0',
-								)}
-								accept={
-									selectedModel.match(/(DeepSeekR1|GroqDeepSeek)/)
-										? 'text/*'
-										: 'image/*,text/*'
-								}
-								type="file"
-								disabled={userHasRelatedAttachment}
-								multiple
-							/>
 							<PaperclipIcon className="p-0.5 z-0 cursor-pointer" />
+							<span className="sr-only">Add attachments</span>
 						</PopoverTrigger>
 						<PopoverContent className="w-[320px]">
 							<Command>
 								<CommandGroup>
 									<CommandList className="w-full p-0 overflow-hidden">
-										<Accordion type="single" collapsible>
-											<AccordionItem value={`user-attachments-${formId}`}>
-												<AccordionTrigger className="sticky top-0 p-2">
-													<SaveIcon className="size-4" /> Saved Attachments (
-													{userAttachments?.length || 0})
-												</AccordionTrigger>
-												<AccordionContent className="scrollbar h-full max-h-[200px] md:max-h-[300px] w-full">
-													<UserAttachments
-														attachments={selectedUserAttachments}
-														onChange={
-															fileAttachmentActions.toggleAttachmentSelection
-														}
-													/>
-												</AccordionContent>
-											</AccordionItem>
-										</Accordion>
+										{userHasRelatedAttachment && (
+											<Accordion type="single" className="mb-4" collapsible>
+												<AccordionItem value={`user-attachments-${formId}`}>
+													<AccordionTrigger className="sticky top-0 p-2">
+														<SaveIcon className="size-4" /> Saved Attachments (
+														{userAttachments?.length || 0})
+													</AccordionTrigger>
+													<AccordionContent className="scrollbar h-full max-h-[200px] md:max-h-[300px] w-full">
+														<UserAttachments
+															attachments={selectedUserAttachments}
+															onChange={
+																fileAttachmentActions.toggleAttachmentSelection
+															}
+														/>
+													</AccordionContent>
+												</AccordionItem>
+											</Accordion>
+										)}
 
-										<CommandItem asChild className="bg-transparent">
-											<Button
-												variant="outline"
-												size="lg"
-												className="w-full mt-4 mb-1 cursor-pointer"
-												onClick={triggerNativeFileInput}
+										<CommandGroup
+											className="[&>div]:flex [&>div]:w-full [&>div]:gap-1 mb-1"
+											heading="Add Thread Attachments"
+										>
+											<CommandItem
+												asChild
+												className="flex w-full bg-transparent"
 											>
-												<FilePlusIcon className="size-4" />
-												Add Attachments
-											</Button>
-										</CommandItem>
-										{/* <CommandItem>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={fileAttachmentActions.clearAttachments}
-                        disabled={!attachments.length}
-                      >
-                        Clear Attachments
-                      </Button>
-                    </CommandItem> */}
+												<Button
+													variant="outline"
+													size="lg"
+													className="relative w-full cursor-pointer px-2"
+													title={
+														selectedModel.match(/(DeepSeekR1|GroqDeepSeek)/)
+															? 'Add text files only'
+															: 'Add image or text files'
+													}
+													asChild
+												>
+													<div>
+														<Input
+															onChange={fileAttachmentActions.handleFileSelect}
+															tabIndex={-1}
+															id={`file-attachments-${formId}`}
+															className={cn(
+																'absolute opacity-0 z-0 size-full !cursor-pointer p-0 inset-0',
+															)}
+															accept={
+																selectedModel.match(/(DeepSeekR1|GroqDeepSeek)/)
+																	? 'text/*'
+																	: 'image/*,text/*'
+															}
+															type="file"
+															multiple
+														/>
+														<FilePlusIcon className="size-4" />
+														New File(s)
+													</div>
+												</Button>
+											</CommandItem>
+											<CommandItem
+												asChild
+												className="flex w-full bg-transparent"
+											>
+												<AttachmentDialog
+													dialogState={{
+														open: dialogState.open,
+														onOpenChange: dialogState.onOpenChange,
+													}}
+													attachment={threadContextFileRef.current}
+													updateAttachment={
+														fileAttachmentActions.updateAttachment
+													}
+													triggerComponent={
+														<Button
+															variant="outline"
+															size="lg"
+															className="w-full cursor-pointer px-2"
+															onClick={triggerNewTextFileDialog}
+															id={`new-context-${formId}`}
+														>
+															<BookPlusIcon className="size-4" />
+															New Context
+														</Button>
+													}
+												/>
+											</CommandItem>
+											{/* <CommandItem>
+												<Button
+													variant="ghost"
+													size="sm"
+													onClick={fileAttachmentActions.clearAttachments}
+													disabled={!attachments.length}
+												>
+													Clear Attachments
+												</Button>
+											</CommandItem> */}
+										</CommandGroup>
 									</CommandList>
 								</CommandGroup>
 							</Command>

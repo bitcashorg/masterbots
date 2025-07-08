@@ -29,19 +29,12 @@ export default async function BrowseCategoryChatbotPage(props: {
 	})
 
 	return (
-		<div className="w-full max-w-screen-xl pb-10 mx-auto">
-			{/* <BrowseCategoryTabs
-        initialCategory={params.category}
-        categories={categories}
-      /> */}
-			<BrowseSearchInput />
-			<BrowseList
-				categoryId={chatbot.categories[0].categoryId}
-				chatbot={chatbot}
-				initialThreads={threads}
-				initialCount={count}
-			/>
-		</div>
+		<BrowseList
+			categoryId={chatbot.categories[0].categoryId}
+			chatbot={chatbot}
+			initialThreads={threads}
+			initialCount={count}
+		/>
 	)
 }
 

@@ -71,11 +71,16 @@ export function useIndexedDB({
 	}, [dbName, storeName])
 
 	const addItem = (item: IndexedDBItem) => {
-		const db = dbRef.current
-		if (!db) return
-		const transaction = db.transaction(storeName, 'readwrite')
-		const store = transaction.objectStore(storeName)
-		store.add(item)
+		try {
+			const db = dbRef.current
+			if (!db) return
+			const transaction = db.transaction(storeName, 'readwrite')
+			const store = transaction.objectStore(storeName)
+			store.add(item)
+		} catch (error) {
+			console.error('Error adding item to IndexedDB:', error)
+			return
+		}
 	}
 
 	const getItem = (id: IDBValidKey): Promise<IndexedDBItem> => {

@@ -1,9 +1,7 @@
 'use client'
 
-import {
-	MessagePairs,
-	type MessagePairsData,
-} from '@/components/routes/chat/chat-list/message-pairs'
+import type { MessagePairsData } from '@/components/routes/chat/chat-list/message-pairs'
+import { ThreadPopupContentSkeleton } from '@/components/shared/skeletons/thread-popup-skeleton'
 import {
 	type FileAttachment,
 	useFileAttachments,
@@ -16,7 +14,19 @@ import type { SendMessageFromResponseMessageData } from '@/types/types'
 import type { Message } from 'ai'
 import { isEqual } from 'lodash'
 import type { Chatbot } from 'mb-genql'
+import dynamic from 'next/dynamic'
 import React, { useEffect, useRef } from 'react'
+
+const MessagePairs = dynamic(
+	() =>
+		import('@/components/routes/chat/chat-list/message-pairs').then(
+			(mod) => mod.MessagePairs,
+		),
+	{
+		ssr: false,
+		loading: () => <ThreadPopupContentSkeleton />,
+	},
+)
 
 export interface ChatList {
 	messages?: Message[]

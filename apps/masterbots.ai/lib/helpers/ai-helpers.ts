@@ -137,14 +137,47 @@ export function convertToCoreMessages(
 			coreMessages.push({
 				role: msg.role as 'user' | 'system' | 'assistant',
 				content: experimental_attachments.map((attachment) => {
-					const { contentType, content } = attachment
+					const { contentType, content, url } = attachment
 					const isImageType = contentType?.includes('image')
 					const attachmentType = isImageType ? 'image' : 'text'
+					const isFromBucket = (content as string).includes('attachments/')
+					let attachmentContent = content
+
+					if (isFromBucket) {
+						// Handle attachment content to download the content image/text file
+						const fetchUrl = async (contentUrl: string) => {
+							await fetch(contentUrl).then((res) => {
+								if (!res.ok) {
+									throw new Error(
+										`Failed to fetch attachment from ${contentUrl}: ${res.statusText}`,
+									)
+								}
+
+								res.arrayBuffer().then((buffer) => {
+									const bufferString = Buffer.from(buffer).toString('base64')
+									console.log('Attachment fetched successfully:', {
+										contentType,
+										content,
+										url,
+										attachmentType,
+										bufferString,
+									})
+									attachmentContent = `data:${contentType};base64,${bufferString}`
+								})
+							})
+						}
+						try {
+							fetchUrl(url)
+						} catch (error) {
+							console.error('Failed to fetch attachment:', error)
+							attachmentContent = content
+						}
+					}
 
 					if (attachmentType === 'image') {
 						return {
 							type: attachmentType,
-							image: content,
+							image: attachmentContent,
 						} as ImagePart
 					}
 
@@ -155,9 +188,9 @@ export function convertToCoreMessages(
 					//   data: content,
 					// } as FilePart
 					const base64Hash =
-						typeof content === 'string'
-							? content.split(',')[1]
-							: Buffer.from(content).toString('base64')
+						typeof attachmentContent === 'string'
+							? attachmentContent.split(',')[1]
+							: Buffer.from(attachmentContent).toString('base64')
 					const textContent = atob(base64Hash)
 					return {
 						type: attachmentType,
