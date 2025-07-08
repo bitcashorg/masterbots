@@ -134,10 +134,9 @@ export function ThreadSearchInput({
 	}, [internalSearchTerm, isBrowseView])
 
 	return (
-		<div
+		<form
 			className={cn(
 				'relative w-full max-w-screen-xl mx-auto flex items-center justify-center',
-				{ 'pt-5': isBrowseView },
 				className,
 			)}
 		>
@@ -192,6 +191,6 @@ export function ThreadSearchInput({
 					)}
 				</div>
 			</div>
-		</div>
+		</form>
 	)
 }
