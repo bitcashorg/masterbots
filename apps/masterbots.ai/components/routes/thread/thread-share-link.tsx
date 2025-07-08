@@ -78,7 +78,7 @@ export default function ShareLink({ variant = 'default' }: ShareLinkProps) {
 				variant === 'active' && 'hover:bg-[#388DE2]/10',
 			)}
 		>
-			<AnimatePresence>{iconsMap[status]}</AnimatePresence>
+			<AnimatePresence mode="wait">{iconsMap[status]}</AnimatePresence>
 		</Button>
 	)
 }

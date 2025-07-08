@@ -38,6 +38,7 @@ export function ChatbotAvatar({ thread }: { thread: Thread }) {
 										radius: 'full',
 									}),
 								)}
+								loading="lazy"
 								src={thread.chatbot?.avatar ?? '/images/robohash1.png'}
 								alt={thread.chatbot?.name ?? 'Default BotAvatar'}
 								height={42}
@@ -58,6 +59,7 @@ export function ChatbotAvatar({ thread }: { thread: Thread }) {
 							alt={thread.chatbot?.name ?? 'Default BotAvatar'}
 							height={42}
 							width={42}
+							loading="lazy"
 						/>{' '}
 					</div>
 				)}

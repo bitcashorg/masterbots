@@ -93,7 +93,7 @@ export function ShareButton({ url, ...props }: ShareButtonProps) {
 						}}
 						{...props}
 					>
-						<AnimatePresence>{iconsMap[status]}</AnimatePresence>
+						<AnimatePresence mode="wait">{iconsMap[status]}</AnimatePresence>
 						<span>Share</span>
 					</Button>
 				</TooltipTrigger>

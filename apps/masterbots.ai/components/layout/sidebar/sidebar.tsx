@@ -18,6 +18,7 @@ export function Sidebar({
 	const { setActiveThread, setIsOpenPopup } = useThread()
 	const rootAndChatRegex = /^\/(?:c)?$/
 	const isBrowse = !/^\/(?:c|u)(?:\/|$)/.test(pathname)
+	const isProfile = /^\/u\/.*\/t/.test(pathname)
 
 	const resetState = () => {
 		setActiveThread(null)
@@ -41,9 +42,9 @@ export function Sidebar({
 				className={cn(
 					className,
 					'min-h-[inherit] h-full flex flex-col z-40',
-					!isBrowse
-						? 'bg-[#fae8ff] dark:bg-[#000000]' // For /c routes only
-						: 'bg-[#eeffea] dark:bg-[#000000]', // For other routes
+					isBrowse || isProfile
+						? 'bg-[#eeffea] dark:bg-[#000000]' // For /c and /u routes only
+						: 'bg-[#fae8ff] dark:bg-[#000000]', // For other routes
 				)}
 			>
 				<SidebarHeader />
