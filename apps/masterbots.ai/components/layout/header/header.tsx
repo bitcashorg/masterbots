@@ -100,33 +100,6 @@ export function Header() {
 	const publicUrl = buildUrlWithCurrentContext('/')
 	const personalUrl = buildUrlWithCurrentContext('/c')
 
-	// TODO: Reconsider the logic below for the URLs
-	// if (activeCategory && activeChatbot?.categories[0]?.category?.name) {
-	//   publicUrl = urlBuilders.topicThreadListUrl({
-	//     type: 'public',
-	//     category: activeChatbot?.categories[0].category.name,
-	//   })
-	//   personalUrl = urlBuilders.topicThreadListUrl({
-	//     type: 'personal',
-	//     category: activeChatbot?.categories[0].category.name,
-	//   })
-	// }
-
-	// if (activeChatbot?.name) {
-	//   publicUrl = urlBuilders.chatbotThreadListUrl({
-	//     type: 'public',
-	//     chatbot: activeChatbot?.name || '',
-	//     domain: canonicalDomain || 'prompt',
-	//     category: activeChatbot?.categories[0]?.category?.name || '',
-	//   })
-	//   personalUrl = urlBuilders.chatbotThreadListUrl({
-	//     type: 'personal',
-	//     chatbot: activeChatbot?.name || '',
-	//     domain: canonicalDomain || 'prompt',
-	//     category: activeChatbot?.categories[0]?.category?.name || '',
-	//   })
-	// }
-
 	const pathname = usePathname()
 	const routeType = getRouteType(pathname)
 
