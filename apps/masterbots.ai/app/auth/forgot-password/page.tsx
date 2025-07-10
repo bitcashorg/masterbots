@@ -1,14 +1,14 @@
 'use client'
 
 import ForgotPasswordForm from '@/components/auth/forgot-password-form'
-import { AppLogo } from '@/lib/utils'
+import { getAppLogoPath } from '@/lib/utils'
 import { motion } from 'framer-motion'
 import { useTheme } from 'next-themes'
 import Image from 'next/image'
 
 export default function ForgotPasswordPage() {
 	const { theme } = useTheme()
-	const logoSrc = AppLogo({ theme })
+	const logoSrc = getAppLogoPath({ theme })
 	return (
 		<motion.div
 			className="flex flex-col min-h-[calc(100vh-4rem)] items-center py-6 sm:py-10"

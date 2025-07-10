@@ -1,7 +1,7 @@
 'use client'
 
 import SignUpForm from '@/components/auth/signup-form'
-import { AppLogo } from '@/lib/utils'
+import { getAppLogoPath } from '@/lib/utils'
 import { motion } from 'framer-motion'
 import { useTheme } from 'next-themes'
 import Image from 'next/image'
@@ -9,7 +9,7 @@ import Link from 'next/link'
 
 export default function SignUpPage() {
 	const { theme } = useTheme()
-	const logoSrc = AppLogo({ theme })
+	const logoSrc = getAppLogoPath({ theme })
 
 	return (
 		<motion.div

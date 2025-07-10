@@ -1,7 +1,7 @@
 'use client'
 
 import ResetPasswordForm from '@/components/auth/reset-password-form'
-import { AppLogo } from '@/lib/utils'
+import { getAppLogoPath } from '@/lib/utils'
 import { motion } from 'framer-motion'
 import { useTheme } from 'next-themes'
 import Image from 'next/image'
@@ -12,7 +12,7 @@ export default function ResetPasswordPage(props: {
 }) {
 	const searchParams = use(props.searchParams)
 	const { theme } = useTheme()
-	const logoSrc = AppLogo({ theme })
+	const logoSrc = getAppLogoPath({ theme })
 
 	return (
 		<motion.div

@@ -3,7 +3,7 @@
 'use client'
 
 import SignInForm from '@/components/auth/signin-form'
-import { AppLogo } from '@/lib/utils'
+import { getAppLogoPath } from '@/lib/utils'
 import { useTheme } from 'next-themes'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -13,7 +13,7 @@ export default function SignInPage() {
 	const searchParams = useSearchParams()
 	const verified = searchParams.get('verified')
 	const { theme } = useTheme()
-	const logoSrc = AppLogo({ theme })
+	const logoSrc = getAppLogoPath({ theme })
 
 	return (
 		<div className="flex flex-col min-h-[calc(100vh-4rem)] items-center py-6 sm:py-10">
