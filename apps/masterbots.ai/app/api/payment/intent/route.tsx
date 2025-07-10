@@ -13,7 +13,8 @@ const stripe = new Stripe(stripeSecretKey || '', {
 
 export async function POST(req: NextRequest) {
 	try {
-		const { email, name, planId, trialPeriodDays, promotion_code } = await req.json()
+		const { email, name, planId, trialPeriodDays, promotion_code } =
+			await req.json()
 
 		// Validate request data
 		if (!email || !name || !planId) {
