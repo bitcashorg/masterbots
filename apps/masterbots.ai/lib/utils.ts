@@ -327,7 +327,8 @@ export function getRouteType(pathname: string | null): RouteType {
 		return 'profile'
 	}
 
-	if (/^\/b\/[^/]+(?:\/|$)/.test(pathname)) {
+	// ? Check for bot routes (starting with /b)
+	if (normalizedPath.startsWith('/b')) {
 		return 'bot'
 	}
 

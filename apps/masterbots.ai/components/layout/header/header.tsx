@@ -12,6 +12,7 @@ import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { getCanonicalDomain } from '@/lib/url'
 import { cn, getRouteColor, getRouteType } from '@/lib/utils'
 import { appConfig } from 'mb-env'
+import { toSlug } from 'mb-lib'
 import { useTheme } from 'next-themes'
 import Image from 'next/image'
 
@@ -74,46 +75,43 @@ export function Header() {
 		setActiveChatbot(null)
 	}
 
-	const publicUrl = '/'
-	const personalUrl = '/c'
 	const { theme } = useTheme()
 	const logoSrc =
 		theme === 'dark'
 			? '/logos/mb-logo-header-dark.png'
 			: '/logos/mb-logo-header-light.png'
+	const preserveContextNavigation = (e: React.MouseEvent) => {
+		//! The URL will be built with the current context
+	}
 
-	// TODO: Reconsider the logic below for the URLs
-	// if (activeCategory && activeChatbot?.categories[0]?.category?.name) {
-	//   publicUrl = urlBuilders.topicThreadListUrl({
-	//     type: 'public',
-	//     category: activeChatbot?.categories[0].category.name,
-	//   })
-	//   personalUrl = urlBuilders.topicThreadListUrl({
-	//     type: 'personal',
-	//     category: activeChatbot?.categories[0].category.name,
-	//   })
-	// }
+	//? Build URLs that preserve the current category and chatbot
+	const buildUrlWithCurrentContext = (baseUrl: string) => {
+		if (activeCategory && activeChatbot?.categories[0]?.category?.name) {
+			const categoryName = activeChatbot.categories[0].category.name
+			const chatbotName = activeChatbot.name
+			const domain = canonicalDomain || 'prompt'
 
-	// if (activeChatbot?.name) {
-	//   publicUrl = urlBuilders.chatbotThreadListUrl({
-	//     type: 'public',
-	//     chatbot: activeChatbot?.name || '',
-	//     domain: canonicalDomain || 'prompt',
-	//     category: activeChatbot?.categories[0]?.category?.name || '',
-	//   })
-	//   personalUrl = urlBuilders.chatbotThreadListUrl({
-	//     type: 'personal',
-	//     chatbot: activeChatbot?.name || '',
-	//     domain: canonicalDomain || 'prompt',
-	//     category: activeChatbot?.categories[0]?.category?.name || '',
-	//   })
-	// }
+			//? Build the full URL
+			const path = `/${toSlug(categoryName)}/${domain}/${toSlug(chatbotName)}`
+			return baseUrl === '/' ? path : `${baseUrl}${path}`
+		}
+		if (activeCategory) {
+			//? Build category URL only
+			const categoryName = activeChatbot?.categories[0]?.category?.name || 'ai'
+			const path = `/${toSlug(categoryName)}`
+			return baseUrl === '/' ? path : `${baseUrl}${path}`
+		}
+		return baseUrl
+	}
+
+	const publicUrl = buildUrlWithCurrentContext('/')
+	const personalUrl = buildUrlWithCurrentContext('/c')
 
 	const pathname = usePathname()
 	const routeType = getRouteType(pathname)
 
 	return (
-		<header className="sticky top-0 z-50 flex items-center justify-between w-full h-16 px-4 border-b shrink-0 bg-gradient-to-b from-background/10 via-background/50 to-background/80 backdrop-blur-xl">
+		<header className="flex sticky top-0 z-50 justify-between items-center px-4 w-full h-16 bg-gradient-to-b border-b backdrop-blur-xl shrink-0 from-background/10 via-background/50 to-background/80">
 			<div className="flex items-center">
 				<React.Suspense fallback={null}>
 					<SidebarToggle />
@@ -132,7 +130,7 @@ export function Header() {
 				<div className="flex items-center gap-1 ml-2.5">
 					<HeaderLink
 						href={personalUrl}
-						onClick={resetNavigation}
+						onClick={preserveContextNavigation}
 						text="Chat"
 						className={cn({
 							'hidden sm:flex': routeType !== 'chat',
@@ -140,7 +138,7 @@ export function Header() {
 					/>
 					<HeaderLink
 						href={publicUrl}
-						onClick={resetNavigation}
+						onClick={preserveContextNavigation}
 						text="Public"
 						className={cn({
 							'hidden sm:flex': routeType !== 'public',
@@ -159,7 +157,7 @@ export function Header() {
 				</div>
 			</div>
 			<div className="flex items-center space-x-4">
-				<React.Suspense fallback={<div className="flex-1 overflow-auto" />}>
+				<React.Suspense fallback={<div className="overflow-auto flex-1" />}>
 					<UserLogin />
 				</React.Suspense>
 			</div>
