@@ -5,6 +5,7 @@ import lightBG from '@/public/bg-landing-light.svg'
 import { useTheme } from 'next-themes'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
+import React from 'react'
 
 export default function LayoutClient({
 	children,
@@ -13,13 +14,19 @@ export default function LayoutClient({
 }) {
 	const pathname = usePathname()
 	const { theme } = useTheme()
+	const [mounted, setMounted] = React.useState(false)
+
+	// Ensure the theme is mounted before rendering
+	React.useEffect(() => {
+		setMounted(true)
+	}, [])
 
 	const isAuthPage = pathname.includes('auth/')
 	const bgImage = theme === 'dark' ? darkBG : lightBG
 
 	return (
 		<main className="relative flex flex-col flex-1 bg-muted/50">
-			{isAuthPage && (
+			{isAuthPage && mounted && (
 				<Image
 					src={bgImage}
 					alt="Background"

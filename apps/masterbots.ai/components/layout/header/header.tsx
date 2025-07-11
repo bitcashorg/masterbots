@@ -15,6 +15,7 @@ import { appConfig } from 'mb-env'
 import { toSlug } from 'mb-lib'
 import { useTheme } from 'next-themes'
 import Image from 'next/image'
+import { useEffect, useState } from 'react'
 
 function HeaderLink({
 	href,
@@ -69,11 +70,16 @@ export function Header() {
 	const { activeCategory, activeChatbot, setActiveCategory, setActiveChatbot } =
 		useSidebar()
 	const canonicalDomain = getCanonicalDomain(activeChatbot?.name || '')
+	const [mounted, setMounted] = useState(false)
 
 	const resetNavigation = (e: React.MouseEvent) => {
 		setActiveCategory(null)
 		setActiveChatbot(null)
 	}
+
+	useEffect(() => {
+		setMounted(true)
+	}, [])
 
 	const { theme } = useTheme()
 	const logoSrc =
@@ -121,7 +127,15 @@ export function Header() {
 					noActiveColor
 					onClick={resetNavigation}
 					text={
-						<Image src={logoSrc} alt="Masterbots Logo" width={30} height={30} />
+						mounted && (
+							<Image
+								src={logoSrc}
+								alt="Masterbots Logo"
+								width={30}
+								height={30}
+								priority
+							/>
+						)
 					}
 				/>
 

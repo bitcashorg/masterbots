@@ -361,7 +361,11 @@ export function getRouteColor(
 	}
 }
 
-export const getAppLogoPath = (theme?: string): string => {
+export const getAppLogoPath = ({
+	theme,
+}: {
+	theme: string | undefined
+}): string => {
 	switch (theme) {
 		case 'dark':
 			return '/logos/mb-logo-landing-dark.png'
