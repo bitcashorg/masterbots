@@ -24,6 +24,7 @@ export interface Category {
   /** An aggregate relationship */
   chatbotsAggregate: ChatbotCategoryAggregate;
   name: Scalars["String"];
+  order: Scalars["Int"];
   __typename: "Category";
 }
 
@@ -53,6 +54,7 @@ export interface CategoryAggregateFields {
 /** aggregate avg on columns */
 export interface CategoryAvgFields {
   categoryId: Scalars["Float"] | null;
+  order: Scalars["Float"] | null;
   __typename: "CategoryAvgFields";
 }
 
@@ -130,6 +132,7 @@ export type CategoryEnumUpdateColumn = "added" | "domain" | "name";
 export interface CategoryMaxFields {
   categoryId: Scalars["Int"] | null;
   name: Scalars["String"] | null;
+  order: Scalars["Int"] | null;
   __typename: "CategoryMaxFields";
 }
 
@@ -137,6 +140,7 @@ export interface CategoryMaxFields {
 export interface CategoryMinFields {
   categoryId: Scalars["Int"] | null;
   name: Scalars["String"] | null;
+  order: Scalars["Int"] | null;
   __typename: "CategoryMinFields";
 }
 
@@ -150,50 +154,57 @@ export interface CategoryMutationResponse {
 }
 
 /** select columns of table "category" */
-export type CategorySelectColumn = "categoryId" | "name";
+export type CategorySelectColumn = "categoryId" | "name" | "order";
 
 /** aggregate stddev on columns */
 export interface CategoryStddevFields {
   categoryId: Scalars["Float"] | null;
+  order: Scalars["Float"] | null;
   __typename: "CategoryStddevFields";
 }
 
 /** aggregate stddevPop on columns */
 export interface CategoryStddevPopFields {
   categoryId: Scalars["Float"] | null;
+  order: Scalars["Float"] | null;
   __typename: "CategoryStddevPopFields";
 }
 
 /** aggregate stddevSamp on columns */
 export interface CategoryStddevSampFields {
   categoryId: Scalars["Float"] | null;
+  order: Scalars["Float"] | null;
   __typename: "CategoryStddevSampFields";
 }
 
 /** aggregate sum on columns */
 export interface CategorySumFields {
   categoryId: Scalars["Int"] | null;
+  order: Scalars["Int"] | null;
   __typename: "CategorySumFields";
 }
 
 /** update columns of table "category" */
-export type CategoryUpdateColumn = "categoryId" | "name";
+export type CategoryUpdateColumn = "categoryId" | "name" | "order";
 
 /** aggregate varPop on columns */
 export interface CategoryVarPopFields {
   categoryId: Scalars["Float"] | null;
+  order: Scalars["Float"] | null;
   __typename: "CategoryVarPopFields";
 }
 
 /** aggregate varSamp on columns */
 export interface CategoryVarSampFields {
   categoryId: Scalars["Float"] | null;
+  order: Scalars["Float"] | null;
   __typename: "CategoryVarSampFields";
 }
 
 /** aggregate variance on columns */
 export interface CategoryVarianceFields {
   categoryId: Scalars["Float"] | null;
+  order: Scalars["Float"] | null;
   __typename: "CategoryVarianceFields";
 }
 
@@ -213,6 +224,7 @@ export interface Chatbot {
   defaultTone: Scalars["String"] | null;
   defaultType: Scalars["String"] | null;
   description: Scalars["String"] | null;
+  disabled: Scalars["Boolean"] | null;
   /** An array relationship */
   followers: SocialFollowing[];
   /** An aggregate relationship */
@@ -224,6 +236,7 @@ export interface Chatbot {
   /** An aggregate relationship */
   metadataAggregate: ChatbotDomainAggregate;
   name: Scalars["String"];
+  order: Scalars["Int"];
   /** An array relationship */
   preferences: Preference[];
   /** An aggregate relationship */
@@ -269,6 +282,7 @@ export interface ChatbotAggregateFields {
 /** aggregate avg on columns */
 export interface ChatbotAvgFields {
   chatbotId: Scalars["Float"] | null;
+  order: Scalars["Float"] | null;
   __typename: "ChatbotAvgFields";
 }
 
@@ -522,6 +536,7 @@ export interface ChatbotMaxFields {
   defaultType: Scalars["String"] | null;
   description: Scalars["String"] | null;
   name: Scalars["String"] | null;
+  order: Scalars["Int"] | null;
   __typename: "ChatbotMaxFields";
 }
 
@@ -536,6 +551,7 @@ export interface ChatbotMinFields {
   defaultType: Scalars["String"] | null;
   description: Scalars["String"] | null;
   name: Scalars["String"] | null;
+  order: Scalars["Int"] | null;
   __typename: "ChatbotMinFields";
 }
 
@@ -558,29 +574,43 @@ export type ChatbotSelectColumn =
   | "defaultTone"
   | "defaultType"
   | "description"
-  | "name";
+  | "disabled"
+  | "name"
+  | "order";
+
+/** select "chatbotAggregateBoolExpBool_andArgumentsColumns" columns of table "chatbot" */
+export type ChatbotSelectColumnChatbotAggregateBoolExpBool_andArgumentsColumns =
+  "disabled";
+
+/** select "chatbotAggregateBoolExpBool_orArgumentsColumns" columns of table "chatbot" */
+export type ChatbotSelectColumnChatbotAggregateBoolExpBool_orArgumentsColumns =
+  "disabled";
 
 /** aggregate stddev on columns */
 export interface ChatbotStddevFields {
   chatbotId: Scalars["Float"] | null;
+  order: Scalars["Float"] | null;
   __typename: "ChatbotStddevFields";
 }
 
 /** aggregate stddevPop on columns */
 export interface ChatbotStddevPopFields {
   chatbotId: Scalars["Float"] | null;
+  order: Scalars["Float"] | null;
   __typename: "ChatbotStddevPopFields";
 }
 
 /** aggregate stddevSamp on columns */
 export interface ChatbotStddevSampFields {
   chatbotId: Scalars["Float"] | null;
+  order: Scalars["Float"] | null;
   __typename: "ChatbotStddevSampFields";
 }
 
 /** aggregate sum on columns */
 export interface ChatbotSumFields {
   chatbotId: Scalars["Int"] | null;
+  order: Scalars["Int"] | null;
   __typename: "ChatbotSumFields";
 }
 
@@ -594,23 +624,28 @@ export type ChatbotUpdateColumn =
   | "defaultTone"
   | "defaultType"
   | "description"
-  | "name";
+  | "disabled"
+  | "name"
+  | "order";
 
 /** aggregate varPop on columns */
 export interface ChatbotVarPopFields {
   chatbotId: Scalars["Float"] | null;
+  order: Scalars["Float"] | null;
   __typename: "ChatbotVarPopFields";
 }
 
 /** aggregate varSamp on columns */
 export interface ChatbotVarSampFields {
   chatbotId: Scalars["Float"] | null;
+  order: Scalars["Float"] | null;
   __typename: "ChatbotVarSampFields";
 }
 
 /** aggregate variance on columns */
 export interface ChatbotVarianceFields {
   chatbotId: Scalars["Float"] | null;
+  order: Scalars["Float"] | null;
   __typename: "ChatbotVarianceFields";
 }
 
@@ -2615,6 +2650,7 @@ export interface User {
   preferencesAggregate: PreferenceAggregate;
   proUserSubscriptionId: Scalars["String"];
   profilePicture: Scalars["String"] | null;
+  promoCode: Scalars["String"] | null;
   /** An array relationship */
   prompts: PromptUser[];
   /** An aggregate relationship */
@@ -2675,6 +2711,7 @@ export interface UserMaxFields {
   password: Scalars["String"] | null;
   proUserSubscriptionId: Scalars["String"] | null;
   profilePicture: Scalars["String"] | null;
+  promoCode: Scalars["String"] | null;
   role: Scalars["user_role"] | null;
   slug: Scalars["String"] | null;
   userId: Scalars["uuid"] | null;
@@ -2693,6 +2730,7 @@ export interface UserMinFields {
   password: Scalars["String"] | null;
   proUserSubscriptionId: Scalars["String"] | null;
   profilePicture: Scalars["String"] | null;
+  promoCode: Scalars["String"] | null;
   role: Scalars["user_role"] | null;
   slug: Scalars["String"] | null;
   userId: Scalars["uuid"] | null;
@@ -2723,6 +2761,7 @@ export type UserSelectColumn =
   | "password"
   | "proUserSubscriptionId"
   | "profilePicture"
+  | "promoCode"
   | "role"
   | "slug"
   | "userId"
@@ -2800,6 +2839,7 @@ export type UserUpdateColumn =
   | "password"
   | "proUserSubscriptionId"
   | "profilePicture"
+  | "promoCode"
   | "role"
   | "slug"
   | "userId"
@@ -3645,6 +3685,7 @@ export interface CategoryGenqlSelection {
     };
   };
   name?: boolean | number;
+  order?: boolean | number;
   __typename?: boolean | number;
   __scalar?: boolean | number;
 }
@@ -3685,6 +3726,7 @@ export interface CategoryAggregateFieldsGenqlSelection {
 /** aggregate avg on columns */
 export interface CategoryAvgFieldsGenqlSelection {
   categoryId?: boolean | number;
+  order?: boolean | number;
   __typename?: boolean | number;
   __scalar?: boolean | number;
 }
@@ -3698,6 +3740,7 @@ export interface CategoryBoolExp {
   chatbots?: ChatbotCategoryBoolExp | null;
   chatbotsAggregate?: ChatbotCategoryAggregateBoolExp | null;
   name?: StringComparisonExp | null;
+  order?: IntComparisonExp | null;
 }
 
 /** columns and relationships of "category_enum" */
@@ -3943,6 +3986,7 @@ export interface CategoryEnumUpdates {
 /** input type for incrementing numeric columns in table "category" */
 export interface CategoryIncInput {
   categoryId?: Scalars["Int"] | null;
+  order?: Scalars["Int"] | null;
 }
 
 /** input type for inserting data into table "category" */
@@ -3950,12 +3994,14 @@ export interface CategoryInsertInput {
   categoryId?: Scalars["Int"] | null;
   chatbots?: ChatbotCategoryArrRelInsertInput | null;
   name?: Scalars["String"] | null;
+  order?: Scalars["Int"] | null;
 }
 
 /** aggregate max on columns */
 export interface CategoryMaxFieldsGenqlSelection {
   categoryId?: boolean | number;
   name?: boolean | number;
+  order?: boolean | number;
   __typename?: boolean | number;
   __scalar?: boolean | number;
 }
@@ -3964,6 +4010,7 @@ export interface CategoryMaxFieldsGenqlSelection {
 export interface CategoryMinFieldsGenqlSelection {
   categoryId?: boolean | number;
   name?: boolean | number;
+  order?: boolean | number;
   __typename?: boolean | number;
   __scalar?: boolean | number;
 }
@@ -3997,6 +4044,7 @@ export interface CategoryOrderBy {
   categoryId?: OrderBy | null;
   chatbotsAggregate?: ChatbotCategoryAggregateOrderBy | null;
   name?: OrderBy | null;
+  order?: OrderBy | null;
 }
 
 /** primary key columns input for table: category */
@@ -4008,11 +4056,13 @@ export interface CategoryPkColumnsInput {
 export interface CategorySetInput {
   categoryId?: Scalars["Int"] | null;
   name?: Scalars["String"] | null;
+  order?: Scalars["Int"] | null;
 }
 
 /** aggregate stddev on columns */
 export interface CategoryStddevFieldsGenqlSelection {
   categoryId?: boolean | number;
+  order?: boolean | number;
   __typename?: boolean | number;
   __scalar?: boolean | number;
 }
@@ -4020,6 +4070,7 @@ export interface CategoryStddevFieldsGenqlSelection {
 /** aggregate stddevPop on columns */
 export interface CategoryStddevPopFieldsGenqlSelection {
   categoryId?: boolean | number;
+  order?: boolean | number;
   __typename?: boolean | number;
   __scalar?: boolean | number;
 }
@@ -4027,6 +4078,7 @@ export interface CategoryStddevPopFieldsGenqlSelection {
 /** aggregate stddevSamp on columns */
 export interface CategoryStddevSampFieldsGenqlSelection {
   categoryId?: boolean | number;
+  order?: boolean | number;
   __typename?: boolean | number;
   __scalar?: boolean | number;
 }
@@ -4043,11 +4095,13 @@ export interface CategoryStreamCursorInput {
 export interface CategoryStreamCursorValueInput {
   categoryId?: Scalars["Int"] | null;
   name?: Scalars["String"] | null;
+  order?: Scalars["Int"] | null;
 }
 
 /** aggregate sum on columns */
 export interface CategorySumFieldsGenqlSelection {
   categoryId?: boolean | number;
+  order?: boolean | number;
   __typename?: boolean | number;
   __scalar?: boolean | number;
 }
@@ -4064,6 +4118,7 @@ export interface CategoryUpdates {
 /** aggregate varPop on columns */
 export interface CategoryVarPopFieldsGenqlSelection {
   categoryId?: boolean | number;
+  order?: boolean | number;
   __typename?: boolean | number;
   __scalar?: boolean | number;
 }
@@ -4071,6 +4126,7 @@ export interface CategoryVarPopFieldsGenqlSelection {
 /** aggregate varSamp on columns */
 export interface CategoryVarSampFieldsGenqlSelection {
   categoryId?: boolean | number;
+  order?: boolean | number;
   __typename?: boolean | number;
   __scalar?: boolean | number;
 }
@@ -4078,6 +4134,7 @@ export interface CategoryVarSampFieldsGenqlSelection {
 /** aggregate variance on columns */
 export interface CategoryVarianceFieldsGenqlSelection {
   categoryId?: boolean | number;
+  order?: boolean | number;
   __typename?: boolean | number;
   __scalar?: boolean | number;
 }
@@ -4124,6 +4181,7 @@ export interface ChatbotGenqlSelection {
   defaultTone?: boolean | number;
   defaultType?: boolean | number;
   description?: boolean | number;
+  disabled?: boolean | number;
   /** An array relationship */
   followers?: SocialFollowingGenqlSelection & {
     __args?: {
@@ -4187,6 +4245,7 @@ export interface ChatbotGenqlSelection {
     };
   };
   name?: boolean | number;
+  order?: boolean | number;
   /** An array relationship */
   preferences?: PreferenceGenqlSelection & {
     __args?: {
@@ -4294,6 +4353,8 @@ export interface ChatbotAggregateGenqlSelection {
 }
 
 export interface ChatbotAggregateBoolExp {
+  bool_and?: chatbotAggregateBoolExpBool_and | null;
+  bool_or?: chatbotAggregateBoolExpBool_or | null;
   count?: chatbotAggregateBoolExpCount | null;
 }
 
@@ -4347,6 +4408,7 @@ export interface ChatbotArrRelInsertInput {
 /** aggregate avg on columns */
 export interface ChatbotAvgFieldsGenqlSelection {
   chatbotId?: boolean | number;
+  order?: boolean | number;
   __typename?: boolean | number;
   __scalar?: boolean | number;
 }
@@ -4354,6 +4416,7 @@ export interface ChatbotAvgFieldsGenqlSelection {
 /** order by avg() on columns of table "chatbot" */
 export interface ChatbotAvgOrderBy {
   chatbotId?: OrderBy | null;
+  order?: OrderBy | null;
 }
 
 /** Boolean expression to filter rows from the table "chatbot". All fields are combined with a logical 'AND'. */
@@ -4372,12 +4435,14 @@ export interface ChatbotBoolExp {
   defaultTone?: StringComparisonExp | null;
   defaultType?: StringComparisonExp | null;
   description?: StringComparisonExp | null;
+  disabled?: BooleanComparisonExp | null;
   followers?: SocialFollowingBoolExp | null;
   followersAggregate?: SocialFollowingAggregateBoolExp | null;
   lengthEnum?: LengthEnumBoolExp | null;
   metadata?: ChatbotDomainBoolExp | null;
   metadataAggregate?: ChatbotDomainAggregateBoolExp | null;
   name?: StringComparisonExp | null;
+  order?: IntComparisonExp | null;
   preferences?: PreferenceBoolExp | null;
   preferencesAggregate?: PreferenceAggregateBoolExp | null;
   prompts?: PromptChatbotBoolExp | null;
@@ -4966,6 +5031,7 @@ export interface ChatbotDomainVarianceOrderBy {
 /** input type for incrementing numeric columns in table "chatbot" */
 export interface ChatbotIncInput {
   chatbotId?: Scalars["Int"] | null;
+  order?: Scalars["Int"] | null;
 }
 
 /** input type for inserting data into table "chatbot" */
@@ -4980,10 +5046,12 @@ export interface ChatbotInsertInput {
   defaultTone?: Scalars["String"] | null;
   defaultType?: Scalars["String"] | null;
   description?: Scalars["String"] | null;
+  disabled?: Scalars["Boolean"] | null;
   followers?: SocialFollowingArrRelInsertInput | null;
   lengthEnum?: LengthEnumObjRelInsertInput | null;
   metadata?: ChatbotDomainArrRelInsertInput | null;
   name?: Scalars["String"] | null;
+  order?: Scalars["Int"] | null;
   preferences?: PreferenceArrRelInsertInput | null;
   prompts?: PromptChatbotArrRelInsertInput | null;
   threads?: ThreadArrRelInsertInput | null;
@@ -5002,6 +5070,7 @@ export interface ChatbotMaxFieldsGenqlSelection {
   defaultType?: boolean | number;
   description?: boolean | number;
   name?: boolean | number;
+  order?: boolean | number;
   __typename?: boolean | number;
   __scalar?: boolean | number;
 }
@@ -5017,6 +5086,7 @@ export interface ChatbotMaxOrderBy {
   defaultType?: OrderBy | null;
   description?: OrderBy | null;
   name?: OrderBy | null;
+  order?: OrderBy | null;
 }
 
 /** aggregate min on columns */
@@ -5030,6 +5100,7 @@ export interface ChatbotMinFieldsGenqlSelection {
   defaultType?: boolean | number;
   description?: boolean | number;
   name?: boolean | number;
+  order?: boolean | number;
   __typename?: boolean | number;
   __scalar?: boolean | number;
 }
@@ -5045,6 +5116,7 @@ export interface ChatbotMinOrderBy {
   defaultType?: OrderBy | null;
   description?: OrderBy | null;
   name?: OrderBy | null;
+  order?: OrderBy | null;
 }
 
 /** response of any mutation on the table "chatbot" */
@@ -5083,10 +5155,12 @@ export interface ChatbotOrderBy {
   defaultTone?: OrderBy | null;
   defaultType?: OrderBy | null;
   description?: OrderBy | null;
+  disabled?: OrderBy | null;
   followersAggregate?: SocialFollowingAggregateOrderBy | null;
   lengthEnum?: LengthEnumOrderBy | null;
   metadataAggregate?: ChatbotDomainAggregateOrderBy | null;
   name?: OrderBy | null;
+  order?: OrderBy | null;
   preferencesAggregate?: PreferenceAggregateOrderBy | null;
   promptsAggregate?: PromptChatbotAggregateOrderBy | null;
   threadsAggregate?: ThreadAggregateOrderBy | null;
@@ -5109,12 +5183,15 @@ export interface ChatbotSetInput {
   defaultTone?: Scalars["String"] | null;
   defaultType?: Scalars["String"] | null;
   description?: Scalars["String"] | null;
+  disabled?: Scalars["Boolean"] | null;
   name?: Scalars["String"] | null;
+  order?: Scalars["Int"] | null;
 }
 
 /** aggregate stddev on columns */
 export interface ChatbotStddevFieldsGenqlSelection {
   chatbotId?: boolean | number;
+  order?: boolean | number;
   __typename?: boolean | number;
   __scalar?: boolean | number;
 }
@@ -5122,11 +5199,13 @@ export interface ChatbotStddevFieldsGenqlSelection {
 /** order by stddev() on columns of table "chatbot" */
 export interface ChatbotStddevOrderBy {
   chatbotId?: OrderBy | null;
+  order?: OrderBy | null;
 }
 
 /** aggregate stddevPop on columns */
 export interface ChatbotStddevPopFieldsGenqlSelection {
   chatbotId?: boolean | number;
+  order?: boolean | number;
   __typename?: boolean | number;
   __scalar?: boolean | number;
 }
@@ -5134,11 +5213,13 @@ export interface ChatbotStddevPopFieldsGenqlSelection {
 /** order by stddevPop() on columns of table "chatbot" */
 export interface ChatbotStddevPopOrderBy {
   chatbotId?: OrderBy | null;
+  order?: OrderBy | null;
 }
 
 /** aggregate stddevSamp on columns */
 export interface ChatbotStddevSampFieldsGenqlSelection {
   chatbotId?: boolean | number;
+  order?: boolean | number;
   __typename?: boolean | number;
   __scalar?: boolean | number;
 }
@@ -5146,6 +5227,7 @@ export interface ChatbotStddevSampFieldsGenqlSelection {
 /** order by stddevSamp() on columns of table "chatbot" */
 export interface ChatbotStddevSampOrderBy {
   chatbotId?: OrderBy | null;
+  order?: OrderBy | null;
 }
 
 /** Streaming cursor of the table "chatbot" */
@@ -5166,12 +5248,15 @@ export interface ChatbotStreamCursorValueInput {
   defaultTone?: Scalars["String"] | null;
   defaultType?: Scalars["String"] | null;
   description?: Scalars["String"] | null;
+  disabled?: Scalars["Boolean"] | null;
   name?: Scalars["String"] | null;
+  order?: Scalars["Int"] | null;
 }
 
 /** aggregate sum on columns */
 export interface ChatbotSumFieldsGenqlSelection {
   chatbotId?: boolean | number;
+  order?: boolean | number;
   __typename?: boolean | number;
   __scalar?: boolean | number;
 }
@@ -5179,6 +5264,7 @@ export interface ChatbotSumFieldsGenqlSelection {
 /** order by sum() on columns of table "chatbot" */
 export interface ChatbotSumOrderBy {
   chatbotId?: OrderBy | null;
+  order?: OrderBy | null;
 }
 
 export interface ChatbotUpdates {
@@ -5193,6 +5279,7 @@ export interface ChatbotUpdates {
 /** aggregate varPop on columns */
 export interface ChatbotVarPopFieldsGenqlSelection {
   chatbotId?: boolean | number;
+  order?: boolean | number;
   __typename?: boolean | number;
   __scalar?: boolean | number;
 }
@@ -5200,11 +5287,13 @@ export interface ChatbotVarPopFieldsGenqlSelection {
 /** order by varPop() on columns of table "chatbot" */
 export interface ChatbotVarPopOrderBy {
   chatbotId?: OrderBy | null;
+  order?: OrderBy | null;
 }
 
 /** aggregate varSamp on columns */
 export interface ChatbotVarSampFieldsGenqlSelection {
   chatbotId?: boolean | number;
+  order?: boolean | number;
   __typename?: boolean | number;
   __scalar?: boolean | number;
 }
@@ -5212,11 +5301,13 @@ export interface ChatbotVarSampFieldsGenqlSelection {
 /** order by varSamp() on columns of table "chatbot" */
 export interface ChatbotVarSampOrderBy {
   chatbotId?: OrderBy | null;
+  order?: OrderBy | null;
 }
 
 /** aggregate variance on columns */
 export interface ChatbotVarianceFieldsGenqlSelection {
   chatbotId?: boolean | number;
+  order?: boolean | number;
   __typename?: boolean | number;
   __scalar?: boolean | number;
 }
@@ -5224,6 +5315,7 @@ export interface ChatbotVarianceFieldsGenqlSelection {
 /** order by variance() on columns of table "chatbot" */
 export interface ChatbotVarianceOrderBy {
   chatbotId?: OrderBy | null;
+  order?: OrderBy | null;
 }
 
 /** columns and relationships of "complexity_enum" */
@@ -10718,6 +10810,7 @@ export interface UserGenqlSelection {
   };
   proUserSubscriptionId?: boolean | number;
   profilePicture?: boolean | number;
+  promoCode?: boolean | number;
   /** An array relationship */
   prompts?: PromptUserGenqlSelection & {
     __args?: {
@@ -10925,6 +11018,7 @@ export interface UserBoolExp {
   preferencesAggregate?: PreferenceAggregateBoolExp | null;
   proUserSubscriptionId?: StringComparisonExp | null;
   profilePicture?: StringComparisonExp | null;
+  promoCode?: StringComparisonExp | null;
   prompts?: PromptUserBoolExp | null;
   promptsAggregate?: PromptUserAggregateBoolExp | null;
   referrals?: ReferralBoolExp | null;
@@ -10959,6 +11053,7 @@ export interface UserInsertInput {
   preferences?: PreferenceArrRelInsertInput | null;
   proUserSubscriptionId?: Scalars["String"] | null;
   profilePicture?: Scalars["String"] | null;
+  promoCode?: Scalars["String"] | null;
   prompts?: PromptUserArrRelInsertInput | null;
   referrals?: ReferralArrRelInsertInput | null;
   referralsByUserId?: ReferralArrRelInsertInput | null;
@@ -10981,6 +11076,7 @@ export interface UserMaxFieldsGenqlSelection {
   password?: boolean | number;
   proUserSubscriptionId?: boolean | number;
   profilePicture?: boolean | number;
+  promoCode?: boolean | number;
   role?: boolean | number;
   slug?: boolean | number;
   userId?: boolean | number;
@@ -11000,6 +11096,7 @@ export interface UserMinFieldsGenqlSelection {
   password?: boolean | number;
   proUserSubscriptionId?: boolean | number;
   profilePicture?: boolean | number;
+  promoCode?: boolean | number;
   role?: boolean | number;
   slug?: boolean | number;
   userId?: boolean | number;
@@ -11050,6 +11147,7 @@ export interface UserOrderBy {
   preferencesAggregate?: PreferenceAggregateOrderBy | null;
   proUserSubscriptionId?: OrderBy | null;
   profilePicture?: OrderBy | null;
+  promoCode?: OrderBy | null;
   promptsAggregate?: PromptUserAggregateOrderBy | null;
   referralsAggregate?: ReferralAggregateOrderBy | null;
   referralsByUserIdAggregate?: ReferralAggregateOrderBy | null;
@@ -11093,6 +11191,7 @@ export interface UserSetInput {
   password?: Scalars["String"] | null;
   proUserSubscriptionId?: Scalars["String"] | null;
   profilePicture?: Scalars["String"] | null;
+  promoCode?: Scalars["String"] | null;
   role?: Scalars["user_role"] | null;
   slug?: Scalars["String"] | null;
   userId?: Scalars["uuid"] | null;
@@ -11121,6 +11220,7 @@ export interface UserStreamCursorValueInput {
   password?: Scalars["String"] | null;
   proUserSubscriptionId?: Scalars["String"] | null;
   profilePicture?: Scalars["String"] | null;
+  promoCode?: Scalars["String"] | null;
   role?: Scalars["user_role"] | null;
   slug?: Scalars["String"] | null;
   userId?: Scalars["uuid"] | null;
@@ -11329,6 +11429,20 @@ export interface categoryEnumAggregateBoolExpCount {
   distinct?: Scalars["Boolean"] | null;
   filter?: CategoryEnumBoolExp | null;
   predicate: IntComparisonExp;
+}
+
+export interface chatbotAggregateBoolExpBool_and {
+  arguments: ChatbotSelectColumnChatbotAggregateBoolExpBool_andArgumentsColumns;
+  distinct?: Scalars["Boolean"] | null;
+  filter?: ChatbotBoolExp | null;
+  predicate: BooleanComparisonExp;
+}
+
+export interface chatbotAggregateBoolExpBool_or {
+  arguments: ChatbotSelectColumnChatbotAggregateBoolExpBool_orArgumentsColumns;
+  distinct?: Scalars["Boolean"] | null;
+  filter?: ChatbotBoolExp | null;
+  predicate: BooleanComparisonExp;
 }
 
 export interface chatbotAggregateBoolExpCount {
@@ -17908,11 +18022,13 @@ export const enumCategoryEnumUpdateColumn = {
 export const enumCategorySelectColumn = {
   categoryId: "categoryId" as const,
   name: "name" as const,
+  order: "order" as const,
 };
 
 export const enumCategoryUpdateColumn = {
   categoryId: "categoryId" as const,
   name: "name" as const,
+  order: "order" as const,
 };
 
 export const enumChatbotCategoryConstraint = {
@@ -17957,8 +18073,20 @@ export const enumChatbotSelectColumn = {
   defaultTone: "defaultTone" as const,
   defaultType: "defaultType" as const,
   description: "description" as const,
+  disabled: "disabled" as const,
   name: "name" as const,
+  order: "order" as const,
 };
+
+export const enumChatbotSelectColumnChatbotAggregateBoolExpBoolAndArgumentsColumns =
+  {
+    disabled: "disabled" as const,
+  };
+
+export const enumChatbotSelectColumnChatbotAggregateBoolExpBoolOrArgumentsColumns =
+  {
+    disabled: "disabled" as const,
+  };
 
 export const enumChatbotUpdateColumn = {
   avatar: "avatar" as const,
@@ -17969,7 +18097,9 @@ export const enumChatbotUpdateColumn = {
   defaultTone: "defaultTone" as const,
   defaultType: "defaultType" as const,
   description: "description" as const,
+  disabled: "disabled" as const,
   name: "name" as const,
+  order: "order" as const,
 };
 
 export const enumComplexityEnumConstraint = {
@@ -18449,6 +18579,7 @@ export const enumUserSelectColumn = {
   password: "password" as const,
   proUserSubscriptionId: "proUserSubscriptionId" as const,
   profilePicture: "profilePicture" as const,
+  promoCode: "promoCode" as const,
   role: "role" as const,
   slug: "slug" as const,
   userId: "userId" as const,
@@ -18482,6 +18613,7 @@ export const enumUserUpdateColumn = {
   password: "password" as const,
   proUserSubscriptionId: "proUserSubscriptionId" as const,
   profilePicture: "profilePicture" as const,
+  promoCode: "promoCode" as const,
   role: "role" as const,
   slug: "slug" as const,
   userId: "userId" as const,
