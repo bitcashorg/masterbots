@@ -143,14 +143,17 @@ export async function PUT(req: NextRequest) {
 					expand: ['items.data.plan', 'customer'],
 				},
 			)
-			
-			return new Response(JSON.stringify({ 
-				active: true,
-				subscription: expandedSubscription
-			}), {
-				status: 200,
-				headers: { 'Content-Type': 'application/json' },
-			})
+
+			return new Response(
+				JSON.stringify({
+					active: true,
+					subscription: expandedSubscription,
+				}),
+				{
+					status: 200,
+					headers: { 'Content-Type': 'application/json' },
+				},
+			)
 		}
 		return new Response(JSON.stringify({ active: false }), {
 			status: 200,

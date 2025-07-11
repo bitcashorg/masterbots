@@ -224,6 +224,7 @@ export function Plans({ next, goTo }: PlansPros) {
 				{/* Free Plan Card */}
 				{plans?.find((plan) => plan.unit_amount === 0) &&
 					(() => {
+						// biome-ignore lint/style/noNonNullAssertion: <explanation>
 						const freePlan = plans.find((plan) => plan.unit_amount === 0)!
 						return (
 							<PlanCard
@@ -262,9 +263,7 @@ export function Plans({ next, goTo }: PlansPros) {
 									)}
 								>
 									Annually
-									<span className="ml-1 text-xs text-accent">
-										(Save 20%)
-									</span>
+									<span className="ml-1 text-xs text-accent">(Save 20%)</span>
 								</span>
 							</div>
 
