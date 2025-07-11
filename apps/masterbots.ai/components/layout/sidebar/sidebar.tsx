@@ -27,6 +27,7 @@ export function Sidebar({
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	React.useEffect(() => {
+		// Only reset state when going to root /c route
 		if (rootAndChatRegex.test(pathname)) {
 			resetState()
 		}
