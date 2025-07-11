@@ -61,45 +61,51 @@ select_permissions:
   - role: anonymous
     permission:
       columns:
-        - chatbot_id
         - avatar
+        - chatbot_id
         - created_by
         - default_complexity
         - default_length
         - default_tone
         - default_type
         - description
+        - disabled
         - name
+        - order
       filter: {}
       allow_aggregations: true
     comment: ""
   - role: moderator
     permission:
       columns:
-        - chatbot_id
         - avatar
+        - chatbot_id
         - created_by
         - default_complexity
         - default_length
         - default_tone
         - default_type
         - description
+        - disabled
         - name
+        - order
       filter: {}
       allow_aggregations: true
     comment: ""
   - role: user
     permission:
       columns:
-        - chatbot_id
         - avatar
+        - chatbot_id
         - created_by
         - default_complexity
         - default_length
         - default_tone
         - default_type
         - description
+        - disabled
         - name
+        - order
       filter: {}
       allow_aggregations: true
     comment: ""
