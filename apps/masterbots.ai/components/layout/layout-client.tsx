@@ -17,8 +17,11 @@ export default function LayoutClient({
 	const [mounted, setMounted] = React.useState(false)
 
 	// Ensure the theme is mounted before rendering
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	React.useEffect(() => {
 		setMounted(true)
+
+		console.log('Mounted LayoutClient with theme:', theme)
 	}, [])
 
 	const isAuthPage = pathname.includes('auth/')
