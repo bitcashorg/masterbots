@@ -105,6 +105,13 @@ export async function getCategories(userId?: string) {
 								: {},
 						],
 					},
+					orderBy: [
+						{
+							chatbot: {
+								order: 'ASC',
+							},
+						},
+					],
 				},
 			},
 			__scalar: true,
@@ -126,6 +133,11 @@ export async function getCategories(userId?: string) {
 							: {},
 					],
 				},
+				orderBy: [
+					{
+						order: 'ASC',
+					},
+				],
 			},
 		},
 	})
@@ -166,6 +178,9 @@ export async function getAllChatbots() {
 			name: true,
 			metadata: {
 				domainName: true,
+			},
+			__args: {
+				orderBy: [{ order: 'ASC' }],
 			},
 		},
 	})
@@ -212,6 +227,7 @@ export async function getChatbots({
 							},
 						}
 					: {}),
+				orderBy: [{ order: 'ASC' }],
 			},
 		},
 	})

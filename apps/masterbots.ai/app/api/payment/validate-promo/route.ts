@@ -76,9 +76,13 @@ export async function POST(request: Request) {
 					? `${coupon.percent_off}% off forever`
 					: 'Permanent discount'
 			}
-			
+
 			//? Check if the coupon has a trial period (this is separate from duration)
-			if (coupon.duration_in_months === null && coupon.percent_off === null && coupon.amount_off === null) {
+			if (
+				coupon.duration_in_months === null &&
+				coupon.percent_off === null &&
+				coupon.amount_off === null
+			) {
 				trialPeriodDays = 7
 				discountInfo = 'Free trial period'
 			}
