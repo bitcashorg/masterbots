@@ -11,8 +11,8 @@ export default function ResetPasswordPage(props: {
 	searchParams: Promise<{ token: string }>
 }) {
 	const searchParams = use(props.searchParams)
-	const { theme } = useTheme()
-	const logoSrc = getAppLogoPath({ theme })
+	const { resolvedTheme } = useTheme()
+	const logoSrc = getAppLogoPath({ theme: resolvedTheme })
 
 	return (
 		<motion.div

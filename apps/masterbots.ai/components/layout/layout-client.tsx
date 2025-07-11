@@ -13,7 +13,7 @@ export default function LayoutClient({
 	children: React.ReactNode
 }) {
 	const pathname = usePathname()
-	const { theme } = useTheme()
+	const { resolvedTheme } = useTheme()
 	const [mounted, setMounted] = React.useState(false)
 
 	// Ensure the theme is mounted before rendering
@@ -21,11 +21,11 @@ export default function LayoutClient({
 	React.useEffect(() => {
 		setMounted(true)
 
-		console.log('Mounted LayoutClient with theme:', theme)
+		console.log('Mounted LayoutClient with resolvedTheme:', resolvedTheme)
 	}, [])
 
 	const isAuthPage = pathname.includes('auth/')
-	const bgImage = theme === 'dark' ? darkBG : lightBG
+	const bgImage = resolvedTheme === 'dark' ? darkBG : lightBG
 
 	return (
 		<main className="relative flex flex-col flex-1 bg-muted/50">

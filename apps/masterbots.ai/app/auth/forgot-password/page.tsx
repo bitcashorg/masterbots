@@ -7,8 +7,8 @@ import { useTheme } from 'next-themes'
 import Image from 'next/image'
 
 export default function ForgotPasswordPage() {
-	const { theme } = useTheme()
-	const logoSrc = getAppLogoPath({ theme })
+	const { resolvedTheme } = useTheme()
+	const logoSrc = getAppLogoPath({ theme: resolvedTheme })
 	return (
 		<motion.div
 			className="flex flex-col min-h-[calc(100vh-4rem)] items-center py-6 sm:py-10"

@@ -12,8 +12,8 @@ import { useSearchParams } from 'next/navigation'
 export default function SignInPage() {
 	const searchParams = useSearchParams()
 	const verified = searchParams.get('verified')
-	const { theme } = useTheme()
-	const logoSrc = getAppLogoPath({ theme })
+	const { resolvedTheme } = useTheme()
+	const logoSrc = getAppLogoPath({ theme: resolvedTheme })
 
 	return (
 		<div className="flex flex-col min-h-[calc(100vh-4rem)] items-center py-6 sm:py-10">

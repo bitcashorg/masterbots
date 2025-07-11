@@ -81,9 +81,9 @@ export function Header() {
 		setMounted(true)
 	}, [])
 
-	const { theme } = useTheme()
+	const { resolvedTheme } = useTheme()
 	const logoSrc =
-		theme === 'dark'
+		resolvedTheme === 'dark'
 			? '/logos/mb-logo-header-dark.png'
 			: '/logos/mb-logo-header-light.png'
 	const preserveContextNavigation = (e: React.MouseEvent) => {
