@@ -1,8 +1,10 @@
 'use client'
 
+import { MemoizedReactMarkdown } from '@/components/shared/markdown'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
+import { memoizedMarkdownComponents } from '@/lib/memoized-markdown-components'
 import { cn, getRouteType } from '@/lib/utils'
 import type { ChatbotDetailsProps } from '@/types/types'
 import { ArrowBigLeft, Bot } from 'lucide-react'
@@ -72,12 +74,15 @@ export function OnboardingChatbotCard({
 						</div>
 					</CardHeader>
 
-					<CardContent className="space-y-1">
-						<p className="pt-2.5 max-w-[calc(100%-160px)] text-base text-black dark:text-white min-h-24">
+					<CardContent className="px-4 space-y-1">
+						<MemoizedReactMarkdown
+							className="pt-2.5 max-w-[calc(100%-160px)] text-base text-black dark:text-white min-h-24"
+							components={memoizedMarkdownComponents()}
+						>
 							{isWelcomeView
 								? 'Here you can create new threads and share them to your network! Navigate with the sidebar and pick any bot of your interest.'
 								: description}
-						</p>
+						</MemoizedReactMarkdown>
 
 						{isWelcomeView && (
 							<div className="flex flex-col justify-start items-start space-y-1">
