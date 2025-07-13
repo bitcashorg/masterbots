@@ -30,7 +30,7 @@ export function BotProfileThreadSection({
 					threads={threads}
 					count={count}
 					showSearch
-					page="profile"
+					page="bot"
 				/>
 			</div>
 		</div>
