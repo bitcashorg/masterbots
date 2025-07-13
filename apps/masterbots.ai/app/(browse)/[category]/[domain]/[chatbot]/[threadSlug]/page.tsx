@@ -29,17 +29,10 @@ export default async function ChatPage(props: PageProps) {
 	})
 
 	return (
-		<div className="w-full max-w-screen-xl pb-10 mx-auto">
-			{/* <BrowseCategoryTabs
-				initialCategory={params.category}
-				categories={categories}
-			/> */}
-			<BrowseSearchInput />
-			<BrowseList
-				initialThreads={threads}
-				initialCount={count}
-				categoryId={category?.categoryId}
-			/>
-		</div>
+		<BrowseList
+			initialThreads={threads}
+			initialCount={count}
+			categoryId={category?.categoryId}
+		/>
 	)
 }

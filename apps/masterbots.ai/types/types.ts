@@ -621,3 +621,9 @@ export interface UseImageGenerationReturn {
 	 */
 	addImageToChat: (mode?: 'chat' | 'edit') => void
 }
+
+export interface ExampleQuestion {
+	id: string
+	prompt: string
+	category?: string
+}

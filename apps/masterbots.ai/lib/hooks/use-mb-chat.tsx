@@ -374,7 +374,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						}))
 					: []
 
-				// TODO: Add thread metadata here and keep the local copy for optimizations if doable...
 				for (const attachment of newAttachments) {
 					try {
 						indexedDBActions.updateItem(attachment.id, attachment)
@@ -383,6 +382,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						indexedDBActions.addItem(attachment)
 					}
 				}
+				messageAttachments.current = newAttachments
 
 				const newBaseMessage: Partial<SaveNewMessageParams> = {
 					threadId: aiChatThreadId ?? '',
@@ -443,14 +443,16 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						},
 					]
 
-					return await Promise.all([
+					return (await Promise.all([
 						saveNewMessage(newUserMessage),
 						saveNewMessage(newAssistantMessage),
-					])
+					])) as Message[]
 				}
 
+				let newThreadMessages: Message[] = []
+
 				try {
-					await uploadNewMessages()
+					newThreadMessages = await uploadNewMessages()
 				} catch (error) {
 					console.error('Error generating message slugs: ', error)
 
@@ -473,18 +475,33 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					newSearchParams.delete('continuousThreadId')
 					setIsContinuousThread(false)
 				}
-				setIsNewResponse(false)
-				setLoadingState('finished')
-				setActiveTool(undefined)
 
 				throttle(async () => {
-					const thread = await updateActiveThread()
-					console.log('thread', thread)
+					const newThread = activeThread
+						? {
+								...activeThread,
+								messages: [...activeThread.messages, ...newThreadMessages],
+								metadata: newAttachments.length
+									? {
+											attachments: uniqBy(
+												[
+													...newAttachments,
+													...(activeThread.metadata.attachments || []),
+												],
+												'id',
+											),
+										}
+									: undefined,
+							}
+						: undefined
+					const thread = await updateActiveThread(newThread)
+
 					if (
 						isNewChat ||
 						isContinuousThread ||
 						(thread.messages.length > 0 && thread.messages.length <= 2)
 					) {
+						// console.log('thread', thread)
 						const canonicalDomain = getCanonicalDomain(
 							activeChatbot?.name || 'blankbot',
 						)
@@ -500,7 +517,11 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 							},
 						})
 					}
-				}, 0)()
+
+					setLoadingState('finished')
+					setActiveTool(undefined)
+					setIsNewResponse(false)
+				}, 140)()
 			} catch (error) {
 				console.error('Error saving new message: ', error)
 				logErrorToSentry('Error saving new message', {
@@ -562,11 +583,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				type: 'error',
 				text: 'Failed to send message. Please try again.',
 			})
-			setLoadingState(undefined)
-			setActiveTool(undefined)
-			setIsNewResponse(false)
-
-			clickedContentRef.current = ''
 
 			if (isNewChat) {
 				await deleteThread({
@@ -575,6 +591,12 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					userId: session?.user.id,
 				})
 			}
+
+			setLoadingState(undefined)
+			setActiveTool(undefined)
+			setIsNewResponse(false)
+
+			clickedContentRef.current = ''
 		},
 	})
 
@@ -753,6 +775,8 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 		}
 
 		// * Loading: processing your request + opening pop-up...
+		messageAttachments.current =
+			(chatRequestOptions?.experimental_attachments || []) as FileAttachment[]
 		setLoadingState('processing')
 		setIsNewResponse(true)
 		updateNewThread()
@@ -768,6 +792,11 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 			examples: [],
 			threadId,
 		}
+		// ! Optimistic won't update on time due the ID's are not totally formed hence,
+		// ! when it wants to attach related content it can't because the references doesn't exist
+		// ! at the time we pre-populate information.
+		// ! So, we need to wait for the response to be processed and then update the thread with the new message. (currently working)
+		// We need a temporal state object that can be replaced with the real state object (like a ref) for the thread to be able to update it optimistically
 		const optimisticThread: Thread = {
 			...activeThread,
 			threadId,
@@ -783,24 +812,17 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 			),
 			metadata: {
 				attachments: uniqBy(
-					messageAttachments.current
-						.map((attach) => ({
-							...attach,
-							messageIds: [randomThreadId.current], // Attach to the optimistic message
-						}))
-						.concat(activeThread?.metadata?.attachments || []),
+					[
+						...(messageAttachments.current || []),
+						...(activeThread?.metadata?.attachments || []),
+					],
 					'id',
 				),
 			},
 			thread: isContinuousThread ? activeThread?.thread || null : null,
 			userId: session?.user.id,
 		}
-
 		const thread = await updateActiveThread(optimisticThread)
-
-		if (!isOpenPopup) {
-			setIsOpenPopup(true)
-		}
 
 		try {
 			await tunningUserContent(userMessage, thread)
@@ -813,6 +835,9 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 			)
 		}
 
+		if (!isOpenPopup) {
+			setIsOpenPopup(true)
+		}
 		return await appendNewMessage(userMessage, chatRequestOptions)
 	}
 
@@ -963,9 +988,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 			}
 
 			setLoadingState('generating')
-			messageAttachments.current =
-				(chatMessagesOptions?.experimental_attachments ||
-					[]) as FileAttachment[]
 			const appendResponse = await append(
 				{
 					...userMessage,

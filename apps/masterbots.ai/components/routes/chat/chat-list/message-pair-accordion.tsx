@@ -216,7 +216,7 @@ export function MessagePairAccordion({
 			variant="chat"
 		>
 			<div className={cn('flex flex-col items-start gap-2')}>
-				<AnimatePresence initial={false}>
+				<AnimatePresence mode="wait" initial={false}>
 					{!isAccordionFocused &&
 					isPrevious &&
 					!shouldShowUserMessage &&
@@ -250,7 +250,7 @@ export function MessagePairAccordion({
 						/>
 					)}
 
-					{activeThread && shouldShowUserMessage && sameUser && (
+					{activeThread && shouldShowUserMessage && (
 						<ChatOptions
 							threadId={pair.userMessage.threadId}
 							thread={activeThread}
