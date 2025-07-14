@@ -105,6 +105,13 @@ export async function getCategories(userId?: string) {
 								: {},
 						],
 					},
+					orderBy: [
+						{
+							chatbot: {
+								order: 'ASC',
+							},
+						},
+					],
 				},
 			},
 			__scalar: true,
@@ -126,6 +133,11 @@ export async function getCategories(userId?: string) {
 							: {},
 					],
 				},
+				orderBy: [
+					{
+						order: 'ASC',
+					},
+				],
 			},
 		},
 	})
@@ -166,6 +178,9 @@ export async function getAllChatbots() {
 			name: true,
 			metadata: {
 				domainName: true,
+			},
+			__args: {
+				orderBy: [{ order: 'ASC' }],
 			},
 		},
 	})
@@ -212,6 +227,7 @@ export async function getChatbots({
 							},
 						}
 					: {}),
+				orderBy: [{ order: 'ASC' }],
 			},
 		},
 	})
@@ -312,7 +328,7 @@ export async function getThreads({
 			isPublic: true,
 			__scalar: true,
 			__args: {
-				orderBy: [{ createdAt: 'DESC' as OrderBy }],
+				orderBy: [{ updatedAt: 'DESC' }],
 				limit: limit ? limit : 20,
 				...(offset
 					? {
@@ -847,7 +863,7 @@ export async function getBrowseThreads({
 			isPublic: true,
 			__scalar: true,
 			__args: {
-				orderBy: [{ createdAt: 'DESC' }],
+				orderBy: [{ updatedAt: 'DESC' }],
 				where: baseWhereConditions,
 				limit: baseLimit,
 				offset: offset || 0,
@@ -1007,6 +1023,7 @@ export async function getUserInfoFromBrowse(slug: string) {
 		user: {
 			username: true,
 			profilePicture: true,
+			bio: true,
 			__args: {
 				where: {
 					slug: {
@@ -1062,7 +1079,7 @@ export async function updateThreadVisibility({
 }): Promise<{ success: boolean; error?: string }> {
 	try {
 		const client = getHasuraClient({ jwt })
-		await client.mutation({
+		const updateThreadResponse = await client.mutation({
 			updateThread: {
 				__args: {
 					where: { threadId: { _eq: threadId } },
@@ -1074,7 +1091,9 @@ export async function updateThreadVisibility({
 				},
 			},
 		})
-		return { success: true }
+		return {
+			success: Boolean(updateThreadResponse.updateThread?.returning?.length),
+		}
 	} catch (error) {
 		return { success: false, error: (error as Error).message }
 	}
@@ -1812,8 +1831,6 @@ export async function getModels() {
 				type: true,
 			},
 		})
-
-		console.log('Models fetched:', result.models)
 		return result.models
 	} catch (error) {
 		console.error('Error fetching models:', error)
@@ -1928,5 +1945,42 @@ export async function getThreadMetadataBySlug({
 	} catch (error) {
 		console.error('Error fetching thread metadata by slug:', error)
 		return { thread: null, error: (error as Error).message }
+	}
+}
+
+export const deleteMessages = async (
+	messageIds: string[],
+	jwt: string | undefined,
+) => {
+	try {
+		if (!jwt) {
+			throw new Error('Authentication required for thread deletion')
+		}
+
+		const client = getHasuraClient({ jwt })
+		const res = await client.mutation({
+			deleteMessage: {
+				__args: {
+					where: {
+						messageId: { _in: messageIds },
+					},
+				},
+				affectedRows: true,
+				returning: {
+					messageId: true,
+				},
+			},
+		})
+
+		if ((res.deleteMessage?.affectedRows ?? 0) > 0) {
+			return { success: true }
+		}
+		return { success: false }
+	} catch (error) {
+		console.error('Failed to delete messages:', error)
+		return {
+			success: false,
+			error: error instanceof Error ? error.message : 'Unknown error',
+		}
 	}
 }

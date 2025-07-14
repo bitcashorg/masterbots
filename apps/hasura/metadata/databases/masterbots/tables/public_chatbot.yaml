@@ -65,13 +65,16 @@ select_permissions:
         - pro_exclusive
         - chatbot_id
         - avatar
+        - chatbot_id
         - created_by
         - default_complexity
         - default_length
         - default_tone
         - default_type
         - description
+        - disabled
         - name
+        - order
       filter: {}
       allow_aggregations: true
     comment: ""
@@ -80,15 +83,17 @@ select_permissions:
       columns:
         - is_pro
         - pro_exclusive
-        - chatbot_id
         - avatar
+        - chatbot_id
         - created_by
         - default_complexity
         - default_length
         - default_tone
         - default_type
         - description
+        - disabled
         - name
+        - order
       filter: {}
       allow_aggregations: true
     comment: ""
@@ -97,15 +102,17 @@ select_permissions:
       columns:
         - is_pro
         - pro_exclusive
-        - chatbot_id
         - avatar
+        - chatbot_id
         - created_by
         - default_complexity
         - default_length
         - default_tone
         - default_type
         - description
+        - disabled
         - name
+        - order
       filter: {}
       allow_aggregations: true
     comment: ""

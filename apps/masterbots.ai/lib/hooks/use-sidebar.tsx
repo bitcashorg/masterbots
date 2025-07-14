@@ -10,6 +10,8 @@ import * as React from 'react'
 import { useAsync } from 'react-use'
 
 const LOCAL_STORAGE_KEY = 'sidebar'
+const SELECTED_CATEGORIES_KEY = 'selectedCategories'
+const SELECTED_CHATBOTS_KEY = 'selectedChatbots'
 
 export interface NavigationParams {
 	page: string | undefined
@@ -75,9 +77,23 @@ type NavigateToParams<
 
 export function SidebarProvider({ children }: SidebarProviderProps) {
 	const [selectedCategories, setSelectedCategories] = React.useState<number[]>(
-		[],
+		() => {
+			if (typeof window !== 'undefined') {
+				const stored = localStorage.getItem(SELECTED_CATEGORIES_KEY)
+				return stored ? JSON.parse(stored) : []
+			}
+			return []
+		},
 	)
-	const [selectedChatbots, setSelectedChatbots] = React.useState<number[]>([])
+	const [selectedChatbots, setSelectedChatbots] = React.useState<number[]>(
+		() => {
+			if (typeof window !== 'undefined') {
+				const stored = localStorage.getItem(SELECTED_CHATBOTS_KEY)
+				return stored ? JSON.parse(stored) : []
+			}
+			return []
+		},
+	)
 	const { data: session } = useSession()
 	const { userSlug } = useParams()
 	const pathname = usePathname()
@@ -106,23 +122,15 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 				category.chatbots.map((chatbot) => chatbot.chatbotId),
 			),
 		}
-		const pathParts = pathname.split('/')
-		const prevPathParts = (prevPath.current || '').split('/')
 
-		if (
-			(prevPath.current !== pathname &&
-				pathParts[1] !== prevPathParts[1] &&
-				(pathParts[1] === 'c' || pathParts[1] === 'pro')) ||
-			(selectedCategories.length === 0 && selectedChatbots.length === 0)
-		) {
+		// Initialize with all categories and chatbots selected if no selections exist
+		if (selectedCategories.length === 0 && selectedChatbots.length === 0) {
 			setSelectedCategories(categoriesObj.categoriesId)
 			setSelectedChatbots(categoriesObj.chatbotsId)
 		}
 
-		prevPath.current = pathname
-
 		return categoriesObj
-	}, [pathname, prevPath.current, userSlug])
+	}, [pathname, userSlug])
 
 	const [isSidebarOpen, setSidebarOpen] = React.useState(false)
 	const [isLoading, setLoading] = React.useState(true)
@@ -145,6 +153,26 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 		}
 		setLoading(false)
 	}, [])
+
+	//? Persist selected categories to localStorage
+	React.useEffect(() => {
+		if (selectedCategories.length > 0) {
+			localStorage.setItem(
+				SELECTED_CATEGORIES_KEY,
+				JSON.stringify(selectedCategories),
+			)
+		}
+	}, [selectedCategories])
+
+	//? Persist selected chatbots to localStorage
+	React.useEffect(() => {
+		if (selectedChatbots.length > 0) {
+			localStorage.setItem(
+				SELECTED_CHATBOTS_KEY,
+				JSON.stringify(selectedChatbots),
+			)
+		}
+	}, [selectedChatbots])
 
 	const toggleSidebar = (toggle = true) => {
 		setSidebarOpen((value) => {
@@ -173,9 +201,18 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 				toSlug(cat.name) === personalProProfilesTopicSlugOrDomainSlug ||
 				toSlug(cat.name) === publicProTopicSlugOrBasePath,
 		)
+
 		if (category) {
 			setActiveCategory(category.categoryId)
 			setExpandedCategories([category.categoryId])
+
+			//? Set selected categories based on URL - ensure the current category is selected
+			setSelectedCategories((prev) => {
+				if (!prev.includes(category.categoryId)) {
+					return [...prev, category.categoryId]
+				}
+				return prev
+			})
 
 			if (
 				domainSlugOrPublicChatbotSlug ||
@@ -191,12 +228,23 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 				)
 				if (chatbot) {
 					setActiveChatbot(chatbot.chatbot)
+					//? Set selected chatbots based on URL - ensure the current chatbot is selected
+					setSelectedChatbots((prev) => {
+						if (!prev.includes(chatbot.chatbot.chatbotId)) {
+							return [...prev, chatbot.chatbot.chatbotId]
+						}
+						return prev
+					})
 				} else {
 					setActiveChatbot(null)
 				}
 			} else {
 				setActiveChatbot(null)
 			}
+		} else {
+			setActiveCategory(null)
+			setActiveChatbot(null)
+			setExpandedCategories([])
 		}
 	}, [pathname, categories])
 

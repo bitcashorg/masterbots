@@ -305,7 +305,7 @@ export function numberShortener(number: number): string {
  * @returns 'chat' | 'public' | ''
  */
 
-type RouteType = 'chat' | 'public' | 'profile' | 'pro'
+type RouteType = 'chat' | 'public' | 'profile' | 'pro' | 'bot'
 
 export function getRouteType(pathname: string | null): RouteType {
 	if (!pathname || pathname === '/') return 'public'
@@ -323,7 +323,7 @@ export function getRouteType(pathname: string | null): RouteType {
 	}
 
 	// ? Check for profile routes
-	if (normalizedPath.startsWith('/u')) {
+	if (normalizedPath.startsWith('/u/')) {
 		return 'profile'
 	}
 
@@ -333,6 +333,10 @@ export function getRouteType(pathname: string | null): RouteType {
 		(normalizedPath.startsWith('/pro') && normalizedPath !== 'prompt')
 	) {
 		return 'pro'
+	}
+	// ? Check for bot routes (starting with /b)
+	if (normalizedPath.startsWith('/b/')) {
+		return 'bot'
 	}
 
 	// ? Check for public routes

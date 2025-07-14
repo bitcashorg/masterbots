@@ -118,6 +118,7 @@ export function Pro({
 	}
 
 	// Reset state when pathname changes
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		if (prevPathname.current !== pathname) {
 			prevPathname.current = pathname
@@ -126,6 +127,7 @@ export function Pro({
 	}, [pathname])
 
 	// Reset load state when loading finishes
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		if (!isLoading && loadingState) {
 			resetLoadState()

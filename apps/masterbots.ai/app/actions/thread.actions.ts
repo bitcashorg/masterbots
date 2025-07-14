@@ -3,7 +3,7 @@
 import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
 import type { ThreadMetadata } from '@/lib/hooks/use-indexed-db'
 import { Storage } from '@google-cloud/storage'
-import { eq, inArray, isNotNull } from 'drizzle-orm'
+import { eq, inArray, isNotNull, sql } from 'drizzle-orm'
 import { uniqBy } from 'lodash'
 import { db, message, thread } from 'mb-drizzle'
 import { appConfig } from 'mb-env'
@@ -69,6 +69,40 @@ export async function getAllUserThreadMetadata() {
 	return metadata
 }
 
+export async function getMissingUserThreadMetadata(
+	currentAttachments: FileAttachment[],
+) {
+	const currentAttachmentIds = currentAttachments.map((att) => att.id)
+	const currentAttachmentMessageIds = currentAttachments.flatMap(
+		(att) => att.messageIds,
+	)
+
+	if (currentAttachmentIds.length === 0) return null
+
+	// Use raw SQL to filter JSONB data at database level
+	const results = await db.execute(sql`
+		SELECT metadata
+		FROM thread 
+		WHERE metadata IS NOT NULL 
+		AND metadata->'attachments' IS NOT NULL
+		AND EXISTS (
+			SELECT 1 
+			FROM jsonb_array_elements(metadata->'attachments') AS att
+			WHERE att->>'id' = ANY(ARRAY[${sql.join(currentAttachmentIds.map((id) => sql.raw(`'${id}'`)))}])
+			AND att->'messageIds' <@ ${JSON.stringify(currentAttachmentMessageIds)}::jsonb
+			AND jsonb_array_length(att->'messageIds') < ${currentAttachmentMessageIds.length}
+		)
+	`)
+
+	if (results.rows.length === 0) return null
+
+	const metadata = results.rows.flatMap(
+		(result) => (result.metadata as ThreadMetadata).attachments,
+	)
+
+	return metadata
+}
+
 export async function updateThreadMetadata(
 	messagesIds: string[],
 	metadata: ThreadMetadata,
@@ -101,18 +135,39 @@ export async function updateThreadMetadata(
 	let result: (typeof thread.$inferSelect)[] = []
 
 	let previousThreadId: string | null = null
+	let currentThread: Partial<typeof thread.$inferSelect>[] | null = null
 
 	for (const [threadId, messageId] of threadsDataIds) {
 		let relatedThreadAttachments = metadata.attachments.filter((att) =>
 			att.messageIds.includes(messageId),
 		)
 
-		if (previousThreadId === threadId) {
+		const isSameThread = previousThreadId === threadId
+
+		// Fetch current thread metadata to get existing attachments
+		currentThread = isSameThread
+			? currentThread
+			: await db
+					.select({ metadata: thread.metadata })
+					.from(thread)
+					.where(eq(thread.threadId, threadId))
+					.limit(1)
+
+		const existingAttachments = currentThread?.length
+			? (currentThread[0]?.metadata as ThreadMetadata)?.attachments || []
+			: []
+
+		if (isSameThread) {
 			relatedThreadAttachments.push(...(attachments[threadId] || []))
 		}
 
+		// Merge existing attachments with new ones, prioritizing new attachments
+		relatedThreadAttachments = uniqBy(
+			[...relatedThreadAttachments, ...existingAttachments],
+			'id',
+		)
+
 		previousThreadId = threadId
-		relatedThreadAttachments = uniqBy(relatedThreadAttachments, 'id')
 
 		// Then, update the threads using the selected threadIds
 		result = [
@@ -127,15 +182,21 @@ export async function updateThreadMetadata(
 				.where(eq(thread.threadId, threadId))
 				.returning()),
 		]
-
-		attachments[threadId] = relatedThreadAttachments
+		currentThread = [
+			{
+				...(currentThread ? currentThread[0] : {}),
+				metadata: {
+					attachments: relatedThreadAttachments,
+				},
+			},
+		]
 	}
 
 	result = uniqBy(result, 'threadId')
 
 	return {
-		threads: result,
-		attachments,
+		success: true,
+		message: 'Thread metadata updated successfully',
 	}
 }
 

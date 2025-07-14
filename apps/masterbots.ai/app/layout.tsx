@@ -49,7 +49,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 					/>
 					<div className="flex flex-col min-h-screen">
 						<Header />
-						<main className="relative flex flex-col flex-1 bg-muted/50">
+						<main className="relative flex flex-col h-[calc(100vh-4rem)] overflow-hidden bg-muted/50 pb-10">
 							{children}
 						</main>
 					</div>
@@ -67,36 +67,20 @@ export const metadata: Metadata = {
 		default: 'Masterbots',
 		template: '%s - Masterbots',
 	},
-	description:
-		'Elevating AI Beyond ChatGPT: Specialized Chatbots, Social Sharing and User-Friendly Innovation',
+	description: 'Where your Ai expertise goes public',
 	openGraph: {
 		type: 'website',
 		locale: 'en_US',
 		url: 'https://masterbots.ai',
 		siteName: 'Masterbots',
-		images: [
-			{
-				url: `${process.env.BASE_URL || ''}/api/og`,
-				width: 1232,
-				height: 928,
-				alt: 'Masterbots',
-			},
-		],
+		images: [`${process.env.BASE_URL || ''}/api/og`],
 	},
 	twitter: {
 		title: 'Masterbots',
-		description:
-			'Elevating AI Beyond ChatGPT: Specialized Chatbots, Social Sharing and User-Friendly Innovation',
+		description: 'Where your Ai expertise goes public',
 		site: '@masterbotsai',
 		card: 'summary_large_image',
-		images: [
-			{
-				url: `${process.env.BASE_URL || ''}/api/og`,
-				width: 1232,
-				height: 928,
-				alt: 'Masterbots',
-			},
-		],
+		images: [`${process.env.BASE_URL || ''}/api/og`],
 	},
 	icons: {
 		icon: '/favicon.ico',

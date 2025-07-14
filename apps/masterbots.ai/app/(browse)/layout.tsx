@@ -10,12 +10,10 @@ interface BrowseLayoutProps {
 export default async function BrowseLayout({ children }: BrowseLayoutProps) {
 	return (
 		<BrowseProvider>
-			<section className="flex flex-col size-full">
-				{/* <NextTopLoader color="#1ED761" initialPosition={0.2} /> */}
-				<ResponsiveSidebar />
-				<ChatLayoutSection>{children}</ChatLayoutSection>
-				<FooterCT />
-			</section>
+			{/* <NextTopLoader color="#1ED761" initialPosition={0.2} /> */}
+			<ResponsiveSidebar />
+			<ChatLayoutSection>{children}</ChatLayoutSection>
+			<FooterCT />
 		</BrowseProvider>
 	)
 }

@@ -1,5 +1,5 @@
 import { authOptions } from '@/auth'
-import { ChatChatbot } from '@/components/routes/chat/chat-chatbot'
+import { Chat as ChatChatbot } from '@/components/routes/chat/chat'
 import ThreadPanel from '@/components/routes/thread/thread-panel'
 import { botNames } from '@/lib/constants/bots-names'
 import { PAGE_SIZE } from '@/lib/constants/hasura'

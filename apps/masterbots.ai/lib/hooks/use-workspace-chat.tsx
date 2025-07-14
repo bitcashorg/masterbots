@@ -1,16 +1,16 @@
 'use client'
 
 import { useModel } from '@/lib/hooks/use-model'
+import { useSonner } from '@/lib/hooks/useSonner'
 import {
 	combineMarkdownSections,
 	parseMarkdownSections,
 } from '@/lib/markdown-utils'
 import { useChat } from '@ai-sdk/react'
+import type { ChatRequestOptions } from 'ai'
 import { nanoid } from 'nanoid'
 import * as React from 'react'
 import { useWorkspace } from './use-workspace'
-import type { ChatRequestOptions } from 'ai'
-import { useSonner } from '@/lib/hooks/useSonner'
 
 interface WorkspaceChatContextType extends Partial<ReturnType<typeof useChat>> {
 	// Chat state

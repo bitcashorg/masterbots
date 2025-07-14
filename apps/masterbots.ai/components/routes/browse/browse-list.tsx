@@ -20,10 +20,15 @@
  * - count: A number representing the total number of threads fetched.
  */
 
+import { BrowseSearchInput } from '@/components/routes/browse/browse-search-input'
+import { OnboardingMobileView } from '@/components/routes/chat/chat-onboarding-chatbot-mobile'
+import { SelectedBotMobileView } from '@/components/routes/chat/chat-selected-chatbot-mobile'
 import ThreadComponent from '@/components/routes/thread/thread-component'
 import { NoResults } from '@/components/shared/no-results-card'
+import { OnboardingChatbotCard } from '@/components/shared/onboarding-chatbot-card'
 import { BrowseListSkeleton } from '@/components/shared/skeletons/browse-list-skeleton'
 import { ThreadItemSkeleton } from '@/components/shared/skeletons/browse-skeletons'
+import { ChatChatbotDetailsSkeleton } from '@/components/shared/skeletons/chat-chatbot-details-skeleton'
 import { PAGE_SIZE } from '@/lib/constants/hasura'
 import { useBrowse } from '@/lib/hooks/use-browse'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
@@ -32,7 +37,7 @@ import { useSonner } from '@/lib/hooks/useSonner'
 import { searchThreadContent } from '@/lib/search'
 import { getOpeningActiveThreadHelper } from '@/lib/threads'
 import { getBrowseThreads } from '@/services/hasura'
-import { debounce, isEqual } from 'lodash'
+import { debounce, isEqual, uniqBy } from 'lodash'
 import { appConfig } from 'mb-env'
 import type { Chatbot, Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
@@ -69,6 +74,7 @@ export default function BrowseList({
 	} = useSidebar()
 	const prevSelectedCategories = React.useRef<number[]>(selectedCategories)
 	const prevSelectedChatbots = React.useRef<number[]>(selectedChatbots)
+	const searchTimeoutRef = React.useRef<NodeJS.Timeout | null>(null)
 	const { data: session } = useSession()
 	const { customSonner } = useSonner()
 	const userId = session?.user?.id
@@ -82,10 +88,12 @@ export default function BrowseList({
 		categoriesId,
 		chatbotsId,
 		keyword,
+		offset = 0,
 	}: {
 		categoriesId: number[]
 		chatbotsId: number[]
 		keyword: string
+		offset?: number
 	}) => {
 		setLoading(true) // ? Setting loading before fetch
 		try {
@@ -106,9 +114,16 @@ export default function BrowseList({
 							...(userId ? { followedUserId: userId } : {}),
 						}),
 				limit: PAGE_SIZE,
+				offset,
 			})
-			setThreadState(threads)
-			setFilteredThreads(threads)
+			setThreadState((prevState: Thread[]) =>
+				uniqBy([...prevState, ...threads], 'threadId'),
+			)
+			setFilteredThreads((prevState: Thread[]) =>
+				uniqBy([...prevState, ...threads], 'threadId').filter(
+					(thread: Thread) => searchThreadContent(thread, keyword),
+				),
+			)
 			setCount(count)
 			setHasInitialized(true) // ? Setting hasInitialized after fetch preventing NoResults from showing
 		} catch (error) {
@@ -118,34 +133,41 @@ export default function BrowseList({
 		}
 	}
 
-	const verifyKeyword = () => {
+	// biome-ignore lint/correctness/useExhaustiveDependencies: No need to track fetchThreads in the dependency array
+	const verifyKeyword = React.useCallback(() => {
+		// Clear previous timeout
+		if (searchTimeoutRef.current) {
+			clearTimeout(searchTimeoutRef.current)
+		}
+
 		if (!keyword) {
 			setFilteredThreads(threads)
 		} else {
-			debounce(() => {
-				// Use our searchThreadContent function instead of just title search
-				setFilteredThreads(
-					threads.filter((thread: Thread) =>
-						searchThreadContent(thread, keyword),
-					),
-				)
-			}, 230)()
+			// Set new timeout for debouncing
+			searchTimeoutRef.current = setTimeout(async () => {
+				await fetchThreads({
+					categoriesId: selectedCategories,
+					chatbotsId: selectedChatbots,
+					keyword,
+				})
+			}, 440)
 		}
-	}
+	}, [keyword, threads, selectedChatbots, selectedCategories])
 
 	const loadMore = async () => {
-		console.log('🟡 Loading More Content')
-		setLoading(true)
-
-		const { threads: moreThreads, count } = await getBrowseThreads({
-			categoriesId: selectedCategories,
-			offset: threads.length,
-			limit: PAGE_SIZE,
+		// if (threads.length >= countState) return
+		console.log('🟡 Loading More Content', {
+			countState,
+			threads,
+			filteredThreads,
 		})
 
-		setThreadState((prevState) => [...prevState, ...moreThreads])
-		setCount(count)
-		setLoading(false)
+		await fetchThreads({
+			categoriesId: selectedCategories,
+			chatbotsId: selectedChatbots,
+			keyword,
+			offset: threads.length,
+		})
 	}
 
 	const verifyPath = () => {
@@ -232,16 +254,47 @@ export default function BrowseList({
 
 		verifyKeyword()
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [keyword, threads])
+	}, [keyword])
+
+	// Cleanup timeout on unmount
+	useEffect(() => {
+		return () => {
+			if (searchTimeoutRef.current) {
+				clearTimeout(searchTimeoutRef.current)
+			}
+		}
+	}, [])
 
 	if (loading && threads.length === 0) {
 		return <BrowseListSkeleton count={5} />
 	}
 
 	return (
-		<div className="flex flex-col w-full gap-3 py-5">
+		// <div className="flex flex-col gap-3 py-5 w-full">
+		<>
+			{/* Show welcome onboarding card when no category or chatbot is selected */}
+			{!activeCategory && !activeChatbot && !chatbot && !categoryId && (
+				<>
+					<OnboardingChatbotCard isWelcomeView={true} />
+					<OnboardingMobileView />
+					<BrowseSearchInput />
+				</>
+			)}
+
+			{/* Show onboarding card when no threads are loaded yet (for selected categories/bots) */}
+			{(activeCategory || activeChatbot || chatbot || categoryId) && (
+				<>
+					<OnboardingChatbotCard isWelcomeView={false} />
+					<SelectedBotMobileView
+						onNewChat={() => console.log('New chat clicked')}
+					/>
+					<BrowseSearchInput />
+				</>
+			)}
+
+			{/* Show threads when available and a category/bot is selected */}
 			{filteredThreads.length > 0 ? (
-				<ul className="flex flex-col size-full gap-3 pb-36">
+				<ul className="flex flex-col gap-3 pb-36 size-full">
 					{filteredThreads.map((thread: Thread, key) => (
 						<ThreadComponent
 							thread={thread}
@@ -255,12 +308,14 @@ export default function BrowseList({
 					{loading && <ThreadItemSkeleton />}
 				</ul>
 			) : (
+				/* Show no results only after initialization and when not loading */
 				hasInitialized &&
 				!loading &&
-				!filteredThreads.length && (
+				!filteredThreads.length &&
+				(activeCategory || activeChatbot || chatbot || categoryId) && (
 					<NoResults searchTerm={keyword} totalItems={threads.length} />
 				)
 			)}
-		</div>
+		</>
 	)
 }

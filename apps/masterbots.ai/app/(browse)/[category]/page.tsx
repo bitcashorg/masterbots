@@ -20,18 +20,11 @@ export default async function BrowseCategoryPage(props: {
 	})
 
 	return (
-		<div className="w-full max-w-screen-xl pb-10 mx-auto">
-			{/* <BrowseCategoryTabs
-        initialCategory={params.category}
-        categories={categories}
-      /> */}
-			<BrowseSearchInput />
-			<BrowseList
-				initialThreads={threads}
-				categoryId={category?.categoryId}
-				initialCount={count}
-			/>
-		</div>
+		<BrowseList
+			initialThreads={threads}
+			categoryId={category?.categoryId}
+			initialCount={count}
+		/>
 	)
 }
 
@@ -46,7 +39,7 @@ export async function generateMetadata(props: {
 
 	const seoData = {
 		title: category?.name || '',
-		description: `Browse the threads and find the one that suits your needs, from the ${category?.name} category`,
+		description: `Browse the threads and find the one that suits your needs, from the ${category?.name} topic`,
 		ogType: 'website',
 		ogImageUrl: `${process.env.BASE_URL}/api/og`,
 		twitterCard: 'summary',

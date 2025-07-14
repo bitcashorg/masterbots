@@ -10,9 +10,6 @@ import { cn } from '@/lib/utils'
 import type { ChatMessageProps } from '@/types/types'
 import { ChevronsDownUp } from 'lucide-react'
 import { useState } from 'react'
-import rehypeMathJax from 'rehype-mathjax'
-import remarkGfm from 'remark-gfm'
-import remarkRehype from 'remark-rehype'
 
 export function ReasoningChatMessage({
 	message,
@@ -51,7 +48,10 @@ export function ReasoningChatMessage({
 	}
 
 	return (
-		<div className={cn('group relative flex items-start p-1')} {...props}>
+		<div
+			className={cn('group relative flex items-start p-1 w-full')}
+			{...props}
+		>
 			<div className="flex-1 pr-1 space-y-6 overflow-hidden">
 				{/* First show the reasoning part (if available) */}
 				{reasoningContent && (
@@ -118,7 +118,6 @@ export function ReasoningChatMessage({
 					</div>
 					<MemoizedReactMarkdown
 						className="min-w-full prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
-						remarkPlugins={[remarkGfm, rehypeMathJax, remarkRehype]}
 						components={memoizedMarkdownComponents({
 							handleClickableClick,
 							shouldPreProcessChildren: true,

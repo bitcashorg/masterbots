@@ -1,13 +1,21 @@
 import { authOptions } from '@/auth'
-import ChatThreadListPanel from '@/components/routes/chat/chat-thread-list-panel'
-import ThreadPanel from '@/components/routes/thread/thread-panel'
+import { MainContentSkeleton } from '@/components/shared/skeletons/chat-page-skeleton'
+import { ChatPanelSkeleton } from '@/components/shared/skeletons/chat-panel-skeleton'
 import { PAGE_SIZE } from '@/lib/constants/hasura'
 import { generateMetadataFromSEO } from '@/lib/metadata'
 import { getCategories, getThreads } from '@/services/hasura'
 import { isTokenExpired, toSlug } from 'mb-lib'
 import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
+import dynamic from 'next/dynamic'
 import { redirect } from 'next/navigation'
+
+const ThreadPanel = dynamic(
+	() => import('@/components/routes/thread/thread-panel'),
+	{
+		loading: () => <MainContentSkeleton />,
+	},
+)
 
 export default async function ChatCategoryPage(props: {
 	params: Promise<{ category: string }>
@@ -33,12 +41,7 @@ export default async function ChatCategoryPage(props: {
 		limit: PAGE_SIZE,
 	})
 
-	return (
-		<>
-			<ThreadPanel threads={threads} count={count} />
-			<ChatThreadListPanel />
-		</>
-	)
+	return <ThreadPanel threads={threads} count={count} />
 }
 
 export async function generateMetadata(props: {
@@ -52,7 +55,7 @@ export async function generateMetadata(props: {
 
 	const seoData = {
 		title: category?.name || '',
-		description: `Please select a bot from the ${category?.name} category to start the conversation.`,
+		description: `Please select a bot from the ${category?.name} topic to start the conversation.`,
 		ogType: 'website',
 		ogImageUrl: `${process.env.BASE_URL}/api/og`,
 		twitterCard: 'summary',

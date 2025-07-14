@@ -5,7 +5,7 @@ import { getAllUserMessagesAsStringArray } from '@/lib/threads'
 import { nanoid } from '@/lib/utils'
 import type { ChatbotMetadata, ChatbotMetadataExamples } from '@/types/types'
 import type { Message } from 'ai'
-import { uniq } from 'lodash'
+import { uniq, uniqBy } from 'lodash'
 import { appConfig } from 'mb-env'
 import type { Chatbot, Message as MessageDB } from 'mb-genql'
 
@@ -83,12 +83,17 @@ export function createBotConfigurationPrompt(chatbot: Chatbot) {
 
 export function followingQuestionsPrompt(
 	userContent: string,
-	allMessages: Required<Partial<MessageDB[]>>,
+	allMessages: Array<MessageDB & { id?: string }>,
 	clickedContentId?: string,
 ) {
-	const questions = uniq(allMessages.filter((msg) => Boolean(msg?.messageId)))
+	// ! Whe check for both messageId and Id because the messages can come from different sources, like the database or the AI response...
+	// ! We must resolve this in the future, to normalize messages with "id" always but for now, we will keep it like this.
+	const questions = uniqBy(
+		allMessages.filter((msg) => msg?.messageId || msg?.id),
+		(msg) => msg?.messageId || msg?.id,
+	)
 	const responseIndex = questions.findIndex(
-		(q) => q.messageId === clickedContentId,
+		(q) => q?.messageId === clickedContentId || q?.id === clickedContentId,
 	)
 	const hasResponseIndex = responseIndex !== -1
 	const previousQuestionsString = getAllUserMessagesAsStringArray(
@@ -96,7 +101,11 @@ export function followingQuestionsPrompt(
 	)
 	const lastQuestionString = hasResponseIndex
 		? questions[responseIndex - 1]?.content || ''
-		: questions.filter((m) => m.role === 'user').pop()?.content || ''
+		: questions.filter((m) => m.role === 'user').pop()?.content || '' // ! ————BUG FOUND————
+	// ! The lastResponseString doesn't show up on the first continuous response—which is
+	// ! creating a new thread based on another thread from public threads)
+	// ! This is because the last response is not part of the questions array, so we need to handle it differently(?)
+	// ? Checking further... -Andler
 	const lastResponseString =
 		questions
 			.filter(
@@ -199,6 +208,7 @@ export function setOutputInstructionPrompt(userContent: string): Message {
 	- Use different heading levels (e.g., H1, H2, H3) and punctuation for better readability.
 	- Use lists when necessary for clarity and organization.
 	- Analyze the content (attachments) given by the user as context; infer its structure based on the provided data.
+		- If one or more of the content (attachments) has "Thread Context" name on it, deeply analyze the thread context and provide a comprehensive answer based on the user's question.
 	- If relevant or for comparisons, include tables to further structure information and aid comprehension.
 	- If necessary, translate the final output to the language used here: "${userContent}" as a highly specialized, 
 	multidisciplinary polyglot expert assistant and master of emotional intelligence that combines competencies across linguistics, 

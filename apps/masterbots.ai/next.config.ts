@@ -1,8 +1,8 @@
-/** @type {import('next').NextConfig} */
+import path from 'node:path'
+import { withSentryConfig } from '@sentry/nextjs'
+import type { NextConfig } from 'next'
 
-const path = require('node:path')
-
-module.exports = {
+const nextConfig: NextConfig = {
 	images: {
 		// ? Allowing SVGs to be used as images from trusted sources
 		dangerouslyAllowSVG: true,
@@ -16,6 +16,12 @@ module.exports = {
 			{
 				protocol: 'https',
 				hostname: '*.googleusercontent.com',
+				port: '',
+				pathname: '**',
+			},
+			{
+				protocol: 'https',
+				hostname: 'storage.googleapis.com',
 				port: '',
 				pathname: '**',
 			},
@@ -92,10 +98,7 @@ module.exports = {
 }
 
 // Injected content via Sentry wizard below
-
-const { withSentryConfig } = require('@sentry/nextjs')
-
-module.exports = withSentryConfig(module.exports, {
+export default withSentryConfig(nextConfig, {
 	// For all available options, see:
 	// https://www.npmjs.com/package/@sentry/webpack-plugin#options
 

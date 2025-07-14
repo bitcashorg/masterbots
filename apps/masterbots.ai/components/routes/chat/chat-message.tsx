@@ -19,9 +19,6 @@ import type {
 } from '@/types/types'
 import { usePathname } from 'next/navigation'
 import { useMemo, useState } from 'react'
-import rehypeMathJax from 'rehype-mathjax'
-import remarkGfm from 'remark-gfm'
-import remarkRehype from 'remark-rehype'
 
 /**
  * Displays a chat message with clickable text elements.
@@ -65,7 +62,11 @@ export function ChatMessage({
 				messageId: message.messageId,
 			},
 			() => {
-				setClicked(false)
+				// ? Adding delay to avoid instant re-clicks and state reset callbacks
+				const timeout = setTimeout(() => {
+					setClicked(false)
+					clearTimeout(timeout)
+				}, 1250)
 			},
 		)
 	}
@@ -120,7 +121,7 @@ export function ChatMessage({
 		}
 
 		return (
-			<div className="mt-4 space-y-4">
+			<div className="mt-4 space-y-4 w-full">
 				{images.map((image, i) => {
 					if (!image.base64) {
 						console.warn(`Image ${i} has no base64 data`)
@@ -142,11 +143,13 @@ export function ChatMessage({
 	}, [message])
 
 	return (
-		<div className={cn('group relative flex items-start p-1')} {...props}>
+		<div
+			className={cn('group relative flex items-start p-1 w-full')}
+			{...props}
+		>
 			<div className="flex-1 pr-1 space-y-2 overflow-hidden">
 				<MemoizedReactMarkdown
 					className="min-w-full prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
-					remarkPlugins={[remarkGfm, rehypeMathJax, remarkRehype]}
 					components={memoizedMarkdownComponents(
 						!(isBrowseView || isProfileView)
 							? {

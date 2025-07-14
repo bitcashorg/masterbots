@@ -89,7 +89,7 @@ export async function generateMetadata(props: {
 
 	const seoData = {
 		title: user?.username || '',
-		description: user?.username || '',
+		description: user?.bio || '',
 		ogType: 'website',
 		ogImageUrl: user ? `/api/og?userSlug=${params.userSlug}` : '',
 		twitterCard: 'summary_large_image',

@@ -85,6 +85,7 @@ export type PlanCardProps = {
 	selectedPlan: string
 	handlePlanChange: (e: React.ChangeEvent<HTMLInputElement>) => void
 	plan: StripePlan
+	isPurchased?: boolean
 }
 
 export interface StripePlan extends Stripe.Plan, Stripe.Plan.Tier {
@@ -428,4 +429,200 @@ export interface StoredImagePart {
 
 export type MessageWithExamples = MBMessage & {
 	examples?: StoredImagePart[]
+}
+
+/**
+ * Types for image generation functionality
+ */
+
+// Supported image generation providers
+export type ImageProviderType = 'openai'
+
+// OpenAI model IDs for image generation
+export type OpenAIImageModel = 'dall-e-2' | 'dall-e-3' | 'gpt-image-1'
+
+// Image generation request payload
+export interface GenerateImageRequest {
+	prompt: string
+	modelId: OpenAIImageModel
+	previousImage?: string // base64 of the previous image
+	editMode?: boolean
+}
+
+// Image generation response payload
+export interface GenerateImageResponse {
+	image?: string // base64 encoded image
+	error?: string
+}
+
+// Represents a generated image with metadata
+export interface GeneratedImage {
+	id: string
+	prompt: string
+	base64: string
+	modelId: OpenAIImageModel
+	timestamp: number
+	provider: ImageProviderType
+}
+
+// Image error information
+export interface ImageError {
+	message: string
+	modelId?: string
+}
+
+// Timing information for image generation
+export interface ImageTiming {
+	startTime?: number
+	completionTime?: number
+	elapsed?: number
+}
+
+// Enhanced message type that includes image data
+export interface ImageMessage {
+	id: string
+	role: 'assistant'
+	content: string // Original prompt
+	image: GeneratedImage
+}
+
+// Helper to check if a message contains image data
+export function isImageMessage(message: any): message is ImageMessage {
+	return (
+		message &&
+		typeof message === 'object' &&
+		message.role === 'assistant' &&
+		message.image &&
+		typeof message.image === 'object' &&
+		typeof message.image.base64 === 'string'
+	)
+}
+
+export interface ImageDisplayProps {
+	/**
+	 * Base64 encoded image data
+	 */
+	imageData: string
+
+	/**
+	 * Model ID that generated the image
+	 */
+	modelId: string
+
+	/**
+	 * Timing information for the generation
+	 */
+	timing?: ImageTiming
+
+	/**
+	 * Whether the image generation failed
+	 */
+	failed?: boolean
+
+	/**
+	 * Icon to show when generation failed
+	 */
+	fallbackIcon?: React.ReactNode
+
+	/**
+	 * Alt text for the image
+	 */
+	alt?: string
+
+	/**
+	 * Additional class name
+	 */
+	className?: string
+}
+
+export interface ImageMessageProps {
+	/**
+	 * The message containing image data
+	 */
+	message: ImageMessage
+
+	/**
+	 * Whether to show message actions
+	 */
+	actionRequired?: boolean
+
+	/**
+	 * Additional class name
+	 */
+	className?: string
+}
+
+export interface ImageToggleContextType {
+	/**
+	 * Whether image generation mode is enabled
+	 */
+	isImageGeneration: boolean
+
+	/**
+	 * Toggle image generation mode
+	 */
+	toggleImageGeneration: () => void
+
+	/**
+	 * Enable image generation mode
+	 */
+	enableImageGeneration: () => void
+
+	/**
+	 * Disable image generation mode
+	 */
+	disableImageGeneration: () => void
+}
+
+export interface UseImageGenerationReturn {
+	/**
+	 * The generated image data
+	 */
+	generatedImage: GeneratedImage | null
+
+	/**
+	 * Error information if generation failed
+	 */
+	error: ImageError | null
+
+	/**
+	 * Timing information for generation
+	 */
+	timing: ImageTiming
+
+	/**
+	 * Whether an image is currently being generated
+	 */
+	isLoading: boolean
+
+	/**
+	 * The prompt that was used for generation
+	 */
+	activePrompt: string
+
+	/**
+	 * Whether the component is in edit mode
+	 */
+	isEditMode: boolean
+
+	/**
+	 * Generate an image with the given prompt and model
+	 */
+	generateImage: (prompt: string, modelId: OpenAIImageModel) => Promise<void>
+
+	/**
+	 * Reset the generation state
+	 */
+	resetState: () => void
+
+	/**
+	 * generated image to the chat or enter edit mode
+	 */
+	addImageToChat: (mode?: 'chat' | 'edit') => void
+}
+
+export interface ExampleQuestion {
+	id: string
+	prompt: string
+	category?: string
 }

@@ -32,7 +32,7 @@ export function BrowseChatbotDesktopDetails({
 			className="hidden md:block w-full relative bg-left-bottom bg-[url('/hero-bg.png')] bg-no-repeat py-6"
 			id="hero-section"
 		>
-			<div className="absolute inset-0 z-0 bg-gradient-to-l from-mirage via-[#6A0D826E]/80 to-[#9412B5BF] dark:via-[#66B252BF]/80 dark:to-[#83E56A6B]/80" />
+			<div className="absolute inset-0 z-0 bg-gradient-to-l from-mirage via-[#66B252BF]/80 dark:to-[#83E56A6B]/80" />
 			<div className="relative z-10">
 				<div className="max-w-[600px] mx-auto mb-4">
 					<Link
@@ -45,7 +45,7 @@ export function BrowseChatbotDesktopDetails({
 				</div>
 				<Card className="relative max-w-[600px] dark:bg-[#09090B] bg-white mx-auto">
 					<CardHeader>
-						<div className="flex items-center gap-3">
+						<div className="flex gap-3 items-center">
 							<h1 className="p-4 text-2xl font-bold text-zinc-950 dark:text-gray-300">
 								{isWelcomeView ? 'Welcome to Masterbots!' : chatbot.name}
 							</h1>
@@ -62,12 +62,12 @@ export function BrowseChatbotDesktopDetails({
 						</div>
 
 						<div className="relative p-4 border-t-[3px] border-zinc-200 dark:border-gray-800">
-							<div className="absolute right-0 flex flex-col items-center gap-4 px-4 -top-12">
+							<div className="flex absolute right-0 -top-12 flex-col gap-4 items-center px-4">
 								<div
 									className={cn(
-										'size-32 rounded-full overflow-hidden p-0 m-0',
+										'overflow-hidden p-0 m-0 rounded-full size-32',
 										'bg-iron dark:bg-mirage',
-										'ring-4 ring-[#be16e8] dark:ring-[#82e46a]',
+										'ring-4 selected-bot-avatar',
 									)}
 								>
 									<Image
@@ -82,12 +82,11 @@ export function BrowseChatbotDesktopDetails({
 									asChild
 									className={cn(
 										'w-full flex items-center gap-2 px-4 py-2 rounded-md mt-4',
-										'bg-[#be16e8] hover:bg-[#be16e8]/90',
-										'dark:bg-[#82e46a] dark:hover:bg-[#82e46a]/90',
+										'bg-[#82e46a] hover:bg-[#82e46a]/90',
 										'text-white dark:text-zinc-950',
 									)}
 								>
-									<Link href={botUrl} className="flex items-center gap-2">
+									<Link href={botUrl} className="flex gap-2 items-center">
 										<MessageSquarePlusIcon className="size-4" />
 										<span>New Chat</span>
 									</Link>
@@ -123,7 +122,7 @@ export function BrowseChatbotDesktopDetails({
 
 					<CardFooter className="flex flex-col space-y-4">
 						<div className="flex items-center w-full">
-							<div className="flex items-center gap-2 text-zinc-950 dark:text-gray-300">
+							<div className="flex gap-2 items-center text-zinc-950 dark:text-gray-300">
 								<MessageSquareIcon className="size-4" />
 								<span>
 									Threads:{' '}
@@ -134,9 +133,9 @@ export function BrowseChatbotDesktopDetails({
 							</div>
 						</div>
 
-						<div className="flex items-center justify-between w-full">
-							<div className="flex items-center gap-4">
-								<div className="flex items-center gap-2 text-zinc-950 dark:text-gray-300">
+						<div className="flex justify-between items-center w-full">
+							<div className="flex gap-4 items-center">
+								<div className="flex gap-2 items-center text-zinc-950 dark:text-gray-300">
 									<Users className="size-4" />
 									<span>
 										Followers:{' '}

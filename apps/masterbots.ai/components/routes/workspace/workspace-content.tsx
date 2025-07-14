@@ -1,6 +1,5 @@
 'use client'
 
-import * as React from 'react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
@@ -21,6 +20,7 @@ import {
 	SaveIcon,
 	Table,
 } from 'lucide-react'
+import * as React from 'react'
 
 interface WorkspaceContentProps {
 	projectName: string | null
