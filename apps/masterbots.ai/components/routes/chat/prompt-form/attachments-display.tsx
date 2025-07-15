@@ -8,7 +8,7 @@ import {
 import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
 import { cn } from '@/lib/utils'
 import { AnimatePresence, type MotionProps, motion } from 'framer-motion'
-import { FileIcon, XIcon } from 'lucide-react'
+import { FileIcon, FileTextIcon, XIcon } from 'lucide-react'
 import Image from 'next/image'
 
 export const cardSlideDownShowAnimationProps: MotionProps = {
@@ -76,10 +76,11 @@ export function AttachmentsDisplay({
 													width={40}
 													height={40}
 													alt={name}
+													loading="lazy"
 													className="size-10 rounded-full object-cover"
 												/>
 											) : (
-												<FileIcon className="size-5" />
+												<FileTextIcon className="size-5" />
 											)}
 										</div>
 										<div className="p-2 flex items-center gap-2">
@@ -109,6 +110,7 @@ export function AttachmentsDisplay({
 													alt={name}
 													width={224}
 													height={224}
+													loading="lazy"
 													className="w-full h-auto max-h-full rounded-lg object-cover"
 												/>
 											) : (

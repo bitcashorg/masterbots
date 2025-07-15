@@ -2,6 +2,7 @@ import { type IndexedDBItem, useIndexedDB } from '@/lib/hooks/use-indexed-db'
 import { useModel } from '@/lib/hooks/use-model'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useSonner } from '@/lib/hooks/useSonner'
+import { getRouteType } from '@/lib/utils'
 import type * as OpenAi from 'ai'
 import { uniqBy } from 'lodash'
 import { appConfig } from 'mb-env'
@@ -61,7 +62,7 @@ export function useFileAttachments(
 	},
 ] {
 	const { data: session } = useSession()
-	const { activeThread, isNewResponse } = useThread()
+	const { activeThread, isNewResponse, loadingState } = useThread()
 	const dbKeys = getUserIndexedDBKeys(session?.user?.id)
 	const { mounted, ...indexedDBActions } = useIndexedDB(dbKeys)
 	const [state, setState] = useSetState<{
@@ -77,7 +78,13 @@ export function useFileAttachments(
 		loading,
 		error,
 	} = useAsync(async () => {
-		if (!mounted || !session?.user || isNewResponse) {
+		if (
+			!mounted ||
+			!session?.user ||
+			isNewResponse ||
+			(loadingState && loadingState !== 'finished') ||
+			getRouteType(window.location.pathname) !== 'chat'
+		) {
 			return (activeThread?.metadata?.attachments || []) as IndexedDBItem[]
 		}
 
@@ -110,7 +117,7 @@ export function useFileAttachments(
 
 		currentRequestId.current = null
 		return indexedDBAttachments
-	}, [session?.user, mounted, isNewResponse, activeThread])
+	}, [session?.user, mounted, isNewResponse, activeThread, loadingState])
 
 	const { customSonner } = useSonner()
 	const { selectedModel } = useModel()

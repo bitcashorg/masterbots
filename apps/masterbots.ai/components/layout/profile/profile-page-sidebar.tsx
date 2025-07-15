@@ -1,6 +1,6 @@
 'use client'
 
-import { ThreadPopup } from '@/components/routes/thread/thread-popup'
+import { ThreadPopupSkeleton } from '@/components/shared/skeletons/thread-popup-skeleton'
 import {
 	Breadcrumb,
 	BreadcrumbItem,
@@ -13,11 +13,23 @@ import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { cn } from '@/lib/utils'
 import { DotIcon } from 'lucide-react'
+import dynamic from 'next/dynamic'
 import { useParams, usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { useAsync } from 'react-use'
 import FooterCT from '../footer/footer-ct'
 import Sidebar from '../sidebar/sidebar'
+
+const ThreadPopup = dynamic(
+	() =>
+		import('@/components/routes/thread/thread-popup').then(
+			(mod) => mod.ThreadPopup,
+		),
+	{
+		ssr: false,
+		loading: () => <ThreadPopupSkeleton />,
+	},
+)
 
 export const UserProfileSidebar = ({
 	children,

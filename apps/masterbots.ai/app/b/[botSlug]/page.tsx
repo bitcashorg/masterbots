@@ -42,6 +42,13 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 		threads: true,
 	})
 
+	if (!chatbot) {
+		return {
+			title: 'Bot Not Found',
+			description: 'The requested bot could not be found.',
+		}
+	}
+
 	const seoData = {
 		title: chatbot?.name || '',
 		description: chatbot?.description || '',

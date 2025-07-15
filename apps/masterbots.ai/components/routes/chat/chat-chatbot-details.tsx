@@ -1,7 +1,7 @@
 import { OnboardingMobileView } from '@/components/routes/chat/chat-onboarding-chatbot-mobile'
 import { SelectedBotMobileView } from '@/components/routes/chat/chat-selected-chatbot-mobile'
 import { OnboardingChatbotDetails } from '@/components/routes/chat/onboarding-chatbot-details'
-import { OnboardingChatbotExamples } from '@/components/routes/chat/onboarding-chatbot-examples'
+import { OnboardingChatbotCard } from '@/components/shared/onboarding-chatbot-card'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useSonner } from '@/lib/hooks/useSonner'
 import { getRouteType } from '@/lib/utils'
@@ -127,7 +127,7 @@ export default function ChatChatbotDetails() {
 	return (
 		<>
 			{isChatRoute ? (
-				<OnboardingChatbotExamples {...sharedProps} />
+				<OnboardingChatbotCard {...sharedProps} />
 			) : (
 				<OnboardingChatbotDetails {...sharedProps} />
 			)}

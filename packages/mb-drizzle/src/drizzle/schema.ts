@@ -31,6 +31,7 @@ export const category = pgTable(
 	{
 		categoryId: serial('category_id').primaryKey().notNull(),
 		name: text().notNull(),
+		order: integer().default(sql`get_topic_count()`).notNull(),
 	},
 	(table) => [unique('category_name_key').on(table.name)],
 )
@@ -238,6 +239,7 @@ export const chatbot = pgTable(
 		defaultType: text('default_type'),
 		defaultComplexity: text('default_complexity'),
 		disabled: boolean().default(false),
+		order: integer().default(sql`get_chatbot_count()`).notNull(),
 	},
 	(table) => [
 		foreignKey({

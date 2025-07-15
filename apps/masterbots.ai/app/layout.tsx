@@ -49,7 +49,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 					/>
 					<div className="flex flex-col min-h-screen">
 						<Header />
-						<main className="relative flex flex-col flex-1 bg-muted/50">
+						<main className="relative flex flex-col h-[calc(100vh-4rem)] overflow-hidden bg-muted/50 pb-10">
 							{children}
 						</main>
 					</div>
