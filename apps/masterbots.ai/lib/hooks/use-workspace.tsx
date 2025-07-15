@@ -189,56 +189,72 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 				}
 			})
 
-			// Use a debounced update approach with multiple checks
-			// This prevents cascading updates and infinite loops
-			let updateCancelled = false
-
-			// First check if we need to activate the workspace
-			if (!isWorkspaceActive) {
-				requestAnimationFrame(() => {
-					if (!updateCancelled) {
-						setIsWorkspaceActive(true)
-					}
+			// Only update navigation state if we're not already on the correct project/document
+			// This prevents infinite loops when updating content for the currently active document
+			if (project !== activeProject || document !== activeDocument) {
+				console.log('📋 Navigation update needed for setDocumentContent:', {
+					currentProject: activeProject,
+					targetProject: project,
+					currentDocument: activeDocument,
+					targetDocument: document,
 				})
-			}
 
-			// Batch the navigation updates using requestAnimationFrame
-			const updateNavigationFrame = requestAnimationFrame(() => {
-				if (updateCancelled) return
+				// Use a debounced update approach with multiple checks
+				// This prevents cascading updates and infinite loops
+				let updateCancelled = false
 
-				// Update project if needed, with strict equality check
-				const projectNeedsUpdate = project !== activeProject
-				if (projectNeedsUpdate) {
-					console.log('Updating active project in setDocumentContent:', project)
-					setActiveProject(project)
+				// First check if we need to activate the workspace
+				if (!isWorkspaceActive) {
+					requestAnimationFrame(() => {
+						if (!updateCancelled) {
+							setIsWorkspaceActive(true)
+						}
+					})
 				}
 
-				// Use nested frame for document update to ensure it happens after project update settles
-				const documentUpdateFrame = requestAnimationFrame(() => {
+				// Batch the navigation updates using requestAnimationFrame
+				const updateNavigationFrame = requestAnimationFrame(() => {
 					if (updateCancelled) return
 
-					// Update document if needed, with strict equality check
-					const documentNeedsUpdate = document !== activeDocument
-					if (documentNeedsUpdate) {
+					// Update project if needed, with strict equality check
+					const projectNeedsUpdate = project !== activeProject
+					if (projectNeedsUpdate) {
 						console.log(
-							'Updating active document in setDocumentContent:',
-							document,
+							'Updating active project in setDocumentContent:',
+							project,
 						)
-						setActiveDocument(document)
+						setActiveProject(project)
+					}
+
+					// Use nested frame for document update to ensure it happens after project update settles
+					const documentUpdateFrame = requestAnimationFrame(() => {
+						if (updateCancelled) return
+
+						// Update document if needed, with strict equality check
+						const documentNeedsUpdate = document !== activeDocument
+						if (documentNeedsUpdate) {
+							console.log(
+								'Updating active document in setDocumentContent:',
+								document,
+							)
+							setActiveDocument(document)
+						}
+					})
+
+					// Clean up document frame on component unmount
+					return () => {
+						cancelAnimationFrame(documentUpdateFrame)
 					}
 				})
 
-				// Clean up document frame on component unmount
+				// Return cleanup function to cancel all pending updates if component unmounts
 				return () => {
-					cancelAnimationFrame(documentUpdateFrame)
+					updateCancelled = true
+					cancelAnimationFrame(updateNavigationFrame)
 				}
-			})
-
-			// Return cleanup function to cancel all pending updates if component unmounts
-			return () => {
-				updateCancelled = true
-				cancelAnimationFrame(updateNavigationFrame)
 			}
+			// No navigation update needed - already on target document
+			console.log('📋 No navigation update needed - already on target document')
 		},
 		[isWorkspaceActive, activeProject, activeDocument],
 	)

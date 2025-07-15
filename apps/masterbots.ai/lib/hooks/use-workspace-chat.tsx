@@ -98,42 +98,36 @@ export function WorkspaceChatProvider({
 		},
 		async onFinish(message) {
 			console.log(
-				'✅ onFinish: AI response complete, handling persistence and cleanup:',
+				'✅ onFinish: AI response complete, handling document update:',
 				message.content?.substring(0, 100),
 			)
 
-			// const documentKey = `${activeProject}:${activeDocument}`
-			// // Get the current document content at the time of response
-			// const currentContent =
-			// 	document.querySelector(`[data-document-key="${documentKey}"]`)
-			// 		?.textContent || ''
+			// Get current document info
+			const documentKey = `${activeProject}:${activeDocument}`
+			const currentContent = documentContent?.[documentKey] || ''
 
-			// // Process the AI response for document update
-			// handleDocumentUpdate(
-			// 	message.content,
-			// 	activeWorkspaceSection,
-			// 	currentContent,
-			// 	documentKey,
-			// )
+			// Process the AI response for document update
+			if (activeProject && activeDocument && message.content) {
+				console.log('📝 Processing document update in onFinish')
+				handleDocumentUpdate(
+					message.content,
+					activeWorkspaceSection,
+					currentContent,
+					documentKey,
+					cursorPosition,
+				)
+			}
 
-			// Reset processing state
-			setWorkspaceProcessingState('idle')
-			// Note: Live updates are handled in workspace-content.tsx via messages array
-			// This onFinish event is only for persistence and cleanup operations
+			// Note: Document updates are handled here instead of in workspace-content.tsx
+			// to prevent infinite loops and ensure proper state management
 
-			// TODO: Here we can add logic for:
-			// - Saving final document state to database
-			// - Document versioning
-			// - Analytics/tracking
-			// - Any cleanup operations
-
-			console.log('✅ onFinish: Workspace ready for next request')
+			console.log('✅ onFinish: Document update complete')
 		},
 	})
 
 	console.log('🔄 WorkspaceChatProvider messages:', messages)
 
-	// Document update function
+	// Document update function with improved dependency management
 	const handleDocumentUpdate = React.useCallback(
 		(
 			aiResponse: string,
@@ -203,6 +197,7 @@ export function WorkspaceChatProvider({
 
 						// Reconstruct the document
 						const newMarkdown = combineMarkdownSections(updatedSections)
+						// Only update if we have the current project and document
 						if (activeProject && activeDocument) {
 							setDocumentContent(activeProject, activeDocument, newMarkdown)
 						}
@@ -238,9 +233,9 @@ export function WorkspaceChatProvider({
 				}
 
 				console.log('✅ Document updated successfully')
-				setWorkspaceProcessingState('idle')
 			} catch (error) {
 				console.error('❌ Error updating document:', error)
+			} finally {
 				setWorkspaceProcessingState('idle')
 			}
 		},

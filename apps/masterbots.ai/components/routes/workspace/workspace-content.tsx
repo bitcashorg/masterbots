@@ -132,149 +132,52 @@ The conclusion summarizes the key points and implications of the project.
 		return messages?.filter((m) => m.role === 'assistant').pop()
 	}, [messages])
 
+	// Track processed message IDs to prevent re-processing
+	const processedMessageIds = React.useRef<Set<string>>(new Set())
+
 	console.log('lastAssistantMessage', lastAssistantMessage)
 	console.log('isUserTypingRef.current', isUserTypingRef.current)
 
 	// Effect to handle live updates when new AI messages arrive during streaming
-	React.useEffect(() => {
-		if (!projectName || !documentName) {
-			console.warn('⚠️ No project or document selected, skipping live update')
-			return
-		}
-		console.log('lastAssistantMessage effect triggered', lastAssistantMessage)
-		if (lastAssistantMessage && !isUserTypingRef.current) {
-			// If we have a new assistant message and user is not typing, update content
-			console.log(
-				'🤖 New assistant message detected, updating workspace content live',
-			)
-
-			// Get the AI response content
-			const aiResponse = lastAssistantMessage.content
-			if (!aiResponse || aiResponse.trim() === '') {
-				return
-			}
-
-			// Get current document content
-			const documentKey =
-				projectName && documentName ? `${projectName}:${documentName}` : null
-			const currentContent =
-				documentKey && documentContent && documentContent[documentKey]
-
-			if (!currentContent) {
-				return
-			}
-
-			// Parse the current document into sections
-			const currentSections = parseMarkdownSections(currentContent)
-
-			// If there's an active section, try to update that specific section
-			if (activeSection && currentSections.length > 0) {
-				const sectionIndex = currentSections.findIndex(
-					(s) => s.id === activeSection,
-				)
-				if (sectionIndex !== -1) {
-					console.log('📝 Updating active section with AI response')
-					// Update the specific section with AI response
-					const updatedSections = [...currentSections]
-					const currentSection = updatedSections[sectionIndex]
-
-					// Check if AI response is a complete replacement or just content
-					if (aiResponse.includes('#')) {
-						// AI provided structured content - parse and merge
-						const aiSections = parseMarkdownSections(aiResponse)
-						if (aiSections.length === 1) {
-							// Single section response - replace the target section
-							updatedSections[sectionIndex] = {
-								...updatedSections[sectionIndex],
-								content: aiSections[0].content,
-								title:
-									aiSections[0].title || updatedSections[sectionIndex].title,
-							}
-						} else {
-							// Multiple sections - insert after current section
-							updatedSections.splice(sectionIndex + 1, 0, ...aiSections)
-						}
-					} else {
-						// Plain text response - insert at cursor position if available
-						if (cursorPosition >= 0) {
-							const beforeCursor = currentSection.content.substring(
-								0,
-								cursorPosition,
-							)
-							const afterCursor =
-								currentSection.content.substring(cursorPosition)
-							updatedSections[sectionIndex] = {
-								...currentSection,
-								content: `${beforeCursor}${aiResponse}${afterCursor}`,
-							}
-						} else {
-							// No cursor position, append to section content
-							updatedSections[sectionIndex] = {
-								...updatedSections[sectionIndex],
-								content: `${currentSection.content}\n\n${aiResponse}`,
-							}
-						}
-					}
-
-					// Reconstruct the document and update
-					const newMarkdown = combineMarkdownSections(updatedSections)
-					setDocumentContent(projectName, documentName, newMarkdown)
-				}
-			} else if (viewMode === 'source') {
-				// Handle full source view updates
-				console.log('📝 Updating full source view with AI response')
-				if (cursorPosition >= 0) {
-					// Insert at cursor position in full document
-					const beforeCursor = currentContent.substring(0, cursorPosition)
-					const afterCursor = currentContent.substring(cursorPosition)
-					const updatedContent = `${beforeCursor}${aiResponse}${afterCursor}`
-					setDocumentContent(projectName, documentName, updatedContent)
-				} else if (aiResponse.includes('#') && aiResponse.includes('\n')) {
-					// AI provided structured content - use it as new document content
-					setDocumentContent(projectName, documentName, aiResponse)
-				} else {
-					// Plain text response - append to document
-					const updatedContent = `${currentContent}\n\n## AI Update\n\n${aiResponse}`
-					setDocumentContent(projectName, documentName, updatedContent)
-				}
-			}
-		}
-	}, [
-		lastAssistantMessage,
-		projectName,
-		documentName,
-		documentContent,
-		setDocumentContent,
-		activeSection,
-		cursorPosition,
-		viewMode,
-	])
+	// This effect is REMOVED to prevent infinite loops - document updates are now handled
+	// directly by the workspace chat hook's onFinish callback and the external content sync effect
 
 	// Effect to handle external document content updates (e.g., from workspace chat)
+	// with improved loop prevention
 	React.useEffect(() => {
+		// Only sync if content has actually changed and user is not typing
 		if (
 			savedContent &&
 			savedContent !== fullMarkdown &&
 			!isUserTypingRef.current
 		) {
 			console.log(
-				'📝 External document update detected, updating workspace content',
+				'📝 External document update detected, syncing workspace content',
+				{
+					currentLength: fullMarkdown.length,
+					newLength: savedContent.length,
+					hasChanges: savedContent !== fullMarkdown,
+				},
 			)
-			setFullMarkdown(savedContent)
-			setSections(parseMarkdownSections(savedContent))
 
-			// If there's an active section, update its content to reflect changes
-			if (activeSection) {
-				const updatedSections = parseMarkdownSections(savedContent)
-				const newActiveSection = updatedSections.find(
-					(s) => s.id === activeSection,
-				)
-				if (newActiveSection) {
-					// Store current cursor position before updating content
-					const currentCursor = sectionTextareaRef.current?.selectionStart || 0
-					setEditableContent(newActiveSection.content)
-					// Restore cursor position after content update
-					React.startTransition(() => {
+			// Use React.startTransition to mark this as a non-urgent update
+			React.startTransition(() => {
+				setFullMarkdown(savedContent)
+				setSections(parseMarkdownSections(savedContent))
+
+				// If there's an active section, update its content to reflect changes
+				if (activeSection) {
+					const updatedSections = parseMarkdownSections(savedContent)
+					const newActiveSection = updatedSections.find(
+						(s) => s.id === activeSection,
+					)
+					if (newActiveSection) {
+						// Store current cursor position before updating content
+						const currentCursor =
+							sectionTextareaRef.current?.selectionStart || 0
+						setEditableContent(newActiveSection.content)
+
+						// Restore cursor position after content update (without causing loops)
 						setTimeout(() => {
 							if (sectionTextareaRef.current && !isUserTypingRef.current) {
 								const newPosition = Math.min(
@@ -288,12 +191,10 @@ The conclusion summarizes the key points and implications of the project.
 								sectionTextareaRef.current.focus()
 							}
 						}, 0)
-					})
-				}
-			} else if (viewMode === 'source') {
-				// If in source view, preserve cursor position in full source
-				const currentCursor = sourceTextareaRef.current?.selectionStart || 0
-				React.startTransition(() => {
+					}
+				} else if (viewMode === 'source') {
+					// If in source view, preserve cursor position in full source
+					const currentCursor = sourceTextareaRef.current?.selectionStart || 0
 					setTimeout(() => {
 						if (sourceTextareaRef.current && !isUserTypingRef.current) {
 							const newPosition = Math.min(currentCursor, savedContent.length)
@@ -304,8 +205,8 @@ The conclusion summarizes the key points and implications of the project.
 							sourceTextareaRef.current.focus()
 						}
 					}, 0)
-				})
-			}
+				}
+			})
 		}
 	}, [savedContent, fullMarkdown, activeSection, viewMode])
 

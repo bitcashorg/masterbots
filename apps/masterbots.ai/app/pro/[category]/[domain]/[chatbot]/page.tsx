@@ -1,5 +1,5 @@
 import { authOptions } from '@/auth'
-import ChatThreadListPanel from '@/components/routes/chat/chat-thread-list-panel'
+import { Pro } from '@/components/routes/pro/pro'
 import Subscription from '@/components/routes/subscription/subscription'
 import ThreadPanel from '@/components/routes/thread/thread-panel'
 import { botNames } from '@/lib/constants/bots-names'
@@ -55,8 +55,8 @@ export default async function BotThreadsPage(props: {
 	return (
 		<>
 			<ThreadPanel threads={threads.threads} />
-			<ChatThreadListPanel chatbot={chatbot} variant="pro" />
-			<Subscription user={user} />
+			<Pro />
+			<Subscription />
 		</>
 	)
 }

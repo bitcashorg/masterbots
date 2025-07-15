@@ -1,5 +1,5 @@
 import { authOptions } from '@/auth'
-import ChatThreadListPanel from '@/components/routes/chat/chat-thread-list-panel'
+import { Pro } from '@/components/routes/pro/pro'
 import Subscription from '@/components/routes/subscription/subscription'
 import ThreadPanel from '@/components/routes/thread/thread-panel'
 import { PAGE_SIZE } from '@/lib/constants/hasura'
@@ -40,9 +40,9 @@ export default async function ChatCategoryPage(props: {
 
 	return (
 		<>
-			<ThreadPanel threads={threads} />
-			<ChatThreadListPanel variant="pro" />
-			<Subscription user={user} />
+			<ThreadPanel threads={threads.threads} count={threads.count} />
+			<Pro />
+			<Subscription />
 		</>
 	)
 }

@@ -1,5 +1,6 @@
 import { authOptions } from '@/auth'
 import { Chat as ChatChatbot } from '@/components/routes/chat/chat'
+import { Pro } from '@/components/routes/pro/pro'
 import ThreadPanel from '@/components/routes/thread/thread-panel'
 import { botNames } from '@/lib/constants/bots-names'
 import { PAGE_SIZE } from '@/lib/constants/hasura'
@@ -49,8 +50,8 @@ export default async function BotThreadPopUpPage(props: {
 
 	return (
 		<>
-			<ThreadPanel threads={threads} />
-			<ChatChatbot chatbot={chatbot} />
+			<ThreadPanel threads={threads.threads} count={threads.count} />
+			<Pro />
 		</>
 	)
 }
