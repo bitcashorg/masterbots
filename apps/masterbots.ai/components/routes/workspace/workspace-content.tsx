@@ -135,7 +135,7 @@ The conclusion summarizes the key points and implications of the project.
 	// Track processed message IDs to prevent re-processing
 	const processedMessageIds = React.useRef<Set<string>>(new Set())
 
-	console.log('lastAssistantMessage', lastAssistantMessage)
+	// console.log('lastAssistantMessage', lastAssistantMessage)
 	console.log('isUserTypingRef.current', isUserTypingRef.current)
 
 	// Effect to handle live updates when new AI messages arrive during streaming
@@ -213,10 +213,12 @@ The conclusion summarizes the key points and implications of the project.
 	const handleSectionClick = (sectionId: string) => {
 		const section = sections.find((s) => s.id === sectionId)
 		if (section) {
+			console.log('🎯 Section clicked:', sectionId, 'Title:', section.title)
 			setActiveSection(sectionId)
 			setEditableContent(section.content)
 			// Notify parent component about active section change
 			onActiveSectionChange?.(sectionId)
+			console.log('🎯 Active section change notification sent for:', sectionId)
 		}
 	}
 

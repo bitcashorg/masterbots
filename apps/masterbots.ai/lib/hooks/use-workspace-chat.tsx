@@ -71,6 +71,14 @@ export function WorkspaceChatProvider({
 		string | null
 	>(null)
 	const [cursorPosition, setCursorPosition] = React.useState<number>(0)
+
+	// Add logging for active workspace section changes
+	React.useEffect(() => {
+		console.log(
+			'🎯 useWorkspaceChat: activeWorkspaceSection changed to:',
+			activeWorkspaceSection,
+		)
+	}, [activeWorkspaceSection])
 	const { selectedModel, clientType } = useModel()
 	const { customSonner } = useSonner()
 
@@ -125,7 +133,7 @@ export function WorkspaceChatProvider({
 		},
 	})
 
-	console.log('🔄 WorkspaceChatProvider messages:', messages)
+	// console.log('🔄 WorkspaceChatProvider messages:', messages)
 
 	// Document update function with improved dependency management
 	const handleDocumentUpdate = React.useCallback(
@@ -149,67 +157,62 @@ export function WorkspaceChatProvider({
 				// Parse the current document into sections
 				const sections = parseMarkdownSections(currentContent)
 
-				// If there's an active section, try to update that specific section
+				// If there's an active section, update that specific section only
 				if (activeSection && sections.length > 0) {
 					const sectionIndex = sections.findIndex((s) => s.id === activeSection)
 					if (sectionIndex !== -1) {
+						console.log(`📍 Updating section: ${sections[sectionIndex].title}`)
+
 						// Update the specific section with AI response
 						const updatedSections = [...sections]
 						const currentSection = updatedSections[sectionIndex]
 
-						// Check if AI response is a complete replacement or just content
-						if (aiResponse.includes('#')) {
-							// AI provided structured content - parse and merge
-							const aiSections = parseMarkdownSections(aiResponse)
-							if (aiSections.length === 1) {
-								// Single section response - replace the target section
-								updatedSections[sectionIndex] = {
-									...updatedSections[sectionIndex],
-									content: aiSections[0].content,
-									title:
-										aiSections[0].title || updatedSections[sectionIndex].title,
-								}
-							} else {
-								// Multiple sections - insert after current section
-								updatedSections.splice(sectionIndex + 1, 0, ...aiSections)
-							}
-						} else {
-							// Plain text response - insert at cursor position if available
-							if (cursorPosition !== undefined && cursorPosition >= 0) {
-								const beforeCursor = currentSection.content.substring(
-									0,
-									cursorPosition,
-								)
-								const afterCursor =
-									currentSection.content.substring(cursorPosition)
-								updatedSections[sectionIndex] = {
-									...currentSection,
-									content: `${beforeCursor}${aiResponse}${afterCursor}`,
-								}
-							} else {
-								// No cursor position, append to section content
-								updatedSections[sectionIndex] = {
-									...updatedSections[sectionIndex],
-									content: `${currentSection.content}\n\n${aiResponse}`,
-								}
-							}
+						// Clean the AI response - remove any heading that matches the section title
+						let cleanedResponse = aiResponse.trim()
+
+						// Remove section heading if AI included it
+						const sectionTitleRegex = new RegExp(
+							`^#{1,6}\\s*${currentSection.title}\\s*\n?`,
+							'i',
+						)
+						cleanedResponse = cleanedResponse.replace(sectionTitleRegex, '')
+
+						// Remove any leading # characters that might indicate structure
+						cleanedResponse = cleanedResponse.replace(/^#+\s*/, '')
+
+						// For section updates, we replace the content entirely
+						// This is because the AI was specifically asked to provide updated content for this section
+						updatedSections[sectionIndex] = {
+							...currentSection,
+							content: cleanedResponse.trim(),
 						}
 
-						// Reconstruct the document
+						// Reconstruct the document with the updated section
 						const newMarkdown = combineMarkdownSections(updatedSections)
+
+						console.log(
+							`✅ Section "${currentSection.title}" updated successfully`,
+						)
+
 						// Only update if we have the current project and document
 						if (activeProject && activeDocument) {
 							setDocumentContent(activeProject, activeDocument, newMarkdown)
 						}
 					} else {
-						// Section not found, append to document
-						const updatedContent = `${currentContent}\n\n## AI Update\n\n${aiResponse}`
+						console.warn(`⚠️ Section with ID "${activeSection}" not found`)
+						// Section not found, append as new section
+						const newSection = `\n\n## AI Update\n\n${aiResponse}`
+						const updatedContent = `${currentContent}${newSection}`
 						if (activeProject && activeDocument) {
 							setDocumentContent(activeProject, activeDocument, updatedContent)
 						}
 					}
 				} else {
-					// No active section - handle as full document update or cursor position in source
+					// No active section - handle as full document update or append
+					console.log(
+						'📄 No specific section selected, handling as document-level update',
+					)
+
 					if (cursorPosition !== undefined && cursorPosition >= 0) {
 						// Insert at cursor position in full document
 						const beforeCursor = currentContent.substring(0, cursorPosition)
@@ -219,9 +222,22 @@ export function WorkspaceChatProvider({
 							setDocumentContent(activeProject, activeDocument, updatedContent)
 						}
 					} else if (aiResponse.includes('#') && aiResponse.includes('\n')) {
-						// AI provided structured content - use it as new document content
-						if (activeProject && activeDocument) {
-							setDocumentContent(activeProject, activeDocument, aiResponse)
+						// AI provided structured content with headings
+						// Check if this looks like a complete document or addition
+						const aiSections = parseMarkdownSections(aiResponse)
+
+						if (aiSections.length > 0 && sections.length > 0) {
+							// Add new sections to existing document
+							const allSections = [...sections, ...aiSections]
+							const newMarkdown = combineMarkdownSections(allSections)
+							if (activeProject && activeDocument) {
+								setDocumentContent(activeProject, activeDocument, newMarkdown)
+							}
+						} else {
+							// Use as new document content (fallback)
+							if (activeProject && activeDocument) {
+								setDocumentContent(activeProject, activeDocument, aiResponse)
+							}
 						}
 					} else {
 						// Plain text response - append to document

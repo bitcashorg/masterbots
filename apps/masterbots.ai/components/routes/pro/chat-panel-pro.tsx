@@ -181,7 +181,7 @@ export function ChatPanelPro({
 		handleDocumentUpdate: workspaceHandleDocumentUpdate,
 	} = useWorkspaceChat()
 
-	console.log('🔄 ChatPanelPro workspaceMessages:', workspaceMessages)
+	// console.log('🔄 ChatPanelPro workspaceMessages:', workspaceMessages)
 	const [, { appendWithMbContextPrompts }] = useMBChat()
 	const {
 		isWorkspaceActive,
@@ -389,6 +389,13 @@ export function ChatPanelPro({
 		documentContent: string,
 		activeSection: string | null,
 	) => {
+		console.log('📝 Creating meta prompt with:', {
+			userPromptLength: userPrompt.length,
+			documentContentLength: documentContent.length,
+			activeSection,
+			hasDocumentContent: !!documentContent,
+		})
+
 		const sections = parseMarkdownSections(documentContent)
 		const sectionsContext = sections
 			.map(
@@ -400,9 +407,12 @@ export function ChatPanelPro({
 		const focusedSection = activeSection
 			? sections.find((s) => s.id === activeSection)
 			: null
-		const focusContext = focusedSection
-			? `\n\nCURRENT FOCUS SECTION:\n## ${focusedSection.title}\n${focusedSection.content}`
-			: ''
+
+		console.log('📝 Meta prompt details:', {
+			totalSections: sections.length,
+			focusedSectionTitle: focusedSection?.title,
+			sectionsContextLength: sectionsContext.length,
+		})
 
 		// Add chatbot expertise if available
 		let chatbotExpertise = ''
@@ -420,33 +430,75 @@ export function ChatPanelPro({
 			chatbotExpertise = `\n\nCHATBOT EXPERTISE:\n${expertisePrompts}\n\n${instructionPrompts}\n`
 		}
 
-		// Add output instructions
-		const outputInstructions = `
-<output_instructions>
-- Use different heading levels (e.g., H1, H2, H3) and punctuation for better readability.
-- Use lists when necessary for clarity and organization.
-- Maintain the document's style and tone
-- For editing requests, provide the updated content that should replace the existing section
-- Ensure your response is clear and actionable
-- Focus specifically on document editing and content improvement
-</output_instructions>`
+		// Create focused or general instructions based on active section
+		let taskInstructions = ''
+		let outputFormat = ''
 
-		return `You are an expert document editor and content creator working with specialized chatbot expertise.${chatbotExpertise}
+		if (focusedSection) {
+			// Section-specific editing mode
+			taskInstructions = `
+EDITING MODE: SECTION UPDATE
+You are editing a specific section of a larger document. The user has selected the section "${focusedSection.title}" for editing.
 
-DOCUMENT CONTEXT:
-${sectionsContext}${focusContext}
+FULL DOCUMENT STRUCTURE:
+${sectionsContext}
+
+CURRENT SECTION BEING EDITED:
+## ${focusedSection.title} (Level ${focusedSection.level})
+${focusedSection.content}
 
 USER REQUEST: ${userPrompt}
 
-${outputInstructions}
+IMPORTANT: You should ONLY return the updated content for the "${focusedSection.title}" section. Do NOT include the entire document or other sections in your response.`
+
+			outputFormat = `
+<output_format>
+Return ONLY the updated content for the "${focusedSection.title}" section. Your response should be the new content that will replace the existing section content.
+
+ACCEPTABLE FORMATS:
+1. Plain text content (will be inserted as-is into the section)
+2. Markdown content with subsections (H3, H4, etc.) that belong under "${focusedSection.title}"
+
+DO NOT INCLUDE:
+- The section heading itself (## ${focusedSection.title})
+- Other sections from the document
+- Complete document restructure
+- Content that belongs to other sections
+</output_format>`
+		} else {
+			// Full document mode
+			taskInstructions = `
+EDITING MODE: FULL DOCUMENT
+You are working with the entire document. The user has not selected a specific section.
+
+FULL DOCUMENT:
+${sectionsContext}
+
+USER REQUEST: ${userPrompt}`
+
+			outputFormat = `
+<output_format>
+Since no specific section is selected, you can:
+1. Add new sections to the document
+2. Provide content that spans multiple sections
+3. Suggest document-wide improvements
+
+Format your response as complete markdown with appropriate headings.
+</output_format>`
+		}
+
+		return `You are an expert document editor and content creator working with specialized chatbot expertise.${chatbotExpertise}
+
+${taskInstructions}
+
+${outputFormat}
 
 INSTRUCTIONS:
 1. Apply your specialized expertise to the document editing task
 2. Analyze the user's request in the context of the provided document
-3. If the user is asking to edit a specific section, focus your response on that section
-4. If the user is asking general questions, provide answers based on the full document context
-5. For editing requests, provide the updated content that should replace the existing section
-6. Maintain the document's style and tone while applying your expertise
+3. Maintain the document's style and tone while applying your expertise
+4. Focus on providing valuable, actionable content improvements
+5. Ensure your response integrates well with the existing document structure
 
 Please provide your response now:`
 	}

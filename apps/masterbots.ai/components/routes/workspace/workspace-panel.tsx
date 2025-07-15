@@ -6,6 +6,7 @@ import { useDeepThinking } from '@/lib/hooks/use-deep-thinking'
 import { usePowerUp } from '@/lib/hooks/use-power-up'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useWorkspace } from '@/lib/hooks/use-workspace'
+import { useWorkspaceChat } from '@/lib/hooks/use-workspace-chat'
 import { cn } from '@/lib/utils'
 import {
 	BrainIcon,
@@ -57,6 +58,9 @@ export function WorkspacePanel({
 		documentList,
 	} = useWorkspace()
 
+	// Add workspace chat hook to handle active section changes
+	const { setActiveWorkspaceSection } = useWorkspaceChat()
+
 	const hiddenAnimationClasses =
 		'p-2 gap-0 w-auto relative overflow-hidden [&:hover_span]:opacity-100 [&:hover_span]:w-auto [&:hover_span]:duration-300 [&:hover_svg]:mr-2 [&:hover_span]:transition-all'
 	const hiddenAnimationItemClasses =
@@ -66,6 +70,19 @@ export function WorkspacePanel({
 		// Logic to handle AI assistance with the current document section
 		console.log('AI assist requested for document:', activeDocument)
 	}, [activeDocument])
+
+	// Handle section selection changes in the workspace content
+	const handleActiveSectionChange = useCallback(
+		(sectionId: string | null) => {
+			console.log('🎯 WorkspacePanel: Active section changed:', sectionId)
+			setActiveWorkspaceSection(sectionId)
+			console.log(
+				'🎯 WorkspacePanel: Section set in workspace chat hook:',
+				sectionId,
+			)
+		},
+		[setActiveWorkspaceSection],
+	)
 
 	if (!isPro) {
 		return (
@@ -183,6 +200,7 @@ export function WorkspacePanel({
 								projectName={activeProject}
 								documentName={activeDocument}
 								isLoading={isLoading}
+								onActiveSectionChange={handleActiveSectionChange}
 							/>
 							<WorkspaceForm
 								onAIAssist={handleAIAssist}
