@@ -1,12 +1,20 @@
 import { BrowseThreadBlog } from '@/components/routes/browse/browse-thread-blog'
+import { UserThreadList } from '@/components/routes/profile/user-thread-list'
 import { ErrorComponent } from '@/components/shared/error'
 import { botNames } from '@/lib/constants/bots-names'
 import { generateMbMetadata } from '@/lib/metadata'
 import { getCanonicalDomain, urlBuilders } from '@/lib/url'
-import { getCategory, getThread } from '@/services/hasura'
+import {
+	getBrowseThreads,
+	getCategory,
+	getThread,
+	getThreads,
+	getUserBySlug,
+} from '@/services/hasura'
 import type { User } from 'mb-genql'
 import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
+import { Suspense } from 'react'
 
 interface ThreadPageProps {
 	params: Promise<{
@@ -17,9 +25,10 @@ interface ThreadPageProps {
 		chatbot: string
 	}>
 }
-
+const PAGE_SM_SIZE = 10 // Adjust this based on your needs
 export default async function ThreadQuestionPage(props: ThreadPageProps) {
 	const params = await props.params
+	const { chatbot, userSlug } = params
 	const thread = await getThread({
 		threadSlug: params.threadSlug,
 		jwt: '',
@@ -31,13 +40,58 @@ export default async function ThreadQuestionPage(props: ThreadPageProps) {
 			<ErrorComponent message="The thread that you were looking for either doesn't exist or is not available." />
 		)
 	}
-	const { threadId } = thread
+
+	const { user } = await getUserBySlug({
+		isSameUser: session?.user.slug === userSlug,
+		slug: userSlug as string,
+	})
+	if (!user) return <ErrorComponent message="User not found" />
+
+	const chatbotName = (await botNames).get(chatbot as string)
+	if (!chatbotName) {
+		return <ErrorComponent message={`Chatbot name for ${chatbot} not found`} />
+	}
+	const fetchThreads = async () => {
+		try {
+			const isOwnProfile = session?.user?.id === user?.userId
+			if (!isOwnProfile) {
+				return await getBrowseThreads({
+					userId: user.userId,
+					chatbotName,
+					limit: PAGE_SM_SIZE,
+				})
+			}
+
+			const jwt = session ? session.user?.hasuraJwt : null
+			if (!jwt) {
+				throw new Error('Authentication required')
+			}
+
+			return await getThreads({
+				jwt,
+				userId: user.userId,
+				chatbotName,
+				limit: PAGE_SM_SIZE,
+			})
+		} catch (error) {
+			console.error('Failed to fetch threads:', error)
+			return {
+				threads: [],
+				count: 0,
+			}
+		}
+	}
+
+	const threadsResult = await fetchThreads()
 
 	return (
-		<BrowseThreadBlog
-			threadId={threadId}
-			user={session?.user as unknown as User}
-		/>
+		<Suspense fallback={null}>
+			<UserThreadList
+				user={user as User}
+				count={threadsResult.count}
+				threads={threadsResult.threads}
+			/>
+		</Suspense>
 	)
 }
 
