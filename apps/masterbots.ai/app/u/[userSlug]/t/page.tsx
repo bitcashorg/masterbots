@@ -1,5 +1,6 @@
 import { authOptions } from '@/auth'
 import { UserThreadList } from '@/components/routes/profile/user-thread-list'
+import { ErrorComponent } from '@/components/shared/error'
 import { generateMetadataFromSEO } from '@/lib/metadata'
 import {
 	getBrowseThreads,
@@ -32,17 +33,8 @@ export default async function ProfilePage(props: {
 	})
 
 	if (error)
-		return (
-			<div className="text-center p-4">
-				Error loading profile: <strong>{error}</strong>
-			</div>
-		)
-	if (!user)
-		return (
-			<div className="text-center p-4">
-				User <strong>{params.userSlug}</strong> not found
-			</div>
-		)
+		return <ErrorComponent message={`Error loading profile: ${error}`} />
+	if (!user) return <ErrorComponent message="User not found" />
 
 	const fetchThreads = async () => {
 		try {

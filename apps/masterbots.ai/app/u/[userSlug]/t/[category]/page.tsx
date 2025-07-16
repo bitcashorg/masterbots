@@ -1,5 +1,6 @@
 import { authOptions } from '@/auth'
 import { UserThreadList } from '@/components/routes/profile/user-thread-list'
+import { ErrorComponent } from '@/components/shared/error'
 import {
 	getBrowseThreads,
 	getCategories,
@@ -35,24 +36,9 @@ export default async function BrowseCategoryPage(props: {
 		isSameUser: session?.user.slug === slug,
 	})
 
-	if (!category)
-		return (
-			<div className="text-center p-4">
-				Category <strong>{params.category}</strong> not found
-			</div>
-		)
-	if (error)
-		return (
-			<div className="text-center p-4">
-				Error loading profile: <strong>{error}</strong>
-			</div>
-		)
-	if (!user)
-		return (
-			<div className="text-center p-4">
-				User <strong>{slug}</strong> not found
-			</div>
-		)
+	if (!category) return <ErrorComponent message="Category not found" />
+	if (error) return <ErrorComponent message={error} />
+	if (!user) return <ErrorComponent message="User not found" />
 
 	const fetchThreads = async () => {
 		try {
