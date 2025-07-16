@@ -100,6 +100,7 @@ export default function UserThreadPanel({
 	} = useThreadVisibility()
 	const [searchTerm, setSearchTerm] = useState<string>('')
 	const searchParams = useSearchParams()
+
 	const { userSlug, category, chatbot, botSlug } = params
 	const continuousThreadId = searchParams.get('continuousThreadId')
 	const [adminThreads, setAdminThreads] = useState<Thread[]>(initialThreads)
@@ -169,8 +170,18 @@ export default function UserThreadPanel({
 			threads: [],
 			count: 0,
 		}
+		let chatbotName = ''
 
 		const isOwnProfile = session?.user?.id === userProps?.userId
+
+		if (chatbot || botSlug || activeChatbot) {
+			const botSlugs = await botNames
+			chatbotName =
+				botSlugs.get(chatbot as string) ||
+				botSlugs.get(botSlug as string) ||
+				activeChatbot?.name ||
+				''
+		}
 
 		if (isAdminMode || (page === 'profile' && !isOwnProfile)) {
 			moreThreads = await fetchBrowseThreads({
@@ -183,7 +194,7 @@ export default function UserThreadPanel({
 				offset: threads.length,
 				limit: PAGE_SIZE,
 				categoryId: activeCategory,
-				chatbotName: activeChatbot?.name,
+				chatbotName,
 			})
 		}
 
