@@ -100,6 +100,7 @@ type Category {
     where: ChatbotCategoryBoolExp
   ): ChatbotCategoryAggregate!
   name: String!
+  order: Int!
 }
 
 """
@@ -132,6 +133,7 @@ aggregate avg on columns
 """
 type CategoryAvgFields {
   categoryId: Float
+  order: Float
 }
 
 """
@@ -145,6 +147,7 @@ input CategoryBoolExp {
   chatbots: ChatbotCategoryBoolExp
   chatbotsAggregate: ChatbotCategoryAggregateBoolExp
   name: StringComparisonExp
+  order: IntComparisonExp
 }
 
 """
@@ -559,6 +562,7 @@ input type for incrementing numeric columns in table "category"
 """
 input CategoryIncInput {
   categoryId: Int
+  order: Int
 }
 
 """
@@ -568,6 +572,7 @@ input CategoryInsertInput {
   categoryId: Int
   chatbots: ChatbotCategoryArrRelInsertInput
   name: String
+  order: Int
 }
 
 """
@@ -576,6 +581,7 @@ aggregate max on columns
 type CategoryMaxFields {
   categoryId: Int
   name: String
+  order: Int
 }
 
 """
@@ -584,6 +590,7 @@ aggregate min on columns
 type CategoryMinFields {
   categoryId: Int
   name: String
+  order: Int
 }
 
 """
@@ -629,6 +636,7 @@ input CategoryOrderBy {
   categoryId: OrderBy
   chatbotsAggregate: ChatbotCategoryAggregateOrderBy
   name: OrderBy
+  order: OrderBy
 }
 
 """
@@ -651,6 +659,11 @@ enum CategorySelectColumn {
   column name
   """
   name
+
+  """
+  column name
+  """
+  order
 }
 
 """
@@ -659,6 +672,7 @@ input type for updating data in table "category"
 input CategorySetInput {
   categoryId: Int
   name: String
+  order: Int
 }
 
 """
@@ -666,6 +680,7 @@ aggregate stddev on columns
 """
 type CategoryStddevFields {
   categoryId: Float
+  order: Float
 }
 
 """
@@ -673,6 +688,7 @@ aggregate stddevPop on columns
 """
 type CategoryStddevPopFields {
   categoryId: Float
+  order: Float
 }
 
 """
@@ -680,6 +696,7 @@ aggregate stddevSamp on columns
 """
 type CategoryStddevSampFields {
   categoryId: Float
+  order: Float
 }
 
 """
@@ -703,6 +720,7 @@ Initial value of the column from where the streaming should start
 input CategoryStreamCursorValueInput {
   categoryId: Int
   name: String
+  order: Int
 }
 
 """
@@ -710,6 +728,7 @@ aggregate sum on columns
 """
 type CategorySumFields {
   categoryId: Int
+  order: Int
 }
 
 """
@@ -725,6 +744,11 @@ enum CategoryUpdateColumn {
   column name
   """
   name
+
+  """
+  column name
+  """
+  order
 }
 
 input CategoryUpdates {
@@ -749,6 +773,7 @@ aggregate varPop on columns
 """
 type CategoryVarPopFields {
   categoryId: Float
+  order: Float
 }
 
 """
@@ -756,6 +781,7 @@ aggregate varSamp on columns
 """
 type CategoryVarSampFields {
   categoryId: Float
+  order: Float
 }
 
 """
@@ -763,6 +789,7 @@ aggregate variance on columns
 """
 type CategoryVarianceFields {
   categoryId: Float
+  order: Float
 }
 
 """
@@ -842,6 +869,7 @@ type Chatbot {
   defaultTone: String
   defaultType: String
   description: String
+  disabled: Boolean
 
   """
   An array relationship
@@ -968,6 +996,7 @@ type Chatbot {
     where: ChatbotDomainBoolExp
   ): ChatbotDomainAggregate!
   name: String!
+  order: Int!
 
   """
   An array relationship
@@ -1169,6 +1198,8 @@ type ChatbotAggregate {
 }
 
 input ChatbotAggregateBoolExp {
+  bool_and: chatbotAggregateBoolExpBool_and
+  bool_or: chatbotAggregateBoolExpBool_or
   count: chatbotAggregateBoolExpCount
 }
 
@@ -1223,6 +1254,7 @@ aggregate avg on columns
 """
 type ChatbotAvgFields {
   chatbotId: Float
+  order: Float
 }
 
 """
@@ -1230,6 +1262,7 @@ order by avg() on columns of table "chatbot"
 """
 input ChatbotAvgOrderBy {
   chatbotId: OrderBy
+  order: OrderBy
 }
 
 """
@@ -1250,12 +1283,14 @@ input ChatbotBoolExp {
   defaultTone: StringComparisonExp
   defaultType: StringComparisonExp
   description: StringComparisonExp
+  disabled: BooleanComparisonExp
   followers: SocialFollowingBoolExp
   followersAggregate: SocialFollowingAggregateBoolExp
   lengthEnum: LengthEnumBoolExp
   metadata: ChatbotDomainBoolExp
   metadataAggregate: ChatbotDomainAggregateBoolExp
   name: StringComparisonExp
+  order: IntComparisonExp
   preferences: PreferenceBoolExp
   preferencesAggregate: PreferenceAggregateBoolExp
   prompts: PromptChatbotBoolExp
@@ -2061,6 +2096,7 @@ input type for incrementing numeric columns in table "chatbot"
 """
 input ChatbotIncInput {
   chatbotId: Int
+  order: Int
 }
 
 """
@@ -2077,10 +2113,12 @@ input ChatbotInsertInput {
   defaultTone: String
   defaultType: String
   description: String
+  disabled: Boolean
   followers: SocialFollowingArrRelInsertInput
   lengthEnum: LengthEnumObjRelInsertInput
   metadata: ChatbotDomainArrRelInsertInput
   name: String
+  order: Int
   preferences: PreferenceArrRelInsertInput
   prompts: PromptChatbotArrRelInsertInput
   threads: ThreadArrRelInsertInput
@@ -2101,6 +2139,7 @@ type ChatbotMaxFields {
   defaultType: String
   description: String
   name: String
+  order: Int
 }
 
 """
@@ -2116,6 +2155,7 @@ input ChatbotMaxOrderBy {
   defaultType: OrderBy
   description: OrderBy
   name: OrderBy
+  order: OrderBy
 }
 
 """
@@ -2131,6 +2171,7 @@ type ChatbotMinFields {
   defaultType: String
   description: String
   name: String
+  order: Int
 }
 
 """
@@ -2146,6 +2187,7 @@ input ChatbotMinOrderBy {
   defaultType: OrderBy
   description: OrderBy
   name: OrderBy
+  order: OrderBy
 }
 
 """
@@ -2198,10 +2240,12 @@ input ChatbotOrderBy {
   defaultTone: OrderBy
   defaultType: OrderBy
   description: OrderBy
+  disabled: OrderBy
   followersAggregate: SocialFollowingAggregateOrderBy
   lengthEnum: LengthEnumOrderBy
   metadataAggregate: ChatbotDomainAggregateOrderBy
   name: OrderBy
+  order: OrderBy
   preferencesAggregate: PreferenceAggregateOrderBy
   promptsAggregate: PromptChatbotAggregateOrderBy
   threadsAggregate: ThreadAggregateOrderBy
@@ -2263,7 +2307,37 @@ enum ChatbotSelectColumn {
   """
   column name
   """
+  disabled
+
+  """
+  column name
+  """
   name
+
+  """
+  column name
+  """
+  order
+}
+
+"""
+select "chatbotAggregateBoolExpBool_andArgumentsColumns" columns of table "chatbot"
+"""
+enum ChatbotSelectColumnChatbotAggregateBoolExpBool_andArgumentsColumns {
+  """
+  column name
+  """
+  disabled
+}
+
+"""
+select "chatbotAggregateBoolExpBool_orArgumentsColumns" columns of table "chatbot"
+"""
+enum ChatbotSelectColumnChatbotAggregateBoolExpBool_orArgumentsColumns {
+  """
+  column name
+  """
+  disabled
 }
 
 """
@@ -2278,7 +2352,9 @@ input ChatbotSetInput {
   defaultTone: String
   defaultType: String
   description: String
+  disabled: Boolean
   name: String
+  order: Int
 }
 
 """
@@ -2286,6 +2362,7 @@ aggregate stddev on columns
 """
 type ChatbotStddevFields {
   chatbotId: Float
+  order: Float
 }
 
 """
@@ -2293,6 +2370,7 @@ order by stddev() on columns of table "chatbot"
 """
 input ChatbotStddevOrderBy {
   chatbotId: OrderBy
+  order: OrderBy
 }
 
 """
@@ -2300,6 +2378,7 @@ aggregate stddevPop on columns
 """
 type ChatbotStddevPopFields {
   chatbotId: Float
+  order: Float
 }
 
 """
@@ -2307,6 +2386,7 @@ order by stddevPop() on columns of table "chatbot"
 """
 input ChatbotStddevPopOrderBy {
   chatbotId: OrderBy
+  order: OrderBy
 }
 
 """
@@ -2314,6 +2394,7 @@ aggregate stddevSamp on columns
 """
 type ChatbotStddevSampFields {
   chatbotId: Float
+  order: Float
 }
 
 """
@@ -2321,6 +2402,7 @@ order by stddevSamp() on columns of table "chatbot"
 """
 input ChatbotStddevSampOrderBy {
   chatbotId: OrderBy
+  order: OrderBy
 }
 
 """
@@ -2350,7 +2432,9 @@ input ChatbotStreamCursorValueInput {
   defaultTone: String
   defaultType: String
   description: String
+  disabled: Boolean
   name: String
+  order: Int
 }
 
 """
@@ -2358,6 +2442,7 @@ aggregate sum on columns
 """
 type ChatbotSumFields {
   chatbotId: Int
+  order: Int
 }
 
 """
@@ -2365,6 +2450,7 @@ order by sum() on columns of table "chatbot"
 """
 input ChatbotSumOrderBy {
   chatbotId: OrderBy
+  order: OrderBy
 }
 
 """
@@ -2414,7 +2500,17 @@ enum ChatbotUpdateColumn {
   """
   column name
   """
+  disabled
+
+  """
+  column name
+  """
   name
+
+  """
+  column name
+  """
+  order
 }
 
 input ChatbotUpdates {
@@ -2439,6 +2535,7 @@ aggregate varPop on columns
 """
 type ChatbotVarPopFields {
   chatbotId: Float
+  order: Float
 }
 
 """
@@ -2446,6 +2543,7 @@ order by varPop() on columns of table "chatbot"
 """
 input ChatbotVarPopOrderBy {
   chatbotId: OrderBy
+  order: OrderBy
 }
 
 """
@@ -2453,6 +2551,7 @@ aggregate varSamp on columns
 """
 type ChatbotVarSampFields {
   chatbotId: Float
+  order: Float
 }
 
 """
@@ -2460,6 +2559,7 @@ order by varSamp() on columns of table "chatbot"
 """
 input ChatbotVarSampOrderBy {
   chatbotId: OrderBy
+  order: OrderBy
 }
 
 """
@@ -2467,6 +2567,7 @@ aggregate variance on columns
 """
 type ChatbotVarianceFields {
   chatbotId: Float
+  order: Float
 }
 
 """
@@ -2474,6 +2575,7 @@ order by variance() on columns of table "chatbot"
 """
 input ChatbotVarianceOrderBy {
   chatbotId: OrderBy
+  order: OrderBy
 }
 
 """
@@ -11307,6 +11409,7 @@ type User {
   ): PreferenceAggregate!
   proUserSubscriptionId: String!
   profilePicture: String
+  promoCode: String
 
   """
   An array relationship
@@ -11656,6 +11759,7 @@ input UserBoolExp {
   preferencesAggregate: PreferenceAggregateBoolExp
   proUserSubscriptionId: StringComparisonExp
   profilePicture: StringComparisonExp
+  promoCode: StringComparisonExp
   prompts: PromptUserBoolExp
   promptsAggregate: PromptUserAggregateBoolExp
   referrals: ReferralBoolExp
@@ -11717,6 +11821,7 @@ input UserInsertInput {
   preferences: PreferenceArrRelInsertInput
   proUserSubscriptionId: String
   profilePicture: String
+  promoCode: String
   prompts: PromptUserArrRelInsertInput
   referrals: ReferralArrRelInsertInput
   referralsByUserId: ReferralArrRelInsertInput
@@ -11741,6 +11846,7 @@ type UserMaxFields {
   password: String
   proUserSubscriptionId: String
   profilePicture: String
+  promoCode: String
   role: user_role
   slug: String
   userId: uuid
@@ -11760,6 +11866,7 @@ type UserMinFields {
   password: String
   proUserSubscriptionId: String
   profilePicture: String
+  promoCode: String
   role: user_role
   slug: String
   userId: uuid
@@ -11822,6 +11929,7 @@ input UserOrderBy {
   preferencesAggregate: PreferenceAggregateOrderBy
   proUserSubscriptionId: OrderBy
   profilePicture: OrderBy
+  promoCode: OrderBy
   promptsAggregate: PromptUserAggregateOrderBy
   referralsAggregate: ReferralAggregateOrderBy
   referralsByUserIdAggregate: ReferralAggregateOrderBy
@@ -11922,6 +12030,11 @@ enum UserSelectColumn {
   """
   column name
   """
+  promoCode
+
+  """
+  column name
+  """
   role
 
   """
@@ -11956,6 +12069,7 @@ input UserSetInput {
   password: String
   proUserSubscriptionId: String
   profilePicture: String
+  promoCode: String
   role: user_role
   slug: String
   userId: uuid
@@ -11993,6 +12107,7 @@ input UserStreamCursorValueInput {
   password: String
   proUserSubscriptionId: String
   profilePicture: String
+  promoCode: String
   role: user_role
   slug: String
   userId: uuid
@@ -12306,6 +12421,11 @@ enum UserUpdateColumn {
   """
   column name
   """
+  promoCode
+
+  """
+  column name
+  """
   role
 
   """
@@ -12380,6 +12500,20 @@ input categoryEnumAggregateBoolExpCount {
   distinct: Boolean
   filter: CategoryEnumBoolExp
   predicate: IntComparisonExp!
+}
+
+input chatbotAggregateBoolExpBool_and {
+  arguments: ChatbotSelectColumnChatbotAggregateBoolExpBool_andArgumentsColumns!
+  distinct: Boolean
+  filter: ChatbotBoolExp
+  predicate: BooleanComparisonExp!
+}
+
+input chatbotAggregateBoolExpBool_or {
+  arguments: ChatbotSelectColumnChatbotAggregateBoolExpBool_orArgumentsColumns!
+  distinct: Boolean
+  filter: ChatbotBoolExp
+  predicate: BooleanComparisonExp!
 }
 
 input chatbotAggregateBoolExpCount {
