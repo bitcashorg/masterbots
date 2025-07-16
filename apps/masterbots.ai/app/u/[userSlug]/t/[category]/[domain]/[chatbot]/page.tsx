@@ -1,5 +1,6 @@
 import { authOptions } from '@/auth'
 import { UserThreadList } from '@/components/routes/profile/user-thread-list'
+import { ErrorComponent } from '@/components/shared/error'
 import { botNames } from '@/lib/constants/bots-names'
 import { PAGE_SM_SIZE } from '@/lib/constants/hasura'
 import { generateMetadataFromSEO } from '@/lib/metadata'
@@ -32,11 +33,11 @@ export default async function ProfileChatBot(props: PageProps) {
 		isSameUser: session?.user.slug === userSlug,
 		slug: userSlug as string,
 	})
-	if (!user) return <div>No user found</div>
+	if (!user) return <ErrorComponent message={error || 'User not found'} />
 
 	const chatbotName = (await botNames).get(chatbot as string)
 	if (!chatbotName) {
-		throw new Error(`Chatbot name for ${chatbot} not found`)
+		return <ErrorComponent message={`Chatbot name for ${chatbot} not found`} />
 	}
 
 	const fetchThreads = async () => {

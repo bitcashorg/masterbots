@@ -226,12 +226,13 @@ export function Plans({ next, goTo, close }: PlansPros) {
 				{plans?.find((plan) => plan.unit_amount === 0) &&
 					(() => {
 						const freePlan = plans.find((plan) => plan.unit_amount === 0)
+						if (!freePlan) return null
 						return (
 							<PlanCard
-								key={freePlan?.id}
+								key={freePlan.id}
 								selectedPlan={selectedPlan}
 								handlePlanChange={handlePlanChange}
-								plan={freePlan || {}}
+								plan={freePlan}
 								isPurchased={isPlanPurchased('free')}
 							/>
 						)

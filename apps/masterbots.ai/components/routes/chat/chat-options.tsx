@@ -160,10 +160,6 @@ export function ChatOptions({ threadId, thread, pair }: ChatOptionsProps) {
 		</AlertDialog>
 	)
 
-	// console.log({
-	// 	"The Pair here": pair
-	// })
-
 	return (
 		<div className="flex items-center gap-4 sm:gap-3 pt-[3px]">
 			<AlertDialogue deleteDialogOpen={isDeleteOpen} />
