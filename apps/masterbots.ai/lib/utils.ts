@@ -317,7 +317,9 @@ export function getRouteType(pathname: string | null): RouteType {
 	if (
 		normalizedPath.startsWith('/c') &&
 		normalizedPath !== '/career' &&
-		!normalizedPath.startsWith('/career/')
+		!normalizedPath.startsWith('/career/') &&
+		normalizedPath !== '/content-creation' &&
+		!normalizedPath.startsWith('/content-creation/')
 	) {
 		return 'chat'
 	}
