@@ -96,6 +96,8 @@ export const imageHelpers = {
 	/**
 	 * Extract images from an array of messages
 	 */
+
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	extractImagesFromMessages: (messages: any[]): GeneratedImage[] => {
 		return messages.filter(isImageMessage).map((message) => message.image)
 	},
