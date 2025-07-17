@@ -125,8 +125,8 @@ const canonicalPathnames = [
 	'/development/technical-documentation/docsbot',
 	'/development/software-debugging-troubleshooting/debugbot',
 	'/development/version-control-repository-management/gitbot',
-	'/development/backend-development/backendbot',
-	'/development/frontend-development/frontendbot',
+	'/development/backend-development/be-bot',
+	'/development/frontend-development/fe-bot',
 	'/development/software-architecture/architechie',
 	'/development/devops-cloud-infrastructure/devopsbot',
 	'/development/blockchain-development-security/blockchainbot',
@@ -184,6 +184,14 @@ const canonicalPathnames = [
 	'/religion/jewish-studies-theology/judaismbot',
 	'/religion/hindu-studies-theology/hinduismbot',
 	'/religion/buddhist-studies-philosophy/buddhismbot',
+	'/product/user-experience-design/ux-designbot',
+	'/development/devops-cloud-infrastructure/devopsbot',
+	'/content-creation/social-media-content-marketing/startupsocialbot',
+	'/service-business/natural-health/healthbot',
+	'/marketing/market-analysis-strategy/marketstrategybot',
+	'/marketing/business-development-sales/bd-bot',
+	'/development/technical-documentation-apis/docbot',
+	'/education/educational-learning-platforms/learnbot',
 ]
 
 export const canonicalChatbotDomains = canonicalPathnames.map((pathname) => {

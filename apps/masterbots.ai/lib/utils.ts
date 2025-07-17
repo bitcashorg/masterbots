@@ -330,7 +330,11 @@ export function getRouteType(pathname: string | null): RouteType {
 	}
 
 	// ? Check for bot routes (starting with /b)
-	if (normalizedPath.startsWith('/b')) {
+	if (
+		normalizedPath.startsWith('/b') &&
+		normalizedPath !== '/biotech' &&
+		!normalizedPath.startsWith('/biotech/')
+	) {
 		return 'bot'
 	}
 

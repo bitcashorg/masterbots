@@ -208,4 +208,8 @@ export const domainSlugs = [
 	'jewish-studies-theology',
 	'hindu-studies-theology',
 	'buddhist-studies-philosophy',
+	'market-analysis-strategy',
+	'business-development-sales',
+	'technical-documentation-apis',
+	'educational-learning-platforms',
 ]
