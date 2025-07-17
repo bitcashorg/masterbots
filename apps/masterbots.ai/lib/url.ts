@@ -123,6 +123,10 @@ export function normalizeDomainSlug(domain: string, raw?: boolean): string {
 	return domainSlug
 }
 
+export function normalizeCategorySlug(category: string): string {
+	return category.toLowerCase().trim().replace(/\s/g, '-')
+}
+
 export const urlBuilders = {
 	/**
 	 * Constructs and returns a URL for a thread list based on the provided parameters.
@@ -167,7 +171,7 @@ export const urlBuilders = {
 
 			// Return the URL with the thread slug
 			const pathParts = basePath ? ['', basePath] : ['']
-			pathParts.push(category.toLowerCase())
+			pathParts.push(normalizeCategorySlug(category))
 			return pathParts.join('/')
 		} catch (error) {
 			if (appConfig.features.devMode)
@@ -231,7 +235,7 @@ export const urlBuilders = {
 			// Return the URL with the thread slug
 			const pathParts = basePath ? ['', basePath] : ['']
 			pathParts.push(
-				category.toLowerCase(),
+				normalizeCategorySlug(category),
 				normalizeDomainSlug(domain, raw),
 				chatbot.toLowerCase(),
 			)
@@ -299,7 +303,7 @@ export const urlBuilders = {
 			// Return the URL with the thread slug
 			const pathParts = basePath ? ['', basePath] : ['']
 			pathParts.push(
-				category.toLowerCase(),
+				normalizeCategorySlug(category),
 				normalizeDomainSlug(domain, raw),
 				chatbot.toLowerCase(),
 				threadSlug,
@@ -382,7 +386,7 @@ export const urlBuilders = {
 			// Return the URL with the thread slug
 			const pathParts = basePath ? ['', basePath] : ['']
 			pathParts.push(
-				category.toLowerCase(),
+				normalizeCategorySlug(category),
 				normalizeDomainSlug(domain, raw),
 				chatbot.toLowerCase(),
 				threadSlug,
@@ -466,7 +470,9 @@ export const urlBuilders = {
 				return '/'
 			}
 
-			return ['', 'u', usernameSlug, 't', category.toLowerCase()].join('/')
+			return ['', 'u', usernameSlug, 't', normalizeCategorySlug(category)].join(
+				'/',
+			)
 		} catch (error) {
 			if (appConfig.features.devMode)
 				console.error('Error constructing profile URL:', error)
@@ -501,7 +507,7 @@ export const urlBuilders = {
 				'u',
 				usernameSlug,
 				't',
-				category.toLowerCase(),
+				normalizeCategorySlug(category),
 				normalizeDomainSlug(domain, raw),
 				chatbot.toLowerCase(),
 			].join('/')
@@ -570,7 +576,7 @@ export const urlBuilders = {
 						'u',
 						usernameSlug,
 						't',
-						category.toLowerCase(),
+						normalizeCategorySlug(category),
 						normalizeDomainSlug(domain, raw),
 						chatbot.toLowerCase(),
 						threadSlug,
@@ -653,7 +659,7 @@ export const urlBuilders = {
 						'u',
 						usernameSlug,
 						't',
-						category.toLowerCase(),
+						normalizeCategorySlug(category),
 						normalizeDomainSlug(domain, raw),
 						chatbot.toLowerCase(),
 						threadSlug,
