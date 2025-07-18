@@ -21,6 +21,14 @@ import { toSlug } from 'mb-lib'
 import { wordsToRemove } from 'mb-lib/src/constants/slug-seo-words'
 import { type ZodSchema, z } from 'zod'
 
+type PathParams = {
+	category: string
+	domain: string
+	chatbot: string
+	threadSlug: string
+	threadQuestionSlug: string
+}
+
 // Zod schema for validating slug strings
 export const SlugSchema: ZodSchema<string> = z
 	.string()
@@ -339,6 +347,18 @@ export const urlBuilders = {
 		raw = false,
 	}: ThreadQuestionUrlParams): string {
 		try {
+			if (type === 'bot') {
+				if (!chatbot || !threadSlug || !threadQuestionSlug) {
+					return '/'
+				}
+				if (!threadQuestionSlug) {
+					return ['', 'b', toSlug(chatbot), threadSlug].join('/')
+				}
+				return ['', 'b', toSlug(chatbot), threadSlug, threadQuestionSlug].join(
+					'/',
+				)
+			}
+
 			if (
 				!category ||
 				!chatbot ||
@@ -711,9 +731,7 @@ export const urlBuilders = {
 					)
 				return '/'
 			}
-			return ['', 'b', chatbot.toLowerCase(), normalizeDomainSlug(domain)].join(
-				'/',
-			)
+			return ['', 'b', chatbot.toLowerCase()].join('/')
 		} catch (error) {
 			if (appConfig.features.devMode)
 				console.error('Error constructing profile URL:', error)
@@ -850,4 +868,38 @@ async function findUniqueSlugRecursive(
 		maxAttempts,
 		delayDoesSlugExist,
 	)
+}
+
+export function parsePath(pathname: string): PathParams {
+	const segments = pathname.split('/').filter(Boolean)
+	const isProfileThread = segments[0] === 'u' && segments[2] === 't'
+	const isBotProfile = segments[0] === 'b'
+
+	if (isBotProfile) {
+		return {
+			chatbot: segments[1],
+			threadSlug: segments[2],
+			threadQuestionSlug: segments[3] || '',
+			category: '',
+			domain: '',
+		}
+	}
+
+	if (isProfileThread) {
+		return {
+			category: segments[3],
+			domain: segments[4],
+			chatbot: segments[5],
+			threadSlug: segments[6],
+			threadQuestionSlug: segments[7],
+		}
+	}
+
+	return {
+		category: segments[0],
+		domain: segments[1],
+		chatbot: segments[2],
+		threadSlug: segments[3],
+		threadQuestionSlug: segments[4],
+	}
 }

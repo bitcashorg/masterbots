@@ -194,6 +194,7 @@ export function SharedAccordion({
 		} else if (botProfile) {
 			navigateTo({
 				urlType: 'profilesThreadUrl',
+				shallow: true,
 				navigationParams: {
 					type: 'chatbot',
 					chatbot: fullThread?.chatbot?.name || 'Masterbots',
@@ -281,7 +282,6 @@ export function SharedAccordion({
 
 				return
 			}
-
 			setIsOpenPopup(false)
 			setActiveThread(null)
 
@@ -289,6 +289,7 @@ export function SharedAccordion({
 				console.error('Missing required navigation parameters')
 				return
 			}
+
 			navigateTo({
 				urlType: 'profilesThreadUrl',
 				navigationParams: {
