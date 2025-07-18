@@ -151,6 +151,7 @@ export async function PUT(req: NextRequest) {
 
 			//? Transform the subscription data to match the expected format
 			const customer = expandedSubscription.customer as Stripe.Customer
+			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 			const plan = expandedSubscription.items.data[0]?.plan as any
 			const product = plan?.product as Stripe.Product
 
