@@ -90,8 +90,11 @@ export default function ThreadComponent({
 				<div className="ml-auto flex gap-1.5 items-start justify-center group">
 					{thread.thread && (
 						<Tooltip>
-							<TooltipTrigger className="transition-all items-center leading-none opacity-30 hover:opacity-100 focus-within:opacity-100 mt-2.5 px-1.5 py-0.5 w-auto text-[10px] font-medium rounded-md bg-accent text-accent-foreground">
-								Continued
+							<TooltipTrigger
+								asChild
+								className="transition-all items-center leading-none opacity-30 hover:opacity-100 focus-within:opacity-100 mt-2.5 px-1.5 py-0.5 w-auto text-[10px] font-medium rounded-md bg-accent text-accent-foreground"
+							>
+								<span>Continued</span>
 							</TooltipTrigger>
 							<TooltipContent>
 								Continued thread from <b>{thread.thread.user?.username}</b>.
