@@ -92,11 +92,10 @@ export function MessagePairAccordion({
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const toggleThreadQuestionUrl = useCallback(
 		(isOpen: boolean, isFirstQuestion: boolean) => {
+			setIsAccordionFocused(isOpen)
 			if (!isFirstQuestion) {
-				setIsAccordionFocused(isOpen)
 				return
 			}
-			setIsAccordionFocused(isOpen)
 			// console.log('window.location.pathname.split', window.location.pathname.split('/'))
 			// ? Chat Thread URL
 			const [

@@ -99,7 +99,12 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 	const { customSonner } = useSonner()
 	const { isPowerUp } = usePowerUp()
 	const { setIsCutOff } = useContinueGeneration()
-	const params = useParams<{ chatbot: string; threadSlug: string }>()
+	const params = useParams<{
+		chatbot: string
+		threadSlug?: string
+		threadQuestionSlug?: string
+		category: string
+	}>()
 	const { selectedModel, clientType } = useModel()
 
 	// const initialIsNewChat = Boolean(isContinuousThread || !activeThread?.messages.length)
@@ -502,18 +507,21 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						(thread.messages.length > 0 && thread.messages.length <= 2)
 					) {
 						// console.log('thread', thread)
-						const canonicalDomain = getCanonicalDomain(
-							activeChatbot?.name || 'blankbot',
-						)
+						const domain = getCanonicalDomain(activeChatbot?.name || 'blankbot')
+						const category =
+							activeChatbot?.categories[0].category.name || params.category
+						const chatbot = activeChatbot?.name || params.chatbot
+						const threadSlug = params?.threadSlug || thread.slug
+
 						navigateTo({
 							urlType: 'threadUrl',
 							shallow: true,
 							navigationParams: {
 								type: 'personal',
-								category: activeChatbot?.categories[0].category.name || '',
-								domain: canonicalDomain,
-								chatbot: activeChatbot?.name || '',
-								threadSlug: thread.slug,
+								category,
+								domain,
+								chatbot,
+								threadSlug,
 							},
 						})
 					}
@@ -690,7 +698,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 	const updateActiveThread = async (newThread?: Thread | null) => {
 		let thread = newThread
 
-		if (!thread) {
+		if (!thread || !thread.slug) {
 			thread = await getThread({
 				threadId,
 				isPersonal: true,
@@ -945,8 +953,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					threadId,
 					slug: threadSlug,
 					chatbotId: chatbot.chatbotId,
-					// TODO: Uncomment when model FE is ready. BE is ready. @bran18
-					// model: selectedModel,
+					// model: selectedModel as ModelsEnumEnum,
 					parentThreadId: isContinuingThread
 						? (continuousThreadId as string)
 						: undefined,
