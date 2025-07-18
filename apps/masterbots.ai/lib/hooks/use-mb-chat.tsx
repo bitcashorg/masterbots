@@ -509,7 +509,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						// console.log('thread', thread)
 						const domain = getCanonicalDomain(activeChatbot?.name || 'blankbot')
 						const category =
-							activeChatbot?.categories[0].category.name || params.category
+							activeChatbot?.categories[0]?.category?.name || params.category
 						const chatbot = activeChatbot?.name || params.chatbot
 						const threadSlug = params?.threadSlug || thread.slug
 
