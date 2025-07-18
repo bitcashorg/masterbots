@@ -141,8 +141,10 @@ export default function BrowseList({
 		}
 
 		if (!keyword) {
+			console.log('NO keywords')
 			setFilteredThreads(threads)
 		} else {
+			console.log('Yes keywords, the one')
 			// Set new timeout for debouncing
 			searchTimeoutRef.current = setTimeout(async () => {
 				await fetchThreads({
@@ -155,12 +157,7 @@ export default function BrowseList({
 	}, [keyword, threads, selectedChatbots, selectedCategories])
 
 	const loadMore = async () => {
-		// if (threads.length >= countState) return
-		console.log('🟡 Loading More Content', {
-			countState,
-			threads,
-			filteredThreads,
-		})
+		if (threads.length >= countState || keyword) return
 
 		await fetchThreads({
 			categoriesId: selectedCategories,
