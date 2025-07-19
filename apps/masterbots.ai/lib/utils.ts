@@ -317,7 +317,9 @@ export function getRouteType(pathname: string | null): RouteType {
 	if (
 		normalizedPath.startsWith('/c') &&
 		normalizedPath !== '/career' &&
-		!normalizedPath.startsWith('/career/')
+		!normalizedPath.startsWith('/career/') &&
+		normalizedPath !== '/content-creation' &&
+		!normalizedPath.startsWith('/content-creation/')
 	) {
 		return 'chat'
 	}
@@ -328,7 +330,11 @@ export function getRouteType(pathname: string | null): RouteType {
 	}
 
 	// ? Check for bot routes (starting with /b)
-	if (normalizedPath.startsWith('/b')) {
+	if (
+		normalizedPath.startsWith('/b') &&
+		normalizedPath !== '/biotech' &&
+		!normalizedPath.startsWith('/biotech/')
+	) {
 		return 'bot'
 	}
 
