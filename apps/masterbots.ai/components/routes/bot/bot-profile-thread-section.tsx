@@ -35,7 +35,6 @@ export function BotProfileThreadSection({
 				<>
 					<OnboardingChatbotCard isWelcomeView={true} />
 					<OnboardingMobileView />
-					<BrowseSearchInput />
 				</>
 			) : (
 				// Show detailed bot view when a bot is selected
@@ -45,7 +44,6 @@ export function BotProfileThreadSection({
 						variant={chatbot.name ? 'selected' : 'default'}
 					/>
 					<SelectedBotMobileView onNewChat={handleNewChat} />
-					<BrowseSearchInput />
 				</>
 			)}
 			{/* Only show thread panel when a bot is selected */}
