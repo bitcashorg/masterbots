@@ -84,8 +84,8 @@ export function Header() {
 	const { resolvedTheme } = useTheme()
 	const logoSrc =
 		resolvedTheme === 'dark'
-			? '/logos/mb-logo-header-dark.png'
-			: '/logos/mb-logo-header-light.png'
+			? '/logos/mb-logo-short-dark.webp'
+			: '/logos/mb-logo-short-light.webp'
 	const preserveContextNavigation = (e: React.MouseEvent) => {
 		//! The URL will be built with the current context
 	}

@@ -368,10 +368,10 @@ export const getAppLogoPath = ({
 }): string => {
 	switch (theme) {
 		case 'dark':
-			return '/logos/mb-logo-landing-dark.png'
+			return '/logos/mb-logo-landing-dark.webp'
 		case 'light':
-			return '/logos/mb-logo-landing-light.png'
+			return '/logos/mb-logo-landing-light.webp'
 		default:
-			return '/logos/mb-logo-landing-light.png'
+			return '/logos/mb-logo-landing-light.webp'
 	}
 }
