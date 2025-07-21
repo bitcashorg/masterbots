@@ -1,6 +1,8 @@
-import { Card, CardFooter, CardHeader } from '@/components/ui/card'
+import { MemoizedReactMarkdown } from '@/components/shared/markdown'
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
+import { memoizedMarkdownComponents } from '@/lib/memoized-markdown-components'
 import { cn, getRouteType } from '@/lib/utils'
 import { ArrowBigDown, Bot } from 'lucide-react'
 import Image from 'next/image'
@@ -25,7 +27,7 @@ export function SelectedBotMobileView({
 	const bgImage = 'bg-[url(/background.webp)] dark:bg-[url(/background.webp)]'
 	return (
 		<div
-			className="md:hidden mt-10 h-[calc(50vh-196px)] flex items-center justify-center -translate-y-8"
+			className="md:hidden mt-24 h-[calc(50vh-196px)] flex items-center justify-center -translate-y-8"
 			data-route={routeType}
 		>
 			<Card className="relative w-full bg-white dark:bg-[#09090B]">
@@ -66,15 +68,19 @@ export function SelectedBotMobileView({
 							{/* Separator line */}
 							<div className="h-[3px] bg-zinc-200 dark:bg-slate-800" />
 						</div>
-
-						<div className="flex items-start justify-between gap-4 px-4 py-2.5">
-							<p className="flex-1 text-sm text-zinc-500 dark:text-zinc-500">
-								{description}
-							</p>
-						</div>
 					</div>
 				</CardHeader>
-				<CardFooter className="flex justify-center py-4">
+
+				<CardContent className="px-4 space-y-1">
+					<MemoizedReactMarkdown
+						className="pt-6 text-base text-black dark:text-white min-h-24 onboarding-chatbot-card__content"
+						components={memoizedMarkdownComponents()}
+					>
+						{description}
+					</MemoizedReactMarkdown>
+				</CardContent>
+
+				<CardFooter className="flex justify-center py-4 selected-bot__footer">
 					<h2 className="flex items-center text-lg font-semibold selected-bot-text">
 						<ArrowBigDown className="mr-2 size-6 selected-bot-icon" />
 						Start Chatting Below
