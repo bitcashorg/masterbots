@@ -25,12 +25,14 @@ interface SidebarContext {
 	filterValue: string
 	isFilterMode: boolean
 	isSidebarOpen: boolean
+	isDashboardOpen: boolean
 	selectedChats: string[]
 	activeChatbot: Chatbot | null
 	activeCategory: number | null
 	selectedChatbots: number[]
 	filteredCategories: Category[]
 	selectedCategories: number[]
+	allCategories: Category[]
 	expandedCategories: number[]
 	changeTab: (cate: 'general' | 'work') => void
 	navigateTo: <T extends keyof typeof urlBuilders>(
@@ -39,6 +41,7 @@ interface SidebarContext {
 	toggleSidebar: (toggle?: boolean) => void
 	setFilterValue: React.Dispatch<React.SetStateAction<string>>
 	setIsFilterMode: React.Dispatch<React.SetStateAction<boolean>>
+	setIsDashboardOpen: React.Dispatch<React.SetStateAction<boolean>>
 	setSelectedChats: React.Dispatch<React.SetStateAction<string[]>>
 	setActiveChatbot: React.Dispatch<React.SetStateAction<Chatbot | null>>
 	setActiveCategory: React.Dispatch<React.SetStateAction<number | null>>
@@ -132,6 +135,7 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 		null,
 	)
 	const [isFilterMode, setIsFilterMode] = React.useState(false)
+	const [isDashboardOpen, setIsDashboardOpen] = React.useState(false)
 	const [filterValue, setFilterValue] = React.useState('')
 	const [selectedChats, setSelectedChats] = React.useState<string[]>([])
 	const [expandedCategories, setExpandedCategories] = React.useState<number[]>(
@@ -321,6 +325,8 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 		return null
 	}
 
+	const allCategories = categories?.categoriesChatbots || []
+
 	return (
 		<SidebarContext.Provider
 			value={{
@@ -329,18 +335,21 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 				filterValue,
 				isFilterMode,
 				isSidebarOpen,
+				isDashboardOpen,
 				selectedChats,
 				activeChatbot,
 				activeCategory,
 				selectedChatbots,
 				filteredCategories,
 				selectedCategories,
+				allCategories, // <-- add this line
 				expandedCategories,
 				changeTab,
 				navigateTo,
 				toggleSidebar,
 				setFilterValue,
 				setIsFilterMode,
+				setIsDashboardOpen,
 				setActiveChatbot,
 				setSelectedChats,
 				setActiveCategory,
