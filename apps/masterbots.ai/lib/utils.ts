@@ -366,3 +366,18 @@ export function getRouteColor(
 			return ''
 	}
 }
+
+export const getAppLogoPath = ({
+	theme,
+}: {
+	theme: string | undefined
+}): string => {
+	switch (theme) {
+		case 'dark':
+			return '/logos/mb-logo-landing-dark.webp'
+		case 'light':
+			return '/logos/mb-logo-landing-light.webp'
+		default:
+			return '/logos/mb-logo-landing-light.webp'
+	}
+}
