@@ -159,14 +159,7 @@ export default function BrowseList({
 	}, [keyword, threads, selectedChatbots, selectedCategories])
 
 	const loadMore = async () => {
-		if (threads.length >= countState || filteredThreads.length <= 9) return
-
-		console.log({
-			keyword,
-			threads: threads.length,
-			countState,
-			filteredThreads: filteredThreads.length,
-		})
+		if (threads.length >= countState) return
 
 		await fetchThreads({
 			categoriesId: selectedCategories,
