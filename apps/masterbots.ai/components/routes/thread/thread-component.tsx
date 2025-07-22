@@ -79,7 +79,7 @@ export default function ThreadComponent({
 				thread={thread}
 				variant="browse"
 			>
-				<div className="flex w-full gap-2 text-left pr-2.5 sm:pl-2.5 py-2 overflow-x-hidden">
+				<div className="flex w-full gap-2 text-left pl-2.5 pr-0 md:pr-2.5 py-2 overflow-x-hidden">
 					<ChatbotAvatar thread={thread} />
 					<span className="w-full text-left whitespace-pre-line line-clamp-2">
 						{threadTitle || (
@@ -87,12 +87,12 @@ export default function ThreadComponent({
 						)}
 					</span>
 				</div>
-				<div className="ml-auto flex gap-1.5 items-start justify-center group">
+				<div className="relative ml-auto flex gap-1.5 items-start justify-center group">
 					{thread.thread && (
 						<Tooltip>
 							<TooltipTrigger
 								asChild
-								className="transition-all items-center leading-none opacity-30 hover:opacity-100 focus-within:opacity-100 mt-2.5 px-1.5 py-0.5 w-auto text-[10px] font-medium rounded-md bg-accent text-accent-foreground"
+								className="transition-all items-center leading-none opacity-90 hover:opacity-100 focus-within:opacity-100 mt-2.5 px-1.5 py-0.5 w-auto text-[10px] font-medium rounded-md bg-accent text-accent-foreground md:relative absolute -top-4 right-1 md:top-auto md:right-auto z-10"
 							>
 								<span>Continued</span>
 							</TooltipTrigger>
