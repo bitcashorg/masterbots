@@ -143,10 +143,8 @@ export default function BrowseList({
 		}
 
 		if (!keyword) {
-			console.log('NO keywords')
 			setFilteredThreads(threads)
 		} else {
-			console.log('Yes keywords, the one')
 			// Set new timeout for debouncing
 			searchTimeoutRef.current = setTimeout(async () => {
 				await fetchThreads({
