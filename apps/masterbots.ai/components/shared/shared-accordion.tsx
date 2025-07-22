@@ -1,6 +1,5 @@
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
-import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { getCanonicalDomain } from '@/lib/url'
 import { cn } from '@/lib/utils'
 import { getThread } from '@/services/hasura'
@@ -195,6 +194,7 @@ export function SharedAccordion({
 		} else if (botProfile) {
 			navigateTo({
 				urlType: 'profilesThreadUrl',
+				shallow: true,
 				navigationParams: {
 					type: 'chatbot',
 					chatbot: fullThread?.chatbot?.name || 'Masterbots',
@@ -282,7 +282,6 @@ export function SharedAccordion({
 
 				return
 			}
-
 			setIsOpenPopup(false)
 			setActiveThread(null)
 
@@ -290,6 +289,7 @@ export function SharedAccordion({
 				console.error('Missing required navigation parameters')
 				return
 			}
+
 			navigateTo({
 				urlType: 'profilesThreadUrl',
 				navigationParams: {

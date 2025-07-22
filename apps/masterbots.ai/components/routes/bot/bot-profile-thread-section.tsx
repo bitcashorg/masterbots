@@ -30,12 +30,11 @@ export function BotProfileThreadSection({
 
 	return (
 		<div className="w-full">
+			{/* Only show thread panel when a bot is selected */}
 			{isWelcomeView ? (
 				// Show onboarding card when no bot is selected (welcome view)
 				<>
 					<OnboardingChatbotCard isWelcomeView={true} />
-					<OnboardingMobileView />
-					<BrowseSearchInput />
 				</>
 			) : (
 				// Show detailed bot view when a bot is selected
@@ -44,18 +43,15 @@ export function BotProfileThreadSection({
 						chatbot={chatbot}
 						variant={chatbot.name ? 'selected' : 'default'}
 					/>
-					<SelectedBotMobileView onNewChat={handleNewChat} />
-					<BrowseSearchInput />
 				</>
 			)}
-			{/* Only show thread panel when a bot is selected */}
 			{!isWelcomeView && (
 				<div className="flex flex-col gap-5 px-4 pt-5 mx-auto w-full max-w-screen-xl h-full md:px-10">
 					<UserThreadPanel
 						threads={threads}
 						count={count}
 						showSearch
-						page="profile"
+						page="bot"
 					/>
 				</div>
 			)}

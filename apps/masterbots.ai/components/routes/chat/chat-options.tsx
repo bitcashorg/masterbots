@@ -29,7 +29,7 @@ import type { Thread } from 'mb-genql'
 import { toSlug } from 'mb-lib'
 import { useSession } from 'next-auth/react'
 import type React from 'react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { ShareButton } from './share-button'
 
 interface ChatOptionsProps {
@@ -49,15 +49,22 @@ export function ChatOptions({ threadId, thread, pair }: ChatOptionsProps) {
 	const [isPublic, setIsPublic] = useState(thread.isPublic)
 
 	const isSubThread = pair && pair !== undefined
-	const url = urlBuilders.profilesThreadUrl({
-		type: 'user',
-		threadSlug: thread.slug,
-		threadQuestionSlug: isSubThread ? pair.userMessage.slug : undefined,
-		category: thread.chatbot.categories[0]?.category.name,
-		chatbot: toSlug(thread.chatbot.name),
-		usernameSlug: thread?.user?.slug,
-		domain: canonicalDomain,
-	})
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	const url = useMemo(
+		() =>
+			!thread.slug
+				? '/'
+				: urlBuilders.profilesThreadUrl({
+						type: 'user',
+						threadSlug: thread.slug,
+						threadQuestionSlug: isSubThread ? pair.userMessage.slug : undefined,
+						category: thread.chatbot.categories[0]?.category.name,
+						chatbot: toSlug(thread.chatbot.name),
+						usernameSlug: thread?.user?.slug,
+						domain: canonicalDomain,
+					}),
+		[thread],
+	)
 	const [isDeleteOpen, setIsDeleteOpen] = useState(false)
 	const [isDeleting, setIsDeleting] = useState(false)
 	const { customSonner } = useSonner()
@@ -160,10 +167,6 @@ export function ChatOptions({ threadId, thread, pair }: ChatOptionsProps) {
 		</AlertDialog>
 	)
 
-	// console.log({
-	// 	"The Pair here": pair
-	// })
-
 	return (
 		<div className="flex items-center gap-4 sm:gap-3 pt-[3px]">
 			<AlertDialogue deleteDialogOpen={isDeleteOpen} />
@@ -178,8 +181,11 @@ export function ChatOptions({ threadId, thread, pair }: ChatOptionsProps) {
 						}),
 						'p-1',
 					)}
+					asChild
 				>
-					<MoreVertical className="w-4 h-4" />
+					<span>
+						<MoreVertical className="w-4 h-4" />
+					</span>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent
 					sideOffset={8}

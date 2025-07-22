@@ -1,6 +1,9 @@
 'use client'
 
-import { fetchPayment, getUserCurrentSubscription } from '@/app/actions/subscriptions.actions'
+import {
+	fetchPayment,
+	getUserCurrentSubscription,
+} from '@/app/actions/subscriptions.actions'
 import Subscription from '@/components/routes/subscription/subscription'
 import { Button } from '@/components/ui/button'
 import { IconArrowRight, IconCreditCard, IconHelp } from '@/components/ui/icons'
@@ -190,7 +193,10 @@ export function SubscriptionPageComponent() {
 						<div className="flex items-center p-4 space-x-3 w-full rounded-lg border backdrop-blur-sm bg-muted/50">
 							<IconCreditCard className="fill-primary" />
 							<span className="text-foreground">
-								Card ending with <strong>****{(card?.last4 || subscriptionData?.card?.last4)}</strong>
+								Card ending with{' '}
+								<strong>
+									****{card?.last4 || subscriptionData?.card?.last4}
+								</strong>
 							</span>
 							<Button
 								variant="outline"

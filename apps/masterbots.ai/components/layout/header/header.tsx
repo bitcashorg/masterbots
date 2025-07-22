@@ -12,6 +12,9 @@ import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { getCanonicalDomain } from '@/lib/url'
 import { cn, getRouteColor, getRouteType } from '@/lib/utils'
 import { appConfig } from 'mb-env'
+import { useTheme } from 'next-themes'
+import Image from 'next/image'
+import { useEffect, useState } from 'react'
 
 function HeaderLink({
 	href,
@@ -21,7 +24,7 @@ function HeaderLink({
 	className,
 }: {
 	href: string
-	text: string
+	text: React.ReactNode | string
 	className?: string
 	noActiveColor?: boolean
 	onClick: (event: React.MouseEvent) => void
@@ -66,12 +69,25 @@ export function Header() {
 	const { activeCategory, activeChatbot, setActiveCategory, setActiveChatbot } =
 		useSidebar()
 	const canonicalDomain = getCanonicalDomain(activeChatbot?.name || '')
+	const [mounted, setMounted] = useState(false)
 
 	const resetNavigation = (e: React.MouseEvent) => {
 		setActiveCategory(null)
 		setActiveChatbot(null)
 	}
 
+	useEffect(() => {
+		setMounted(true)
+	}, [])
+
+	const { resolvedTheme } = useTheme()
+	const logoSrc =
+		resolvedTheme === 'dark'
+			? '/logos/mb-logo-short-dark.webp'
+			: '/logos/mb-logo-short-light.webp'
+	const preserveContextNavigation = (e: React.MouseEvent) => {
+		//! The URL will be built with the current context
+	}
 	const publicUrl = '/'
 	const personalUrl = '/c'
 
@@ -115,7 +131,19 @@ export function Header() {
 					href="/"
 					noActiveColor
 					onClick={resetNavigation}
-					text="MB"
+					className="pr-0"
+					text={
+						mounted && (
+							<Image
+								src={logoSrc}
+								alt="Masterbots Logo"
+								width={38}
+								height={38}
+								quality={100}
+								priority
+							/>
+						)
+					}
 				/>
 
 				<IconSeparator className="size-6 text-muted-foreground/50" />

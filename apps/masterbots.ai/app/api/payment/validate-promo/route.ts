@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 
+// biome-ignore lint/style/noNonNullAssertion: <explanation>
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 	apiVersion: '2024-04-10',
 })
@@ -76,9 +77,13 @@ export async function POST(request: Request) {
 					? `${coupon.percent_off}% off forever`
 					: 'Permanent discount'
 			}
-			
+
 			//? Check if the coupon has a trial period (this is separate from duration)
-			if (coupon.duration_in_months === null && coupon.percent_off === null && coupon.amount_off === null) {
+			if (
+				coupon.duration_in_months === null &&
+				coupon.percent_off === null &&
+				coupon.amount_off === null
+			) {
 				trialPeriodDays = 7
 				discountInfo = 'Free trial period'
 			}
