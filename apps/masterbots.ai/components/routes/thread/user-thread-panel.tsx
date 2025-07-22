@@ -29,6 +29,7 @@
 
 import ChatChatbotDetails from '@/components/routes/chat/chat-chatbot-details'
 import ThreadList from '@/components/routes/thread/thread-list'
+import { GlobalSearchInput } from '@/components/shared/global-search-input'
 import { NoResults } from '@/components/shared/no-results-card'
 import { ThreadSearchInput } from '@/components/shared/shared-search'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -36,6 +37,7 @@ import { botNames } from '@/lib/constants/bots-names'
 import { PAGE_SIZE } from '@/lib/constants/hasura'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
+import { useThreadSearch } from '@/lib/hooks/use-thread-search'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { searchThreadContent } from '@/lib/search'
 import { cn, getRouteType } from '@/lib/utils'
@@ -98,7 +100,9 @@ export default function UserThreadPanel({
 		threadsState: threadVisibilityState,
 		isAdminMode,
 	} = useThreadVisibility()
-	const [searchTerm, setSearchTerm] = useState<string>('')
+
+	const { searchTerm, setSearchTerm } = useThreadSearch()
+	// const [searchTerm, setSearchTerm] = useState<string>('')
 	const searchParams = useSearchParams()
 
 	const { userSlug, category, chatbot, botSlug } = params
@@ -415,7 +419,8 @@ export default function UserThreadPanel({
 				<>
 					{isChatRoute && <ChatChatbotDetails />}
 					<div className={searchInputContainerClassName}>
-						<ThreadSearchInput setThreads={setState} onSearch={setSearchTerm} />
+						{/* <ThreadSearchInput setThreads={setState} onSearch={setSearchTerm} /> */}
+						<GlobalSearchInput />
 					</div>
 				</>
 			)}

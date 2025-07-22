@@ -824,16 +824,31 @@ export async function getBrowseThreads({
 				role: true,
 				__args: {
 					orderBy: [{ createdAt: 'ASC' }],
+					// ...(keyword
+					// 	? {
+					// 			where: {
+					// 				_or: [
+					// 					{ content: { _iregex: keyword } },
+					// 					{ content: { _eq: keyword } },
+					// 				],
+					// 			},
+					// 		}
+					// 	: {}),
 					...(keyword
 						? {
 								where: {
-									_or: [
-										{ content: { _iregex: keyword } },
-										{ content: { _eq: keyword } },
+									_and: [
+										{ role: { _eq: 'user' } }, // Only user's message
+										{
+											_or: [
+												{ content: { _iregex: keyword } },
+												{ content: { _eq: keyword } },
+											],
+										},
 									],
 								},
 							}
-						: ''),
+						: {}),
 					limit: 2,
 				},
 			},
