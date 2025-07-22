@@ -136,7 +136,7 @@ export async function PUT(req: NextRequest) {
 
 		//? Filter for active or trialing subscriptions
 		const activeSubscriptions = subscriptions.data.filter(
-			(sub) => sub.status === 'active' || sub.status === 'trialing'
+			(sub) => sub.status === 'active' || sub.status === 'trialing',
 		)
 
 		if (activeSubscriptions.length > 0) {
@@ -151,9 +151,10 @@ export async function PUT(req: NextRequest) {
 
 			//? Transform the subscription data to match the expected format
 			const customer = expandedSubscription.customer as Stripe.Customer
-			const plan = expandedSubscription.items.data[0]?.plan as any
+			const plan = expandedSubscription.items.data[0]?.plan as Stripe.Plan &
+				Stripe.Plan.Tier
 			const product = plan?.product as Stripe.Product
-			
+
 			const transformedSubscription = {
 				customer: {
 					name: customer?.name || '',

@@ -1,5 +1,6 @@
 'use client'
 
+import FooterCT from '@/components/layout/footer/footer-ct'
 import { SidebarCategoryGeneral } from '@/components/layout/sidebar/sidebar-category-general'
 import { SidebarHeader } from '@/components/layout/sidebar/sidebar-header'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
@@ -51,6 +52,7 @@ export function Sidebar({
 				<nav className="pt-4 pb-20 size-full scrollbar">
 					<SidebarCategoryGeneral page={page} />
 				</nav>
+				<FooterCT className="flex md:hidden border-t border-mirage" fixed />
 			</aside>
 		</>
 	)

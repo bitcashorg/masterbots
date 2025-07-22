@@ -57,7 +57,7 @@ export function MessagePairs({
 	const previousPairsElements = useMemo(() => {
 		const { userMessages, assistantMessages } = messagesData.previous
 
-		return userMessages.map((userMessage, index) => {
+		return userMessages?.map((userMessage, index) => {
 			const chatGptMessage = assistantMessages[index] || []
 			const pair = { userMessage, chatGptMessage }
 

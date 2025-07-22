@@ -224,7 +224,8 @@ export function Plans({ next, goTo }: PlansPros) {
 				{/* Free Plan Card */}
 				{plans?.find((plan) => plan.unit_amount === 0) &&
 					(() => {
-						const freePlan = plans.find((plan) => plan.unit_amount === 0)!
+						const freePlan = plans.find((plan) => plan.unit_amount === 0)
+						if (!freePlan) return null
 						return (
 							<PlanCard
 								key={freePlan.id}
