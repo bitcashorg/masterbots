@@ -28,7 +28,7 @@ export default function LayoutClient({
 	const bgImage = resolvedTheme === 'dark' ? darkBG : lightBG
 
 	return (
-		<main className="relative flex flex-col flex-1 bg-muted/50 min-h-[calc(100vh-64px)] overflow-hidden pb-10">
+		<main className="relative flex flex-col flex-1 bg-muted/50 overflow-hidden">
 			{isAuthPage && mounted && (
 				<Image
 					src={bgImage}
@@ -39,7 +39,9 @@ export default function LayoutClient({
 			)}
 
 			{/* Foreground content */}
-			<div className="relative z-10 size-full">{children}</div>
+			<div className="relative z-10 size-full h-[calc(100vh-64px)] overflow-y-auto scrollbar">
+				{children}
+			</div>
 		</main>
 	)
 }

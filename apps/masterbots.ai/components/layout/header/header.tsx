@@ -131,13 +131,15 @@ export function Header() {
 					href="/"
 					noActiveColor
 					onClick={resetNavigation}
+					className="pr-0"
 					text={
 						mounted && (
 							<Image
 								src={logoSrc}
 								alt="Masterbots Logo"
-								width={30}
-								height={30}
+								width={38}
+								height={38}
+								quality={100}
 								priority
 							/>
 						)
