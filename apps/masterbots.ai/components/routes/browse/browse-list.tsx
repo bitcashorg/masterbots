@@ -127,11 +127,11 @@ export default function BrowseList({
 			// console.log('Fetched threads:', { filteredThreads, count })
 			// If the keyword is empty, we set the filteredThreads to threads
 			setCount(count)
-			setHasInitialized(true) // ? Setting hasInitialized after fetch preventing NoResults from showing
 		} catch (error) {
 			console.error('Error fetching threads:', error)
 		} finally {
 			setLoading(false)
+			setHasInitialized(true) // ? Setting hasInitialized after fetch preventing NoResults from showing
 		}
 	}
 

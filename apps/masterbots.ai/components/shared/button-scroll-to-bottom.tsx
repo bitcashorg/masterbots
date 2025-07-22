@@ -3,17 +3,14 @@
 import { Button, type ButtonProps } from '@/components/ui/button'
 import { IconArrowDown } from '@/components/ui/icons'
 import { cn } from '@/lib/utils'
+import { omit } from 'lodash'
 
 export function ButtonScrollToBottom({
 	className,
 	isAtBottom,
 	scrollToBottom,
 	...props
-}: ButtonProps & {
-	textClassName?: string
-	isAtBottom?: boolean
-	scrollToBottom: () => void
-}) {
+}: ButtonScrollToBottomProps) {
 	return (
 		<Button
 			variant="outline"
@@ -26,7 +23,11 @@ export function ButtonScrollToBottom({
 			onClick={() => {
 				scrollToBottom()
 			}}
-			{...props}
+			{...(omit(props, [
+				'isAtBottom',
+				'scrollToBottom',
+				'textClassName',
+			]) as ButtonProps)}
 		>
 			<IconArrowDown className="transition-all" />
 			<span className={props?.textClassName ? props.textClassName : 'sr-only'}>
@@ -34,4 +35,10 @@ export function ButtonScrollToBottom({
 			</span>
 		</Button>
 	)
+}
+
+interface ButtonScrollToBottomProps extends ButtonProps {
+	scrollToBottom: () => void
+	isAtBottom?: boolean
+	textClassName?: string
 }
