@@ -243,6 +243,7 @@ export async function getThreads({
 	jwt,
 	limit,
 	offset,
+	keyword,
 }: GetThreadsParams) {
 	const client = getHasuraClient({ jwt })
 	const baseThreadsArguments = {
@@ -298,6 +299,16 @@ export async function getThreads({
 				__args: {
 					orderBy: [{ createdAt: 'ASC' }],
 					limit: 2,
+					...(keyword
+						? {
+								where: {
+									_or: [
+										{ content: { _iregex: keyword } },
+										{ content: { _eq: keyword } },
+									],
+								},
+							}
+						: {}),
 				},
 			},
 			user: {

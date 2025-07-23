@@ -124,17 +124,34 @@ export default function UserThreadPanel({
 		totalThreads: 0,
 	})
 	const { totalThreads } = state
+	const isOwnProfile = session?.user?.id === userProps?.userId
+
+	const getBotName = async () => {
+		if (chatbot || botSlug) {
+			const botSlugs = await botNames
+			return (
+				botSlugs.get(chatbot as string) ||
+				botSlugs.get(botSlug as string) ||
+				activeChatbot?.name ||
+				''
+			)
+		}
+		return ''
+	}
 
 	const fetchBrowseThreads = async ({
 		offset = 0,
+		keyword = '',
 	}: {
 		offset?: number
+		keyword?: string
 	} = {}) => {
 		try {
 			const browseThreadGetParams: GetBrowseThreadsParams = {
 				offset,
 				limit: PAGE_SIZE,
 				isAdminMode,
+				keyword,
 			}
 
 			if (activeCategory) {
@@ -145,10 +162,7 @@ export default function UserThreadPanel({
 				browseThreadGetParams.categoriesId = selectedCategories
 			}
 			if (chatbot || botSlug) {
-				const botSlugs = await botNames
-				const chatbotName =
-					botSlugs.get(chatbot as string) || botSlugs.get(botSlug as string)
-
+				const chatbotName = await getBotName()
 				browseThreadGetParams.chatbotName = chatbotName
 			}
 			if (userSlug && userProps) {
@@ -176,20 +190,14 @@ export default function UserThreadPanel({
 		}
 		let chatbotName = ''
 
-		const isOwnProfile = session?.user?.id === userProps?.userId
-
 		if (chatbot || botSlug || activeChatbot) {
-			const botSlugs = await botNames
-			chatbotName =
-				botSlugs.get(chatbot as string) ||
-				botSlugs.get(botSlug as string) ||
-				activeChatbot?.name ||
-				''
+			chatbotName = await getBotName()
 		}
 
 		if (isAdminMode || (page === 'profile' && !isOwnProfile)) {
 			moreThreads = await fetchBrowseThreads({
 				offset: threads.length,
+				keyword: searchTerm,
 			})
 		} else {
 			moreThreads = await getThreads({
@@ -199,6 +207,7 @@ export default function UserThreadPanel({
 				limit: PAGE_SIZE,
 				categoryId: activeCategory,
 				chatbotName,
+				keyword: searchTerm,
 			})
 		}
 
@@ -376,6 +385,46 @@ export default function UserThreadPanel({
 	const showChatbotDetails = !loading && !searchTerm && !threads.length
 	const searchInputContainerClassName = 'flex justify-between lg:max-w-full'
 
+	const searchThreadsFromDb = async (term: string) => {
+		let chatbotName = ''
+		let moreThreads: { threads: Thread[]; count: number } = {
+			threads: [],
+			count: 0,
+		}
+
+		if (chatbot || botSlug || activeChatbot) {
+			chatbotName = await getBotName()
+		}
+
+		if (isAdminMode || (page === 'profile' && !isOwnProfile)) {
+			moreThreads = await fetchBrowseThreads({
+				offset: threads.length,
+				keyword: term,
+			})
+		} else {
+			moreThreads = await getThreads({
+				jwt: session?.user?.hasuraJwt as string,
+				userId: session?.user.id as string,
+				offset: threads.length,
+				limit: PAGE_SIZE,
+				categoryId: activeCategory,
+				chatbotName,
+				keyword: term,
+			})
+		}
+
+		setState({
+			threads: moreThreads?.threads || [],
+			count: moreThreads?.count || 0,
+			totalThreads: threads.length + (moreThreads?.threads?.length || 0),
+		})
+
+		console.log('🟡 Search Threads From DB', {
+			keyword: term,
+			moreThreads,
+		})
+	}
+
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const debouncedSearch = useMemo(
 		() =>
@@ -387,14 +436,15 @@ export default function UserThreadPanel({
 						count,
 					})
 				} else {
-					const searchResult = adminThreads.filter((thread: Thread) =>
-						searchThreadContent(thread, term),
-					)
-					setState({
-						threads: searchResult,
-						count: searchResult.length,
-						totalThreads: threads.length,
-					})
+					searchThreadsFromDb(term)
+					// const searchResult = adminThreads.filter((thread: Thread) =>
+					// 	searchThreadContent(thread, term),
+					// )
+					// setState({
+					// 	threads: searchResult,
+					// 	count: searchResult.length,
+					// 	totalThreads: threads.length,
+					// })
 				}
 				setLoading(false)
 			}, 230),
@@ -403,6 +453,13 @@ export default function UserThreadPanel({
 
 	const verifyKeyword = () => {
 		setLoading(true)
+		console.log(
+			'🟡 Searching Threads',
+
+			{
+				searchTerm,
+			},
+		)
 		debouncedSearch(searchTerm)
 	}
 
