@@ -6,6 +6,7 @@ import { cn, getRouteType } from '@/lib/utils'
 import type { Category } from 'mb-genql'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
+import Image from 'next/image'
 
 interface CategoryDashboardProps {
 	isOpen: boolean
@@ -52,11 +53,6 @@ export function CategoryDashboard({
 		onClose()
 	}
 
-	const handleSelectAll = () => {
-		const allCategoryIds = categories.map((category) => category.categoryId)
-		setLocalSelectedCategories(allCategoryIds)
-	}
-
 	const handleClearAll = () => {
 		setLocalSelectedCategories([])
 	}
@@ -64,9 +60,12 @@ export function CategoryDashboard({
 	if (!isOpen) return null
 
 	return (
-		<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-			<div className="relative w-full max-w-2xl mx-4 max-h-[80vh] overflow-y-auto">
-				<Card className="w-full bg-white dark:bg-[#09090B] relative overflow-hidden rounded-2xl shadow-2xl border-0">
+		<div className="flex fixed inset-0 z-50 justify-center items-center backdrop-blur-sm bg-black/60">
+			<div className="relative w-full max-w-7xl mx-4 max-h-[80vh] overflow-y-auto">
+				<Card
+					className="w-full bg-white dark:bg-[#09090B] relative overflow-hidden rounded-2xl shadow-2xl border-0"
+					data-route={routeType}
+				>
 					{/* Background image layer */}
 					<div
 						className={`absolute inset-0 bg-center bg-cover opacity-20 ${bgImage}`}
@@ -77,7 +76,7 @@ export function CategoryDashboard({
 						<CardContent className="p-8">
 							<div className="flex justify-between items-center mb-8">
 								<h2 className="text-2xl font-bold text-zinc-950 dark:text-white">
-									Category Dashboard
+									Topics Dashboard
 								</h2>
 								<button
 									type="button"
@@ -107,22 +106,25 @@ export function CategoryDashboard({
 							<div className="flex gap-3 mb-6">
 								<button
 									type="button"
-									onClick={handleSelectAll}
-									className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-lg shadow-sm transition-colors hover:bg-blue-600"
-								>
-									Select All
-								</button>
-								<button
-									type="button"
 									onClick={handleClearAll}
 									className="px-4 py-2 text-sm font-medium text-white bg-gray-500 rounded-lg shadow-sm transition-colors hover:bg-gray-600"
 								>
 									Clear All
 								</button>
+								<button
+									type="button"
+									onClick={handleApplySelection}
+									className={cn(
+										'px-4 py-2 text-sm font-medium text-white rounded-lg shadow-sm transition-colors',
+										'bg-accent-foreground',
+									)}
+								>
+									Apply Selection
+								</button>
 							</div>
 
 							{/* Categories grid */}
-							<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[40vh] overflow-y-auto pr-1">
+							<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-h-[40vh] overflow-y-auto pr-1">
 								{categories.map((category) => (
 									<CategoryCard
 										key={category.categoryId}
@@ -134,27 +136,6 @@ export function CategoryDashboard({
 										routeType={routeType}
 									/>
 								))}
-							</div>
-
-							{/* Footer actions */}
-							<div className="flex gap-3 justify-end pt-6 mt-8 border-t border-gray-200 dark:border-gray-700">
-								<button
-									type="button"
-									onClick={onClose}
-									className="px-5 py-2 text-sm font-medium rounded-lg border border-gray-300 transition-colors dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800"
-								>
-									Cancel
-								</button>
-								<button
-									type="button"
-									onClick={handleApplySelection}
-									className={cn(
-										'px-5 py-2 text-sm font-medium text-white rounded-lg shadow-sm transition-colors',
-										'bg-accent-foreground',
-									)}
-								>
-									Apply Selection
-								</button>
 							</div>
 						</CardContent>
 					</div>
@@ -178,50 +159,78 @@ function CategoryCard({
 	routeType,
 }: CategoryCardProps) {
 	const chatbotCount = category.chatbots.length
+	const firstBot = category.chatbots[0]?.chatbot
+
+	// Background image class - same as onboarding card
+	const bgImage =
+		'bg-[url(/background-light.webp)] dark:bg-[url(/background.webp)]'
+
+	// Route-based border colors
+	const getBorderClasses = () => {
+		if (isSelected) {
+			return routeType === 'chat' ? 'border-purple-500' : 'border-green-500'
+		}
+		return 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+	}
 
 	return (
 		<button
 			type="button"
 			className={cn(
-				'relative p-4 w-full text-left rounded-lg border-2 transition-all duration-200 cursor-pointer',
-				'bg-white dark:bg-gray-800',
-				isSelected
-					? 'bg-blue-50 border-blue-500 dark:bg-blue-900/20'
-					: 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600',
+				'overflow-hidden relative p-4 w-full text-left rounded-lg border-2 transition-all duration-200 cursor-pointer',
+				'bg-white dark:bg-zinc-900',
+				getBorderClasses(),
 			)}
 			onClick={onToggle}
 		>
-			<div className="flex justify-between items-center">
-				<div className="flex-1">
-					<h3 className="mb-1 font-semibold text-gray-900 dark:text-white">
-						{category.name}
-					</h3>
-					<p className="text-sm text-gray-600 dark:text-gray-400">
-						{chatbotCount} chatbot{chatbotCount !== 1 ? 's' : ''}
-					</p>
-				</div>
-				<div
-					className={cn(
-						'flex justify-center items-center w-5 h-5 rounded border-2',
-						isSelected
-							? 'bg-blue-500 border-blue-500'
-							: 'border-gray-300 dark:border-gray-600',
-					)}
-				>
-					{isSelected && (
-						<svg
-							className="w-3 h-3 text-white"
-							fill="currentColor"
-							viewBox="0 0 20 20"
-							aria-label="Selected"
-						>
-							<title>Selected</title>
-							<path
-								fillRule="evenodd"
-								d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-								clipRule="evenodd"
-							/>
-						</svg>
+			{/* Background image layer */}
+			<div
+				className={`absolute inset-0 bg-center bg-cover opacity-40 ${bgImage}`}
+			/>
+
+			{/* Content layer */}
+			<div className="relative z-10">
+				<div className="flex justify-between items-center">
+					{/* Left side - Category info and checkbox */}
+					<div className="flex-1">
+						<div className="mb-2">
+							<h3 className="font-semibold text-gray-900 dark:text-white">
+								{category.name}
+							</h3>
+						</div>
+						<p className="text-sm text-gray-600 dark:text-gray-400">
+							{chatbotCount} chatbot{chatbotCount !== 1 ? 's' : ''}
+						</p>
+					</div>
+
+					{/* Right side - Bot avatar */}
+					{firstBot && (
+						<div className="flex-shrink-0 ml-4" title={firstBot.name}>
+							<div
+								className={cn(
+									'overflow-hidden rounded-full border-2 shadow-sm transition-all duration-200 size-16',
+									isSelected
+										? 'ring-4 selected-bot-avatar'
+										: 'border-gray-300 dark:border-gray-600',
+								)}
+							>
+								{firstBot.avatar ? (
+									<Image
+										src={firstBot.avatar}
+										alt={firstBot.name}
+										width={64}
+										height={64}
+										className="object-cover w-full h-full"
+									/>
+								) : (
+									<div className="flex justify-center items-center w-full h-full bg-gray-300 dark:bg-gray-600">
+										<span className="text-base font-medium text-gray-600 dark:text-gray-400">
+											{firstBot.name.charAt(0).toUpperCase()}
+										</span>
+									</div>
+								)}
+							</div>
+						</div>
 					)}
 				</div>
 			</div>

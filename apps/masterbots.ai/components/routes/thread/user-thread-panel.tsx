@@ -29,7 +29,6 @@
 
 import ChatChatbotDetails from '@/components/routes/chat/chat-chatbot-details'
 import ThreadList from '@/components/routes/thread/thread-list'
-import { CategoryDashboard } from '@/components/shared/category-dashboard'
 import { NoResults } from '@/components/shared/no-results-card'
 import { ThreadSearchInput } from '@/components/shared/shared-search'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -83,9 +82,6 @@ export default function UserThreadPanel({
 		activeChatbot,
 		selectedCategories,
 		setActiveChatbot,
-		isDashboardOpen,
-		setIsDashboardOpen,
-		allCategories,
 	} = useSidebar()
 	const {
 		isOpenPopup,
@@ -415,15 +411,6 @@ export default function UserThreadPanel({
 
 	return (
 		<>
-			{isDashboardOpen && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-					<CategoryDashboard
-						isOpen={isDashboardOpen}
-						onClose={() => setIsDashboardOpen(false)}
-						categories={allCategories}
-					/>
-				</div>
-			)}
 			{!isContinuousThread && (threads.length !== 0 || searchTerm) && (
 				<>
 					{isChatRoute && <ChatChatbotDetails />}
