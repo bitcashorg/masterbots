@@ -309,7 +309,11 @@ export default function BrowseList({
 				hasInitialized &&
 				!loading &&
 				!filteredThreads.length &&
-				(activeCategory || activeChatbot || chatbot || categoryId) && (
+				(activeCategory ||
+					activeChatbot ||
+					chatbot ||
+					categoryId ||
+					keyword) && (
 					<NoResults searchTerm={keyword} totalItems={threads.length} />
 				)
 			)}

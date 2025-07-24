@@ -102,7 +102,6 @@ export default function UserThreadPanel({
 	} = useThreadVisibility()
 
 	const { searchTerm, setSearchTerm } = useThreadSearch()
-	// const [searchTerm, setSearchTerm] = useState<string>('')
 	const searchParams = useSearchParams()
 
 	const { userSlug, category, chatbot, botSlug } = params
@@ -418,11 +417,6 @@ export default function UserThreadPanel({
 			count: moreThreads?.count || 0,
 			totalThreads: threads.length + (moreThreads?.threads?.length || 0),
 		})
-
-		console.log('🟡 Search Threads From DB', {
-			keyword: term,
-			moreThreads,
-		})
 	}
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
@@ -437,14 +431,6 @@ export default function UserThreadPanel({
 					})
 				} else {
 					searchThreadsFromDb(term)
-					// const searchResult = adminThreads.filter((thread: Thread) =>
-					// 	searchThreadContent(thread, term),
-					// )
-					// setState({
-					// 	threads: searchResult,
-					// 	count: searchResult.length,
-					// 	totalThreads: threads.length,
-					// })
 				}
 				setLoading(false)
 			}, 230),
@@ -453,13 +439,6 @@ export default function UserThreadPanel({
 
 	const verifyKeyword = () => {
 		setLoading(true)
-		console.log(
-			'🟡 Searching Threads',
-
-			{
-				searchTerm,
-			},
-		)
 		debouncedSearch(searchTerm)
 	}
 

@@ -246,10 +246,21 @@ export async function getThreads({
 	keyword,
 }: GetThreadsParams) {
 	const client = getHasuraClient({ jwt })
+
 	const baseThreadsArguments = {
-		...(chatbotName || categoryId
+		...(chatbotName || categoryId || keyword || userId || domain
 			? {
 					where: {
+						...(keyword
+							? {
+									messages: {
+										_or: [
+											{ content: { _iregex: keyword } },
+											{ content: { _eq: keyword } },
+										],
+									},
+								}
+							: {}),
 						chatbot: {
 							...(chatbotName
 								? {
@@ -299,16 +310,6 @@ export async function getThreads({
 				__args: {
 					orderBy: [{ createdAt: 'ASC' }],
 					limit: 2,
-					...(keyword
-						? {
-								where: {
-									_or: [
-										{ content: { _iregex: keyword } },
-										{ content: { _eq: keyword } },
-									],
-								},
-							}
-						: {}),
 				},
 			},
 			user: {
@@ -754,6 +755,17 @@ export async function getBrowseThreads({
 	const client = getHasuraClient({})
 	const baseLimit = limit || 20
 	const baseWhereConditions = {
+		...(keyword
+			? {
+					messages: {
+						_or: [
+							{ content: { _iregex: keyword } },
+							{ content: { _eq: keyword } },
+						],
+					},
+				}
+			: {}),
+
 		...(categoryId
 			? {
 					chatbot: {
@@ -835,31 +847,6 @@ export async function getBrowseThreads({
 				role: true,
 				__args: {
 					orderBy: [{ createdAt: 'ASC' }],
-					// ...(keyword
-					// 	? {
-					// 			where: {
-					// 				_or: [
-					// 					{ content: { _iregex: keyword } },
-					// 					{ content: { _eq: keyword } },
-					// 				],
-					// 			},
-					// 		}
-					// 	: {}),
-					...(keyword
-						? {
-								where: {
-									_and: [
-										{ role: { _eq: 'user' } }, // Only user's message
-										{
-											_or: [
-												{ content: { _iregex: keyword } },
-												{ content: { _eq: keyword } },
-											],
-										},
-									],
-								},
-							}
-						: {}),
 					limit: 2,
 				},
 			},
