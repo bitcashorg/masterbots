@@ -1,5 +1,6 @@
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
+import { useThreadSearch } from '@/lib/hooks/use-thread-search'
 import { getCanonicalDomain } from '@/lib/url'
 import { cn } from '@/lib/utils'
 import { getThread } from '@/services/hasura'
@@ -65,6 +66,8 @@ export function SharedAccordion({
 	const [currentRequest, setCurrentRequest] = useState<AbortController | null>(
 		null,
 	)
+
+	const { searchTerm } = useThreadSearch()
 	// const { isAdminMode } = useThreadVisibility()
 
 	const pathname = usePathname()
@@ -343,6 +346,7 @@ export function SharedAccordion({
 			return newState
 		})
 	}
+
 	return (
 		<div
 			ref={accordionRef}

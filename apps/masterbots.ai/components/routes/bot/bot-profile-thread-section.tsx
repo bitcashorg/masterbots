@@ -1,9 +1,6 @@
 'use client'
 
 import BrowseChatbotDetails from '@/components/routes/browse/browse-chatbot-details'
-import { BrowseSearchInput } from '@/components/routes/browse/browse-search-input'
-import { OnboardingMobileView } from '@/components/routes/chat/chat-onboarding-chatbot-mobile'
-import { SelectedBotMobileView } from '@/components/routes/chat/chat-selected-chatbot-mobile'
 import UserThreadPanel from '@/components/routes/thread/user-thread-panel'
 import { OnboardingChatbotCard } from '@/components/shared/onboarding-chatbot-card'
 import { useThread } from '@/lib/hooks/use-thread'
