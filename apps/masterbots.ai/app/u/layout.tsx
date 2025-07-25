@@ -1,5 +1,5 @@
-import { BrowseProvider } from '@/lib/hooks/use-browse'
 import { CategoryDashboard } from '@/components/shared/category-dashboard'
+import { BrowseProvider } from '@/lib/hooks/use-browse'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { cn, getRouteType } from '@/lib/utils'
 import { usePathname } from 'next/navigation'
@@ -8,7 +8,7 @@ interface BrowseLayoutProps {
 	children: React.ReactNode
 }
 
-'use client'
+;('use client')
 function ProfileLayoutContent({ children }: { children: React.ReactNode }) {
 	const { isDashboardOpen, setIsDashboardOpen, allCategories } = useSidebar()
 	const pathname = usePathname()

@@ -2,8 +2,8 @@
 
 //* ChatLayoutSection component renders a chat layout with conditional popup and responsive styling.
 
-import { CategoryDashboard } from '@/components/shared/category-dashboard'
 import { ThreadPopup } from '@/components/routes/thread/thread-popup'
+import { CategoryDashboard } from '@/components/shared/category-dashboard'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { cn, getRouteType } from '@/lib/utils'
@@ -13,12 +13,8 @@ import type * as React from 'react'
 //* ChatLayoutSection provides the main chat area layout with optional thread popup and responsive styling.
 export function ChatLayoutSection({ children }: { children: React.ReactNode }) {
 	const { sectionRef, isOpenPopup } = useThread()
-	const { 
-		activeChatbot, 
-		isDashboardOpen, 
-		setIsDashboardOpen, 
-		allCategories 
-	} = useSidebar()
+	const { activeChatbot, isDashboardOpen, setIsDashboardOpen, allCategories } =
+		useSidebar()
 	const pathname = usePathname()
 	const isPublic = getRouteType(pathname) === 'public'
 	const chatClassNames = activeChatbot

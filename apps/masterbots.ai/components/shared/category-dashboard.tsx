@@ -4,9 +4,9 @@ import { Card, CardContent } from '@/components/ui/card'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { cn, getRouteType } from '@/lib/utils'
 import type { Category } from 'mb-genql'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
-import Image from 'next/image'
 
 interface CategoryDashboardProps {
 	isOpen: boolean
@@ -158,7 +158,6 @@ function CategoryCard({
 	onToggle,
 	routeType,
 }: CategoryCardProps) {
-	const chatbotCount = category.chatbots.length
 	const firstBot = category.chatbots[0]?.chatbot
 
 	// Background image class - same as onboarding card
@@ -180,6 +179,8 @@ function CategoryCard({
 				'overflow-hidden relative p-4 w-full text-left rounded-lg border-2 transition-all duration-200 cursor-pointer',
 				'bg-white dark:bg-zinc-900',
 				getBorderClasses(),
+				!isSelected &&
+					'grayscale opacity-70 hover:grayscale-0 hover:opacity-100',
 			)}
 			onClick={onToggle}
 		>
@@ -191,16 +192,13 @@ function CategoryCard({
 			{/* Content layer */}
 			<div className="relative z-10">
 				<div className="flex justify-between items-center">
-					{/* Left side - Category info and checkbox */}
+					{/* Left side - Category info */}
 					<div className="flex-1">
 						<div className="mb-2">
-							<h3 className="font-semibold text-gray-900 dark:text-white">
+							<h3 className="text-lg font-semibold text-gray-900 dark:text-white">
 								{category.name}
 							</h3>
 						</div>
-						<p className="text-sm text-gray-600 dark:text-gray-400">
-							{chatbotCount} chatbot{chatbotCount !== 1 ? 's' : ''}
-						</p>
 					</div>
 
 					{/* Right side - Bot avatar */}
@@ -208,9 +206,9 @@ function CategoryCard({
 						<div className="flex-shrink-0 ml-4" title={firstBot.name}>
 							<div
 								className={cn(
-									'overflow-hidden rounded-full border-2 shadow-sm transition-all duration-200 size-16',
+									'overflow-hidden rounded-full border-2 shadow-sm transition-all duration-200 size-20',
 									isSelected
-										? 'ring-4 selected-bot-avatar'
+										? 'ring-2 selected-bot-avatar'
 										: 'border-gray-300 dark:border-gray-600',
 								)}
 							>
@@ -218,13 +216,13 @@ function CategoryCard({
 									<Image
 										src={firstBot.avatar}
 										alt={firstBot.name}
-										width={64}
-										height={64}
+										width={80}
+										height={80}
 										className="object-cover w-full h-full"
 									/>
 								) : (
 									<div className="flex justify-center items-center w-full h-full bg-gray-300 dark:bg-gray-600">
-										<span className="text-base font-medium text-gray-600 dark:text-gray-400">
+										<span className="text-lg font-medium text-gray-600 dark:text-gray-400">
 											{firstBot.name.charAt(0).toUpperCase()}
 										</span>
 									</div>
