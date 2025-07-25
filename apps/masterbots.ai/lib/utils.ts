@@ -317,7 +317,9 @@ export function getRouteType(pathname: string | null): RouteType {
 	if (
 		normalizedPath.startsWith('/c') &&
 		normalizedPath !== '/career' &&
-		!normalizedPath.startsWith('/career/')
+		!normalizedPath.startsWith('/career/') &&
+		normalizedPath !== '/content-creation' &&
+		!normalizedPath.startsWith('/content-creation/')
 	) {
 		return 'chat'
 	}
@@ -335,7 +337,11 @@ export function getRouteType(pathname: string | null): RouteType {
 		return 'pro'
 	}
 	// ? Check for bot routes (starting with /b)
-	if (normalizedPath.startsWith('/b/')) {
+	if (
+		normalizedPath.startsWith('/b') &&
+		normalizedPath !== '/biotech' &&
+		!normalizedPath.startsWith('/biotech/')
+	) {
 		return 'bot'
 	}
 
@@ -365,5 +371,20 @@ export function getRouteColor(
 			return 'text-black bg-gradient-to-b from-[rgba(131,229,106,0.1)] via-[rgba(131,229,106,0.5)] to-[rgba(131,229,106,0.5)] dark:text-white'
 		default:
 			return ''
+	}
+}
+
+export const getAppLogoPath = ({
+	theme,
+}: {
+	theme: string | undefined
+}): string => {
+	switch (theme) {
+		case 'dark':
+			return '/logos/mb-logo-landing-dark.webp'
+		case 'light':
+			return '/logos/mb-logo-landing-light.webp'
+		default:
+			return '/logos/mb-logo-landing-light.webp'
 	}
 }

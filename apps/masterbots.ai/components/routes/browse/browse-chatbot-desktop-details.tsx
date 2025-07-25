@@ -1,6 +1,8 @@
 import ShareLink from '@/components/routes/thread/thread-share-link'
+import { MemoizedReactMarkdown } from '@/components/shared/markdown'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
+import { memoizedMarkdownComponents } from '@/lib/memoized-markdown-components'
 import { cn, isFollowed, numberShortener } from '@/lib/utils'
 import type { BrowseChatbotLayoutProps } from '@/types/types'
 import {
@@ -28,41 +30,33 @@ export function BrowseChatbotDesktopDetails({
 	const followed = isFollowed({ followers, userId: session?.user?.id || '' })
 
 	return (
-		<div
-			className="hidden md:block w-full relative bg-left-bottom bg-[url('/hero-bg.png')] bg-no-repeat py-6"
-			id="hero-section"
-		>
-			<div className="absolute inset-0 z-0 bg-gradient-to-l from-mirage via-[#66B252BF]/80 dark:to-[#83E56A6B]/80" />
-			<div className="relative z-10">
-				<div className="max-w-[600px] mx-auto mb-4">
-					<Link
-						href="/"
-						className="flex items-center leading-none gap-2 text-white/80 dark:text-[#09090BC3] hover:text-white dark:hover:text-[#09090B]"
-					>
-						<ChevronLeft className="size-4" />
-						<span>Back to browse</span>
-					</Link>
-				</div>
-				<Card className="relative max-w-[600px] dark:bg-[#09090B] bg-white mx-auto">
-					<CardHeader>
-						<div className="flex gap-3 items-center">
-							<h1 className="p-4 text-2xl font-bold text-zinc-950 dark:text-gray-300">
-								{isWelcomeView ? 'Welcome to Masterbots!' : chatbot.name}
-							</h1>
-							<ShareLink
-								variant={variant === 'selected' ? 'active' : 'default'}
-							/>
-						</div>
+		<div className="profile-hero-bg" id="hero-section">
+			<div className="relative z-10 max-w-screen-lg mx-auto px-4">
+				<Link
+					href="/"
+					className="w-max mr-auto my-2 flex items-center leading-none gap-2 text-[#09090Baf] hover:text-[#09090B]"
+				>
+					<ChevronLeft className="size-4" />
+					<span>Back to browse</span>
+				</Link>
+				<Card className="relative w-full dark:bg-[#09090B] bg-white mx-auto">
+					<CardHeader className="flex flex-row gap-4 items-center px-4 pt-4 pb-2">
+						<h1 className="text-2xl font-bold text-zinc-950 dark:text-gray-300">
+							{isWelcomeView ? 'Welcome to Masterbots!' : chatbot.name}
+						</h1>
+						<ShareLink
+							variant={variant === 'selected' ? 'active' : 'default'}
+						/>
 					</CardHeader>
 					<CardContent className="p-0">
 						<div className="flex items-center text-zinc-950 dark:text-gray-400" />
-						<div className="flex items-center p-4">
+						<div className="flex items-center px-4 pb-1.5">
 							<Bot className="size-4" />
 							<span className="px-1">bio:</span>
 						</div>
 
 						<div className="relative p-4 border-t-[3px] border-zinc-200 dark:border-gray-800">
-							<div className="flex absolute right-0 -top-12 flex-col gap-4 items-center px-4">
+							<div className="flex absolute right-0 -top-20 flex-col gap-4 items-center px-4">
 								<div
 									className={cn(
 										'overflow-hidden p-0 m-0 rounded-full size-32',
@@ -83,7 +77,7 @@ export function BrowseChatbotDesktopDetails({
 									className={cn(
 										'w-full flex items-center gap-2 px-4 py-2 rounded-md mt-4',
 										'bg-[#82e46a] hover:bg-[#82e46a]/90',
-										'text-white dark:text-zinc-950',
+										'text-zinc-950',
 									)}
 								>
 									<Link href={botUrl} className="flex gap-2 items-center">
@@ -93,35 +87,19 @@ export function BrowseChatbotDesktopDetails({
 								</Button>
 							</div>
 
-							<div className="max-w-[calc(100%-200px)]">
-								{hasMultiplePoints ? (
-									<>
-										<p className="mb-2 text-zinc-500 dark:text-zinc-500">
-											{descriptionPoints[0]}
-										</p>
-										<ul className="space-y-1 list-none">
-											{descriptionPoints.slice(1).map((point, index) => (
-												<li
-													key={`point-${
-														// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-														index
-													}`}
-													className="text-gray-400"
-												>
-													• {point}
-												</li>
-											))}
-										</ul>
-									</>
-								) : (
-									<p className="text-gray-400">{chatbot.description}</p>
-								)}
+							<div className="max-w-[calc(100%-144px)]">
+								<MemoizedReactMarkdown
+									className="text-base text-black dark:text-white min-h-24 onboarding-chatbot-card__content"
+									components={memoizedMarkdownComponents()}
+								>
+									{chatbot.description}
+								</MemoizedReactMarkdown>
 							</div>
 						</div>
 					</CardContent>
 
-					<CardFooter className="flex flex-col space-y-4">
-						<div className="flex items-center w-full">
+					<CardFooter className="flex w-full gap-4 items-center justify-start">
+						<div className="flex items-center">
 							<div className="flex gap-2 items-center text-zinc-950 dark:text-gray-300">
 								<MessageSquareIcon className="size-4" />
 								<span>
@@ -133,7 +111,7 @@ export function BrowseChatbotDesktopDetails({
 							</div>
 						</div>
 
-						<div className="flex justify-between items-center w-full">
+						<div className="flex justify-between items-center">
 							<div className="flex gap-4 items-center">
 								<div className="flex gap-2 items-center text-zinc-950 dark:text-gray-300">
 									<Users className="size-4" />

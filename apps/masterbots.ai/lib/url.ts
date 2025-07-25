@@ -131,6 +131,10 @@ export function normalizeDomainSlug(domain: string, raw?: boolean): string {
 	return domainSlug
 }
 
+export function normalizeCategorySlug(category: string): string {
+	return category.toLowerCase().trim().replace(/\s/g, '-')
+}
+
 export const urlBuilders = {
 	/**
 	 * Constructs and returns a URL for a thread list based on the provided parameters.
@@ -175,7 +179,7 @@ export const urlBuilders = {
 
 			// Return the URL with the thread slug
 			const pathParts = basePath ? ['', basePath] : ['']
-			pathParts.push(toSlug(category))
+			pathParts.push(normalizeCategorySlug(category))
 			return pathParts.join('/')
 		} catch (error) {
 			if (appConfig.features.devMode)
@@ -239,9 +243,9 @@ export const urlBuilders = {
 			// Return the URL with the thread slug
 			const pathParts = basePath ? ['', basePath] : ['']
 			pathParts.push(
-				toSlug(category),
+				normalizeCategorySlug(category),
 				normalizeDomainSlug(domain, raw),
-				toSlug(chatbot),
+				chatbot.toLowerCase(),
 			)
 			return pathParts.join('/')
 		} catch (error) {
@@ -307,9 +311,9 @@ export const urlBuilders = {
 			// Return the URL with the thread slug
 			const pathParts = basePath ? ['', basePath] : ['']
 			pathParts.push(
-				toSlug(category),
+				normalizeCategorySlug(category),
 				normalizeDomainSlug(domain, raw),
-				toSlug(chatbot),
+				chatbot.toLowerCase(),
 				threadSlug,
 			)
 			return pathParts.join('/')
@@ -402,9 +406,9 @@ export const urlBuilders = {
 			// Return the URL with the thread slug
 			const pathParts = basePath ? ['', basePath] : ['']
 			pathParts.push(
-				toSlug(category),
+				normalizeCategorySlug(category),
 				normalizeDomainSlug(domain, raw),
-				toSlug(chatbot),
+				chatbot.toLowerCase(),
 				threadSlug,
 				threadQuestionSlug,
 			)
@@ -452,7 +456,7 @@ export const urlBuilders = {
 						)
 						return '/'
 					}
-					return ['', 'b', toSlug(chatbot)].join('/')
+					return ['', 'b', chatbot.toLowerCase()].join('/')
 				}
 				default: {
 					if (appConfig.features.devMode)
@@ -486,7 +490,9 @@ export const urlBuilders = {
 				return '/'
 			}
 
-			return ['', 'u', usernameSlug, 't', toSlug(category)].join('/')
+			return ['', 'u', usernameSlug, 't', normalizeCategorySlug(category)].join(
+				'/',
+			)
 		} catch (error) {
 			if (appConfig.features.devMode)
 				console.error('Error constructing profile URL:', error)
@@ -521,9 +527,9 @@ export const urlBuilders = {
 				'u',
 				usernameSlug,
 				't',
-				toSlug(category),
+				normalizeCategorySlug(category),
 				normalizeDomainSlug(domain, raw),
-				toSlug(chatbot),
+				chatbot.toLowerCase(),
 			].join('/')
 		} catch (error) {
 			if (appConfig.features.devMode)
@@ -590,14 +596,14 @@ export const urlBuilders = {
 						'u',
 						usernameSlug,
 						't',
-						toSlug(category),
+						normalizeCategorySlug(category),
 						normalizeDomainSlug(domain, raw),
-						toSlug(chatbot),
+						chatbot.toLowerCase(),
 						threadSlug,
 					].join('/')
 				}
 				case 'chatbot': {
-					return ['', 'b', toSlug(chatbot), threadSlug].join('/')
+					return ['', 'b', chatbot.toLowerCase(), threadSlug].join('/')
 				}
 				default: {
 					if (appConfig.features.devMode)
@@ -673,9 +679,9 @@ export const urlBuilders = {
 						'u',
 						usernameSlug,
 						't',
-						toSlug(category),
+						normalizeCategorySlug(category),
 						normalizeDomainSlug(domain, raw),
-						toSlug(chatbot),
+						chatbot.toLowerCase(),
 						threadSlug,
 						threadQuestionSlug,
 					].join('/')
@@ -684,7 +690,7 @@ export const urlBuilders = {
 					return [
 						'',
 						'b',
-						toSlug(chatbot),
+						chatbot.toLowerCase(),
 						domain,
 						threadSlug,
 						threadQuestionSlug,
@@ -725,7 +731,7 @@ export const urlBuilders = {
 					)
 				return '/'
 			}
-			return ['', 'b', toSlug(chatbot)].join('/')
+			return ['', 'b', chatbot.toLowerCase()].join('/')
 		} catch (error) {
 			if (appConfig.features.devMode)
 				console.error('Error constructing profile URL:', error)

@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils'
 import { getUserInfoFromBrowse } from '@/services/hasura'
 import {
 	ChevronRightIcon,
+	CircleUserRound,
 	LogOutIcon,
 	ReceiptIcon,
 	SettingsIcon,
@@ -97,15 +98,11 @@ export function UserMenu({ user }: UserMenuProps) {
 					align="start"
 					className="w-[200px]"
 					onClick={(e) => {
-						// This would dispatch the event that we are clicking on,
-						// making this function to call and close the menu ;)
-						// JS Events FTW! - Andler
-						e.currentTarget.dispatchEvent(e as unknown as Event)
 						setOpen(false)
 					}}
 				>
 					<DropdownMenuGroup>
-						<DropdownMenuItem className="flex-col items-start justify-center">
+						<DropdownMenuItem className="flex items-center justify-between w-full py-0 px-0">
 							<Link
 								href={urlBuilders.profilesUrl({
 									type: 'user',
@@ -113,41 +110,45 @@ export function UserMenu({ user }: UserMenuProps) {
 										? user.slug
 										: toSlugWithUnderScore(user?.name || ''),
 								})}
-								className="w-full text-xs"
+								className={cn(
+									buttonVariants({
+										variant: 'ghost',
+									}),
+									'flex w-full gap-4 justify-between px-2 text-sm py-3 h-11',
+								)}
 							>
-								<div className="font-medium">{user?.name}</div>
-								<div className="text-zinc-500">{user?.email}</div>
+								Profile
+								<CircleUserRound className="size-4" />
 							</Link>
-							<ChevronRightIcon className="absolute size-3 mt-auto right-2.5 pointer-events-none" />
 						</DropdownMenuItem>
 					</DropdownMenuGroup>
 					<DropdownMenuSeparator />
 					<DropdownMenuGroup>
-						<DropdownMenuItem className="flex items-center justify-between w-full">
-							<ThemeToggle />
+						<DropdownMenuItem className="flex items-center justify-between w-full py-0 px-0">
+							<ThemeToggle className="py-3 px-2" />
 						</DropdownMenuItem>
-						<DropdownMenuItem className="flex items-center justify-between w-full">
+						<DropdownMenuItem className="flex items-center justify-between w-full py-0 px-0">
 							<Link
 								href={`/u/${user.slug}/s/pref`}
 								className={cn(
 									buttonVariants({
 										variant: 'ghost',
 									}),
-									'flex w-full gap-4 justify-between px-0 text-sm',
+									'flex w-full gap-4 justify-between px-2 text-sm py-3 h-11',
 								)}
 							>
 								Preferences
 								<SettingsIcon className="size-4" />
 							</Link>
 						</DropdownMenuItem>
-						<DropdownMenuItem className="flex items-center justify-between w-full">
+						<DropdownMenuItem className="flex items-center justify-between w-full py-0 px-0">
 							<Link
 								href={`/u/${user.slug}/s/subs`}
 								className={cn(
 									buttonVariants({
 										variant: 'ghost',
 									}),
-									'flex w-full gap-4 justify-between px-0 text-sm',
+									'flex w-full gap-4 justify-between px-2 text-sm py-3 h-11',
 								)}
 							>
 								Subscriptions
@@ -163,7 +164,12 @@ export function UserMenu({ user }: UserMenuProps) {
 									callbackUrl: '/',
 								})
 							}
-							className="flex justify-between w-full gap-4 px-2 text-sm cursor-pointer"
+							className={cn(
+								buttonVariants({
+									variant: 'ghost',
+								}),
+								'flex w-full gap-4 justify-between px-2 text-sm py-3 h-11 cursor-pointer',
+							)}
 						>
 							Log Out
 							<LogOutIcon className="size-4" />
