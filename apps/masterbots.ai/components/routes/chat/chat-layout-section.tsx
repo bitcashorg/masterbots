@@ -31,7 +31,6 @@ export function ChatLayoutSection({ children }: { children: React.ReactNode }) {
 						categories={allCategories}
 					/>
 				</div>
-			)}
 			<section
 				ref={sectionRef as React.Ref<HTMLDivElement>}
 				className={cn(

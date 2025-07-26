@@ -13,7 +13,7 @@ export default async function BrowseLayout({ children }: BrowseLayoutProps) {
 			{/* <NextTopLoader color="#1ED761" initialPosition={0.2} /> */}
 			<ResponsiveSidebar />
 			<ChatLayoutSection>{children}</ChatLayoutSection>
-			<FooterCT />
+			<FooterCT className="hidden md:flex" />
 		</BrowseProvider>
 	)
 }
