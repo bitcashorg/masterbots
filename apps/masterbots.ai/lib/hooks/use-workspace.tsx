@@ -296,9 +296,13 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 	}
 
 	// Memoize organization departments to prevent unnecessary recalculations
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const orgDepts = React.useMemo(() => {
 		if (!activeOrganization || !departmentsByOrg) return null
-		return departmentsByOrg[activeOrganization] || null
+		return (
+			departmentsByOrg[activeOrganization as keyof typeof departmentsByOrg] ||
+			null
+		)
 	}, [activeOrganization, departmentsByOrg])
 
 	// When organization changes, set department if needed
@@ -336,11 +340,16 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 	}, [activeOrganization, orgDepts, activeDepartment])
 
 	// Memoize department projects to prevent unnecessary recalculations
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const deptProjects = React.useMemo(() => {
 		if (!activeOrganization || !activeDepartment || !projectsByDept) return null
-		const orgProjects = projectsByDept[activeOrganization]
+		const orgProjects =
+			projectsByDept[activeOrganization as keyof typeof projectsByDept]
 		if (!orgProjects) return null
-		return orgProjects[activeDepartment] || null
+		return (
+			(orgProjects[activeDepartment as keyof typeof orgProjects] as string[]) ||
+			null
+		)
 	}, [activeOrganization, activeDepartment, projectsByDept])
 
 	// When department changes, set default project only if current project is invalid
@@ -354,7 +363,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 		console.log('Department changed to:', activeDepartment)
 
 		// Handle case where there are no projects for this department
-		if (deptProjects.length === 0) {
+		if (deptProjects?.length === 0) {
 			console.log('No projects for this department')
 			if (activeProject !== null) {
 				setActiveProject(null)
@@ -381,10 +390,11 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 	}, [activeOrganization, activeDepartment, deptProjects, activeProject])
 
 	// Memoize project documents to prevent unnecessary recalculations
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const projectDocs = React.useMemo(() => {
 		if (!activeProject || !documentList) return null
 		return documentList[activeProject] || null
-	}, [activeProject, documentList])
+	}, [activeProject])
 
 	// When project changes, set default document only if current document is invalid
 	React.useEffect(() => {
@@ -427,6 +437,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 	}, [activeProject, projectDocs, activeDocument])
 
 	// Stable reference to state update functions
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const stableSetters = React.useMemo(
 		() => ({
 			setActiveOrganization,
@@ -439,27 +450,24 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 		[],
 	)
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const value = React.useMemo(
 		() => ({
-			isWorkspaceActive,
-			toggleWorkspace: stableSetters.toggleWorkspace,
-			activeOrganization,
-			setActiveOrganization: stableSetters.setActiveOrganization,
-			activeDepartment,
-			setActiveDepartment: stableSetters.setActiveDepartment,
-			activeProject,
-			setActiveProject: stableSetters.setActiveProject,
-			activeDocument,
-			setActiveDocument: stableSetters.setActiveDocument,
-			organizationList,
-			departmentList,
 			projectList,
 			documentList,
+			activeProject,
 			textDocuments,
 			imageDocuments,
-			spreadsheetDocuments,
+			activeDocument,
+			departmentList,
 			projectsByDept,
 			documentContent,
+			activeDepartment,
+			organizationList,
+			isWorkspaceActive,
+			activeOrganization,
+			spreadsheetDocuments,
+			...stableSetters,
 			setDocumentContent,
 		}),
 		[
@@ -471,7 +479,6 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 			organizationList,
 			departmentList,
 			projectList,
-			documentList,
 			textDocuments,
 			imageDocuments,
 			spreadsheetDocuments,

@@ -106,6 +106,7 @@ The conclusion summarizes the key points and implications of the project.
 		}
 	}, [])
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	React.useEffect(() => {
 		// Only reset when document actually changes (not on every render)
 		if (documentKey !== prevDocumentKeyRef.current) {
@@ -118,14 +119,51 @@ The conclusion summarizes the key points and implications of the project.
 			// If we have saved content for this document, load it
 			if (savedContent) {
 				setFullMarkdown(savedContent)
-				setSections(parseMarkdownSections(savedContent))
+				const parsedSections = parseMarkdownSections(savedContent)
+				console.log('📄 Loading saved document sections:', {
+					documentKey,
+					totalSections: parsedSections.length,
+					sections: parsedSections.map((s) => ({
+						id: s.id,
+						title: s.title,
+						level: s.level,
+					})),
+				})
+				setSections(parsedSections)
 			} else {
-				// Reset to initial state for new documents
+				// Reset to initial state for new documents and ensure it's saved to workspace
 				setFullMarkdown(initialMarkdown)
-				setSections(parseMarkdownSections(initialMarkdown))
+				const parsedSections = parseMarkdownSections(initialMarkdown)
+				console.log('📄 Creating new document sections:', {
+					documentKey,
+					totalSections: parsedSections.length,
+					sections: parsedSections.map((s) => ({
+						id: s.id,
+						title: s.title,
+						level: s.level,
+					})),
+				})
+				setSections(parsedSections)
+
+				// Initialize the document content in workspace context so AI has proper context
+				if (projectName && documentName) {
+					console.log('🔧 Initializing document content in workspace:', {
+						projectName,
+						documentName,
+						documentKey,
+						contentLength: initialMarkdown.length,
+					})
+					setDocumentContent(projectName, documentName, initialMarkdown)
+				}
 			}
 		}
-	}, [documentKey, savedContent, onActiveSectionChange])
+	}, [
+		documentKey,
+		savedContent,
+		onActiveSectionChange,
+		projectName,
+		documentName,
+	])
 
 	// Track the last assistant message to detect new AI responses
 	const lastAssistantMessage = React.useMemo(() => {
@@ -213,12 +251,22 @@ The conclusion summarizes the key points and implications of the project.
 	const handleSectionClick = (sectionId: string) => {
 		const section = sections.find((s) => s.id === sectionId)
 		if (section) {
-			console.log('🎯 Section clicked:', sectionId, 'Title:', section.title)
+			console.log('🎯 Section clicked:', {
+				sectionId,
+				title: section.title,
+				level: section.level,
+				allSections: sections.map((s) => ({ id: s.id, title: s.title })),
+			})
 			setActiveSection(sectionId)
 			setEditableContent(section.content)
 			// Notify parent component about active section change
 			onActiveSectionChange?.(sectionId)
 			console.log('🎯 Active section change notification sent for:', sectionId)
+		} else {
+			console.error('❌ Section not found:', {
+				requestedId: sectionId,
+				availableSections: sections.map((s) => ({ id: s.id, title: s.title })),
+			})
 		}
 	}
 

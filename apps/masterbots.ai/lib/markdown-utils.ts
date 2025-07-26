@@ -14,6 +14,40 @@ export interface MarkdownSection {
  * @param markdown The markdown string to parse
  * @returns An array of markdown sections
  */
+/**
+ * Generates a stable ID from heading text by converting to lowercase,
+ * replacing spaces and special characters with hyphens, and removing duplicates
+ */
+function generateStableSectionId(
+	title: string,
+	existingIds: Set<string>,
+): string {
+	// Convert to lowercase and replace spaces/special chars with hyphens
+	let baseId = title
+		.toLowerCase()
+		.trim()
+		.replace(/[^\w\s-]/g, '') // Remove special characters except word chars, spaces, and hyphens
+		.replace(/\s+/g, '-') // Replace spaces with hyphens
+		.replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+		.replace(/^-|-$/g, '') // Remove leading/trailing hyphens
+
+	// Ensure the ID is not empty
+	if (!baseId) {
+		baseId = 'section'
+	}
+
+	// Handle duplicates by adding a counter
+	let finalId = baseId
+	let counter = 1
+	while (existingIds.has(finalId)) {
+		finalId = `${baseId}-${counter}`
+		counter++
+	}
+
+	existingIds.add(finalId)
+	return finalId
+}
+
 export function parseMarkdownSections(markdown: string): MarkdownSection[] {
 	if (!markdown || markdown.trim() === '') {
 		return []
@@ -23,14 +57,13 @@ export function parseMarkdownSections(markdown: string): MarkdownSection[] {
 	const sections: MarkdownSection[] = []
 	let currentSection: MarkdownSection | null = null
 	let currentContent: string[] = []
-	let sectionId = 1
+	const usedIds = new Set<string>()
 
 	// Handle case with no headings by creating a default section
 	let hasHeadings = false
 
 	// Process each line
-	for (let i = 0; i < lines.length; i++) {
-		const line = lines[i]
+	for (const [i, line] of lines.entries()) {
 		const headingMatch = line.match(/^(#{1,6})\s+(.+)$/)
 
 		if (headingMatch) {
@@ -45,10 +78,13 @@ export function parseMarkdownSections(markdown: string): MarkdownSection[] {
 				currentContent = []
 			}
 
-			// Create new section
+			// Create new section with stable ID based on title
+			const title = headingMatch[2].trim()
+			const stableId = generateStableSectionId(title, usedIds)
+
 			currentSection = {
-				id: `section-${sectionId++}`,
-				title: headingMatch[2].trim(),
+				id: stableId,
+				title: title,
 				level: headingMatch[1].length,
 				content: '',
 			}
@@ -69,8 +105,9 @@ export function parseMarkdownSections(markdown: string): MarkdownSection[] {
 		})
 	} else if (!hasHeadings && currentContent.length > 0) {
 		// No headings found, create a default section
+		const defaultId = generateStableSectionId('Document', usedIds)
 		sections.push({
-			id: `section-1`,
+			id: defaultId,
 			title: 'Document',
 			level: 1,
 			content: currentContent.join('\n'),
@@ -90,7 +127,7 @@ export function combineMarkdownSections(sections: MarkdownSection[]): string {
 
 	return sections
 		.map((section) => {
-			const heading = '#'.repeat(section.level) + ' ' + section.title
+			const heading = `${'#'.repeat(section.level)} ${section.title}`
 			return `${heading}\n${section.content}`
 		})
 		.join('\n\n')

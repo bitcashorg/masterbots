@@ -157,9 +157,23 @@ export function WorkspaceChatProvider({
 				// Parse the current document into sections
 				const sections = parseMarkdownSections(currentContent)
 
+				console.log('📝 Section parsing results:', {
+					totalSections: sections.length,
+					sectionIds: sections.map((s) => s.id),
+					sectionTitles: sections.map((s) => s.title),
+					activeSection,
+				})
+
 				// If there's an active section, update that specific section only
 				if (activeSection && sections.length > 0) {
 					const sectionIndex = sections.findIndex((s) => s.id === activeSection)
+
+					console.log('📍 Section matching:', {
+						activeSection,
+						sectionIndex,
+						foundSection: sectionIndex !== -1 ? sections[sectionIndex] : null,
+					})
+
 					if (sectionIndex !== -1) {
 						console.log(`📍 Updating section: ${sections[sectionIndex].title}`)
 

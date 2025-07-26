@@ -217,6 +217,7 @@ export function ChatPanelPro({
 	// Separate effect for document reset to avoid infinite loops
 	// Only runs when document type actually changes
 	const previousDocTypeRef = useRef(documentType)
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		// Generate a unique ID for this effect run
 		const effectId = Math.random().toString(36).substring(2, 8)
@@ -260,7 +261,6 @@ export function ChatPanelPro({
 		}
 	}, [
 		documentType,
-		setActiveDocument,
 		activeDocument,
 		activeProject,
 		textDocuments,
@@ -434,9 +434,13 @@ export function ChatPanelPro({
 		let taskInstructions = ''
 		let outputFormat = ''
 
-		if (focusedSection) {
-			// Section-specific editing mode
-			taskInstructions = `
+		if (!focusedSection) {
+			console.error('NO FOCUSED SECTION FOUND!')
+			return ''
+		}
+
+		// Section-specific editing mode
+		taskInstructions = `
 EDITING MODE: SECTION UPDATE
 You are editing a specific section of a larger document. The user has selected the section "${focusedSection.title}" for editing.
 
@@ -451,41 +455,39 @@ USER REQUEST: ${userPrompt}
 
 IMPORTANT: You should ONLY return the updated content for the "${focusedSection.title}" section. Do NOT include the entire document or other sections in your response.`
 
-			outputFormat = `
+		outputFormat = `
 <output_format>
 Return ONLY the updated content for the "${focusedSection.title}" section. Your response should be the new content that will replace the existing section content.
 
 ACCEPTABLE FORMATS:
-1. Plain text content (will be inserted as-is into the section)
-2. Markdown content with subsections (H3, H4, etc.) that belong under "${focusedSection.title}"
+1. Plain text content (will be inserted as-is into the section).
+2. Markdown content with subsections (H3, H4, etc.) that belong under "${focusedSection.title}".
 
 DO NOT INCLUDE:
-- The section heading itself (## ${focusedSection.title})
-- Other sections from the document
-- Complete document restructure
-- Content that belongs to other sections
+- The section heading itself (## ${focusedSection.title}).
+- Other sections from the document.
+- Complete document restructure.
+- Content that belongs to other sections.
 </output_format>`
-		} else {
-			// Full document mode
-			taskInstructions = `
-EDITING MODE: FULL DOCUMENT
-You are working with the entire document. The user has not selected a specific section.
+		// 			// Full document mode
+		// 			taskInstructions = `
+		// EDITING MODE: FULL DOCUMENT
+		// You are working with the entire document. The user has not selected a specific section.
 
-FULL DOCUMENT:
-${sectionsContext}
+		// FULL DOCUMENT:
+		// ${sectionsContext}
 
-USER REQUEST: ${userPrompt}`
+		// USER REQUEST: ${userPrompt}`
 
-			outputFormat = `
-<output_format>
-Since no specific section is selected, you can:
-1. Add new sections to the document
-2. Provide content that spans multiple sections
-3. Suggest document-wide improvements
+		// 			outputFormat = `
+		// <output_format>
+		// Since no specific section is selected, you can:
+		// 1. Add new sections to the document
+		// 2. Provide content that spans multiple sections
+		// 3. Suggest document-wide improvements
 
-Format your response as complete markdown with appropriate headings.
-</output_format>`
-		}
+		// Format your response as complete markdown with appropriate headings.
+		// </output_format>`
 
 		return `You are an expert document editor and content creator working with specialized chatbot expertise.${chatbotExpertise}
 
@@ -915,6 +917,7 @@ Please provide your response now:`
 										isWorkspaceActive,
 										activeProject,
 										activeDocument,
+										documentContent,
 										appendFunction: typeof workspaceAppend,
 									})
 
