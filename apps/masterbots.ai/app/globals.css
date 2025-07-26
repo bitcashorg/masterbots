@@ -448,6 +448,10 @@
 	[data-route="profile"] .selected-bot-text {
 		@apply text-green-500;
 	}
+	[data-route="public"] .selected-bot__footer,
+	[data-route="profile"] .selected-bot__footer {
+		@apply hidden;
+	}
 
 	/* Icon fill colors */
 	[data-route="chat"] .selected-bot-icon {
@@ -824,4 +828,29 @@
 
 .dark .pro-card .inner-content:hover {
 	background-color: rgba(131, 229, 106, 0.15);
+}
+
+.onboarding-chatbot-card__content {
+	@apply flex w-full gap-6 items-start justify-between;
+
+	& p {
+		@apply w-full md:w-[42%];
+	}
+	& ul {
+		@apply hidden md:flex flex-col pl-0 gap-2 md:w-[58%];
+
+		& li {
+			@apply !pl-0 !py-0 !my-0;
+		}
+	}
+
+	&.onboarding-chatbot-card__content--welcome {
+		& p {
+			@apply md:w-10/12 lg:w-2/3;
+		}
+	}
+}
+
+.profile-hero-bg {
+	@apply w-full relative bg-center bg-cover bg-[url('/hero-bg.jpg')] bg-no-repeat py-6;
 }

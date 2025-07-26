@@ -40,8 +40,5 @@
 		}
 	},
 	"workspaces": ["apps/*", "packages/*"],
-	"packageManager": "bun@1.2.0",
-	"dependencies": {
-		"drizzle-orm": "^0.43.1"
-	}
+	"packageManager": "bun@1.2.0"
 }

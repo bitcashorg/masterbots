@@ -90,14 +90,14 @@ export default function ThreadList({
 				customSonner,
 				activateThreadPopup,
 			),
-		[activeThread, window.location.pathname],
+		[],
 	)
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		if (activeThread) return
 		getOpeningActiveThread()
-	}, [activeThread])
+	}, [])
 
 	if (loadingThread) {
 		return (

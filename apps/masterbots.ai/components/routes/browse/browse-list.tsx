@@ -125,11 +125,11 @@ export default function BrowseList({
 				),
 			)
 			setCount(count)
-			setHasInitialized(true) // ? Setting hasInitialized after fetch preventing NoResults from showing
 		} catch (error) {
 			console.error('Error fetching threads:', error)
 		} finally {
 			setLoading(false)
+			setHasInitialized(true) // ? Setting hasInitialized after fetch preventing NoResults from showing
 		}
 	}
 

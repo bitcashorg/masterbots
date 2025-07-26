@@ -14,7 +14,7 @@ export function ErrorComponent({ message }: { message: string }) {
 				/>
 			</div>
 
-			<h1 className="text-3xl font-bold  mb-4">Oops! Thread Not Found</h1>
+			<h1 className="text-3xl font-bold  mb-4">Oops! Something is missing</h1>
 			<p className=" text-center mb-4 max-w-[480px]">{message}</p>
 			<Link href="/" className="flex items-center space-x-1">
 				<svg
