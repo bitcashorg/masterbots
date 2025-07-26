@@ -116,7 +116,9 @@ export function CategoryDashboard({
 									onClick={handleApplySelection}
 									className={cn(
 										'px-4 py-2 text-sm font-medium text-white rounded-lg shadow-sm transition-colors',
-										'bg-accent-foreground',
+										routeType === 'chat'
+											? 'bg-purple-600 hover:bg-purple-700'
+											: 'bg-green-600 hover:bg-green-700',
 									)}
 								>
 									Apply Selection
@@ -124,7 +126,7 @@ export function CategoryDashboard({
 							</div>
 
 							{/* Categories grid */}
-							<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-h-[40vh] overflow-y-auto pr-1">
+							<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-h-[40vh] overflow-y-auto pr-1 hide-scrollbar">
 								{categories.map((category) => (
 									<CategoryCard
 										key={category.categoryId}
@@ -172,12 +174,20 @@ function CategoryCard({
 		return 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
 	}
 
+	// Route-based background colors for selected cards
+	const getBackgroundClasses = () => {
+		if (isSelected) {
+			return routeType === 'chat' ? 'bg-purple-500/10' : 'bg-green-500/10'
+		}
+		return 'bg-white dark:bg-zinc-900'
+	}
+
 	return (
 		<button
 			type="button"
 			className={cn(
 				'overflow-hidden relative p-4 w-full text-left rounded-lg border-2 transition-all duration-200 cursor-pointer',
-				'bg-white dark:bg-zinc-900',
+				getBackgroundClasses(),
 				getBorderClasses(),
 				!isSelected &&
 					'grayscale opacity-70 hover:grayscale-0 hover:opacity-100',

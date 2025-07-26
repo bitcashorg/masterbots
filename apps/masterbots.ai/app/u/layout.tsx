@@ -1,14 +1,15 @@
+'use client'
+
 import { CategoryDashboard } from '@/components/shared/category-dashboard'
 import { BrowseProvider } from '@/lib/hooks/use-browse'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
-import { cn, getRouteType } from '@/lib/utils'
+import { getRouteType } from '@/lib/utils'
 import { usePathname } from 'next/navigation'
 
 interface BrowseLayoutProps {
 	children: React.ReactNode
 }
 
-;('use client')
 function ProfileLayoutContent({ children }: { children: React.ReactNode }) {
 	const { isDashboardOpen, setIsDashboardOpen, allCategories } = useSidebar()
 	const pathname = usePathname()
@@ -17,7 +18,7 @@ function ProfileLayoutContent({ children }: { children: React.ReactNode }) {
 	return (
 		<>
 			{isDashboardOpen && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+				<div className="flex fixed inset-0 z-50 justify-center items-center backdrop-blur-sm bg-black/50">
 					<CategoryDashboard
 						isOpen={isDashboardOpen}
 						onClose={() => setIsDashboardOpen(false)}
@@ -27,7 +28,7 @@ function ProfileLayoutContent({ children }: { children: React.ReactNode }) {
 			)}
 			<main className="flex flex-col h-[calc(100vh-theme(spacing.16))]">
 				<section
-					className="w-full overflow-auto group scrollbar"
+					className="overflow-auto w-full group scrollbar"
 					id="thread-scroll-section"
 				>
 					{children}
