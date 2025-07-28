@@ -8,9 +8,15 @@ export const useLocalStorage = <T>(
 
 	useEffect(() => {
 		// Retrieve from localStorage
-		const item = window.localStorage.getItem(key)
-		if (item) {
-			setStoredValue(JSON.parse(item))
+		if (typeof window !== 'undefined') {
+			const item = window.localStorage.getItem(key)
+			if (item) {
+				try {
+					setStoredValue(JSON.parse(item))
+				} catch (error) {
+					console.warn('Failed to parse localStorage item:', error)
+				}
+			}
 		}
 	}, [key])
 
@@ -24,7 +30,13 @@ export const useLocalStorage = <T>(
 				: value
 		setStoredValue(newValue)
 		// Save to localStorage
-		window.localStorage.setItem(key, JSON.stringify(newValue))
+		if (typeof window !== 'undefined') {
+			try {
+				window.localStorage.setItem(key, JSON.stringify(newValue))
+			} catch (error) {
+				console.warn('Failed to save to localStorage:', error)
+			}
+		}
 	}
 	return [storedValue, setValue]
 }

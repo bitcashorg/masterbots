@@ -11,18 +11,14 @@ export default function HomePage({
 	initialThreads,
 	initialCount,
 }: HomePageProps) {
-	const { data: session } = useSession()
+	const { data: session, status } = useSession()
 	const { selectedCategories, setSelectedCategories } = useSidebar()
-	const [showOnboarding, setShowOnboarding] = useState(true)
-	const [hasInitialized, setHasInitialized] = useState(false)
+	const [showOnboarding, setShowOnboarding] = useState(false)
 
-	//? Clear stored selections for new non-logged users
 	useEffect(() => {
-		if (!session?.user && !hasInitialized) {
-			setSelectedCategories([])
-			setHasInitialized(true)
-		}
-	}, [session?.user, hasInitialized, setSelectedCategories])
+		if (status === 'loading') return
+		setShowOnboarding(!session?.user)
+	}, [session?.user, status])
 
 	//? Show onboarding section for non-logged-in users
 	if (!session?.user) {

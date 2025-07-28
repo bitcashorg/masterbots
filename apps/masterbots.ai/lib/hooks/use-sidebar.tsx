@@ -83,6 +83,29 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 	const { selectedCategories, setCategories } = useCategorySelections()
 	const [selectedChatbots, setSelectedChatbots] = React.useState<number[]>([])
 	const { data: session } = useSession()
+	const hasClearedRef = React.useRef(false)
+	const setCategoriesRef = React.useRef(setCategories)
+	const [hasLoadedFromStorage, setHasLoadedFromStorage] = React.useState(false)
+
+	// Update the ref when setCategories changes
+	React.useEffect(() => {
+		setCategoriesRef.current = setCategories
+	}, [setCategories])
+
+	//? Handle category selections for logged vs non-logged users
+	React.useEffect(() => {
+		if (!session?.user && !hasClearedRef.current) {
+			setCategoriesRef.current([])
+			hasClearedRef.current = true
+		} else if (session?.user) {
+			hasClearedRef.current = false
+		}
+	}, [session?.user])
+
+	//? Mark that we've loaded from storage after the first render
+	React.useEffect(() => {
+		setHasLoadedFromStorage(true)
+	}, [])
 	const { userSlug } = useParams()
 	const pathname = usePathname()
 	const router = useRouter()
@@ -113,22 +136,32 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 		const pathParts = pathname.split('/')
 		const prevPathParts = (prevPath.current || '').split('/')
 
+		//? Only auto-select categories for logged users if they have no stored selections and we've loaded from storage
+		const shouldAutoSelect =
+			selectedCategories.length === 0 && session?.user && hasLoadedFromStorage
+
 		if (
 			(prevPath.current !== pathname &&
 				pathParts[1] !== prevPathParts[1] &&
 				pathParts[1] === 'c') ||
-			(selectedCategories.length === 0 && selectedChatbots.length === 0)
+			shouldAutoSelect
 		) {
 			if (selectedCategories.length > 0) {
 				const selectedChatbotsFromCategories = categoriesObj.categoriesChatbots
-					.filter((category) =>
-						selectedCategories.includes(category.categoryId),
+					.filter(
+						(category) =>
+							category?.categoryId &&
+							selectedCategories.includes(category.categoryId),
 					)
-					.flatMap((category) =>
-						category.chatbots.map((chatbot) => chatbot.chatbotId),
+					.flatMap(
+						(category) =>
+							category.chatbots
+								?.map((chatbot) => chatbot?.chatbotId)
+								.filter(Boolean) || [],
 					)
 				setSelectedChatbots(selectedChatbotsFromCategories)
-			} else {
+			} else if (shouldAutoSelect) {
+				// Only set all categories for logged users if they have no stored selections
 				setCategories(categoriesObj.categoriesId)
 				setSelectedChatbots(categoriesObj.chatbotsId)
 			}
@@ -144,6 +177,8 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 		selectedCategories,
 		setCategories,
 		setSelectedChatbots,
+		session?.user,
+		hasLoadedFromStorage,
 	])
 
 	const [isSidebarOpen, setSidebarOpen] = React.useState(false)
@@ -193,11 +228,12 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 
 		const category = categories?.categoriesChatbots.find(
 			(cat) =>
-				toSlug(cat.name) === personalChatbotSlugProfileTopicOrThreadSlug ||
-				toSlug(cat.name) === personalProfilesTopicSlugOrDomainSlug ||
-				toSlug(cat.name) === publicTopicSlugOrBasePath,
+				cat?.name &&
+				(toSlug(cat.name) === personalChatbotSlugProfileTopicOrThreadSlug ||
+					toSlug(cat.name) === personalProfilesTopicSlugOrDomainSlug ||
+					toSlug(cat.name) === publicTopicSlugOrBasePath),
 		)
-		if (category) {
+		if (category?.categoryId) {
 			setActiveCategory(category.categoryId)
 			setExpandedCategories([category.categoryId])
 
@@ -206,14 +242,15 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 				personalChatbotSlugProfileTopicOrThreadSlug ||
 				profileChatbot
 			) {
-				const chatbot = category.chatbots.find(
+				const chatbot = category.chatbots?.find(
 					(c) =>
-						c.chatbot.name.toLowerCase() === profileChatbot ||
-						c.chatbot.name.toLowerCase() ===
-							personalChatbotSlugProfileTopicOrThreadSlug ||
-						c.chatbot.name.toLowerCase() === domainSlugOrPublicChatbotSlug,
+						c?.chatbot?.name &&
+						(c.chatbot.name.toLowerCase() === profileChatbot ||
+							c.chatbot.name.toLowerCase() ===
+								personalChatbotSlugProfileTopicOrThreadSlug ||
+							c.chatbot.name.toLowerCase() === domainSlugOrPublicChatbotSlug),
 				)
-				if (chatbot) {
+				if (chatbot?.chatbot) {
 					setActiveChatbot(chatbot.chatbot)
 				} else {
 					setActiveChatbot(null)
