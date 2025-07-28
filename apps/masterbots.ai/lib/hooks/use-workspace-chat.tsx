@@ -334,18 +334,16 @@ export function WorkspaceChatProvider({
 			})
 
 			// First, set up the system context if it's not already set or has changed
-			if (currentMetaPrompt !== metaPrompt) {
-				setCurrentMetaPrompt(metaPrompt)
-				// Reset messages to include the new system prompt
-				setMessages([
-					{
-						id: `system-${chatId}`,
-						role: 'system',
-						content: metaPrompt,
-						createdAt: new Date(),
-					},
-				])
-			}
+			setCurrentMetaPrompt(metaPrompt)
+			// Reset messages to include the new system prompt
+			setMessages([
+				{
+					id: `system-${chatId}`,
+					role: 'system',
+					content: metaPrompt,
+					createdAt: new Date(),
+				},
+			])
 
 			// Now send the user prompt as a separate user message
 			await append({
