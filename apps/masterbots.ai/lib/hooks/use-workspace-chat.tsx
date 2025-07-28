@@ -85,53 +85,67 @@ export function WorkspaceChatProvider({
 	// Create a stable chat ID that persists across renders
 	const chatId = React.useMemo(() => nanoid(), [])
 
-	// Raw useChat hook for workspace mode
-	const { messages, isLoading, error, append, input, setInput } = useChat({
-		id: chatId,
-		body: {
+	// Store the current metaPrompt for system context
+	const [currentMetaPrompt, setCurrentMetaPrompt] = React.useState<string>('')
+
+	// Raw useChat hook for workspace mode with system message support
+	const { messages, isLoading, error, append, input, setInput, setMessages } =
+		useChat({
 			id: chatId,
-			model: selectedModel,
-			clientType,
-		},
-		onResponse(response) {
-			if (response.status === 401) {
-				customSonner({ type: 'error', text: response.statusText })
-			} else if (!response.ok) {
-				customSonner({ type: 'error', text: 'Failed to process request' })
-			}
-		},
-		onError(error) {
-			console.error('❌ Error in workspace chat:', error)
-			customSonner({ type: 'error', text: 'An error occurred' })
-		},
-		async onFinish(message) {
-			console.log(
-				'✅ onFinish: AI response complete, handling document update:',
-				message.content?.substring(0, 100),
-			)
-
-			// Get current document info
-			const documentKey = `${activeProject}:${activeDocument}`
-			const currentContent = documentContent?.[documentKey] || ''
-
-			// Process the AI response for document update
-			if (activeProject && activeDocument && message.content) {
-				console.log('📝 Processing document update in onFinish')
-				handleDocumentUpdate(
-					message.content,
-					activeWorkspaceSection,
-					currentContent,
-					documentKey,
-					cursorPosition,
+			initialMessages: currentMetaPrompt
+				? [
+						{
+							id: `system-${chatId}`,
+							role: 'system',
+							content: currentMetaPrompt,
+							createdAt: new Date(),
+						},
+					]
+				: [],
+			body: {
+				id: chatId,
+				model: selectedModel,
+				clientType,
+			},
+			onResponse(response) {
+				if (response.status === 401) {
+					customSonner({ type: 'error', text: response.statusText })
+				} else if (!response.ok) {
+					customSonner({ type: 'error', text: 'Failed to process request' })
+				}
+			},
+			onError(error) {
+				console.error('❌ Error in workspace chat:', error)
+				customSonner({ type: 'error', text: 'An error occurred' })
+			},
+			async onFinish(message) {
+				console.log(
+					'✅ onFinish: AI response complete, handling document update:',
+					message.content?.substring(0, 100),
 				)
-			}
 
-			// Note: Document updates are handled here instead of in workspace-content.tsx
-			// to prevent infinite loops and ensure proper state management
+				// Get current document info
+				const documentKey = `${activeProject}:${activeDocument}`
+				const currentContent = documentContent?.[documentKey] || ''
 
-			console.log('✅ onFinish: Document update complete')
-		},
-	})
+				// Process the AI response for document update
+				if (activeProject && activeDocument && message.content) {
+					console.log('📝 Processing document update in onFinish')
+					handleDocumentUpdate(
+						message.content,
+						activeWorkspaceSection,
+						currentContent,
+						documentKey,
+						cursorPosition,
+					)
+				}
+
+				// Note: Document updates are handled here instead of in workspace-content.tsx
+				// to prevent infinite loops and ensure proper state management
+
+				console.log('✅ onFinish: Document update complete')
+			},
+		})
 
 	// console.log('🔄 WorkspaceChatProvider messages:', messages)
 
@@ -280,6 +294,7 @@ export function WorkspaceChatProvider({
 	) => {
 		console.log('🚀 handleWorkspaceEdit called with:', {
 			userPrompt,
+			metaPrompt: `${metaPrompt.substring(0, 100)}...`,
 			activeProject,
 			activeDocument,
 		})
@@ -312,17 +327,37 @@ export function WorkspaceChatProvider({
 			// Set generating state before making API call
 			setWorkspaceProcessingState('generating')
 
-			// Use raw append with workspace-specific onFinish callback
+			console.log('📝 Setting up workspace context and sending user prompt:', {
+				systemPromptLength: metaPrompt.length,
+				userPromptLength: userPrompt.length,
+				userPrompt,
+			})
+
+			// First, set up the system context if it's not already set or has changed
+			if (currentMetaPrompt !== metaPrompt) {
+				setCurrentMetaPrompt(metaPrompt)
+				// Reset messages to include the new system prompt
+				setMessages([
+					{
+						id: `system-${chatId}`,
+						role: 'system',
+						content: metaPrompt,
+						createdAt: new Date(),
+					},
+				])
+			}
+
+			// Now send the user prompt as a separate user message
 			await append({
 				id: nanoid(),
-				content: metaPrompt,
+				content: userPrompt,
 				role: 'user',
 				createdAt: new Date(),
 			})
 
-			console.log('✅ Workspace edit initiated successfully')
+			console.log('✅ Workspace edit request sent successfully')
 		} catch (error) {
-			console.error('❌ Error in workspace edit:', error)
+			console.error('❌ Error in handleWorkspaceEdit:', error)
 			setWorkspaceProcessingState('idle')
 		}
 	}
