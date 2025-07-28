@@ -3,16 +3,10 @@
 import { Card, CardContent } from '@/components/ui/card'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { cn, getRouteType } from '@/lib/utils'
-import type { Category } from 'mb-genql'
+import type { CategoryCardProps, CategoryDashboardProps } from '@/types/types'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { useState } from 'react'
-
-interface CategoryDashboardProps {
-	isOpen: boolean
-	onClose: () => void
-	categories: Category[] // <-- add this line
-}
+import { useEffect, useState } from 'react'
 
 export function CategoryDashboard({
 	isOpen,
@@ -25,7 +19,10 @@ export function CategoryDashboard({
 	const [localSelectedCategories, setLocalSelectedCategories] =
 		useState<number[]>(selectedCategories)
 
-	// Background image class - same as onboarding card
+	useEffect(() => {
+		setLocalSelectedCategories(selectedCategories)
+	}, [selectedCategories])
+
 	const bgImage =
 		'bg-[url(/background-light.webp)] dark:bg-[url(/background.webp)]'
 
@@ -40,7 +37,6 @@ export function CategoryDashboard({
 	const handleApplySelection = () => {
 		setSelectedCategories(localSelectedCategories)
 
-		// Update selected chatbots based on selected categories
 		const selectedChatbots = categories
 			.filter((category) =>
 				localSelectedCategories.includes(category.categoryId),
@@ -147,13 +143,6 @@ export function CategoryDashboard({
 	)
 }
 
-interface CategoryCardProps {
-	category: Category
-	isSelected: boolean
-	onToggle: () => void
-	routeType: string
-}
-
 function CategoryCard({
 	category,
 	isSelected,
@@ -162,11 +151,9 @@ function CategoryCard({
 }: CategoryCardProps) {
 	const firstBot = category.chatbots[0]?.chatbot
 
-	// Background image class - same as onboarding card
 	const bgImage =
 		'bg-[url(/background-light.webp)] dark:bg-[url(/background.webp)]'
 
-	// Route-based border colors
 	const getBorderClasses = () => {
 		if (isSelected) {
 			return routeType === 'chat' ? 'border-purple-500' : 'border-green-500'
@@ -174,7 +161,6 @@ function CategoryCard({
 		return 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
 	}
 
-	// Route-based background colors for selected cards
 	const getBackgroundClasses = () => {
 		if (isSelected) {
 			return routeType === 'chat' ? 'bg-purple-500/10' : 'bg-green-500/10'

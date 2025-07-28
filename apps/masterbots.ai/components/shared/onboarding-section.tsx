@@ -3,23 +3,27 @@
 import { Card, CardContent } from '@/components/ui/card'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { cn, getRouteType } from '@/lib/utils'
+import type { CategoryCardProps, OnboardingSectionProps } from '@/types/types'
 import { usePathname } from 'next/navigation'
-import { useState } from 'react'
-
-interface OnboardingSectionProps {
-	isOpen: boolean
-	onClose: () => void
-}
+import { useEffect, useState } from 'react'
 
 export function OnboardingSection({ isOpen, onClose }: OnboardingSectionProps) {
-	const { allCategories, setSelectedCategories, setSelectedChatbots } =
-		useSidebar()
+	const {
+		allCategories,
+		setSelectedCategories,
+		setSelectedChatbots,
+		selectedCategories,
+	} = useSidebar()
 	const routeType = getRouteType(usePathname())
-	const [localSelectedCategories, setLocalSelectedCategories] = useState<
-		number[]
-	>([])
+	const [localSelectedCategories, setLocalSelectedCategories] =
+		useState<number[]>(selectedCategories)
 
-	// Background image class - same as onboarding card
+	useEffect(() => {
+		setLocalSelectedCategories(selectedCategories)
+	}, [selectedCategories])
+
+	if (!isOpen) return null
+
 	const bgImage =
 		'bg-[url(/background-light.webp)] dark:bg-[url(/background.webp)]'
 
@@ -34,7 +38,6 @@ export function OnboardingSection({ isOpen, onClose }: OnboardingSectionProps) {
 	const handleApplySelection = () => {
 		setSelectedCategories(localSelectedCategories)
 
-		// Update selected chatbots based on selected categories
 		const selectedChatbots = allCategories
 			.filter((category) =>
 				localSelectedCategories.includes(category.categoryId),
@@ -54,9 +57,9 @@ export function OnboardingSection({ isOpen, onClose }: OnboardingSectionProps) {
 	if (!isOpen) return null
 
 	return (
-		<div className="flex relative justify-center items-center mt-6 -translate-y-4 sm:mt-8 md:mt-10 sm:-translate-y-6 md:-translate-y-8">
+		<div className="flex relative justify-center items-center min-h-[calc(100vh-200px)]">
 			<Card
-				className="w-full mx-4 sm:mx-6 md:mx-auto bg-white dark:bg-[#09090B] relative z-10 overflow-hidden rounded-xl sm:rounded-2xl"
+				className="w-full mx-4 sm:mx-6 md:mx-auto max-w-7xl bg-white dark:bg-[#09090B] relative z-10 overflow-hidden rounded-xl sm:rounded-2xl"
 				data-route={routeType}
 			>
 				{/* Background image layer */}
@@ -135,13 +138,6 @@ export function OnboardingSection({ isOpen, onClose }: OnboardingSectionProps) {
 	)
 }
 
-interface CategoryCardProps {
-	category: any
-	isSelected: boolean
-	onToggle: () => void
-	routeType: string
-}
-
 function CategoryCard({
 	category,
 	isSelected,
@@ -150,11 +146,9 @@ function CategoryCard({
 }: CategoryCardProps) {
 	const firstBot = category.chatbots[0]?.chatbot
 
-	// Background image class - same as onboarding card
 	const bgImage =
 		'bg-[url(/background-light.webp)] dark:bg-[url(/background.webp)]'
 
-	// Route-based border colors
 	const getBorderClasses = () => {
 		if (isSelected) {
 			return routeType === 'chat' ? 'border-purple-500' : 'border-green-500'
@@ -162,7 +156,6 @@ function CategoryCard({
 		return 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
 	}
 
-	// Route-based background colors for selected cards
 	const getBackgroundClasses = () => {
 		if (isSelected) {
 			return routeType === 'chat' ? 'bg-purple-500/10' : 'bg-green-500/10'

@@ -24,13 +24,14 @@ export function ChatLayoutSection({ children }: { children: React.ReactNode }) {
 	return (
 		<>
 			{isDashboardOpen && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+				<div className="flex fixed inset-0 z-50 justify-center items-center backdrop-blur-sm bg-black/50">
 					<CategoryDashboard
 						isOpen={isDashboardOpen}
 						onClose={() => setIsDashboardOpen(false)}
 						categories={allCategories}
 					/>
 				</div>
+			)}
 			<section
 				ref={sectionRef as React.Ref<HTMLDivElement>}
 				className={cn(

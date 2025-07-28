@@ -50,11 +50,13 @@ export default function BrowseList({
 	initialCount,
 	categoryId,
 	chatbot,
+	disableOnboarding = false,
 }: {
 	initialThreads?: Thread[]
 	initialCount?: number
 	categoryId?: number
 	chatbot?: Chatbot
+	disableOnboarding?: boolean
 }) {
 	const { keyword, changeKeyword } = useBrowse()
 	const { activeThread, setActiveThread, setIsOpenPopup } = useThread()
@@ -261,6 +263,7 @@ export default function BrowseList({
 	// Show onboarding for non-logged-in users when no categories are selected
 	useEffect(() => {
 		if (
+			!disableOnboarding &&
 			!userId &&
 			selectedCategories.length === 0 &&
 			!activeCategory &&
@@ -281,6 +284,7 @@ export default function BrowseList({
 			setShowOnboarding(false)
 		}
 	}, [
+		disableOnboarding,
 		userId,
 		selectedCategories.length,
 		activeCategory,

@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react'
+import { type Dispatch, type SetStateAction, useEffect, useState } from 'react'
 
 export const useLocalStorage = <T>(
 	key: string,
 	initialValue: T,
-): [T, (value: T) => void] => {
+): [T, Dispatch<SetStateAction<T>>] => {
 	const [storedValue, setStoredValue] = useState(initialValue)
 
 	useEffect(() => {
@@ -14,11 +14,17 @@ export const useLocalStorage = <T>(
 		}
 	}, [key])
 
-	const setValue = (value: T) => {
+	const setValue: Dispatch<SetStateAction<T>> = (
+		value: T | ((prevValue: T) => T),
+	) => {
 		// Save state
-		setStoredValue(value)
+		const newValue =
+			typeof value === 'function'
+				? (value as (prevValue: T) => T)(storedValue)
+				: value
+		setStoredValue(newValue)
 		// Save to localStorage
-		window.localStorage.setItem(key, JSON.stringify(value))
+		window.localStorage.setItem(key, JSON.stringify(newValue))
 	}
 	return [storedValue, setValue]
 }
