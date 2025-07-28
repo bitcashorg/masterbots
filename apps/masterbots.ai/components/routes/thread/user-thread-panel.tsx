@@ -29,6 +29,7 @@
 
 import ChatChatbotDetails from '@/components/routes/chat/chat-chatbot-details'
 import ThreadList from '@/components/routes/thread/thread-list'
+import { GlobalSearchInput } from '@/components/shared/global-search-input'
 import { NoResults } from '@/components/shared/no-results-card'
 import { ThreadSearchInput } from '@/components/shared/shared-search'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -36,6 +37,7 @@ import { botNames } from '@/lib/constants/bots-names'
 import { PAGE_SIZE } from '@/lib/constants/hasura'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
+import { useThreadSearch } from '@/lib/hooks/use-thread-search'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { searchThreadContent } from '@/lib/search'
 import { cn, getRouteType } from '@/lib/utils'
@@ -98,7 +100,8 @@ export default function UserThreadPanel({
 		threadsState: threadVisibilityState,
 		isAdminMode,
 	} = useThreadVisibility()
-	const [searchTerm, setSearchTerm] = useState<string>('')
+
+	const { searchTerm, setSearchTerm } = useThreadSearch()
 	const searchParams = useSearchParams()
 
 	const { userSlug, category, chatbot, botSlug } = params
@@ -120,17 +123,34 @@ export default function UserThreadPanel({
 		totalThreads: 0,
 	})
 	const { totalThreads } = state
+	const isOwnProfile = session?.user?.id === userProps?.userId
+
+	const getBotName = async () => {
+		if (chatbot || botSlug) {
+			const botSlugs = await botNames
+			return (
+				botSlugs.get(chatbot as string) ||
+				botSlugs.get(botSlug as string) ||
+				activeChatbot?.name ||
+				''
+			)
+		}
+		return ''
+	}
 
 	const fetchBrowseThreads = async ({
 		offset = 0,
+		keyword = '',
 	}: {
 		offset?: number
+		keyword?: string
 	} = {}) => {
 		try {
 			const browseThreadGetParams: GetBrowseThreadsParams = {
 				offset,
 				limit: PAGE_SIZE,
 				isAdminMode,
+				keyword,
 			}
 
 			if (activeCategory) {
@@ -141,10 +161,7 @@ export default function UserThreadPanel({
 				browseThreadGetParams.categoriesId = selectedCategories
 			}
 			if (chatbot || botSlug) {
-				const botSlugs = await botNames
-				const chatbotName =
-					botSlugs.get(chatbot as string) || botSlugs.get(botSlug as string)
-
+				const chatbotName = await getBotName()
 				browseThreadGetParams.chatbotName = chatbotName
 			}
 			if (userSlug && userProps) {
@@ -172,20 +189,14 @@ export default function UserThreadPanel({
 		}
 		let chatbotName = ''
 
-		const isOwnProfile = session?.user?.id === userProps?.userId
-
 		if (chatbot || botSlug || activeChatbot) {
-			const botSlugs = await botNames
-			chatbotName =
-				botSlugs.get(chatbot as string) ||
-				botSlugs.get(botSlug as string) ||
-				activeChatbot?.name ||
-				''
+			chatbotName = await getBotName()
 		}
 
 		if (isAdminMode || (page === 'profile' && !isOwnProfile)) {
 			moreThreads = await fetchBrowseThreads({
 				offset: threads.length,
+				keyword: searchTerm,
 			})
 		} else {
 			moreThreads = await getThreads({
@@ -195,6 +206,7 @@ export default function UserThreadPanel({
 				limit: PAGE_SIZE,
 				categoryId: activeCategory,
 				chatbotName,
+				keyword: searchTerm,
 			})
 		}
 
@@ -372,6 +384,41 @@ export default function UserThreadPanel({
 	const showChatbotDetails = !loading && !searchTerm && !threads.length
 	const searchInputContainerClassName = 'flex justify-between lg:max-w-full'
 
+	const searchThreadsFromDb = async (term: string) => {
+		let chatbotName = ''
+		let moreThreads: { threads: Thread[]; count: number } = {
+			threads: [],
+			count: 0,
+		}
+
+		if (chatbot || botSlug || activeChatbot) {
+			chatbotName = await getBotName()
+		}
+
+		if (isAdminMode || (page === 'profile' && !isOwnProfile)) {
+			moreThreads = await fetchBrowseThreads({
+				offset: threads.length,
+				keyword: term,
+			})
+		} else {
+			moreThreads = await getThreads({
+				jwt: session?.user?.hasuraJwt as string,
+				userId: session?.user.id as string,
+				offset: threads.length,
+				limit: PAGE_SIZE,
+				categoryId: activeCategory,
+				chatbotName,
+				keyword: term,
+			})
+		}
+
+		setState({
+			threads: moreThreads?.threads || [],
+			count: moreThreads?.count || 0,
+			totalThreads: threads.length + (moreThreads?.threads?.length || 0),
+		})
+	}
+
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const debouncedSearch = useMemo(
 		() =>
@@ -383,14 +430,7 @@ export default function UserThreadPanel({
 						count,
 					})
 				} else {
-					const searchResult = adminThreads.filter((thread: Thread) =>
-						searchThreadContent(thread, term),
-					)
-					setState({
-						threads: searchResult,
-						count: searchResult.length,
-						totalThreads: threads.length,
-					})
+					searchThreadsFromDb(term)
 				}
 				setLoading(false)
 			}, 230),
@@ -415,7 +455,8 @@ export default function UserThreadPanel({
 				<>
 					{isChatRoute && <ChatChatbotDetails />}
 					<div className={searchInputContainerClassName}>
-						<ThreadSearchInput setThreads={setState} onSearch={setSearchTerm} />
+						{/* <ThreadSearchInput setThreads={setState} onSearch={setSearchTerm} /> */}
+						<GlobalSearchInput />
 					</div>
 				</>
 			)}
