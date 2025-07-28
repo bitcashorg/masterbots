@@ -7,7 +7,7 @@ import {
 	parseMarkdownSections,
 } from '@/lib/markdown-utils'
 import { useChat } from '@ai-sdk/react'
-import type { ChatRequestOptions } from 'ai'
+import type { ChatRequestOptions, Message } from 'ai'
 import { nanoid } from 'nanoid'
 import * as React from 'react'
 import { useWorkspace } from './use-workspace'
@@ -87,12 +87,9 @@ export function WorkspaceChatProvider({
 
 	// Store the current metaPrompt for system context
 	const [currentMetaPrompt, setCurrentMetaPrompt] = React.useState<string>('')
-
-	// Raw useChat hook for workspace mode with system message support
-	const { messages, isLoading, error, append, input, setInput, setMessages } =
-		useChat({
-			id: chatId,
-			initialMessages: currentMetaPrompt
+	const initialMessages = React.useMemo(() => {
+		return (
+			currentMetaPrompt
 				? [
 						{
 							id: `system-${chatId}`,
@@ -101,7 +98,15 @@ export function WorkspaceChatProvider({
 							createdAt: new Date(),
 						},
 					]
-				: [],
+				: []
+		) as Message[]
+	}, [currentMetaPrompt, chatId])
+
+	// Raw useChat hook for workspace mode with system message support
+	const { messages, isLoading, error, append, input, setInput, setMessages } =
+		useChat({
+			id: chatId,
+			initialMessages,
 			body: {
 				id: chatId,
 				model: selectedModel,
