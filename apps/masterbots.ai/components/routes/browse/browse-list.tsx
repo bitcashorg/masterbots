@@ -24,11 +24,11 @@ import { BrowseSearchInput } from '@/components/routes/browse/browse-search-inpu
 import { OnboardingMobileView } from '@/components/routes/chat/chat-onboarding-chatbot-mobile'
 import { SelectedBotMobileView } from '@/components/routes/chat/chat-selected-chatbot-mobile'
 import ThreadComponent from '@/components/routes/thread/thread-component'
+import { GlobalSearchInput } from '@/components/shared/global-search-input'
 import { NoResults } from '@/components/shared/no-results-card'
 import { OnboardingChatbotCard } from '@/components/shared/onboarding-chatbot-card'
 import { BrowseListSkeleton } from '@/components/shared/skeletons/browse-list-skeleton'
 import { ThreadItemSkeleton } from '@/components/shared/skeletons/browse-skeletons'
-import { ChatChatbotDetailsSkeleton } from '@/components/shared/skeletons/chat-chatbot-details-skeleton'
 import { PAGE_SIZE } from '@/lib/constants/hasura'
 import { useBrowse } from '@/lib/hooks/use-browse'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
@@ -37,7 +37,7 @@ import { useSonner } from '@/lib/hooks/useSonner'
 import { searchThreadContent } from '@/lib/search'
 import { getOpeningActiveThreadHelper } from '@/lib/threads'
 import { getBrowseThreads } from '@/services/hasura'
-import { debounce, isEqual, uniqBy } from 'lodash'
+import { isEqual, uniqBy } from 'lodash'
 import { appConfig } from 'mb-env'
 import type { Chatbot, Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
@@ -124,6 +124,8 @@ export default function BrowseList({
 					(thread: Thread) => searchThreadContent(thread, keyword),
 				),
 			)
+			// console.log('Fetched threads:', { filteredThreads, count })
+			// If the keyword is empty, we set the filteredThreads to threads
 			setCount(count)
 		} catch (error) {
 			console.error('Error fetching threads:', error)
@@ -155,12 +157,7 @@ export default function BrowseList({
 	}, [keyword, threads, selectedChatbots, selectedCategories])
 
 	const loadMore = async () => {
-		// if (threads.length >= countState) return
-		console.log('🟡 Loading More Content', {
-			countState,
-			threads,
-			filteredThreads,
-		})
+		if (threads.length >= countState) return
 
 		await fetchThreads({
 			categoriesId: selectedCategories,
@@ -277,7 +274,6 @@ export default function BrowseList({
 				<>
 					<OnboardingChatbotCard isWelcomeView={true} />
 					<OnboardingMobileView />
-					<BrowseSearchInput />
 				</>
 			)}
 
@@ -288,9 +284,10 @@ export default function BrowseList({
 					<SelectedBotMobileView
 						onNewChat={() => console.log('New chat clicked')}
 					/>
-					<BrowseSearchInput />
 				</>
 			)}
+
+			<GlobalSearchInput />
 
 			{/* Show threads when available and a category/bot is selected */}
 			{filteredThreads.length > 0 ? (
@@ -312,7 +309,11 @@ export default function BrowseList({
 				hasInitialized &&
 				!loading &&
 				!filteredThreads.length &&
-				(activeCategory || activeChatbot || chatbot || categoryId) && (
+				(activeCategory ||
+					activeChatbot ||
+					chatbot ||
+					categoryId ||
+					keyword) && (
 					<NoResults searchTerm={keyword} totalItems={threads.length} />
 				)
 			)}
