@@ -71,8 +71,8 @@ export function ThreadPopup({ className }: { className?: string }) {
 				isBotView
 					? ''
 					: 'lg:max-w-[calc(100%-250px)] xl:max-w-[calc(100%-300px)]',
-				'flex justify-center items-center fixed top-16',
-				'h-[calc(100vh-4rem)] backdrop-blur-sm ease-in-out duration-500 z-40',
+				'flex justify-center items-center fixed top-8 md:top-10',
+				'h-full max-h-[calc(100%-8px)] backdrop-blur-sm ease-in-out duration-500 z-40',
 				'transition-all',
 				isOpenPopup ? 'animate-fade-in' : 'animate-fade-out',
 				className,
@@ -269,7 +269,7 @@ function ThreadPopUpCardHeader({
 	return (
 		<div className="relative rounded-t-[8px] px-2.5 md:px-[32px] py-[20px] dark:bg-[#1E293B] bg-[#E4E4E7]">
 			<div className="flex items-center justify-between gap-6">
-				<div className="items-center block overflow-y-auto whitespace-pre-line max-h-28 scrollbar small-thumb">
+				<div className="items-center block overflow-y-auto whitespace-pre-line max-h-20 md:max-h-28 scrollbar small-thumb">
 					{threadTitle ? (
 						threadTitleChunks.length > 32 ? (
 							`${threadTitleHeading}`
