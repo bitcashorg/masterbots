@@ -16,7 +16,7 @@ export default function SignInPage() {
 	const logoSrc = getAppLogoPath({ theme: resolvedTheme })
 
 	return (
-		<div className="flex flex-col min-h-[calc(100vh-4rem)] items-center py-6 sm:py-10">
+		<div className="flex flex-col min-h-[calc(100vh-64px)] items-center py-6 sm:py-10">
 			<div className="w-full max-w-[1006px] sm:max-w-[500px] md:max-w-[1006px]  relative aspect-[726/200] mb-6 sm:mb-10">
 				<Image
 					src={logoSrc}
