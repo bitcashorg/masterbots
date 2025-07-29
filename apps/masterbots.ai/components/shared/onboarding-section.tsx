@@ -167,7 +167,7 @@ function CategoryCard({
 		<button
 			type="button"
 			className={cn(
-				'overflow-hidden relative p-3 sm:p-4 w-full text-left rounded-lg border-2 transition-all duration-200 cursor-pointer',
+				'overflow-hidden relative p-3 w-full text-left rounded-lg border-2 transition-all duration-200 cursor-pointer',
 				getBackgroundClasses(),
 				getBorderClasses(),
 				!isSelected &&
@@ -186,7 +186,7 @@ function CategoryCard({
 					{/* Left side - Category info */}
 					<div className="flex-1 min-w-0">
 						<div className="mb-1 sm:mb-2">
-							<h3 className="text-base font-semibold text-gray-900 truncate sm:text-lg dark:text-white">
+							<h3 className="text-base font-semibold text-gray-900 sm:text-lg dark:text-white">
 								{category.name}
 							</h3>
 						</div>
