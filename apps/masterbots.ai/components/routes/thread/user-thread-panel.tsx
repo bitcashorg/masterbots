@@ -193,6 +193,15 @@ export default function UserThreadPanel({
 			chatbotName = await getBotName()
 		}
 
+		if (chatbot || botSlug || activeChatbot) {
+			const botSlugs = await botNames
+			chatbotName =
+				botSlugs.get(chatbot as string) ||
+				botSlugs.get(botSlug as string) ||
+				activeChatbot?.name ||
+				''
+		}
+
 		if (isAdminMode || (page === 'profile' && !isOwnProfile)) {
 			moreThreads = await fetchBrowseThreads({
 				offset: threads.length,
