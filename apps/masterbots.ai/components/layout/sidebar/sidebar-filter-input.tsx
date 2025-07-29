@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { IconClose, IconFilter } from '@/components/ui/icons'
+import { IconClose, IconDashboard, IconFilter } from '@/components/ui/icons'
 import { Input } from '@/components/ui/input'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { cn } from '@/lib/utils'
@@ -13,8 +13,14 @@ interface FilterInputProps {
 }
 
 export function FilterInput({ className }: FilterInputProps) {
-	const { filterValue, setFilterValue, isFilterMode, setIsFilterMode } =
-		useSidebar()
+	const {
+		filterValue,
+		setFilterValue,
+		isFilterMode,
+		setIsFilterMode,
+		isDashboardOpen,
+		setIsDashboardOpen,
+	} = useSidebar()
 
 	const pathname = usePathname()
 	const isBrowse = !/^\/(?:c|u)(?:\/|$)/.test(pathname)
@@ -29,6 +35,10 @@ export function FilterInput({ className }: FilterInputProps) {
 
 	const handleFilterModeToggle = () => {
 		setIsFilterMode((prev) => !prev)
+	}
+
+	const handleDashboardToggle = () => {
+		setIsDashboardOpen((prev) => !prev)
 	}
 
 	return (
@@ -53,6 +63,16 @@ export function FilterInput({ className }: FilterInputProps) {
 					</button>
 				)}
 			</div>
+			<Button
+				size="icon"
+				variant="outline"
+				onClick={handleDashboardToggle}
+				aria-label="Open category dashboard"
+				className="btn-gradient"
+				data-route={isBrowse ? 'public' : 'chat'}
+			>
+				<IconDashboard className="size-4" />
+			</Button>
 			<Button
 				size="icon"
 				variant={isFilterMode ? 'default' : 'outline'}
