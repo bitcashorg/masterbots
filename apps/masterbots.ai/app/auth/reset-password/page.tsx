@@ -16,7 +16,7 @@ export default function ResetPasswordPage(props: {
 
 	return (
 		<motion.div
-			className="flex flex-col min-h-[calc(100vh-4rem)] items-center py-6 sm:py-10"
+			className="flex flex-col min-h-[calc(100vh-64px)] items-center py-6 sm:py-10"
 			initial={{ opacity: 0 }}
 			animate={{ opacity: 1 }}
 			transition={{ duration: 0.3 }}
