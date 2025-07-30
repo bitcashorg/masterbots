@@ -465,7 +465,7 @@ export function UserCard({ user: userProps, loading }: UserCardProps) {
 										userData?.username
 									}`}
 									aria-busy={isFollowLoading}
-									className="px-10 py-1 text-sm text-white  rounded-md bg-[#83E56A] hover:bg-[#83E56A] dark:text-black transition-colors"
+									className="px-10 py-1 text-sm text-zinc-950 rounded-md bg-[#82e46a] hover:bg-[#82e46a]/90 transition-colors"
 								>
 									{isFollowLoading ? (
 										<Loader className="mx-auto w-4 h-4" />

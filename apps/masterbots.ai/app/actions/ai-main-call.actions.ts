@@ -455,10 +455,12 @@ export async function createResponseStream(
 				const googleModel = googleAI(model)
 
 				//? Adjust configuration for Gemini 2.0 Flash Exp image generation
-				const isGemini2FlashExp = model === 'gemini-2.0-flash-exp'
+				const isGemini2FlashExp =
+					model === 'gemini-2.0-flash-preview-image-generation'
 				console.log('isGemini2FlashExp -> 🤖 ', isGemini2FlashExp)
 
 				//? If using Gemini 2.0 Flash Exp, only use user messages
+				// TODO: Improve adjustedMessages to include system prompts to have the 'user' role.
 				const adjustedMessages = isGemini2FlashExp
 					? coreMessages.filter((msg) => msg.role === 'user')
 					: coreMessages
@@ -472,7 +474,7 @@ export async function createResponseStream(
 					providerOptions: {
 						google: {
 							useSearchGrounding: webSearch || false,
-							...(model.endsWith('flash-exp')
+							...(model.endsWith('flash-preview-image-generation')
 								? {
 										responseModalities: ['TEXT', 'IMAGE'],
 									}

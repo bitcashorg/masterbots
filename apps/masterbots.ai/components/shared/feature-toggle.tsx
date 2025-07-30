@@ -82,7 +82,7 @@ export function FeatureToggle({
 			<TooltipTrigger asChild>
 				<div>
 					<Checkbox
-						custom
+						custom="true"
 						name={id}
 						id={id}
 						checked={isActive}

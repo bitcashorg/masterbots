@@ -1,24 +1,42 @@
-import { useEffect, useState } from 'react'
+import { type Dispatch, type SetStateAction, useEffect, useState } from 'react'
 
 export const useLocalStorage = <T>(
 	key: string,
 	initialValue: T,
-): [T, (value: T) => void] => {
+): [T, Dispatch<SetStateAction<T>>] => {
 	const [storedValue, setStoredValue] = useState(initialValue)
 
 	useEffect(() => {
 		// Retrieve from localStorage
-		const item = window.localStorage.getItem(key)
-		if (item) {
-			setStoredValue(JSON.parse(item))
+		if (typeof window !== 'undefined') {
+			const item = window.localStorage.getItem(key)
+			if (item) {
+				try {
+					setStoredValue(JSON.parse(item))
+				} catch (error) {
+					console.warn('Failed to parse localStorage item:', error)
+				}
+			}
 		}
 	}, [key])
 
-	const setValue = (value: T) => {
+	const setValue: Dispatch<SetStateAction<T>> = (
+		value: T | ((prevValue: T) => T),
+	) => {
 		// Save state
-		setStoredValue(value)
+		const newValue =
+			typeof value === 'function'
+				? (value as (prevValue: T) => T)(storedValue)
+				: value
+		setStoredValue(newValue)
 		// Save to localStorage
-		window.localStorage.setItem(key, JSON.stringify(value))
+		if (typeof window !== 'undefined') {
+			try {
+				window.localStorage.setItem(key, JSON.stringify(newValue))
+			} catch (error) {
+				console.warn('Failed to save to localStorage:', error)
+			}
+		}
 	}
 	return [storedValue, setValue]
 }
