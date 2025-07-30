@@ -99,7 +99,7 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
 							size="sideBarProfile"
 							className="p-4 rounded-none"
 						>
-							{user?.image ? (
+							{/* {user?.image ? (
 								<Image
 									className="rounded-full size-10"
 									src={user.image}
@@ -116,7 +116,11 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
 							<div className="flex flex-col gap-1 items-start">
 								<p className="text-sm font-medium">{user?.name}</p>
 								<p className="text-xs text-muted-foreground">{user?.email}</p>
-							</div>
+							</div> */}
+							<span className="flex justify-center text-sm font-medium uppercase rounded-full size-10 bg-muted/50">
+								{' '}
+								Profile
+							</span>
 							<ChevronRightIcon className="ml-auto size-4" />
 						</Button>
 					</div>

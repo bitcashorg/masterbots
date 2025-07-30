@@ -8,12 +8,12 @@ export function SidebarCategoryGeneral({ page }: { page?: string }) {
 
 	if (!filteredCategories.length)
 		return (
-			<div className="p-4 min-h-inherit text-center">
-				No matching categories found
+			<div className="p-4 text-center min-h-inherit">
+				Choose topics to get started
 			</div>
 		)
 	return (
-		<ul className="min-h-inherit space-y-0">
+		<ul className="space-y-0 min-h-inherit">
 			{filteredCategories.map((category) => (
 				<li key={category.categoryId}>
 					<SidebarLink

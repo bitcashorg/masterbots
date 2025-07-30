@@ -24,11 +24,12 @@ import { BrowseSearchInput } from '@/components/routes/browse/browse-search-inpu
 import { OnboardingMobileView } from '@/components/routes/chat/chat-onboarding-chatbot-mobile'
 import { SelectedBotMobileView } from '@/components/routes/chat/chat-selected-chatbot-mobile'
 import ThreadComponent from '@/components/routes/thread/thread-component'
+import { GlobalSearchInput } from '@/components/shared/global-search-input'
 import { NoResults } from '@/components/shared/no-results-card'
 import { OnboardingChatbotCard } from '@/components/shared/onboarding-chatbot-card'
+import { OnboardingSection } from '@/components/shared/onboarding-section'
 import { BrowseListSkeleton } from '@/components/shared/skeletons/browse-list-skeleton'
 import { ThreadItemSkeleton } from '@/components/shared/skeletons/browse-skeletons'
-import { ChatChatbotDetailsSkeleton } from '@/components/shared/skeletons/chat-chatbot-details-skeleton'
 import { PAGE_SIZE } from '@/lib/constants/hasura'
 import { useBrowse } from '@/lib/hooks/use-browse'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
@@ -37,7 +38,7 @@ import { useSonner } from '@/lib/hooks/useSonner'
 import { searchThreadContent } from '@/lib/search'
 import { getOpeningActiveThreadHelper } from '@/lib/threads'
 import { getBrowseThreads } from '@/services/hasura'
-import { debounce, isEqual, uniqBy } from 'lodash'
+import { isEqual, uniqBy } from 'lodash'
 import { appConfig } from 'mb-env'
 import type { Chatbot, Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
@@ -49,11 +50,13 @@ export default function BrowseList({
 	initialCount,
 	categoryId,
 	chatbot,
+	disableOnboarding = false,
 }: {
 	initialThreads?: Thread[]
 	initialCount?: number
 	categoryId?: number
 	chatbot?: Chatbot
+	disableOnboarding?: boolean
 }) {
 	const { keyword, changeKeyword } = useBrowse()
 	const { activeThread, setActiveThread, setIsOpenPopup } = useThread()
@@ -64,6 +67,7 @@ export default function BrowseList({
 	const [filteredThreads, setFilteredThreads] = React.useState<Thread[]>([])
 	const [loading, setLoading] = React.useState<boolean>(false)
 	const [countState, setCount] = React.useState<number>(0)
+	const [showOnboarding, setShowOnboarding] = React.useState<boolean>(false)
 	const {
 		selectedCategories,
 		selectedChatbots,
@@ -124,12 +128,14 @@ export default function BrowseList({
 					(thread: Thread) => searchThreadContent(thread, keyword),
 				),
 			)
+			// console.log('Fetched threads:', { filteredThreads, count })
+			// If the keyword is empty, we set the filteredThreads to threads
 			setCount(count)
-			setHasInitialized(true) // ? Setting hasInitialized after fetch preventing NoResults from showing
 		} catch (error) {
 			console.error('Error fetching threads:', error)
 		} finally {
 			setLoading(false)
+			setHasInitialized(true) // ? Setting hasInitialized after fetch preventing NoResults from showing
 		}
 	}
 
@@ -155,12 +161,7 @@ export default function BrowseList({
 	}, [keyword, threads, selectedChatbots, selectedCategories])
 
 	const loadMore = async () => {
-		// if (threads.length >= countState) return
-		console.log('🟡 Loading More Content', {
-			countState,
-			threads,
-			filteredThreads,
-		})
+		if (threads.length >= countState) return
 
 		await fetchThreads({
 			categoriesId: selectedCategories,
@@ -256,6 +257,40 @@ export default function BrowseList({
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [keyword])
 
+	// Show onboarding for non-logged-in users when no categories are selected
+	useEffect(() => {
+		if (
+			!disableOnboarding &&
+			!userId &&
+			selectedCategories.length === 0 &&
+			!activeCategory &&
+			!activeChatbot &&
+			!chatbot &&
+			!categoryId &&
+			!loading
+		) {
+			setShowOnboarding(true)
+		} else if (
+			selectedCategories.length > 0 ||
+			activeCategory ||
+			activeChatbot ||
+			chatbot ||
+			categoryId
+		) {
+			// Hide onboarding when categories are selected or when navigating to specific content
+			setShowOnboarding(false)
+		}
+	}, [
+		disableOnboarding,
+		userId,
+		selectedCategories.length,
+		activeCategory,
+		activeChatbot,
+		chatbot,
+		categoryId,
+		loading,
+	])
+
 	// Cleanup timeout on unmount
 	useEffect(() => {
 		return () => {
@@ -272,14 +307,26 @@ export default function BrowseList({
 	return (
 		// <div className="flex flex-col gap-3 py-5 w-full">
 		<>
-			{/* Show welcome onboarding card when no category or chatbot is selected */}
-			{!activeCategory && !activeChatbot && !chatbot && !categoryId && (
-				<>
-					<OnboardingChatbotCard isWelcomeView={true} />
-					<OnboardingMobileView />
-					<BrowseSearchInput />
-				</>
+			{/* Show onboarding section for non-logged-in users */}
+			{showOnboarding && (
+				<OnboardingSection
+					isOpen={showOnboarding}
+					onClose={() => setShowOnboarding(false)}
+				/>
 			)}
+
+			{/* Show welcome onboarding card when no category or chatbot is selected (only for logged-in users) */}
+			{!showOnboarding &&
+				!activeCategory &&
+				!activeChatbot &&
+				!chatbot &&
+				!categoryId && (
+					<>
+						<OnboardingChatbotCard isWelcomeView={true} />
+						<OnboardingMobileView />
+						<BrowseSearchInput />
+					</>
+				)}
 
 			{/* Show onboarding card when no threads are loaded yet (for selected categories/bots) */}
 			{(activeCategory || activeChatbot || chatbot || categoryId) && (
@@ -288,12 +335,11 @@ export default function BrowseList({
 					<SelectedBotMobileView
 						onNewChat={() => console.log('New chat clicked')}
 					/>
-					<BrowseSearchInput />
 				</>
 			)}
 
-			{/* Show threads when available and a category/bot is selected */}
-			{filteredThreads.length > 0 ? (
+			{/* Show threads when available and a category/bot is selected (but not during onboarding) */}
+			{!showOnboarding && filteredThreads.length > 0 ? (
 				<ul className="flex flex-col gap-3 pb-36 size-full">
 					{filteredThreads.map((thread: Thread, key) => (
 						<ThreadComponent
@@ -308,11 +354,16 @@ export default function BrowseList({
 					{loading && <ThreadItemSkeleton />}
 				</ul>
 			) : (
-				/* Show no results only after initialization and when not loading */
+				/* Show no results only after initialization and when not loading (but not during onboarding) */
+				!showOnboarding &&
 				hasInitialized &&
 				!loading &&
 				!filteredThreads.length &&
-				(activeCategory || activeChatbot || chatbot || categoryId) && (
+				(activeCategory ||
+					activeChatbot ||
+					chatbot ||
+					categoryId ||
+					keyword) && (
 					<NoResults searchTerm={keyword} totalItems={threads.length} />
 				)
 			)}

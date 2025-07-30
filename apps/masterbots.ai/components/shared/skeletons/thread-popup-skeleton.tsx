@@ -54,8 +54,8 @@ export function ThreadPopupSkeleton({ className }: { className?: string }) {
 				isBotView
 					? ''
 					: 'lg:max-w-[calc(100%-250px)] xl:max-w-[calc(100%-300px)]',
-				'flex justify-center items-center fixed top-16',
-				'h-[calc(100vh-4rem)] backdrop-blur-sm ease-in-out duration-500 z-40',
+				'flex justify-center items-center fixed top-10',
+				'h-full max-h-[calc(100vh-8px)] backdrop-blur-sm ease-in-out duration-500 z-40',
 				'transition-all',
 				className,
 			)}

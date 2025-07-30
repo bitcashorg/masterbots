@@ -8,6 +8,7 @@ import { useSession } from 'next-auth/react'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 import * as React from 'react'
 import { useAsync } from 'react-use'
+import { useCategorySelections } from './use-category-selections'
 
 const LOCAL_STORAGE_KEY = 'sidebar'
 
@@ -25,12 +26,14 @@ interface SidebarContext {
 	filterValue: string
 	isFilterMode: boolean
 	isSidebarOpen: boolean
+	isDashboardOpen: boolean
 	selectedChats: string[]
 	activeChatbot: Chatbot | null
 	activeCategory: number | null
 	selectedChatbots: number[]
 	filteredCategories: Category[]
 	selectedCategories: number[]
+	allCategories: Category[]
 	expandedCategories: number[]
 	changeTab: (cate: 'general' | 'work') => void
 	navigateTo: <T extends keyof typeof urlBuilders>(
@@ -39,11 +42,14 @@ interface SidebarContext {
 	toggleSidebar: (toggle?: boolean) => void
 	setFilterValue: React.Dispatch<React.SetStateAction<string>>
 	setIsFilterMode: React.Dispatch<React.SetStateAction<boolean>>
+	setIsDashboardOpen: React.Dispatch<React.SetStateAction<boolean>>
 	setSelectedChats: React.Dispatch<React.SetStateAction<string[]>>
 	setActiveChatbot: React.Dispatch<React.SetStateAction<Chatbot | null>>
 	setActiveCategory: React.Dispatch<React.SetStateAction<number | null>>
 	setSelectedChatbots: React.Dispatch<React.SetStateAction<number[]>>
-	setSelectedCategories: React.Dispatch<React.SetStateAction<number[]>>
+	setSelectedCategories: (
+		categories: number[] | ((prev: number[]) => number[]),
+	) => void
 	setExpandedCategories: React.Dispatch<React.SetStateAction<number[]>>
 	toggleChatbotSelection: (chatbotId: number) => void
 }
@@ -74,11 +80,32 @@ type NavigateToParams<
 }
 
 export function SidebarProvider({ children }: SidebarProviderProps) {
-	const [selectedCategories, setSelectedCategories] = React.useState<number[]>(
-		[],
-	)
+	const { selectedCategories, setCategories } = useCategorySelections()
 	const [selectedChatbots, setSelectedChatbots] = React.useState<number[]>([])
 	const { data: session } = useSession()
+	const hasClearedRef = React.useRef(false)
+	const setCategoriesRef = React.useRef(setCategories)
+	const [hasLoadedFromStorage, setHasLoadedFromStorage] = React.useState(false)
+
+	// Update the ref when setCategories changes
+	React.useEffect(() => {
+		setCategoriesRef.current = setCategories
+	}, [setCategories])
+
+	//? Handle category selections for logged vs non-logged users
+	React.useEffect(() => {
+		if (!session?.user && !hasClearedRef.current) {
+			setCategoriesRef.current([])
+			hasClearedRef.current = true
+		} else if (session?.user) {
+			hasClearedRef.current = false
+		}
+	}, [session?.user])
+
+	//? Mark that we've loaded from storage after the first render
+	React.useEffect(() => {
+		setHasLoadedFromStorage(true)
+	}, [])
 	const { userSlug } = useParams()
 	const pathname = usePathname()
 	const router = useRouter()
@@ -109,20 +136,48 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 		const pathParts = pathname.split('/')
 		const prevPathParts = (prevPath.current || '').split('/')
 
+		//? Only auto-select categories for logged users if they have no stored selections and we've loaded from storage
+		const shouldAutoSelect =
+			selectedCategories.length === 0 && session?.user && hasLoadedFromStorage
+
 		if (
 			(prevPath.current !== pathname &&
 				pathParts[1] !== prevPathParts[1] &&
 				pathParts[1] === 'c') ||
-			(selectedCategories.length === 0 && selectedChatbots.length === 0)
+			shouldAutoSelect
 		) {
-			setSelectedCategories(categoriesObj.categoriesId)
-			setSelectedChatbots(categoriesObj.chatbotsId)
+			if (selectedCategories.length > 0) {
+				const selectedChatbotsFromCategories = categoriesObj.categoriesChatbots
+					.filter(
+						(category) =>
+							category?.categoryId &&
+							selectedCategories.includes(category.categoryId),
+					)
+					.flatMap(
+						(category) =>
+							category.chatbots
+								?.map((chatbot) => chatbot?.chatbotId)
+								.filter(Boolean) || [],
+					)
+				setSelectedChatbots(selectedChatbotsFromCategories)
+			} else if (shouldAutoSelect) {
+				// Only set all categories for logged users if they have no stored selections
+				setCategories(categoriesObj.categoriesId)
+				setSelectedChatbots(categoriesObj.chatbotsId)
+			}
 		}
 
 		prevPath.current = pathname
 
 		return categoriesObj
-	}, [pathname, prevPath.current, userSlug])
+	}, [
+		pathname,
+		prevPath.current,
+		userSlug,
+		selectedCategories,
+		session?.user,
+		hasLoadedFromStorage,
+	])
 
 	const [isSidebarOpen, setSidebarOpen] = React.useState(false)
 	const [isLoading, setLoading] = React.useState(true)
@@ -132,6 +187,7 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 		null,
 	)
 	const [isFilterMode, setIsFilterMode] = React.useState(false)
+	const [isDashboardOpen, setIsDashboardOpen] = React.useState(false)
 	const [filterValue, setFilterValue] = React.useState('')
 	const [selectedChats, setSelectedChats] = React.useState<string[]>([])
 	const [expandedCategories, setExpandedCategories] = React.useState<number[]>(
@@ -170,11 +226,12 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 
 		const category = categories?.categoriesChatbots.find(
 			(cat) =>
-				toSlug(cat.name) === personalChatbotSlugProfileTopicOrThreadSlug ||
-				toSlug(cat.name) === personalProfilesTopicSlugOrDomainSlug ||
-				toSlug(cat.name) === publicTopicSlugOrBasePath,
+				cat?.name &&
+				(toSlug(cat.name) === personalChatbotSlugProfileTopicOrThreadSlug ||
+					toSlug(cat.name) === personalProfilesTopicSlugOrDomainSlug ||
+					toSlug(cat.name) === publicTopicSlugOrBasePath),
 		)
-		if (category) {
+		if (category?.categoryId) {
 			setActiveCategory(category.categoryId)
 			setExpandedCategories([category.categoryId])
 
@@ -183,14 +240,15 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 				personalChatbotSlugProfileTopicOrThreadSlug ||
 				profileChatbot
 			) {
-				const chatbot = category.chatbots.find(
+				const chatbot = category.chatbots?.find(
 					(c) =>
-						c.chatbot.name.toLowerCase() === profileChatbot ||
-						c.chatbot.name.toLowerCase() ===
-							personalChatbotSlugProfileTopicOrThreadSlug ||
-						c.chatbot.name.toLowerCase() === domainSlugOrPublicChatbotSlug,
+						c?.chatbot?.name &&
+						(c.chatbot.name.toLowerCase() === profileChatbot ||
+							c.chatbot.name.toLowerCase() ===
+								personalChatbotSlugProfileTopicOrThreadSlug ||
+							c.chatbot.name.toLowerCase() === domainSlugOrPublicChatbotSlug),
 				)
-				if (chatbot) {
+				if (chatbot?.chatbot) {
 					setActiveChatbot(chatbot.chatbot)
 				} else {
 					setActiveChatbot(null)
@@ -249,7 +307,7 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 			// 			),
 			// )
 
-			setSelectedCategories((prevSelectedCategories) => {
+			setCategories((prevSelectedCategories: number[]) => {
 				const relatedCategories = categoriesChatbots.filter((category) =>
 					category.chatbots.some((chatbot) => chatbot.chatbotId === chatbotId),
 				)
@@ -261,7 +319,7 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 				return [...prevSelectedCategories, ...newCategoryIds]
 			})
 		},
-		[categories],
+		[categories, setCategories],
 	)
 
 	const changeTab = (cate: 'general' | 'work') => {
@@ -321,6 +379,8 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 		return null
 	}
 
+	const allCategories = categories?.categoriesChatbots || []
+
 	return (
 		<SidebarContext.Provider
 			value={{
@@ -329,24 +389,27 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 				filterValue,
 				isFilterMode,
 				isSidebarOpen,
+				isDashboardOpen,
 				selectedChats,
 				activeChatbot,
 				activeCategory,
 				selectedChatbots,
 				filteredCategories,
 				selectedCategories,
+				allCategories,
 				expandedCategories,
 				changeTab,
 				navigateTo,
 				toggleSidebar,
 				setFilterValue,
 				setIsFilterMode,
+				setIsDashboardOpen,
 				setActiveChatbot,
 				setSelectedChats,
 				setActiveCategory,
 				setSelectedChatbots,
 				setExpandedCategories,
-				setSelectedCategories,
+				setSelectedCategories: setCategories,
 				toggleChatbotSelection,
 			}}
 		>
