@@ -1,5 +1,6 @@
 import '@/app/globals.css'
 import { Header } from '@/components/layout/header/header'
+import LayoutClient from '@/components/layout/layout-client'
 import { Providers } from '@/components/layout/providers'
 import { ServiceWorkerRegistration } from '@/components/layout/service-worker-registration'
 import { Toaster } from '@/components/ui/sonner'
@@ -49,9 +50,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 					/>
 					<div className="flex flex-col min-h-screen">
 						<Header />
-						<main className="relative flex flex-col h-[calc(100vh-4rem)] overflow-hidden bg-muted/50 pb-10">
-							{children}
-						</main>
+						<LayoutClient>{children}</LayoutClient>
 					</div>
 					{/* <TailwindIndicator /> */}
 					<GoogleAnalytics gaId="G-N135BF99HS" />

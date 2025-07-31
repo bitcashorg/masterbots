@@ -1,6 +1,6 @@
 // Base interfaces with all possible parameters
 export interface BasePersonalPublicUrlParams {
-	type: 'personal' | 'public' | 'pro'
+	type: 'personal' | 'public' | 'pro' | 'bot'
 	raw?: boolean
 	category?: string
 	domain?: string
@@ -10,7 +10,7 @@ export interface BasePersonalPublicUrlParams {
 }
 
 export interface BaseProfilesUrlParams {
-	type: 'user' | 'chatbot'
+	type: 'user' | 'chatbot' | 'user-chatbot'
 	raw?: boolean
 	usernameSlug?: string
 	category?: string
