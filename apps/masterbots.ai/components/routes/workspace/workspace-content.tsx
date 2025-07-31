@@ -3,6 +3,10 @@
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
+import {
+	cleanClickableText,
+	extractFollowUpContext,
+} from '@/lib/chat-clickable-text'
 import { useWorkspace } from '@/lib/hooks/use-workspace'
 import { useWorkspaceChat } from '@/lib/hooks/use-workspace-chat'
 import {
@@ -11,6 +15,7 @@ import {
 	createStructuredMarkdown,
 	parseMarkdownSections,
 } from '@/lib/markdown-utils'
+import { buildSectionTree } from '@/lib/section-tree-utils'
 import { cn } from '@/lib/utils'
 import {
 	FileIcon,
@@ -20,7 +25,9 @@ import {
 	SaveIcon,
 	Table,
 } from 'lucide-react'
+import type { Chatbot } from 'mb-genql'
 import * as React from 'react'
+import { WorkspaceSectionTree } from './workspace-section-tree'
 
 interface WorkspaceContentProps {
 	projectName: string | null
@@ -29,6 +36,7 @@ interface WorkspaceContentProps {
 	isLoading?: boolean
 	documentType?: 'text' | 'image' | 'spreadsheet'
 	onActiveSectionChange?: (sectionId: string | null) => void
+	chatbot?: Chatbot
 }
 
 export function WorkspaceContent({
@@ -38,6 +46,7 @@ export function WorkspaceContent({
 	isLoading = false,
 	documentType = 'text',
 	onActiveSectionChange,
+	chatbot,
 }: WorkspaceContentProps) {
 	// Initial document for new documents
 	const initialMarkdown = `# Introduction
@@ -91,8 +100,12 @@ The conclusion summarizes the key points and implications of the project.
 	const userTypingTimeoutRef = React.useRef<NodeJS.Timeout | null>(null)
 	// documentType is now passed as a prop
 	// Use workspace chat hook for workspace-specific functionality
-	const { messages, setCursorPosition: setGlobalCursorPosition } =
-		useWorkspaceChat()
+	const {
+		messages,
+		setCursorPosition: setGlobalCursorPosition,
+		handleWorkspaceEdit,
+		workspaceProcessingState,
+	} = useWorkspaceChat()
 
 	// Use a ref to track previous document key to prevent unnecessary resets
 	const prevDocumentKeyRef = React.useRef(documentKey)
@@ -408,6 +421,183 @@ The conclusion summarizes the key points and implications of the project.
 		)
 	}
 
+	// Handler functions for the new overview mode
+	const handleSectionUpdate = React.useCallback(
+		(sectionId: string, newTitle: string) => {
+			setSections((prevSections) =>
+				prevSections.map((section) =>
+					section.id === sectionId ? { ...section, title: newTitle } : section,
+				),
+			)
+		},
+		[],
+	)
+
+	// Function to create comprehensive meta prompt with document context and chatbot expertise
+	const createWorkspaceMetaPrompt = React.useCallback(
+		(
+			userPrompt: string,
+			sectionTitle: string,
+			taskType: 'expand' | 'rewrite',
+		) => {
+			console.log('📝 Creating workspace meta prompt with:', {
+				userPromptLength: userPrompt.length,
+				sectionTitle,
+				taskType,
+				documentContentLength: fullMarkdown.length,
+				totalSections: sections.length,
+			})
+
+			const sectionsContext = sections
+				.map(
+					(section) =>
+						`## ${section.title} (Level ${section.level})\n${section.content}\n`,
+				)
+				.join('\n')
+
+			const focusedSection = sections.find((s) => s.title === sectionTitle)
+
+			console.log('📝 Workspace meta prompt details:', {
+				totalSections: sections.length,
+				focusedSectionTitle: focusedSection?.title,
+				sectionsContextLength: sectionsContext.length,
+			})
+
+			// Add chatbot expertise if available
+			let chatbotExpertise = ''
+			if (chatbot?.prompts && chatbot.prompts.length > 0) {
+				const expertisePrompts = chatbot.prompts
+					.filter((p) => p.prompt.type === 'prompt')
+					.map((p) => `<expertise>\n${p.prompt.content}\n</expertise>`)
+					.join('\n\n')
+
+				const instructionPrompts = chatbot.prompts
+					.filter((p) => p.prompt.type === 'instruction')
+					.map((p) => `<instructions>\n${p.prompt.content}\n</instructions>`)
+					.join('\n\n')
+
+				chatbotExpertise = `\n\nCHATBOT EXPERTISE:\n${expertisePrompts}\n\n${instructionPrompts}\n`
+			}
+
+			// Create task-specific instructions
+			let taskInstructions = ''
+			let outputFormat = ''
+
+			if (!focusedSection) {
+				console.error('NO FOCUSED SECTION FOUND!', {
+					sectionTitle,
+					availableSections: sections.map((s) => s.title),
+				})
+				return ''
+			}
+
+			// Section-specific editing mode
+			const taskAction = taskType === 'expand' ? 'expand' : 'rewrite'
+			const taskDescription =
+				taskType === 'expand'
+					? "with detailed, relevant content that fits the document's context and purpose"
+					: "to improve clarity, coherence, and alignment with the document's overall purpose and structure"
+
+			taskInstructions = `
+EDITING MODE: SECTION ${taskType.toUpperCase()}
+You are ${taskType === 'expand' ? 'expanding' : 'rewriting'} a specific section of a larger document. The user has requested to ${taskAction} the section "${focusedSection.title}".
+
+WORKSPACE CONTEXT:
+- Project: ${projectName || 'Untitled Project'}
+- Document: ${documentName || 'Untitled Document'}
+- Document Type: ${documentType}
+- Active Section: ${sectionTitle}
+- Total Sections: ${sections.length}
+- All Section Titles: ${sections.map((s) => s.title).join(', ')}
+
+FULL DOCUMENT STRUCTURE:
+${sections.map((s) => `${' '.repeat((s.level - 1) * 2)}${s.level === 1 ? '#' : s.level === 2 ? '##' : s.level === 3 ? '###' : '####'} ${s.title}`).join('\n')}
+
+CURRENT SECTION BEING EDITED:
+## ${focusedSection.title} (Level ${focusedSection.level})
+${focusedSection.content}
+
+USER REQUEST: ${userPrompt}
+
+TASK: ${taskAction.charAt(0).toUpperCase() + taskAction.slice(1)} the "${focusedSection.title}" section ${taskDescription}.`
+
+			outputFormat = `
+<output_format>
+Return ONLY the ${taskType === 'expand' ? 'expanded' : 'rewritten'} content for the "${focusedSection.title}" section. Your response should be the new content that will replace the existing section content.
+
+ACCEPTABLE FORMATS:
+1. Plain text content (will be inserted as-is into the section).
+2. Markdown content with subsections (H3, H4, etc.) that belong under "${focusedSection.title}".
+
+DO NOT INCLUDE:
+- The section heading itself (## ${focusedSection.title}).
+- Other sections from the document.
+- Complete document restructure.
+- Content that belongs to other sections.
+</output_format>`
+
+			return `You are an expert document editor and content creator working with specialized chatbot expertise.${chatbotExpertise}
+
+${taskInstructions}
+
+${outputFormat}
+
+INSTRUCTIONS:
+1. Apply your specialized expertise to the document editing task
+2. Analyze the user's request in the context of the provided document
+3. Maintain the document's style and tone while applying your expertise
+4. Focus on providing valuable, actionable content improvements
+5. Ensure your response integrates well with the existing document structure
+
+Please provide your response now:`
+		},
+		[chatbot, projectName, documentName, documentType, sections, fullMarkdown],
+	)
+
+	const handleExpandSection = React.useCallback(
+		async (sectionTitle: string) => {
+			const prompt = `Proceed to expand ${sectionTitle} section`
+			const metaPrompt = createWorkspaceMetaPrompt(
+				prompt,
+				sectionTitle,
+				'expand',
+			)
+
+			if (!metaPrompt) {
+				console.error('❌ Failed to create metaPrompt for expand operation')
+				return
+			}
+
+			await handleWorkspaceEdit(prompt, metaPrompt, cursorPosition)
+		},
+		[createWorkspaceMetaPrompt, handleWorkspaceEdit, cursorPosition],
+	)
+
+	const handleRewriteSection = React.useCallback(
+		async (sectionTitle: string) => {
+			const prompt = `Rewrite ${sectionTitle} section`
+			const metaPrompt = createWorkspaceMetaPrompt(
+				prompt,
+				sectionTitle,
+				'rewrite',
+			)
+
+			if (!metaPrompt) {
+				console.error('❌ Failed to create metaPrompt for rewrite operation')
+				return
+			}
+
+			await handleWorkspaceEdit(prompt, metaPrompt, cursorPosition)
+		},
+		[createWorkspaceMetaPrompt, handleWorkspaceEdit, cursorPosition],
+	)
+
+	// Build section tree for overview mode
+	const sectionTree = React.useMemo(
+		() => buildSectionTree(sections),
+		[sections],
+	)
+
 	return (
 		<div className={cn('flex flex-col space-y-4 p-4', className)}>
 			<div className="flex justify-between items-center">
@@ -466,38 +656,26 @@ The conclusion summarizes the key points and implications of the project.
 						</button>
 					</div>
 
-					{/* Section editor view */}
+					{/* Section editor view with enhanced tree UI */}
 					{viewMode === 'sections' && (
 						<div className="h-[calc(100%-64px)] grid grid-cols-12 gap-4">
-							{/* Section navigation */}
-							<div className="col-span-3 border rounded-lg p-2 h-full overflow-y-auto">
+							{/* Enhanced section navigation with tree structure */}
+							<div className="col-span-4 border rounded-lg p-2 h-full overflow-y-auto">
 								<h3 className="font-medium mb-2 p-2">Document Sections</h3>
 								<div className="space-y-1">
-									{sections.map((section) => (
-										<button
-											type="button"
-											key={section.id}
-											onClick={() => handleSectionClick(section.id)}
-											className={cn(
-												'w-full text-left px-3 py-2 rounded-md text-sm flex items-center gap-1',
-												activeSection === section.id
-													? 'bg-primary/10 text-primary font-medium'
-													: 'hover:bg-muted',
-											)}
-										>
-											<span className="whitespace-nowrap overflow-hidden text-ellipsis">
-												{section.title}
-											</span>
-											<span className="text-xs text-muted-foreground ml-1">
-												{`(h${section.level})`}
-											</span>
-										</button>
-									))}
+									<WorkspaceSectionTree
+										tree={sectionTree}
+										activeSection={activeSection}
+										onSectionClick={handleSectionClick}
+										onExpandSection={handleExpandSection}
+										onRewriteSection={handleRewriteSection}
+										onRenameSection={handleSectionUpdate}
+									/>
 								</div>
 							</div>
 
 							{/* Content area */}
-							<div className="col-span-9 border rounded-lg p-4 h-full overflow-y-auto">
+							<div className="col-span-8 border rounded-lg p-4 h-full overflow-y-auto">
 								{activeSection ? (
 									<div className="space-y-4 h-[calc(100%-64px)]">
 										<h3 className="font-semibold">

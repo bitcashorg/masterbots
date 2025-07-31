@@ -840,6 +840,7 @@ Please provide your response now:`
 								isLoading={isLoading}
 								className="h-[calc(100%-48px)] overflow-auto"
 								onActiveSectionChange={setActiveWorkspaceSection}
+								chatbot={chatbot}
 							/>
 						</div>
 					)}
