@@ -402,25 +402,6 @@ The conclusion summarizes the key points and implications of the project.
 		],
 	)
 
-	if (!projectName || !documentName) {
-		return (
-			<div className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground">
-				<p>Select a project and document to edit</p>
-			</div>
-		)
-	}
-
-	if (isLoading) {
-		return (
-			<div className="space-y-4 p-4">
-				<Skeleton className="h-8 w-1/3" />
-				<Skeleton className="h-4 w-full" />
-				<Skeleton className="h-4 w-full" />
-				<Skeleton className="h-4 w-2/3" />
-			</div>
-		)
-	}
-
 	// Handler functions for the new overview mode
 	const handleSectionUpdate = React.useCallback(
 		(sectionId: string, newTitle: string) => {
@@ -597,6 +578,25 @@ Please provide your response now:`
 		() => buildSectionTree(sections),
 		[sections],
 	)
+
+	if (!projectName || !documentName) {
+		return (
+			<div className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground">
+				<p>Select a project and document to edit</p>
+			</div>
+		)
+	}
+
+	if (isLoading) {
+		return (
+			<div className="space-y-4 p-4">
+				<Skeleton className="h-8 w-1/3" />
+				<Skeleton className="h-4 w-full" />
+				<Skeleton className="h-4 w-full" />
+				<Skeleton className="h-4 w-2/3" />
+			</div>
+		)
+	}
 
 	return (
 		<div className={cn('flex flex-col space-y-4 p-4', className)}>
