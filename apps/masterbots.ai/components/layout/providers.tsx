@@ -20,7 +20,7 @@ import {
 	type Attribute,
 	ThemeProvider as NextThemesProvider,
 } from 'next-themes'
-import { NextStep, NextStepProvider } from 'nextstepjs'
+import { NextStep, NextStepProvider, type Step } from 'nextstepjs'
 
 const onboardingSteps = [
 	{
