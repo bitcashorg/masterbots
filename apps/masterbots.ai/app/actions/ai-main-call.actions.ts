@@ -348,7 +348,8 @@ export async function createResponseStream(
 		switch (clientType) {
 			case 'OpenAI': {
 				const openaiModel = initializeOpenAi(model)
-				const isReasoningModel = model.startsWith('o4-mini')
+				const isReasoningModel =
+					model.startsWith('o4-mini') || model.includes('GPT-5')
 				const modelToUse = openaiModel
 
 				//* For OpenAI reasoning models, we don't need the middleware approach reasoning comes through the reasoningSummary option
@@ -361,6 +362,7 @@ export async function createResponseStream(
 							maxSteps: 3,
 							tools,
 							temperature: 1,
+							reasoning_effort: isPowerUp ? 'high' : 'medium',
 							// providerOptions: {
 							// 	openai: {
 							// 		reasoningEffort: 'low',
