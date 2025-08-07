@@ -80,7 +80,11 @@ type NavigateToParams<
 }
 
 export function SidebarProvider({ children }: SidebarProviderProps) {
-	const { selectedCategories, setCategories } = useCategorySelections()
+	const {
+		selectedCategories,
+		setCategories,
+		isLoaded: isCategoryStorageLoaded,
+	} = useCategorySelections()
 	const [selectedChatbots, setSelectedChatbots] = React.useState<number[]>([])
 	const { data: session } = useSession()
 	const hasClearedRef = React.useRef(false)
@@ -94,13 +98,13 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 
 	//? Handle category selections for logged vs non-logged users
 	React.useEffect(() => {
-		if (!session?.user && !hasClearedRef.current) {
+		if (!session?.user && !hasClearedRef.current && isCategoryStorageLoaded) {
 			setCategoriesRef.current([])
 			hasClearedRef.current = true
 		} else if (session?.user) {
 			hasClearedRef.current = false
 		}
-	}, [session?.user])
+	}, [session?.user, isCategoryStorageLoaded])
 
 	//? Mark that we've loaded from storage after the first render
 	React.useEffect(() => {
@@ -138,7 +142,10 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 
 		//? Only auto-select categories for logged users if they have no stored selections and we've loaded from storage
 		const shouldAutoSelect =
-			selectedCategories.length === 0 && session?.user && hasLoadedFromStorage
+			selectedCategories.length === 0 &&
+			session?.user &&
+			hasLoadedFromStorage &&
+			isCategoryStorageLoaded
 
 		if (
 			(prevPath.current !== pathname &&
@@ -179,6 +186,7 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 		setSelectedChatbots,
 		session?.user,
 		hasLoadedFromStorage,
+		isCategoryStorageLoaded,
 	])
 
 	const [isSidebarOpen, setSidebarOpen] = React.useState(false)
