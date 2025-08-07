@@ -365,12 +365,12 @@ export async function createResponseStream(
 							tools,
 							temperature: 1,
 							reasoning_effort: isPowerUp ? 'high' : 'medium',
-							providerOptions: {
-								openai: {
-									reasoningEffort: 'low',
-									reasoningSummary: 'auto',
-								},
-							},
+							// providerOptions: {
+							// 	openai: {
+							// 		reasoningEffort: 'low',
+							// 		reasoningSummary: 'auto',
+							// 	},
+							// },
 						}
 					: ({
 							temperature: OPEN_AI_ENV_CONFIG.TEMPERATURE,
@@ -381,8 +381,8 @@ export async function createResponseStream(
 							maxRetries: 2,
 							maxSteps: 3,
 							tools,
-						} as StreamTextParams)
-				// console.log('openAiStreamConfig', openAiStreamConfig)
+						})
+				console.log('openAiStreamConfig', openAiStreamConfig)
 				if (appConfig.features.experimentalAiConfig) {
 					// @ts-ignore: It does exist in the config
 					openAiStreamConfig.experimental_transform = smoothStream({
