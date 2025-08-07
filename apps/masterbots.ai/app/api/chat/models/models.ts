@@ -13,5 +13,5 @@ export enum AIModels {
 	Gemini_Flash_Lite = 'gemini-2.0-flash-lite',
 	Gemini_Flash_Lite_Pro = 'gemini-2.0-flash-lite-pro',
 	Gemini_Flash_Pro = 'gemini-2.5-pro-preview-03-25',
-	Default = 'gpt-4.1-mini-2025-04-14', //!  OpenAI_4_1_mini
+	Default = 'gpt-5-mini', //!  OpenAI_5
 }
