@@ -349,7 +349,7 @@ export async function createResponseStream(
 			case 'OpenAI': {
 				const openaiModel = initializeOpenAi(model)
 				const isReasoningModel =
-					model.startsWith('o4-mini') || model.includes('GPT-5')
+					model.startsWith('o4-mini') || model.includes('gpt-5')
 				const modelToUse = openaiModel
 
 				//* For OpenAI reasoning models, we don't need the middleware approach reasoning comes through the reasoningSummary option
@@ -380,7 +380,7 @@ export async function createResponseStream(
 							maxSteps: 3,
 							tools,
 						}
-
+				console.log('openAiStreamConfig', openAiStreamConfig)
 				if (appConfig.features.experimentalAiConfig) {
 					// @ts-ignore: It does exist in the config
 					openAiStreamConfig.experimental_transform = smoothStream({
