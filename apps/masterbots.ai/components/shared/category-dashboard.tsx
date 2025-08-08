@@ -1,6 +1,7 @@
 'use client'
 
 import { Card, CardContent } from '@/components/ui/card'
+import { useCategorySelections } from '@/lib/hooks/use-category-selections'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { cn, getRouteType } from '@/lib/utils'
 import type { CategoryCardProps, CategoryDashboardProps } from '@/types/types'
@@ -15,13 +16,17 @@ export function CategoryDashboard({
 }: CategoryDashboardProps) {
 	const { selectedCategories, setSelectedCategories, setSelectedChatbots } =
 		useSidebar()
+	const { isLoaded: isCategoryStorageLoaded } = useCategorySelections()
 	const routeType = getRouteType(usePathname())
-	const [localSelectedCategories, setLocalSelectedCategories] =
-		useState<number[]>(selectedCategories)
+	const [localSelectedCategories, setLocalSelectedCategories] = useState<
+		number[]
+	>([])
 
 	useEffect(() => {
-		setLocalSelectedCategories(selectedCategories)
-	}, [selectedCategories])
+		if (isCategoryStorageLoaded) {
+			setLocalSelectedCategories(selectedCategories)
+		}
+	}, [selectedCategories, isCategoryStorageLoaded])
 
 	const bgImage =
 		'bg-[url(/background-light.webp)] dark:bg-[url(/background.webp)]'
@@ -54,6 +59,28 @@ export function CategoryDashboard({
 	}
 
 	if (!isOpen) return null
+
+	// Show loading state while category storage is loading
+	if (!isCategoryStorageLoaded) {
+		return (
+			<div className="flex fixed inset-0 z-50 justify-center items-center backdrop-blur-sm bg-black/60">
+				<div className="relative w-full max-w-7xl mx-4 max-h-[80vh] overflow-y-auto">
+					<Card className="w-full bg-white dark:bg-[#09090B] relative overflow-hidden rounded-2xl shadow-2xl border-0">
+						<CardContent className="p-8">
+							<div className="flex justify-center items-center min-h-[200px]">
+								<div className="text-center">
+									<div className="mx-auto mb-4 w-8 h-8 rounded-full border-b-2 border-gray-900 animate-spin dark:border-white" />
+									<p className="text-gray-600 dark:text-gray-400">
+										Loading categories...
+									</p>
+								</div>
+							</div>
+						</CardContent>
+					</Card>
+				</div>
+			</div>
+		)
+	}
 
 	return (
 		<div className="flex fixed inset-0 z-50 justify-center items-center backdrop-blur-sm bg-black/60">
