@@ -1,6 +1,7 @@
 'use client'
 
 import { Card, CardContent } from '@/components/ui/card'
+import { useCategorySelections } from '@/lib/hooks/use-category-selections'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { cn, getRouteType } from '@/lib/utils'
 import type { CategoryCardProps, OnboardingSectionProps } from '@/types/types'
@@ -14,13 +15,18 @@ export function OnboardingSection({ isOpen, onClose }: OnboardingSectionProps) {
 		setSelectedChatbots,
 		selectedCategories,
 	} = useSidebar()
+	const { isLoaded: isCategoryStorageLoaded } = useCategorySelections()
 	const routeType = getRouteType(usePathname())
-	const [localSelectedCategories, setLocalSelectedCategories] =
-		useState<number[]>(selectedCategories)
+	const [localSelectedCategories, setLocalSelectedCategories] = useState<
+		number[]
+	>([])
 
 	useEffect(() => {
-		setLocalSelectedCategories(selectedCategories)
-	}, [selectedCategories])
+		// Only update local state when storage is loaded and we have valid selected categories
+		if (isCategoryStorageLoaded) {
+			setLocalSelectedCategories(selectedCategories)
+		}
+	}, [selectedCategories, isCategoryStorageLoaded])
 
 	if (!isOpen) return null
 

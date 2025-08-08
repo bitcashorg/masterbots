@@ -87,29 +87,8 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 	} = useCategorySelections()
 	const [selectedChatbots, setSelectedChatbots] = React.useState<number[]>([])
 	const { data: session } = useSession()
-	const hasClearedRef = React.useRef(false)
-	const setCategoriesRef = React.useRef(setCategories)
-	const [hasLoadedFromStorage, setHasLoadedFromStorage] = React.useState(false)
 
-	// Update the ref when setCategories changes
-	React.useEffect(() => {
-		setCategoriesRef.current = setCategories
-	}, [setCategories])
-
-	//? Handle category selections for logged vs non-logged users
-	React.useEffect(() => {
-		if (!session?.user && !hasClearedRef.current && isCategoryStorageLoaded) {
-			setCategoriesRef.current([])
-			hasClearedRef.current = true
-		} else if (session?.user) {
-			hasClearedRef.current = false
-		}
-	}, [session?.user, isCategoryStorageLoaded])
-
-	//? Mark that we've loaded from storage after the first render
-	React.useEffect(() => {
-		setHasLoadedFromStorage(true)
-	}, [])
+	// Removed auto-clear and auto-select logic to preserve user selections across reloads
 	const { userSlug } = useParams()
 	const pathname = usePathname()
 	const router = useRouter()
@@ -140,18 +119,12 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 		const pathParts = pathname.split('/')
 		const prevPathParts = (prevPath.current || '').split('/')
 
-		//? Only auto-select categories for logged users if they have no stored selections and we've loaded from storage
-		const shouldAutoSelect =
-			selectedCategories.length === 0 &&
-			session?.user &&
-			hasLoadedFromStorage &&
-			isCategoryStorageLoaded
-
+		//? Handle category and chatbot selections based on stored preferences
+		//? Only update selections when navigating to browse page or when we have stored selections
 		if (
-			(prevPath.current !== pathname &&
-				pathParts[1] !== prevPathParts[1] &&
-				pathParts[1] === 'c') ||
-			shouldAutoSelect
+			prevPath.current !== pathname &&
+			pathParts[1] !== prevPathParts[1] &&
+			pathParts[1] === 'c'
 		) {
 			if (selectedCategories.length > 0) {
 				const selectedChatbotsFromCategories = categoriesObj.categoriesChatbots
@@ -167,10 +140,6 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 								.filter(Boolean) || [],
 					)
 				setSelectedChatbots(selectedChatbotsFromCategories)
-			} else if (shouldAutoSelect) {
-				// Only set all categories for logged users if they have no stored selections
-				setCategories(categoriesObj.categoriesId)
-				setSelectedChatbots(categoriesObj.chatbotsId)
 			}
 		}
 
@@ -185,7 +154,6 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 		setCategories,
 		setSelectedChatbots,
 		session?.user,
-		hasLoadedFromStorage,
 		isCategoryStorageLoaded,
 	])
 
