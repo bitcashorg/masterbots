@@ -1,12 +1,13 @@
 'use server'
 
 import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
-import type { ThreadMetadata } from '@/lib/hooks/use-indexed-db'
+import type { ThreadMetadata as AttachmentThreadMetadata } from '@/lib/hooks/use-indexed-db'
 import { Storage } from '@google-cloud/storage'
 import { eq, inArray, isNotNull, sql } from 'drizzle-orm'
 import { uniqBy } from 'lodash'
 import { db, message, thread } from 'mb-drizzle'
 import { appConfig } from 'mb-env'
+import { nanoid } from 'nanoid'
 
 export async function doesMessageSlugExist(slug: string) {
 	const results = await db
@@ -63,7 +64,7 @@ export async function getAllUserThreadMetadata() {
 	if (results.length === 0) return null
 
 	const metadata = results.flatMap(
-		(result) => (result.metadata as ThreadMetadata).attachments,
+		(result) => (result.metadata as AttachmentThreadMetadata).attachments,
 	)
 
 	return metadata
@@ -97,7 +98,7 @@ export async function getMissingUserThreadMetadata(
 	if (results.rows.length === 0) return null
 
 	const metadata = results.rows.flatMap(
-		(result) => (result.metadata as ThreadMetadata).attachments,
+		(result) => (result.metadata as AttachmentThreadMetadata).attachments,
 	)
 
 	return metadata
@@ -105,7 +106,7 @@ export async function getMissingUserThreadMetadata(
 
 export async function updateThreadMetadata(
 	messagesIds: string[],
-	metadata: ThreadMetadata,
+	metadata: AttachmentThreadMetadata,
 ) {
 	// First, select the threadIds that need to be updated
 	const threadsToUpdate = await db
@@ -130,7 +131,7 @@ export async function updateThreadMetadata(
 		(t) => [t.threadId as string, t.messageId] as const,
 	)
 
-	const attachments: ThreadMetadata = {}
+	const attachments: AttachmentThreadMetadata = {}
 
 	let result: (typeof thread.$inferSelect)[] = []
 
@@ -138,8 +139,8 @@ export async function updateThreadMetadata(
 	let currentThread: Partial<typeof thread.$inferSelect>[] | null = null
 
 	for (const [threadId, messageId] of threadsDataIds) {
-		let relatedThreadAttachments = metadata.attachments.filter((att) =>
-			att.messageIds.includes(messageId),
+		let relatedThreadAttachments = metadata.attachments.filter(
+			(att: FileAttachment) => att.messageIds.includes(messageId),
 		)
 
 		const isSameThread = previousThreadId === threadId
@@ -154,7 +155,8 @@ export async function updateThreadMetadata(
 					.limit(1)
 
 		const existingAttachments = currentThread?.length
-			? (currentThread[0]?.metadata as ThreadMetadata)?.attachments || []
+			? (currentThread[0]?.metadata as AttachmentThreadMetadata)?.attachments ||
+				[]
 			: []
 
 		if (isSameThread) {
@@ -268,4 +270,172 @@ export async function uploadAttachmentToBucket({
 		content: bucketKey, // Store the bucket key instead of the content
 		expires: new Date(expires).toISOString(),
 	}
+}
+
+export async function getThreadBySlug(slug: string) {
+	const results = await db
+		.select({
+			threadId: thread.threadId,
+			slug: thread.slug,
+			metadata: thread.metadata,
+		})
+		.from(thread)
+		.where(eq(thread.slug, slug))
+		.limit(1)
+	return results[0] || null
+}
+
+export interface WorkspaceDocumentVersion {
+	version: number
+	contentKey: string
+	checksum: string
+	size: number
+	url: string
+	updatedAt: string
+}
+export interface WorkspaceDocumentMetadata {
+	id: string
+	project: string
+	name: string
+	type: 'text' | 'image' | 'spreadsheet'
+	currentVersion: number
+	versions: WorkspaceDocumentVersion[]
+}
+
+export interface ThreadMetadataFull {
+	attachments?: FileAttachment[]
+	documents?: WorkspaceDocumentMetadata[]
+}
+
+export async function uploadWorkspaceDocumentToBucket({
+	threadSlug,
+	project,
+	name,
+	content,
+	type = 'text',
+}: {
+	threadSlug: string
+	project: string
+	name: string
+	content: string
+	type?: 'text' | 'image' | 'spreadsheet'
+}) {
+	if (!content) throw new Error('Document content required')
+	const existingThread = await getThreadBySlug(threadSlug)
+	if (!existingThread) throw new Error('Thread not found for slug')
+	const existingDocs: WorkspaceDocumentMetadata[] =
+		(existingThread.metadata as ThreadMetadataFull | null)?.documents || []
+	const existing = existingDocs.find(
+		(d) => d.project === project && d.name === name && d.type === type,
+	)
+	const version = existing ? existing.currentVersion + 1 : 1
+	const id = existing?.id || nanoid()
+	const buffer = Buffer.from(content, 'utf8')
+	const size = buffer.byteLength
+	// simple checksum
+	let hash = 0
+	for (let i = 0; i < content.length; i++) {
+		hash = (hash << 5) - hash + content.charCodeAt(i)
+		hash |= 0
+	}
+	const checksum = hash.toString()
+	const {
+		storageBucketName,
+		storageClientEmail,
+		storageSecretAccessKey,
+		storageProjectId,
+	} = appConfig.features
+	const storage = new Storage({
+		projectId: storageProjectId,
+		credentials: {
+			client_email: storageClientEmail,
+			private_key: storageSecretAccessKey,
+		},
+	})
+	const bucket = storage.bucket(storageBucketName)
+	const safeName = name.replace(/[^a-zA-Z0-9-_]/g, '_')
+	const key = `documents/${threadSlug}/${project}/${safeName}/v${version}.md`
+	const fileUpload = bucket.file(key)
+	await fileUpload.save(buffer, {
+		metadata: { id, project, name, version: String(version), type },
+		resumable: false,
+	})
+	const expires = Date.now() + 1000 * 60 * 60 * 24 * 7
+	const [signedUrl] = await fileUpload.getSignedUrl({
+		version: 'v4',
+		action: 'read',
+		expires,
+	})
+	const newVersion: WorkspaceDocumentVersion = {
+		version,
+		contentKey: key,
+		checksum,
+		size,
+		url: signedUrl,
+		updatedAt: new Date().toISOString(),
+	}
+	let updatedDocs: WorkspaceDocumentMetadata[]
+	if (existing) {
+		updatedDocs = existingDocs.map((d) =>
+			d.id === existing.id
+				? {
+						...d,
+						currentVersion: version,
+						versions: [...d.versions, newVersion],
+					}
+				: d,
+		)
+	} else {
+		updatedDocs = [
+			...existingDocs,
+			{
+				id,
+				project,
+				name,
+				type,
+				currentVersion: version,
+				versions: [newVersion],
+			},
+		]
+	}
+	await db
+		.update(thread)
+		.set({
+			metadata: {
+				...((existingThread.metadata as ThreadMetadataFull) || {}),
+				documents: updatedDocs,
+				attachments:
+					(existingThread.metadata as ThreadMetadataFull)?.attachments || [],
+			},
+		})
+		.where(eq(thread.threadId, existingThread.threadId))
+		.returning()
+	return {
+		document: updatedDocs.find((d) => d.id === id),
+		documents: updatedDocs,
+	}
+}
+
+export async function updateThreadDocumentsMetadata({
+	threadSlug,
+	documents,
+}: {
+	threadSlug: string
+	documents: WorkspaceDocumentMetadata[]
+}) {
+	const existingThread = await getThreadBySlug(threadSlug)
+	if (!existingThread) throw new Error('Thread not found for slug')
+	await db
+		.update(thread)
+		.set({
+			metadata: {
+				...((existingThread.metadata as ThreadMetadataFull) || {}),
+				documents,
+				attachments:
+					(existingThread.metadata as ThreadMetadataFull)?.attachments || [],
+			},
+		})
+		.where(eq(thread.threadId, existingThread.threadId))
+		.returning()
+	return { success: true }
 }

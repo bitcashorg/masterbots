@@ -46,7 +46,13 @@ export function Providers({ children, ...props }: ProvidersProps) {
 														<ThreadVisibilityProvider>
 															<ContinueGenerationProvider>
 																<ImageToggleProvider>
-																	<MBChatProvider>{children}</MBChatProvider>
+																	<MBChatProvider>
+																		<WorkspaceProvider>
+																			<WorkspaceChatProvider>
+																				{children}
+																			</WorkspaceChatProvider>
+																		</WorkspaceProvider>
+																	</MBChatProvider>
 																</ImageToggleProvider>
 															</ContinueGenerationProvider>
 														</ThreadVisibilityProvider>

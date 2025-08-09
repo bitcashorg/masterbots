@@ -1,12 +1,9 @@
 'use client'
 
+import { uploadWorkspaceDocumentToBucket } from '@/app/actions/thread.actions'
 import { ChatShareDialog } from '@/components/routes/chat/chat-share-dialog'
 import { PromptForm } from '@/components/routes/chat/prompt-form'
 import { WorkspaceContent } from '@/components/routes/workspace/workspace-content'
-import { WorkspaceDepartmentSelect } from '@/components/routes/workspace/workspace-department-select'
-import { WorkspaceDocumentSelect } from '@/components/routes/workspace/workspace-document-select'
-import { WorkspaceOrganizationSelect } from '@/components/routes/workspace/workspace-organization-select'
-import { WorkspaceProjectSelect } from '@/components/routes/workspace/workspace-project-select'
 import { ButtonScrollToBottom } from '@/components/shared/button-scroll-to-bottom'
 import { FeatureToggle } from '@/components/shared/feature-toggle'
 import { LoadingIndicator } from '@/components/shared/loading-indicator'
@@ -35,6 +32,7 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { useContinueGeneration } from '@/lib/hooks/use-continue-generation'
 import { useDeepThinking } from '@/lib/hooks/use-deep-thinking'
+import { type IndexedDBItem, useIndexedDB } from '@/lib/hooks/use-indexed-db'
 import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { useModel } from '@/lib/hooks/use-model'
 import { usePowerUp } from '@/lib/hooks/use-power-up'
@@ -58,6 +56,7 @@ import {
 	GlobeIcon,
 	GraduationCap,
 	ImageIcon,
+	SaveIcon,
 	TableIcon,
 } from 'lucide-react'
 import { appConfig } from 'mb-env'
@@ -114,7 +113,8 @@ export function ChatPanelPro({
 	targetDocument: externalTargetDocument,
 	setTargetDocument: externalSetTargetDocument,
 }: ChatPanelProProps) {
-	const { isOpenPopup, loadingState, webSearch, setWebSearch } = useThread()
+	const { isOpenPopup, loadingState, webSearch, setWebSearch, activeThread } =
+		useThread()
 	const { isPowerUp, togglePowerUp } = usePowerUp()
 	const { isDeepThinking, toggleDeepThinking } = useDeepThinking()
 	const [shareDialogOpen, setShareDialogOpen] = useState(false)
@@ -204,68 +204,88 @@ export function ChatPanelPro({
 		projectsByDept,
 		documentContent,
 		setDocumentContent,
+		activeDocumentType,
+		setActiveDocumentType,
 	} = useWorkspace()
 
-	// Document type state with ref for tracking changes
-	const [documentType, setDocumentType] = useState<
-		'text' | 'image' | 'spreadsheet'
-	>('text')
+	// Keep a local mirror for UI only, but source of truth is workspace
+	const documentType =
+		activeDocumentType === 'all' ? 'text' : activeDocumentType
+	const setDocumentType = (v: 'text' | 'image' | 'spreadsheet') =>
+		setActiveDocumentType(v)
 
-	// Ref to track document type to ensure proper updates
-	const documentTypeRef = useRef<'text' | 'image' | 'spreadsheet'>('text')
-
-	// Separate effect for document reset to avoid infinite loops
-	// Only runs when document type actually changes
-	const previousDocTypeRef = useRef(documentType)
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	// Sync selection dropdowns to respect null/None
 	useEffect(() => {
-		// Generate a unique ID for this effect run
-		const effectId = Math.random().toString(36).substring(2, 8)
+		if (activeDocument === undefined) {
+			setActiveDocument(null)
+		}
+	}, [activeDocument, setActiveDocument])
 
-		if (previousDocTypeRef.current !== documentType) {
-			console.log(
-				`[${effectId}] Document type changed from ${previousDocTypeRef.current} to ${documentType}`,
-			)
+	// IndexedDB for local document raw storage (reuse attachment DB)
+	const { addItem: addIndexedItem, updateItem: updateIndexedItem } =
+		useIndexedDB({})
 
-			// Only reset if document type has changed
-			if (activeDocument) {
-				console.log(
-					`[${effectId}] Resetting active document from ${activeDocument} to null due to document type change`,
-				)
-				setActiveDocument(null)
-			}
-
-			// Check if current project has documents in the new type
-			if (activeProject) {
-				let newDocs: string[] | undefined
-				if (documentType === 'text') {
-					newDocs = textDocuments?.[activeProject]
-				} else if (documentType === 'image') {
-					newDocs = imageDocuments?.[activeProject]
-				} else if (documentType === 'spreadsheet') {
-					newDocs = spreadsheetDocuments?.[activeProject]
+	const handleSaveDocument = useCallback(async () => {
+		try {
+			if (!activeProject || !activeDocument) return
+			// Determine type when All is selected
+			const docType: 'text' | 'image' | 'spreadsheet' =
+				activeDocumentType === 'all' ? 'text' : activeDocumentType
+			// Resolve current content
+			const key = `${activeProject}:${activeDocument}`
+			const content = documentContent?.[key] || ''
+			if (!content.trim()) return
+			// Get thread slug from top-level hook
+			const threadSlug = activeThread?.slug
+			if (!threadSlug) return
+			const { document } = await uploadWorkspaceDocumentToBucket({
+				threadSlug,
+				project: activeProject,
+				name: activeDocument,
+				content,
+				type: docType,
+			})
+			// Store raw locally in IndexedDB similar to attachments
+			const id = document?.id || nanoid(12)
+			// Convert content to base64 data URL (browser compatible)
+			const base64 = await new Promise<string>((resolve, reject) => {
+				try {
+					const blob = new Blob([content], { type: 'text/markdown' })
+					const reader = new FileReader()
+					reader.onloadend = () => resolve(reader.result as string)
+					reader.onerror = reject
+					reader.readAsDataURL(blob)
+				} catch (err) {
+					reject(err)
 				}
-
-				console.log(
-					`[${effectId}] Project ${activeProject} ${newDocs ? 'has' : 'does not have'} documents in the ${documentType} category`,
-				)
-				if (newDocs && newDocs.length > 0) {
-					console.log(
-						`[${effectId}] Available ${documentType} documents for ${activeProject}:`,
-						[...newDocs],
-					)
-				}
+			})
+			const item = {
+				id,
+				name: activeDocument,
+				project: activeProject,
+				type: docType,
+				url: base64,
+				content: base64,
+				size: new Blob([content]).size,
+				messageIds: [],
+				expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+			} as unknown as IndexedDBItem
+			try {
+				updateIndexedItem(id, item)
+			} catch {
+				addIndexedItem(item)
 			}
-
-			previousDocTypeRef.current = documentType
+		} catch (e) {
+			console.error('Failed to save document', e)
 		}
 	}, [
-		documentType,
-		activeDocument,
 		activeProject,
-		textDocuments,
-		imageDocuments,
-		spreadsheetDocuments,
+		activeDocument,
+		activeDocumentType,
+		documentContent,
+		updateIndexedItem,
+		addIndexedItem,
+		activeThread,
 	])
 
 	// Use departmentList as departmentsByOrg since they contain the same data
@@ -505,29 +525,6 @@ INSTRUCTIONS:
 Please provide your response now:`
 	}
 
-	// Simplified document options memoization - fixed to prevent infinite loops
-	const documentOptions = useMemo(() => {
-		if (!activeProject) return []
-
-		let documentSource: Record<string, string[]> = {}
-
-		if (documentType === 'text') {
-			documentSource = textDocuments || {}
-		} else if (documentType === 'image') {
-			documentSource = imageDocuments || {}
-		} else if (documentType === 'spreadsheet') {
-			documentSource = spreadsheetDocuments || {}
-		}
-
-		return documentSource[activeProject] || []
-	}, [
-		activeProject,
-		documentType,
-		textDocuments,
-		imageDocuments,
-		spreadsheetDocuments,
-	])
-
 	const chatId = useMemo(() => {
 		return id || `chat-panel-${nanoid(16)}`
 	}, [id])
@@ -635,8 +632,17 @@ Please provide your response now:`
 								</div>
 							)}
 							{isWorkspaceActive && (
-								<div className="flex-grow">
-									{/* Empty div to maintain header layout */}
+								<div className="flex-grow flex items-center justify-end gap-2">
+									<Button
+										variant="outline"
+										size="sm"
+										disabled={!activeProject || !activeDocument}
+										onClick={handleSaveDocument}
+										className="gap-2"
+									>
+										<SaveIcon className="h-4 w-4" />
+										Save
+									</Button>
 								</div>
 							)}
 
@@ -715,130 +721,13 @@ Please provide your response now:`
 					{/* Workspace Section (conditionally shown) */}
 					{isWorkspaceActive && (
 						<div className="w-full h-[calc(100vh-220px)] bg-background border rounded-md shadow-sm">
-							{/* Organization/Department/Project/Document selectors at top right of workspace */}
-							<div className="flex justify-end p-2 bg-background">
-								<div className="flex items-center gap-4">
-									<WorkspaceOrganizationSelect
-										value={activeOrganization}
-										onChange={(newOrg) => {
-											// Skip if the value hasn't actually changed
-											if (newOrg === activeOrganization) {
-												console.log('Organization unchanged, skipping update')
-												return
-											}
-											console.log('Setting org to:', newOrg)
-											setActiveOrganization(newOrg)
-										}}
-										options={organizationList || []}
-									/>
-									<WorkspaceDepartmentSelect
-										value={activeDepartment}
-										onChange={(newDept) => {
-											// Skip if the value hasn't actually changed
-											if (newDept === activeDepartment) {
-												console.log('Department unchanged, skipping update')
-												return
-											}
-											console.log('Setting dept to:', newDept)
-											setActiveDepartment(newDept)
-										}}
-										options={
-											activeOrganization &&
-											departmentsByOrg &&
-											departmentsByOrg[activeOrganization]
-												? departmentsByOrg[activeOrganization]
-												: []
-										}
-										disabled={!activeOrganization}
-									/>
-									<WorkspaceProjectSelect
-										value={activeProject}
-										onChange={(newProj) => {
-											// Skip if the value hasn't actually changed
-											if (newProj === activeProject) {
-												console.log('Project unchanged, skipping update')
-												return
-											}
-											console.log('Setting project to:', newProj)
-											setActiveProject(newProj)
-										}}
-										options={
-											activeOrganization &&
-											activeDepartment &&
-											projectsByDept &&
-											projectsByDept[activeOrganization] &&
-											projectsByDept[activeOrganization][activeDepartment]
-												? projectsByDept[activeOrganization][activeDepartment]
-												: []
-										}
-										disabled={!activeDepartment}
-									/>
-									{/* Document Type Selector */}
-									<DropdownMenu>
-										<DropdownMenuTrigger asChild>
-											<Button
-												variant="outline"
-												className="flex items-center gap-2"
-												disabled={!activeProject}
-											>
-												{documentType === 'text' && (
-													<FileTextIcon className="h-4 w-4" />
-												)}
-												{documentType === 'image' && (
-													<ImageIcon className="h-4 w-4" />
-												)}
-												{documentType === 'spreadsheet' && (
-													<TableIcon className="h-4 w-4" />
-												)}
-												<span>
-													{documentType === 'text' && 'Text Documents'}
-													{documentType === 'image' && 'Image Documents'}
-													{documentType === 'spreadsheet' && 'Spreadsheets'}
-												</span>
-												<ChevronDownIcon className="h-4 w-4 opacity-70" />
-											</Button>
-										</DropdownMenuTrigger>
-										<DropdownMenuContent align="end">
-											<DropdownMenuItem onClick={() => setDocumentType('text')}>
-												<FileTextIcon className="h-4 w-4 mr-2" />
-												<span>Text Documents</span>
-											</DropdownMenuItem>
-											<DropdownMenuItem
-												onClick={() => setDocumentType('image')}
-											>
-												<ImageIcon className="h-4 w-4 mr-2" />
-												<span>Image Documents</span>
-											</DropdownMenuItem>
-											<DropdownMenuItem
-												onClick={() => setDocumentType('spreadsheet')}
-											>
-												<TableIcon className="h-4 w-4 mr-2" />
-												<span>Spreadsheets</span>
-											</DropdownMenuItem>
-										</DropdownMenuContent>
-									</DropdownMenu>
-									<WorkspaceDocumentSelect
-										value={activeDocument}
-										onChange={(newDoc) => {
-											// Skip if the value hasn't actually changed
-											if (newDoc === activeDocument) {
-												console.log('Document unchanged, skipping update')
-												return
-											}
-											console.log('Setting document to:', newDoc)
-											setActiveDocument(newDoc)
-										}}
-										options={documentOptions}
-										disabled={!activeProject || documentOptions.length === 0}
-									/>
-								</div>
-							</div>
+							{/* Removed duplicate document type dropdown. Breadcrumb is source of truth. */}
 							<WorkspaceContent
 								projectName={activeProject}
 								documentName={activeDocument}
 								documentType={documentType}
 								isLoading={isLoading}
-								className="h-[calc(100%-48px)] overflow-auto"
+								className="h-[calc(100%-0px)] overflow-auto"
 								onActiveSectionChange={setActiveWorkspaceSection}
 								chatbot={chatbot}
 							/>
@@ -1014,7 +903,7 @@ Please provide your response now:`
 										<SelectValue placeholder="Select a project" />
 									</SelectTrigger>
 									<SelectContent>
-										{projectList.map((project) => (
+										{projectList.map((project: string) => (
 											<SelectItem key={project} value={project}>
 												{project}
 											</SelectItem>
@@ -1041,7 +930,7 @@ Please provide your response now:`
 									</SelectTrigger>
 									<SelectContent>
 										{targetProject &&
-											documentList[targetProject]?.map((doc) => (
+											documentList[targetProject]?.map((doc: string) => (
 												<SelectItem key={doc} value={doc}>
 													{doc}
 												</SelectItem>

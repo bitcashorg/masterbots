@@ -1,5 +1,14 @@
 'use client'
 
+import {
+	ChevronDown,
+	FileSpreadsheetIcon,
+	FileTextI,
+	FileTextIcon,
+	ImageIcon,
+	TableIcon,
+	TextIconcon,
+} from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import * as React from 'react'
@@ -7,14 +16,22 @@ import * as React from 'react'
 import { UserLogin } from '@/components/auth/user-login'
 import { SidebarToggle } from '@/components/layout/sidebar/sidebar-toggle'
 import { Button } from '@/components/ui/button'
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { IconSeparator } from '@/components/ui/icons'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { useWorkspace } from '@/lib/hooks/use-workspace'
 import { getCanonicalDomain } from '@/lib/url'
 import { cn, getRouteColor, getRouteType } from '@/lib/utils'
 import { appConfig } from 'mb-env'
 import { useTheme } from 'next-themes'
 import Image from 'next/image'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 function HeaderLink({
 	href,
@@ -68,6 +85,28 @@ function HeaderLink({
 export function Header() {
 	const { activeCategory, activeChatbot, setActiveCategory, setActiveChatbot } =
 		useSidebar()
+	const {
+		activeOrganization,
+		activeDepartment,
+		activeProject,
+		activeDocument,
+		organizationList,
+		departmentList,
+		projectsByDept,
+		textDocuments,
+		imageDocuments,
+		spreadsheetDocuments,
+		activeDocumentType,
+		setActiveDocumentType,
+		setActiveOrganization,
+		setActiveDepartment,
+		setActiveProject,
+		setActiveDocument,
+		addOrganization,
+		addDepartment,
+		addProject,
+		addDocument,
+	} = useWorkspace()
 	const canonicalDomain = getCanonicalDomain(activeChatbot?.name || '')
 	const [mounted, setMounted] = useState(false)
 
@@ -91,35 +130,148 @@ export function Header() {
 	const publicUrl = '/'
 	const personalUrl = '/c'
 
-	// TODO: Reconsider the logic below for the URLs
-	// if (activeCategory && activeChatbot?.categories[0]?.category?.name) {
-	//   publicUrl = urlBuilders.topicThreadListUrl({
-	//     type: 'public',
-	//     category: activeChatbot?.categories[0].category.name,
-	//   })
-	//   personalUrl = urlBuilders.topicThreadListUrl({
-	//     type: 'personal',
-	//     category: activeChatbot?.categories[0].category.name,
-	//   })
-	// }
-
-	// if (activeChatbot?.name) {
-	//   publicUrl = urlBuilders.chatbotThreadListUrl({
-	//     type: 'public',
-	//     chatbot: activeChatbot?.name || '',
-	//     domain: canonicalDomain || 'prompt',
-	//     category: activeChatbot?.categories[0]?.category?.name || '',
-	//   })
-	//   personalUrl = urlBuilders.chatbotThreadListUrl({
-	//     type: 'personal',
-	//     chatbot: activeChatbot?.name || '',
-	//     domain: canonicalDomain || 'prompt',
-	//     category: activeChatbot?.categories[0]?.category?.name || '',
-	//   })
-	// }
-
 	const pathname = usePathname()
 	const routeType = getRouteType(pathname)
+
+	// Derived lists (safe fallbacks)
+	const deptOptions = React.useMemo(
+		() =>
+			activeOrganization && departmentList
+				? departmentList[activeOrganization] || []
+				: [],
+		[activeOrganization, departmentList],
+	)
+
+	const projectOptions = React.useMemo(() => {
+		if (!activeOrganization || !activeDepartment || !projectsByDept) return []
+		return projectsByDept[activeOrganization]?.[activeDepartment] || []
+	}, [activeOrganization, activeDepartment, projectsByDept])
+
+	// Build document options based on selected type; include a 'None' option to clear
+	const documentOptions = useMemo(() => {
+		if (!activeProject) return ['None']
+		let docs: string[] = []
+		if (activeDocumentType === 'all') {
+			docs = [
+				...(textDocuments[activeProject] || []),
+				...(imageDocuments[activeProject] || []),
+				...(spreadsheetDocuments[activeProject] || []),
+			]
+		} else if (activeDocumentType === 'text') {
+			docs = textDocuments[activeProject] || []
+		} else if (activeDocumentType === 'image') {
+			docs = imageDocuments[activeProject] || []
+		} else if (activeDocumentType === 'spreadsheet') {
+			docs = spreadsheetDocuments[activeProject] || []
+		}
+		return ['None', ...docs]
+	}, [
+		activeProject,
+		activeDocumentType,
+		textDocuments,
+		imageDocuments,
+		spreadsheetDocuments,
+	])
+
+	// Generic helpers
+	const handleAddEntity = (
+		type: 'organization' | 'department' | 'project' | 'document',
+	) => {
+		const name = prompt(`Enter new ${type} name`)
+		if (!name) return
+		if (type === 'organization') {
+			addOrganization(name)
+			setActiveOrganization(name)
+			setActiveDepartment(null)
+			setActiveProject(null)
+			setActiveDocument(null)
+		} else if (type === 'department') {
+			if (!activeOrganization) return
+			addDepartment(activeOrganization, name)
+			setActiveDepartment(name)
+			setActiveProject(null)
+			setActiveDocument(null)
+		} else if (type === 'project') {
+			if (!activeOrganization || !activeDepartment) return
+			addProject(activeOrganization, activeDepartment, name)
+			setActiveProject(name)
+			setActiveDocument(null)
+		} else if (type === 'document') {
+			if (!activeProject) return
+			// Honor selected document type; if 'all', prompt user to choose
+			let docType: 'text' | 'image' | 'spreadsheet' | null = null
+			if (activeDocumentType === 'all') {
+				const t = prompt('Select document type: text | image | spreadsheet')
+				if (t !== 'text' && t !== 'image' && t !== 'spreadsheet') return
+				docType = t
+			} else {
+				docType = activeDocumentType
+			}
+			addDocument(activeProject, name, docType)
+			setActiveDocument(name)
+		}
+	}
+
+	const Crumb = ({
+		label,
+		value,
+		options,
+		onSelect,
+		addType,
+		disabled,
+	}: {
+		label: string
+		value: string | null
+		options: string[]
+		onSelect: (v: string) => void
+		addType: 'organization' | 'department' | 'project' | 'document'
+		disabled?: boolean
+	}) => {
+		return (
+			<DropdownMenu>
+				<DropdownMenuTrigger asChild disabled={disabled}>
+					<button
+						type="button"
+						className={cn(
+							'inline-flex items-center gap-1 px-2 py-1 text-sm rounded-md border bg-background/60 backdrop-blur hover:bg-accent transition',
+							disabled && 'opacity-50 cursor-not-allowed',
+						)}
+					>
+						<span className="font-medium truncate max-w-[140px]">
+							{value || label}
+						</span>
+						<ChevronDown className="h-3.5 w-3.5 opacity-70" />
+					</button>
+				</DropdownMenuTrigger>
+				<DropdownMenuContent
+					align="start"
+					className="max-h-72 overflow-y-auto min-w-[200px]"
+				>
+					{options.length === 0 && (
+						<div className="px-2 py-1.5 text-xs text-muted-foreground">
+							No {label.toLowerCase()}s
+						</div>
+					)}
+					{options.map((opt) => (
+						<DropdownMenuItem
+							key={opt}
+							onClick={() => onSelect(opt)}
+							className={cn('text-sm', value === opt && 'font-semibold')}
+						>
+							{opt}
+						</DropdownMenuItem>
+					))}
+					<DropdownMenuSeparator />
+					<DropdownMenuItem
+						onClick={() => handleAddEntity(addType)}
+						className="text-xs text-primary"
+					>
+						+ New {label}
+					</DropdownMenuItem>
+				</DropdownMenuContent>
+			</DropdownMenu>
+		)
+	}
 
 	return (
 		<header className="sticky top-0 z-50 flex items-center justify-between w-full h-16 px-4 border-b shrink-0 bg-gradient-to-b from-background/10 via-background/50 to-background/80 backdrop-blur-xl">
@@ -169,9 +321,151 @@ export function Header() {
 						<HeaderLink href="/pro" onClick={resetNavigation} text="Pro" />
 					)}
 				</div>
+				{/* Workspace Breadcrumbs */}
+				<div className="hidden md:flex items-center gap-1 ml-2.5 pr-4 border-r mr-4">
+					<Crumb
+						label="Org"
+						value={activeOrganization}
+						options={organizationList || []}
+						onSelect={(v) => {
+							if (v === activeOrganization) return
+							setActiveOrganization(v)
+							setActiveDepartment(null)
+							setActiveProject(null)
+							setActiveDocument(null)
+						}}
+						addType="organization"
+					/>
+					<span className="text-xs opacity-50">/</span>
+					<Crumb
+						label="Dept"
+						value={activeDepartment}
+						options={deptOptions}
+						onSelect={(v) => {
+							if (v === activeDepartment) return
+							setActiveDepartment(v)
+							setActiveProject(null)
+							setActiveDocument(null)
+						}}
+						addType="department"
+						disabled={!activeOrganization}
+					/>
+					<span className="text-xs opacity-50">/</span>
+					<Crumb
+						label="Project"
+						value={activeProject}
+						options={projectOptions}
+						onSelect={(v) => {
+							if (v === activeProject) return
+							setActiveProject(v)
+							setActiveDocument(null)
+						}}
+						addType="project"
+						disabled={!activeDepartment}
+					/>
+					<span className="text-xs opacity-50">/</span>
+					{/* New: Document Type crumb */}
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild disabled={!activeProject}>
+							<button
+								type="button"
+								className={cn(
+									'inline-flex items-center gap-1 px-2 py-1 text-sm rounded-md border bg-background/60 backdrop-blur hover:bg-accent transition',
+									!activeProject && 'opacity-50 cursor-not-allowed',
+								)}
+							>
+								<span className="font-medium truncate max-w-[140px]">
+									{activeDocumentType === 'all'
+										? 'All Types'
+										: activeDocumentType.charAt(0).toUpperCase() +
+											activeDocumentType.slice(1)}
+								</span>
+								<ChevronDown className="h-3.5 w-3.5 opacity-70" />
+							</button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="start" className="min-w-[220px]">
+							<DropdownMenuItem
+								onClick={() => {
+									setActiveDocumentType('all')
+									setActiveDocument(null)
+								}}
+								className={cn(
+									'text-sm',
+									activeDocumentType === 'all' ? 'font-semibold' : '',
+								)}
+							>
+								{/* Left icon for All */}
+								<span className="mr-2 inline-flex h-4 w-4 items-center justify-center">
+									*
+								</span>
+								All
+							</DropdownMenuItem>
+							<DropdownMenuItem
+								onClick={() => {
+									setActiveDocumentType('text')
+									setActiveDocument(null)
+								}}
+								className={cn(
+									'text-sm gap-2 flex',
+									activeDocumentType === 'text' ? 'font-semibold' : '',
+								)}
+							>
+								{/* Left icon for Text */}
+								<FileTextIcon className="size-4" />
+								Text
+							</DropdownMenuItem>
+							<DropdownMenuItem
+								onClick={() => {
+									setActiveDocumentType('image')
+									setActiveDocument(null)
+								}}
+								className={cn(
+									'text-sm gap-2 flex',
+									activeDocumentType === 'image' ? 'font-semibold' : '',
+								)}
+							>
+								{/* Left icon for Image */}
+								<ImageIcon className="size-4" />
+								Image
+							</DropdownMenuItem>
+							<DropdownMenuItem
+								onClick={() => {
+									setActiveDocumentType('spreadsheet')
+									setActiveDocument(null)
+								}}
+								className={cn(
+									'text-sm gap-2 flex',
+									activeDocumentType === 'spreadsheet' ? 'font-semibold' : '',
+								)}
+							>
+								{/* Left icon for Spreadsheet */}
+								<FileSpreadsheetIcon className="size-4" />
+								Spreadsheet
+							</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
+					<span className="text-xs opacity-50">/</span>
+					<Crumb
+						label="Doc"
+						value={activeDocument}
+						options={documentOptions}
+						onSelect={(v) => {
+							if (v === 'None') {
+								setActiveDocument(null)
+								return
+							}
+							if (v === activeDocument) return
+							setActiveDocument(v)
+						}}
+						addType="document"
+						disabled={!activeProject}
+					/>
+				</div>
 			</div>
-			<div className="flex items-center space-x-4">
-				<React.Suspense fallback={<div className="flex-1 overflow-auto" />}>
+			{/* User login - Always show on mobile */}
+			<div className="flex items-center gap-4 ml-auto">
+				{/* <ThemeToggle /> */}
+				<React.Suspense fallback={null}>
 					<UserLogin />
 				</React.Suspense>
 			</div>

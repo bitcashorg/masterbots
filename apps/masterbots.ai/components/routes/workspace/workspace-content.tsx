@@ -1,5 +1,9 @@
 'use client'
 
+import {
+	updateThreadDocumentsMetadata,
+	uploadWorkspaceDocumentToBucket,
+} from '@/app/actions/thread.actions'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
@@ -7,8 +11,11 @@ import {
 	cleanClickableText,
 	extractFollowUpContext,
 } from '@/lib/chat-clickable-text'
+import { type IndexedDBItem, useIndexedDB } from '@/lib/hooks/use-indexed-db'
+import { useThread } from '@/lib/hooks/use-thread'
 import { useWorkspace } from '@/lib/hooks/use-workspace'
 import { useWorkspaceChat } from '@/lib/hooks/use-workspace-chat'
+import { useSonner } from '@/lib/hooks/useSonner'
 import {
 	type MarkdownSection,
 	combineMarkdownSections,
@@ -27,6 +34,7 @@ import {
 } from 'lucide-react'
 import type { Chatbot } from 'mb-genql'
 import * as React from 'react'
+import { UUID } from '../../../types/types'
 import { WorkspaceSectionTree } from './workspace-section-tree'
 
 interface WorkspaceContentProps {
@@ -106,6 +114,20 @@ The conclusion summarizes the key points and implications of the project.
 		handleWorkspaceEdit,
 		workspaceProcessingState,
 	} = useWorkspaceChat()
+	const { activeThread } = useThread()
+	const { addItem: addIndexedItem, updateItem: updateIndexedItem } =
+		useIndexedDB({})
+	const { customSonner } = useSonner()
+
+	type VersionItem = {
+		version: number
+		updatedAt: string
+		checksum: string
+		url: string
+	}
+	const [isSaving, setIsSaving] = React.useState(false)
+	const [showVersions, setShowVersions] = React.useState(false)
+	const [versions, setVersions] = React.useState<VersionItem[]>([])
 
 	// Use a ref to track previous document key to prevent unnecessary resets
 	const prevDocumentKeyRef = React.useRef(documentKey)
@@ -319,6 +341,7 @@ The conclusion summarizes the key points and implications of the project.
 		[setGlobalCursorPosition],
 	)
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const handleSaveSection = React.useCallback(() => {
 		if (activeSection) {
 			const updatedSections = sections.map((section) =>
@@ -336,6 +359,11 @@ The conclusion summarizes the key points and implications of the project.
 			if (projectName && documentName) {
 				setDocumentContent(projectName, documentName, newMarkdown)
 			}
+
+			customSonner({
+				type: 'success',
+				text: `${documentType} document save successfully!`,
+			})
 		}
 	}, [
 		activeSection,
@@ -579,6 +607,109 @@ Please provide your response now:`
 		[sections],
 	)
 
+	const doSaveDocument = React.useCallback(async () => {
+		if (!projectName || !documentName || !activeThread) return
+		setIsSaving(true)
+		try {
+			const content = fullMarkdown
+			const type = documentType
+			const { document } = await uploadWorkspaceDocumentToBucket({
+				threadSlug: activeThread.slug,
+				project: projectName,
+				name: documentName,
+				content,
+				type: type || 'text',
+			})
+			// base64 cache
+			const base64 = await new Promise<string>((resolve, reject) => {
+				try {
+					const blob = new Blob([content], { type: 'text/markdown' })
+					const reader = new FileReader()
+					reader.onloadend = () => resolve(reader.result as string)
+					reader.onerror = reject
+					reader.readAsDataURL(blob)
+				} catch (e) {
+					reject(e)
+				}
+			})
+			const id = document?.id || `${projectName}:${documentName}`
+			const item = {
+				id,
+				name: documentName,
+				project: projectName,
+				type: type,
+				url: base64,
+				content: base64,
+				size: new Blob([content]).size,
+				messageIds: [],
+				expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+			} as unknown as IndexedDBItem
+			try {
+				updateIndexedItem(id, item)
+			} catch {
+				addIndexedItem(item)
+			}
+			// update local version list
+			setVersions(
+				(document?.versions || []).map((v) => ({
+					version: v.version,
+					updatedAt: v.updatedAt,
+					checksum: v.checksum,
+					url: v.url,
+				})),
+			)
+		} catch (e) {
+			console.error('Save failed', e)
+		} finally {
+			setIsSaving(false)
+		}
+	}, [
+		projectName,
+		documentName,
+		fullMarkdown,
+		documentType,
+		activeThread,
+		addIndexedItem,
+		updateIndexedItem,
+	])
+
+	const handleRollback = React.useCallback(
+		async (versionNumber: number) => {
+			if (!projectName || !documentName || !activeThread?.slug) return
+			try {
+				// Adjust metadata to point currentVersion to selected version
+				// We don't fetch here; instead we optimistically update local list
+				const updated = versions.map((v) => v) // clone
+				await updateThreadDocumentsMetadata({
+					threadSlug: activeThread.slug,
+					documents: [
+						{
+							id: `${projectName}:${documentName}`,
+							project: projectName,
+							name: documentName,
+							type: (documentType || 'text') as
+								| 'text'
+								| 'image'
+								| 'spreadsheet',
+							currentVersion: versionNumber,
+							versions: updated.map((u) => ({
+								version: u.version,
+								updatedAt: u.updatedAt,
+								checksum: u.checksum,
+								url: u.url,
+								contentKey: '',
+								size: 0,
+							})),
+						},
+					],
+				})
+			} catch (e) {
+				console.error('Rollback failed', e)
+			}
+		},
+		[projectName, documentName, activeThread?.slug, versions, documentType],
+	)
+
 	if (!projectName || !documentName) {
 		return (
 			<div className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground">
@@ -609,16 +740,61 @@ Please provide your response now:`
 						<Button
 							size="sm"
 							variant="outline"
-							onClick={handleSaveSection}
+							onClick={!activeThread ? handleSaveSection : doSaveDocument}
+							disabled={isSaving}
 							className="flex items-center gap-2"
 						>
 							<SaveIcon className="h-4 w-4" />
-							Save Section
+							{isSaving ? 'Saving...' : 'Save'}
 						</Button>
 					)}
+					<Button
+						variant="ghost"
+						size="sm"
+						onClick={() => setShowVersions((v) => !v)}
+						className="ml-1"
+					>
+						History
+					</Button>
 				</div>
 			</div>
-
+			{showVersions && versions.length > 0 && (
+				<div className="border rounded-md p-3 text-sm">
+					<div className="font-medium mb-2">Version History</div>
+					<ul className="space-y-1">
+						{[...versions]
+							.sort((a: VersionItem, b: VersionItem) => b.version - a.version)
+							.map((v: VersionItem) => (
+								<li
+									key={v.version}
+									className="flex items-center justify-between"
+								>
+									<span>
+										v{v.version} • {new Date(v.updatedAt).toLocaleString()} •
+										checksum {v.checksum}
+									</span>
+									<div className="flex items-center gap-2">
+										<a
+											href={v.url}
+											target="_blank"
+											rel="noreferrer"
+											className="text-xs underline"
+										>
+											View
+										</a>
+										<Button
+											variant="outline"
+											size="sm"
+											onClick={() => handleRollback(v.version)}
+										>
+											Rollback
+										</Button>
+									</div>
+								</li>
+							))}
+					</ul>
+				</div>
+			)}
 			{/* Text Document View */}
 			{documentType === 'text' && (
 				<div className="space-y-4 h-full">

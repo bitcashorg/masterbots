@@ -25,9 +25,12 @@ import ThreadComponent from '@/components/routes/thread/thread-component'
 import { ThreadItemSkeleton } from '@/components/shared/skeletons/browse-skeletons'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
+import { useWorkspace } from '@/lib/hooks/use-workspace'
 import { useSonner } from '@/lib/hooks/useSonner'
 import { getOpeningActiveThreadHelper } from '@/lib/threads'
+import { getRouteType } from '@/lib/utils'
 import type { Thread } from 'mb-genql'
+import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useAsyncFn } from 'react-use'
 
@@ -51,9 +54,17 @@ export default function ThreadList({
 	const { activeThread, setActiveThread, setIsOpenPopup } = useThread()
 	const [loadingThread, setLoadingThread] = useState(false)
 	const { customSonner } = useSonner()
+	const pathname = usePathname()
+	const routeType = getRouteType(pathname)
+	const { activeProject, activeDocumentType } = useWorkspace()
 
-	const filteredThreads = threads.filter(
-		(thread) =>
+	type DocMeta = {
+		project: string
+		name: string
+		type: 'text' | 'image' | 'spreadsheet'
+	}
+	const filteredThreads = threads.filter((thread) => {
+		const sidebarFilter =
 			!(
 				(selectedCategories.length &&
 					!selectedCategories.includes(
@@ -66,8 +77,20 @@ export default function ThreadList({
 				thread.chatbot.categories.some(
 					({ categoryId }) => activeCategory === categoryId,
 				)) ||
-			(activeChatbot && thread.chatbot.chatbotId === activeChatbot.chatbotId),
-	)
+			(activeChatbot && thread.chatbot.chatbotId === activeChatbot.chatbotId)
+
+		if (routeType !== 'pro' || !activeProject) return sidebarFilter
+		const docs = (thread.metadata as { documents?: DocMeta[] } | null)
+			?.documents
+		if (!docs) return sidebarFilter
+		if (activeDocumentType === 'all') return sidebarFilter
+		return (
+			sidebarFilter &&
+			docs.some(
+				(d) => d.project === activeProject && d.type === activeDocumentType,
+			)
+		)
+	})
 
 	const activateThreadPopup = (thread: Thread) => {
 		try {
@@ -93,11 +116,11 @@ export default function ThreadList({
 		[],
 	)
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		if (activeThread) return
 		getOpeningActiveThread()
-	}, [])
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [activeThread, getOpeningActiveThread])
 
 	if (loadingThread) {
 		return (
