@@ -64,7 +64,7 @@ export default function Subscription({ isOpen = false }: SubscriptionProps) {
 		const del = await handleDeleteCustomer(email)
 		handleSetLoading(false)
 		handleSetError('')
-		if (del) return router.push('/c')
+		// if (del) return router.push('/c')
 	}
 
 	return (

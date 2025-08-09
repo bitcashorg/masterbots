@@ -51,7 +51,7 @@ export default async function ThreadPage(props: ThreadPageProps) {
 
 	const chatbotName = (await botNames).get(chatbot as string)
 	if (!chatbotName) {
-		throw new Error(`Chatbot name for ${chatbot} not found`)
+		return <ErrorComponent message={`Chatbot name for ${chatbot} not found`} />
 	}
 	const fetchThreads = async () => {
 		try {

@@ -27,13 +27,13 @@ export function OnboardingMobileChatbotDetails({
 	const bgImage = 'bg-[url(/background.webp)] dark:bg-[url(/background.webp)]'
 	return (
 		<div
-			className="md:hidden mt-10 h-[calc(50vh-196px)] flex items-center justify-center -translate-y-8"
+			className="md:hidden mt-10 mid:h-[calc(50vh-196px)] flex items-center justify-center -translate-y-8"
 			data-route={routeType}
 		>
 			<Card className="w-full relative bg-white dark:bg-[#09090B]">
 				{/* Background image layer */}
 				<div
-					className={`absolute inset-0 bg-center bg-cover opacity-20 ${bgImage}`}
+					className={`absolute inset-0 rounded-md bg-center bg-cover opacity-20 ${bgImage}`}
 				/>
 				<CardHeader>
 					<div className="flex flex-col gap-4">
