@@ -327,12 +327,18 @@ export function hasReasoning(message: Message & Partial<MBMessage>): boolean {
 export function extractReasoningContent(
 	message: Message & Partial<MBMessage>,
 ): string | null | undefined {
+	console.log(
+		'message.parts',
+		message.parts?.map((msg) => ({ type: msg.type })),
+	)
 	if (message.parts?.length) {
 		const reasoningPart = message.parts.find(
 			(part) => part.type === 'reasoning',
 		)
 
-		if (reasoningPart) return reasoningPart.reasoning
+		console.log('reasoningPart', reasoningPart)
+
+		if (reasoningPart) return reasoningPart?.reasoning
 	}
 	return message.thinking
 }
