@@ -53,7 +53,7 @@ export function Sidebar({
 				<nav className="pt-4 pb-20 size-full scrollbar">
 					<SidebarCategoryGeneral page={page} />
 				</nav>
-				<FooterCT className="flex md:hidden border-t border-mirage" fixed />
+				<FooterCT className="flex border-t md:hidden border-mirage" fixed />
 			</aside>
 		</>
 	)

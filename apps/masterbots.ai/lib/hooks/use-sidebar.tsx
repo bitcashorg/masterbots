@@ -173,6 +173,27 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 	)
 
 	React.useEffect(() => {
+		if (!categories) return
+		if (selectedCategories.length === 0) {
+			setSelectedChatbots([])
+			return
+		}
+		const categoriesChatbots = categories.categoriesChatbots || []
+		const chatbotsFromSelectedCategories = categoriesChatbots
+			.filter((category) => selectedCategories.includes(category.categoryId))
+			.flatMap((category) => category.chatbots.map((c) => c.chatbotId))
+			.filter(Boolean) as number[]
+
+		setSelectedChatbots((prev) => {
+			const merged = new Set<number>([
+				...prev,
+				...chatbotsFromSelectedCategories,
+			])
+			return Array.from(merged)
+		})
+	}, [selectedCategories, categories])
+
+	React.useEffect(() => {
 		const value = localStorage.getItem(LOCAL_STORAGE_KEY)
 		if (value) {
 			setSidebarOpen(JSON.parse(value))
@@ -324,13 +345,15 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 						selectedCategories.includes(category.categoryId),
 					)
 					.filter((category) =>
-						category.chatbots.some((chatbot) =>
-							selectedChatbots.includes(chatbot.chatbotId),
-						),
+						selectedChatbots.length === 0
+							? true
+							: category.chatbots.some((chatbot) =>
+									selectedChatbots.includes(chatbot.chatbotId),
+								),
 					)
 	}, [
-		selectedChatbots.length,
-		selectedCategories.length,
+		selectedChatbots,
+		selectedCategories,
 		filterValue,
 		isFilterMode,
 		categories,
