@@ -1,5 +1,6 @@
 'use client'
 
+import { useOnboarding } from '@/lib/hooks/use-onboarding'
 import type { CardComponentProps, Step } from 'nextstepjs'
 import type React from 'react'
 import { OnboardingCard } from './onboarding-card'
@@ -23,6 +24,7 @@ export function CustomNextStepCard({
 	skipTour,
 	arrow,
 }: CustomNextStepCardProps) {
+	const { markSeen } = useOnboarding()
 	// Calculate position based on step side
 	const getCardPosition = () => {
 		const side = step.side || 'bottom'
@@ -68,6 +70,7 @@ export function CustomNextStepCard({
 	}
 
 	const handleSkip = () => {
+		markSeen()
 		skipTour?.()
 	}
 
@@ -83,7 +86,12 @@ export function CustomNextStepCard({
 						: 'Welcome to the onboarding tour!'
 				}
 				position={getCardPosition()}
-				onNext={handleNext}
+				onNext={() => {
+					if (currentStep === totalSteps - 1) {
+						markSeen()
+					}
+					handleNext()
+				}}
 				onSkip={step.showSkip ? handleSkip : undefined}
 				showControls={step.showControls ?? true}
 				showSkip={step.showSkip ?? true}

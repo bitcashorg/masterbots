@@ -8,6 +8,7 @@ import { DeepThinkingProvider } from '@/lib/hooks/use-deep-thinking'
 import { ImageToggleProvider } from '@/lib/hooks/use-image-toggler'
 import { MBChatProvider } from '@/lib/hooks/use-mb-chat'
 import { ModelProvider } from '@/lib/hooks/use-model'
+import { useOnboarding } from '@/lib/hooks/use-onboarding'
 import { PaymentProvider } from '@/lib/hooks/use-payment'
 import { PowerUpProvider } from '@/lib/hooks/use-power-up'
 import { ProfileProvider } from '@/lib/hooks/use-profile'
@@ -83,44 +84,55 @@ type ProvidersProps = {
 	disableTransitionOnChange?: boolean
 }
 export function Providers({ children, ...props }: ProvidersProps) {
+	const AppProviders = ({ children }: { children: React.ReactNode }) => (
+		<ModelProvider>
+			<PaymentProvider>
+				<SidebarProvider>
+					<TooltipProvider>
+						<ProfileProvider>
+							<PowerUpProvider>
+								<DeepThinkingProvider>
+									<AccessibilityProvider>
+										<ThreadSearchProvider>
+											<ThreadProvider>
+												<ThreadVisibilityProvider>
+													<ContinueGenerationProvider>
+														<ImageToggleProvider>
+															<MBChatProvider>{children}</MBChatProvider>
+														</ImageToggleProvider>
+													</ContinueGenerationProvider>
+												</ThreadVisibilityProvider>
+											</ThreadProvider>
+										</ThreadSearchProvider>
+									</AccessibilityProvider>
+								</DeepThinkingProvider>
+							</PowerUpProvider>
+						</ProfileProvider>
+					</TooltipProvider>
+				</SidebarProvider>
+			</PaymentProvider>
+		</ModelProvider>
+	)
+
+	const OnboardingGate = ({ children }: { children: React.ReactNode }) => {
+		const { showOnboarding } = useOnboarding()
+		return showOnboarding ? (
+			<NextStep
+				steps={onboardingSteps}
+				cardComponent={(cardProps) => <CustomNextStepCard {...cardProps} />}
+			>
+				<AppProviders>{children}</AppProviders>
+			</NextStep>
+		) : (
+			<AppProviders>{children}</AppProviders>
+		)
+	}
+
 	return (
 		<NextThemesProvider {...props}>
 			<SessionProvider>
 				<NextStepProvider>
-					<NextStep
-						steps={onboardingSteps}
-						cardComponent={(cardProps) => <CustomNextStepCard {...cardProps} />}
-					>
-						<ModelProvider>
-							<PaymentProvider>
-								<SidebarProvider>
-									<TooltipProvider>
-										<ProfileProvider>
-											<PowerUpProvider>
-												<DeepThinkingProvider>
-													<AccessibilityProvider>
-														<ThreadSearchProvider>
-															<ThreadProvider>
-																<ThreadVisibilityProvider>
-																	<ContinueGenerationProvider>
-																		<ImageToggleProvider>
-																			<MBChatProvider>
-																				{children}
-																			</MBChatProvider>
-																		</ImageToggleProvider>
-																	</ContinueGenerationProvider>
-																</ThreadVisibilityProvider>
-															</ThreadProvider>
-														</ThreadSearchProvider>
-													</AccessibilityProvider>
-												</DeepThinkingProvider>
-											</PowerUpProvider>
-										</ProfileProvider>
-									</TooltipProvider>
-								</SidebarProvider>
-							</PaymentProvider>
-						</ModelProvider>
-					</NextStep>
+					<OnboardingGate>{children}</OnboardingGate>
 				</NextStepProvider>
 			</SessionProvider>
 		</NextThemesProvider>
