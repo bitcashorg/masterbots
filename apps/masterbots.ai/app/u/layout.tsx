@@ -1,48 +1,33 @@
-'use client'
-
-import { CategoryDashboard } from '@/components/shared/category-dashboard'
+import { Hero } from '@/components/layout/profile/hero'
+import { ProfileLayoutContent } from '@/components/layout/profile/layout'
+import { UserProfileSidebar } from '@/components/layout/profile/profile-page-sidebar'
 import { BrowseProvider } from '@/lib/hooks/use-browse'
-import { useSidebar } from '@/lib/hooks/use-sidebar'
-import { getRouteType } from '@/lib/utils'
-import { usePathname } from 'next/navigation'
+import { getUserBySlug } from '@/services/hasura'
+import type { PageProps } from '@/types/types'
+import type { User } from 'mb-genql'
+import { getServerSession } from 'next-auth'
+import NextTopLoader from 'nextjs-toploader'
 
-interface BrowseLayoutProps {
+interface ProfileLayoutProps extends PageProps {
 	children: React.ReactNode
 }
 
-function ProfileLayoutContent({ children }: { children: React.ReactNode }) {
-	const { isDashboardOpen, setIsDashboardOpen, allCategories } = useSidebar()
-	const pathname = usePathname()
-	const routeType = getRouteType(pathname)
-
+export default async function ProfilePageLayout({
+	children,
+	params,
+}: ProfileLayoutProps) {
+	const session = await getServerSession()
+	const { userSlug } = await params
+	const { user } = await getUserBySlug({
+		slug: userSlug as string,
+		isSameUser: session?.user.slug === userSlug,
+	})
 	return (
-		<>
-			{isDashboardOpen && (
-				<div className="flex fixed inset-0 z-50 justify-center items-center backdrop-blur-sm bg-black/50">
-					<CategoryDashboard
-						isOpen={isDashboardOpen}
-						onClose={() => setIsDashboardOpen(false)}
-						categories={allCategories}
-					/>
-				</div>
-			)}
-			<main className="flex flex-col h-[calc(100vh-theme(spacing.16))]">
-				<section
-					className="overflow-auto w-full group scrollbar"
-					id="thread-scroll-section"
-				>
-					{children}
-				</section>
-			</main>
-		</>
-	)
-}
-
-export default async function ProfileLayout({ children }: BrowseLayoutProps) {
-	return (
+		// <section className="flex flex-col p-0">
 		<BrowseProvider>
-			{/* <NextTopLoader color="#1ED761" initialPosition={0.2} /> */}
-			<ProfileLayoutContent>{children}</ProfileLayoutContent>
+			<ProfileLayoutContent user={user as User}>
+				{children}
+			</ProfileLayoutContent>
 		</BrowseProvider>
 	)
 }
