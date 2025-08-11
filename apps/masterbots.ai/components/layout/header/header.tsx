@@ -3,11 +3,8 @@
 import {
 	ChevronDown,
 	FileSpreadsheetIcon,
-	FileTextI,
 	FileTextIcon,
 	ImageIcon,
-	TableIcon,
-	TextIconcon,
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
