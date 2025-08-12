@@ -56,6 +56,39 @@ export const preferences = [
 			},
 		] as PreferenceItemType[],
 	},
+	{
+		title: 'User profile',
+		items: [
+			{
+				title: 'Username',
+				description: 'Change your username to something unique.',
+				type: 'input',
+				props: {
+					inputId: 'username',
+					inputName: 'username',
+					inputPlaceholder: 'Enter your username',
+				},
+			},
+			{
+				title: 'Email',
+				description: 'Change your email address to receive notifications.',
+				type: 'input',
+				props: {
+					inputId: 'email',
+					inputName: 'email',
+					inputPlaceholder: 'Enter your email address',
+				},
+			},
+			{
+				title: 'Update Profile',
+				type: 'button',
+				props: {
+					buttonText: 'Update Profile',
+					buttonId: 'update_profile',
+				},
+			},
+		] as PreferenceItemType[],
+	},
 	// {
 	// 	title: 'Email Notifications',
 	// 	items: [
