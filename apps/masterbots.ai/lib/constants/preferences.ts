@@ -5,11 +5,11 @@ export const preferences = [
 	{
 		title: 'General',
 		items: [
-			// {
-			// 	title: 'Preferred Language',
-			// 	description: 'Receive emails about new products, features, and more.',
-			// 	type: 'switch',
-			// },
+			{
+				title: 'Preferred Language',
+				description: 'Receive emails about new products, features, and more.',
+				type: 'switch',
+			},
 			{
 				title: 'Masterbots Theme',
 				description: 'Change the default theme for the Masterbots site.',
@@ -65,8 +65,12 @@ export const preferences = [
 				type: 'input',
 				props: {
 					inputId: 'username',
-					inputName: 'username',
+					inputName: 'Username',
 					inputPlaceholder: 'Enter your username',
+					defaultValue: '',
+					onChange: (value: string) => {
+						console.log('Username changed to:', value)
+					},
 				},
 			},
 			{
@@ -75,13 +79,14 @@ export const preferences = [
 				type: 'input',
 				props: {
 					inputId: 'email',
-					inputName: 'email',
+					inputName: 'Email',
 					inputPlaceholder: 'Enter your email address',
+					defaultValue: '',
 				},
 			},
 			{
-				title: 'Update Profile',
-				type: 'button',
+				title: '',
+				type: 'profileButton',
 				props: {
 					buttonText: 'Update Profile',
 					buttonId: 'update_profile',
