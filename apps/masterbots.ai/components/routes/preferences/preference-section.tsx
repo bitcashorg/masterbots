@@ -219,6 +219,32 @@ export function PreferenceSection({
 		return ''
 	}
 
+	function handleUpdateProfile(
+		inputId: string | undefined,
+		e: React.ChangeEvent<HTMLInputElement>,
+	) {
+		if (!inputId) return
+
+		const value = e.target.value
+
+		console.log(`Updating ${inputId} to:`, value)
+
+		// switch (inputId) {
+		// 	case 'username':
+		// 		getUserInfo().then(() => {
+		// 			currentUser?.username && handleUpdateProfile('username', e)
+		// 		})
+		// 		break
+		// 	case 'email':
+		// 		getUserInfo().then(() => {
+		// 			currentUser?.email && handleUpdateProfile('email', e)
+		// 		})
+		// 		break
+		// 	default:
+		// 		break
+		// }
+	}
+
 	console.log('Current user:', currentUser)
 	return (
 		<>
@@ -282,7 +308,7 @@ export function PreferenceSection({
 														value={getDefaultValue(title, item.props?.inputId)}
 														name={item.props?.inputId}
 														onChange={(e) =>
-															handleUpdateProfile(item.props.inputId)
+															handleUpdateProfile(item.props?.inputId, e)
 														}
 													/>
 												</div>
