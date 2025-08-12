@@ -17,8 +17,11 @@ import {
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { IconSpinner } from '@/components/ui/icons'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { useProfile } from '@/lib/hooks/use-profile'
 import { useSonner } from '@/lib/hooks/useSonner'
 import { cn } from '@/lib/utils'
 import {
@@ -44,6 +47,7 @@ export function PreferenceSection({
 	const [buttonType, setButtonType] = useState('')
 	const { data: session } = useSession()
 	const { customSonner } = useSonner()
+	const { currentUser, getUserInfo } = useProfile()
 
 	function executeButton(buttonText: string) {
 		setDeleteDialogOpen(true)
@@ -201,6 +205,21 @@ export function PreferenceSection({
 		})
 	}
 
+	function getDefaultValue(title: string, inputId: string | undefined): string {
+		if (title === 'User profile' && inputId) {
+			switch (inputId) {
+				case 'username':
+					return currentUser?.username || ''
+				case 'email':
+					return currentUser?.email || ''
+				default:
+					return ''
+			}
+		}
+		return ''
+	}
+
+	console.log('Current user:', currentUser)
 	return (
 		<>
 			<AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
@@ -246,10 +265,36 @@ export function PreferenceSection({
 											idx === items.length - 1 ? 'border-none' : '',
 										)}
 									>
-										<PreferenceItemTitle
-											title={item.title}
-											description={item.description}
-										/>
+										{title === 'User profile' && item.type === 'input' ? (
+											<div className="space-y-2 w-full">
+												<Label htmlFor="password">
+													{item.props?.inputName}
+												</Label>
+												<div className="relative w-full">
+													<Input
+														type="text"
+														className="w-full h-10 rounded-md text-white px-3"
+														placeholder={item.props?.inputPlaceholder || ''}
+														defaultValue={getDefaultValue(
+															title,
+															item.props?.inputId,
+														)}
+														value={getDefaultValue(title, item.props?.inputId)}
+														name={item.props?.inputId}
+														onChange={(e) =>
+															handleUpdateProfile(item.props.inputId)
+														}
+													/>
+												</div>
+											</div>
+										) : null}
+										{item.type !== 'input' && (
+											<PreferenceItemTitle
+												title={item.title}
+												description={item.description}
+											/>
+										)}
+
 										{item.type === 'switch' && (
 											<Switch
 												defaultChecked={
@@ -307,6 +352,18 @@ export function PreferenceSection({
 													<item.icon className="mr-1 size-4" />
 												)}
 												{'buttonText' in item && item.buttonText}
+											</Button>
+										)}
+										{item.type === 'profileButton' && (
+											<Button
+												onClick={() => console.log('Profile updated')}
+												id={item.props?.buttonId}
+												className="p-2 text-sm  min-h-9"
+											>
+												{'icon' in item && item.icon && (
+													<item.icon className="mr-1 size-4" />
+												)}
+												{item.props?.buttonText || 'Update Profile'}
 											</Button>
 										)}
 									</div>
