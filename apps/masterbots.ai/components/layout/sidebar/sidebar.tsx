@@ -12,7 +12,8 @@ import React from 'react'
 export function Sidebar({
 	className,
 	page,
-}: React.ComponentProps<'div'> & { page?: string }) {
+	userId,
+}: React.ComponentProps<'div'> & { page?: string; userId?: string }) {
 	const { isSidebarOpen, isLoading } = useSidebar()
 	const prevPathRef = React.useRef(usePathname())
 	const pathname = usePathname()
@@ -48,11 +49,11 @@ export function Sidebar({
 						: 'bg-[#fae8ff] dark:bg-[#000000]', // For other routes
 				)}
 			>
-				<SidebarHeader />
+				<SidebarHeader userId={userId} />
 				<nav className="pt-4 pb-20 size-full scrollbar">
 					<SidebarCategoryGeneral page={page} />
 				</nav>
-				<FooterCT className="flex md:hidden border-t border-mirage" fixed />
+				<FooterCT className="flex border-t md:hidden border-mirage" fixed />
 			</aside>
 		</>
 	)
