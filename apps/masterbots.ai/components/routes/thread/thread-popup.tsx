@@ -11,10 +11,14 @@ import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
+import { useWorkspace } from '@/lib/hooks/use-workspace'
+import { useSonner } from '@/lib/hooks/useSonner'
+import { createStructuredMarkdown } from '@/lib/markdown-utils'
 import { getCanonicalDomain, urlBuilders } from '@/lib/url'
 import { cn, getRouteType } from '@/lib/utils'
 import type { SendMessageFromResponseMessageData } from '@/types/types'
 import type { Message as AiMessage } from 'ai'
+import { FileTextIcon } from 'lucide-react'
 import type { Message } from 'mb-genql'
 import dynamic from 'next/dynamic'
 import { useParams, usePathname } from 'next/navigation'
@@ -22,6 +26,16 @@ import { useMemo, useRef } from 'react'
 
 const Chat = dynamic(
 	() => import('@/components/routes/chat/chat').then((mod) => mod.Chat),
+	{
+		ssr: false,
+		loading: () => (
+			<ChatPanelSkeleton className="!pl-0 rounded-b-[8px] overflow-hidden !absolute" />
+		),
+	},
+)
+
+const Pro = dynamic(
+	() => import('@/components/routes/pro/pro').then((mod) => mod.Pro),
 	{
 		ssr: false,
 		loading: () => (
@@ -58,6 +72,7 @@ export function ThreadPopup({ className }: { className?: string }) {
 		routeType === 'public' ||
 		routeType === 'profile' ||
 		(routeType === 'bot' && activeThread?.threadId)
+	const isProView = routeType === 'pro'
 	const isBotView = routeType === 'bot'
 	const threadCategory = activeThread?.chatbot.categories?.[0]?.category
 		?.name as string
@@ -89,6 +104,7 @@ export function ThreadPopup({ className }: { className?: string }) {
 				<ThreadPopUpCardHeader
 					messages={allMessages}
 					isBrowseView={isBrowseView}
+					isProView={isProView}
 				/>
 
 				<div
@@ -136,6 +152,14 @@ export function ThreadPopup({ className }: { className?: string }) {
 									Continue Thread
 								</ExternalLink>
 							</div>
+						) : isProView ? (
+							// Pro view - use Pro component for workspace-integrated chat
+							<Pro
+								isPopup
+								chatPanelClassName="!pl-0 rounded-b-[8px] overflow-hidden !absolute"
+								scrollToBottomOfPopup={scrollToBottom}
+								isAtBottom={isNearBottom}
+							/>
 						) : (
 							// Chat view
 							<Chat
@@ -155,9 +179,11 @@ export function ThreadPopup({ className }: { className?: string }) {
 function ThreadPopUpCardHeader({
 	messages,
 	isBrowseView,
+	isProView = false,
 }: {
 	messages: (AiMessage | Message)[]
 	isBrowseView: boolean
+	isProView?: boolean
 }) {
 	const {
 		isOpenPopup,
@@ -167,11 +193,95 @@ function ThreadPopUpCardHeader({
 		setShouldRefreshThreads,
 	} = useThread()
 	const { navigateTo } = useSidebar()
+	const {
+		activeProject,
+		activeDocumentType,
+		addDocument,
+		setActiveDocument,
+		setDocumentContent,
+		isWorkspaceActive,
+		toggleWorkspace,
+	} = useWorkspace()
+	const { customSonner } = useSonner()
 	const pathname = usePathname()
 	const params = useParams()
 	const isPublic = getRouteType(pathname) === 'public'
 	const isProfile = getRouteType(pathname) === 'profile'
 	const isBot = getRouteType(pathname) === 'bot'
+	const isPro = getRouteType(pathname) === 'pro'
+
+	// Check if we have at least one assistant message and this is the first one
+	const hasFirstAssistantMessage =
+		messages.length >= 2 &&
+		messages.filter((m) => (m as AiMessage).role === 'assistant').length === 1
+
+	const handleCreateDocument = async () => {
+		// Get the user question (first user message) and assistant answer (first assistant message)
+		const userMessage = messages.find(
+			(m) => (m as AiMessage).role === 'user',
+		) as AiMessage
+		const assistantMessage = messages.find(
+			(m) => (m as AiMessage).role === 'assistant',
+		) as AiMessage
+
+		if (!assistantMessage || !userMessage) {
+			customSonner({
+				type: 'error',
+				text: 'No assistant message found to create document from',
+			})
+			return
+		}
+
+		if (!activeProject) {
+			customSonner({
+				type: 'error',
+				text: 'Please select a project from the breadcrumb navigation first',
+			})
+			return
+		}
+
+		try {
+			// Create document title from user question (first 50 chars)
+			const docTitle =
+				userMessage.content
+					.substring(0, 50)
+					.replace(/[^\w\s-]/g, '')
+					.trim() || 'New Document'
+
+			// Generate structured markdown from assistant content
+			const structuredContent = createStructuredMarkdown(
+				assistantMessage.content,
+			)
+
+			// Add the document to workspace
+			const docType = activeDocumentType === 'all' ? 'text' : activeDocumentType
+			addDocument(
+				activeProject,
+				docTitle,
+				docType as 'text' | 'image' | 'spreadsheet',
+			)
+
+			// Set document content
+			setDocumentContent(activeProject, docTitle, structuredContent)
+			setActiveDocument(docTitle)
+
+			// Enable workspace mode if not already active
+			if (!isWorkspaceActive) {
+				toggleWorkspace()
+			}
+
+			customSonner({
+				type: 'success',
+				text: `Document "${docTitle}" created successfully!`,
+			})
+		} catch (error) {
+			console.error('Error creating document:', error)
+			customSonner({
+				type: 'error',
+				text: 'Failed to create document',
+			})
+		}
+	}
 
 	const onClose = () => {
 		const canonicalDomain = getCanonicalDomain(
@@ -209,6 +319,13 @@ function ThreadPopUpCardHeader({
 				},
 			})
 
+			setActiveThread(null)
+			setShouldRefreshThreads(true)
+			return
+		}
+
+		if (isPro) {
+			// For pro routes, just close the popup without navigation
 			setActiveThread(null)
 			setShouldRefreshThreads(true)
 			return
@@ -287,6 +404,19 @@ function ThreadPopUpCardHeader({
 				</div>
 
 				<div className="flex items-center gap-4">
+					{/* Create Document button for first assistant message */}
+					{hasFirstAssistantMessage && !isBrowseView && (
+						<Button
+							type="button"
+							variant="outline"
+							size="sm"
+							className="gap-2"
+							onClick={handleCreateDocument}
+						>
+							<FileTextIcon className="w-4 h-4" />
+							Create Document
+						</Button>
+					)}
 					<Button
 						type="button"
 						variant="ghost"

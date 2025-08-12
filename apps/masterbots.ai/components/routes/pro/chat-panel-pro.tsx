@@ -45,6 +45,7 @@ import {
 } from '@/lib/markdown-utils'
 import { logErrorToSentry } from '@/lib/sentry'
 import { cn } from '@/lib/utils'
+import { createThread } from '@/services/hasura'
 import { type UseChatHelpers, useChat } from '@ai-sdk/react'
 import type { Message as AiMessage } from 'ai'
 import {
@@ -60,8 +61,9 @@ import {
 	TableIcon,
 } from 'lucide-react'
 import { appConfig } from 'mb-env'
-import type { Chatbot } from 'mb-genql'
+import type { Chatbot, Thread } from 'mb-genql'
 import { nanoid } from 'nanoid'
+import { useSession } from 'next-auth/react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 export interface ChatPanelProProps
@@ -113,8 +115,15 @@ export function ChatPanelPro({
 	targetDocument: externalTargetDocument,
 	setTargetDocument: externalSetTargetDocument,
 }: ChatPanelProProps) {
-	const { isOpenPopup, loadingState, webSearch, setWebSearch, activeThread } =
-		useThread()
+	const {
+		isOpenPopup,
+		loadingState,
+		webSearch,
+		setWebSearch,
+		refreshActiveThread,
+		activeThread,
+	} = useThread()
+	const { data: session } = useSession()
 	const { isPowerUp, togglePowerUp } = usePowerUp()
 	const { isDeepThinking, toggleDeepThinking } = useDeepThinking()
 	const [shareDialogOpen, setShareDialogOpen] = useState(false)
@@ -225,6 +234,7 @@ export function ChatPanelPro({
 	const { addItem: addIndexedItem, updateItem: updateIndexedItem } =
 		useIndexedDB({})
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const handleSaveDocument = useCallback(async () => {
 		try {
 			if (!activeProject || !activeDocument) return
@@ -235,9 +245,38 @@ export function ChatPanelPro({
 			const key = `${activeProject}:${activeDocument}`
 			const content = documentContent?.[key] || ''
 			if (!content.trim()) return
-			// Get thread slug from top-level hook
-			const threadSlug = activeThread?.slug
+
+			// Create new thread if one doesn't exist
+			let threadSlug = activeThread?.slug
+			if (!threadSlug && session?.user?.hasuraJwt && chatbot) {
+				const newThreadId = nanoid(12)
+				const newThreadSlug = `${chatbot.name.toLowerCase().replace(/\s+/g, '-')}-${newThreadId}`
+
+				try {
+					const createdThread = await createThread({
+						threadId: newThreadId,
+						chatbotId: chatbot.chatbotId,
+						slug: newThreadSlug,
+						jwt: session.user.hasuraJwt,
+						userId: session.user.id,
+						model: 'OPENAI',
+						isPublic: false,
+					})
+
+					if (createdThread?.threadId) {
+						threadSlug = createdThread.slug || newThreadSlug
+						// Note: We don't set activeThread here as it would require complex Thread type construction
+						// The document will still be saved with the new thread slug
+						refreshActiveThread(createdThread.threadId, session.user.hasuraJwt)
+					}
+				} catch (error) {
+					console.error('Failed to create thread for document save:', error)
+					return
+				}
+			}
+
 			if (!threadSlug) return
+
 			const { document } = await uploadWorkspaceDocumentToBucket({
 				threadSlug,
 				project: activeProject,
@@ -286,6 +325,8 @@ export function ChatPanelPro({
 		updateIndexedItem,
 		addIndexedItem,
 		activeThread,
+		session,
+		chatbot,
 	])
 
 	// Use departmentList as departmentsByOrg since they contain the same data

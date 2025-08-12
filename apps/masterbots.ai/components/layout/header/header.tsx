@@ -7,11 +7,22 @@ import {
 	ImageIcon,
 } from 'lucide-react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import * as React from 'react'
 
 import { UserLogin } from '@/components/auth/user-login'
 import { SidebarToggle } from '@/components/layout/sidebar/sidebar-toggle'
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import {
 	DropdownMenu,
@@ -21,6 +32,8 @@ import {
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { IconSeparator } from '@/components/ui/icons'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useWorkspace } from '@/lib/hooks/use-workspace'
 import { getCanonicalDomain } from '@/lib/url'
@@ -104,7 +117,15 @@ export function Header() {
 		addProject,
 		addDocument,
 	} = useWorkspace()
+	const router = useRouter()
 	const canonicalDomain = getCanonicalDomain(activeChatbot?.name || '')
+
+	// State for document creation dialog
+	const [isDocumentDialogOpen, setIsDocumentDialogOpen] = useState(false)
+	const [documentName, setDocumentName] = useState('')
+	const [documentType, setDocumentType] = useState<
+		'text' | 'image' | 'spreadsheet'
+	>('text')
 	const [mounted, setMounted] = useState(false)
 
 	const resetNavigation = (e: React.MouseEvent) => {
@@ -174,6 +195,19 @@ export function Header() {
 	const handleAddEntity = (
 		type: 'organization' | 'department' | 'project' | 'document',
 	) => {
+		if (type === 'document') {
+			if (!activeProject) return
+			// Open the document creation dialog instead of using prompt
+			setDocumentName('')
+			// Set initial document type based on current selection
+			const docType: 'text' | 'image' | 'spreadsheet' =
+				activeDocumentType === 'all' ? 'text' : activeDocumentType
+			setDocumentType(docType)
+			setIsDocumentDialogOpen(true)
+			return
+		}
+
+		// Handle other entity types with prompt as before
 		const name = prompt(`Enter new ${type} name`)
 		if (!name) return
 		if (type === 'organization') {
@@ -193,20 +227,23 @@ export function Header() {
 			addProject(activeOrganization, activeDepartment, name)
 			setActiveProject(name)
 			setActiveDocument(null)
-		} else if (type === 'document') {
-			if (!activeProject) return
-			// Honor selected document type; if 'all', prompt user to choose
-			let docType: 'text' | 'image' | 'spreadsheet' | null = null
-			if (activeDocumentType === 'all') {
-				const t = prompt('Select document type: text | image | spreadsheet')
-				if (t !== 'text' && t !== 'image' && t !== 'spreadsheet') return
-				docType = t
-			} else {
-				docType = activeDocumentType
-			}
-			addDocument(activeProject, name, docType)
-			setActiveDocument(name)
 		}
+	}
+
+	// Handle document creation from dialog
+	const handleCreateDocument = () => {
+		if (!documentName.trim() || !activeProject) return
+
+		// Add the document
+		addDocument(activeProject, documentName.trim(), documentType)
+		setActiveDocument(documentName.trim())
+
+		// Close dialog and reset state
+		setIsDocumentDialogOpen(false)
+		setDocumentName('')
+
+		// Redirect to the pro workspace mode with the new document
+		router.push('/pro')
 	}
 
 	const Crumb = ({
@@ -299,24 +336,21 @@ export function Header() {
 				{/* Navigation links - Hidden on mobile */}
 				<div className="flex items-center gap-1 ml-2.5">
 					<HeaderLink
-						href={personalUrl}
+						href="/pro"
 						onClick={resetNavigation}
-						text="Chat"
+						text="Pro"
 						className={cn({
-							'hidden sm:flex': routeType !== 'chat',
+							'hidden sm:flex': routeType !== 'pro',
 						})}
 					/>
 					<HeaderLink
 						href={publicUrl}
 						onClick={resetNavigation}
-						text="Public"
+						text="Org"
 						className={cn({
 							'hidden sm:flex': routeType !== 'public',
 						})}
 					/>
-					{appConfig.features.devMode && (
-						<HeaderLink href="/pro" onClick={resetNavigation} text="Pro" />
-					)}
 				</div>
 				{/* Workspace Breadcrumbs */}
 				<div className="hidden md:flex items-center gap-1 ml-2.5 pr-4 border-r mr-4">
@@ -466,6 +500,93 @@ export function Header() {
 					<UserLogin />
 				</React.Suspense>
 			</div>
+
+			{/* Document Creation Dialog */}
+			<AlertDialog
+				open={isDocumentDialogOpen}
+				onOpenChange={setIsDocumentDialogOpen}
+			>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>Create New Document</AlertDialogTitle>
+						<AlertDialogDescription>
+							Create a new document in the "{activeProject}" project. You'll be
+							redirected to the workspace mode after creation.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<div className="grid gap-4 py-4">
+						<div className="grid grid-cols-4 items-center gap-4">
+							<Label htmlFor="document-name" className="text-right">
+								Name
+							</Label>
+							<Input
+								id="document-name"
+								value={documentName}
+								onChange={(e) => setDocumentName(e.target.value)}
+								className="col-span-3"
+								placeholder="Enter document name"
+								autoFocus
+							/>
+						</div>
+						<div className="grid grid-cols-4 items-center gap-4">
+							<Label htmlFor="document-type" className="text-right">
+								Type
+							</Label>
+							<div className="col-span-3">
+								<DropdownMenu>
+									<DropdownMenuTrigger asChild>
+										<Button
+											variant="outline"
+											className="w-full justify-between"
+										>
+											<span className="capitalize flex items-center gap-2">
+												{documentType === 'text' && (
+													<FileTextIcon className="w-4 h-4" />
+												)}
+												{documentType === 'image' && (
+													<ImageIcon className="w-4 h-4" />
+												)}
+												{documentType === 'spreadsheet' && (
+													<FileSpreadsheetIcon className="w-4 h-4" />
+												)}
+												{documentType}
+											</span>
+											<ChevronDown className="h-4 w-4 opacity-50" />
+										</Button>
+									</DropdownMenuTrigger>
+									<DropdownMenuContent>
+										<DropdownMenuItem onClick={() => setDocumentType('text')}>
+											<FileTextIcon className="w-4 h-4 mr-2" />
+											Text
+										</DropdownMenuItem>
+										<DropdownMenuItem onClick={() => setDocumentType('image')}>
+											<ImageIcon className="w-4 h-4 mr-2" />
+											Image
+										</DropdownMenuItem>
+										<DropdownMenuItem
+											onClick={() => setDocumentType('spreadsheet')}
+										>
+											<FileSpreadsheetIcon className="w-4 h-4 mr-2" />
+											Spreadsheet
+										</DropdownMenuItem>
+									</DropdownMenuContent>
+								</DropdownMenu>
+							</div>
+						</div>
+					</div>
+					<AlertDialogFooter>
+						<AlertDialogCancel onClick={() => setDocumentName('')}>
+							Cancel
+						</AlertDialogCancel>
+						<AlertDialogAction
+							onClick={handleCreateDocument}
+							disabled={!documentName.trim()}
+						>
+							Create Document
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 		</header>
 	)
 }

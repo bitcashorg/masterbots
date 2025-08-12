@@ -1,5 +1,5 @@
 import FooterCT from '@/components/layout/footer/footer-ct'
-import { ProChatProviders } from '@/components/layout/providers'
+import { Providers } from '@/components/layout/providers'
 import { ResponsiveSidebar } from '@/components/layout/sidebar/sidebar-responsive'
 import { ChatLayoutSection } from '@/components/routes/chat/chat-layout-section'
 import { BrowseProvider } from '@/lib/hooks/use-browse'
@@ -18,7 +18,7 @@ export default async function ChatLayout({ children }: ChatLayoutProps) {
 
 	return (
 		<BrowseProvider>
-			<ProChatProviders>
+			<Providers>
 				<main className="relative flex flex-col h-[calc(100vh-4rem)] overflow-hidden">
 					{/* <NextTopLoader color="#1ED761" initialPosition={0.2} /> */}
 					<ResponsiveSidebar />
@@ -27,7 +27,7 @@ export default async function ChatLayout({ children }: ChatLayoutProps) {
 						<FooterCT />
 					</div>
 				</main>
-			</ProChatProviders>
+			</Providers>
 		</BrowseProvider>
 	)
 }

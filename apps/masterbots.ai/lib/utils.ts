@@ -305,7 +305,7 @@ export function numberShortener(number: number): string {
  * @returns 'chat' | 'public' | ''
  */
 
-type RouteType = 'chat' | 'public' | 'profile' | 'pro' | 'bot'
+type RouteType = 'chat' | 'public' | 'profile' | 'pro' | 'bot' | 'org'
 
 export function getRouteType(pathname: string | null): RouteType {
 	if (!pathname || pathname === '/') return 'public'
@@ -365,8 +365,10 @@ export function getRouteColor(
 
 	switch (routeType) {
 		// case 'personal':
+		case 'pro':
 		case 'chat':
 			return 'text-black bg-gradient-to-b from-[rgba(190,23,232,0.1)] via-[rgba(187,6,232,0.5)] to-[rgba(190,23,232,0.5)] dark:text-white'
+		case 'org':
 		case 'public':
 			return 'text-black bg-gradient-to-b from-[rgba(131,229,106,0.1)] via-[rgba(131,229,106,0.5)] to-[rgba(131,229,106,0.5)] dark:text-white'
 		default:
