@@ -80,32 +80,15 @@ type NavigateToParams<
 }
 
 export function SidebarProvider({ children }: SidebarProviderProps) {
-	const { selectedCategories, setCategories } = useCategorySelections()
+	const {
+		selectedCategories,
+		setCategories,
+		isLoaded: isCategoryStorageLoaded,
+	} = useCategorySelections()
 	const [selectedChatbots, setSelectedChatbots] = React.useState<number[]>([])
 	const { data: session } = useSession()
-	const hasClearedRef = React.useRef(false)
-	const setCategoriesRef = React.useRef(setCategories)
-	const [hasLoadedFromStorage, setHasLoadedFromStorage] = React.useState(false)
 
-	// Update the ref when setCategories changes
-	React.useEffect(() => {
-		setCategoriesRef.current = setCategories
-	}, [setCategories])
-
-	//? Handle category selections for logged vs non-logged users
-	React.useEffect(() => {
-		if (!session?.user && !hasClearedRef.current) {
-			setCategoriesRef.current([])
-			hasClearedRef.current = true
-		} else if (session?.user) {
-			hasClearedRef.current = false
-		}
-	}, [session?.user])
-
-	//? Mark that we've loaded from storage after the first render
-	React.useEffect(() => {
-		setHasLoadedFromStorage(true)
-	}, [])
+	// Removed auto-clear and auto-select logic to preserve user selections across reloads
 	const { userSlug } = useParams()
 	const pathname = usePathname()
 	const router = useRouter()
@@ -136,15 +119,12 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 		const pathParts = pathname.split('/')
 		const prevPathParts = (prevPath.current || '').split('/')
 
-		//? Only auto-select categories for logged users if they have no stored selections and we've loaded from storage
-		const shouldAutoSelect =
-			selectedCategories.length === 0 && session?.user && hasLoadedFromStorage
-
+		//? Handle category and chatbot selections based on stored preferences
+		//? Only update selections when navigating to browse page or when we have stored selections
 		if (
-			(prevPath.current !== pathname &&
-				pathParts[1] !== prevPathParts[1] &&
-				pathParts[1] === 'c') ||
-			shouldAutoSelect
+			prevPath.current !== pathname &&
+			pathParts[1] !== prevPathParts[1] &&
+			pathParts[1] === 'c'
 		) {
 			if (selectedCategories.length > 0) {
 				const selectedChatbotsFromCategories = categoriesObj.categoriesChatbots
@@ -160,10 +140,6 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 								.filter(Boolean) || [],
 					)
 				setSelectedChatbots(selectedChatbotsFromCategories)
-			} else if (shouldAutoSelect) {
-				// Only set all categories for logged users if they have no stored selections
-				setCategories(categoriesObj.categoriesId)
-				setSelectedChatbots(categoriesObj.chatbotsId)
 			}
 		}
 
@@ -175,8 +151,10 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 		prevPath.current,
 		userSlug,
 		selectedCategories,
+		setCategories,
+		setSelectedChatbots,
 		session?.user,
-		hasLoadedFromStorage,
+		isCategoryStorageLoaded,
 	])
 
 	const [isSidebarOpen, setSidebarOpen] = React.useState(false)
@@ -193,6 +171,27 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 	const [expandedCategories, setExpandedCategories] = React.useState<number[]>(
 		[],
 	)
+
+	React.useEffect(() => {
+		if (!categories) return
+		if (selectedCategories.length === 0) {
+			setSelectedChatbots([])
+			return
+		}
+		const categoriesChatbots = categories.categoriesChatbots || []
+		const chatbotsFromSelectedCategories = categoriesChatbots
+			.filter((category) => selectedCategories.includes(category.categoryId))
+			.flatMap((category) => category.chatbots.map((c) => c.chatbotId))
+			.filter(Boolean) as number[]
+
+		setSelectedChatbots((prev) => {
+			const merged = new Set<number>([
+				...prev,
+				...chatbotsFromSelectedCategories,
+			])
+			return Array.from(merged)
+		})
+	}, [selectedCategories, categories])
 
 	React.useEffect(() => {
 		const value = localStorage.getItem(LOCAL_STORAGE_KEY)
@@ -346,13 +345,15 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 						selectedCategories.includes(category.categoryId),
 					)
 					.filter((category) =>
-						category.chatbots.some((chatbot) =>
-							selectedChatbots.includes(chatbot.chatbotId),
-						),
+						selectedChatbots.length === 0
+							? true
+							: category.chatbots.some((chatbot) =>
+									selectedChatbots.includes(chatbot.chatbotId),
+								),
 					)
 	}, [
-		selectedChatbots.length,
-		selectedCategories.length,
+		selectedChatbots,
+		selectedCategories,
 		filterValue,
 		isFilterMode,
 		categories,
