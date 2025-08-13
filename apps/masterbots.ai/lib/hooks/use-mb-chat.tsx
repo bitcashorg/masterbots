@@ -25,7 +25,13 @@ import {
 import { useContinueGeneration } from '@/lib/hooks/use-continue-generation'
 import { useIndexedDB } from '@/lib/hooks/use-indexed-db'
 import { useModel } from '@/lib/hooks/use-model'
+import {
+	type OptimisticChatActions,
+	type OptimisticChatState,
+	useOptimisticChat,
+} from '@/lib/hooks/use-optimistic-chat'
 import { usePowerUp } from '@/lib/hooks/use-power-up'
+import { useServerCache } from '@/lib/hooks/use-server-cache'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
@@ -99,6 +105,10 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 	const { customSonner } = useSonner()
 	const { isPowerUp } = usePowerUp()
 	const { setIsCutOff } = useContinueGeneration()
+
+	// New optimistic update and server caching hooks
+	const [optimisticState, optimisticActions] = useOptimisticChat()
+	const serverCache = useServerCache()
 	const params = useParams<{
 		chatbot: string
 		threadSlug?: string
@@ -325,6 +335,17 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					})
 				}
 				if (options.finishReason === 'error') {
+					// Handle error case - find and mark optimistic messages as failed
+					const pendingMessages = optimisticState.pendingMessages.filter(
+						(msg) => msg.status === 'sending',
+					)
+					for (const pendingMsg of pendingMessages) {
+						optimisticActions.markMessageAsFailed(
+							pendingMsg.id,
+							'AI generation failed',
+						)
+					}
+
 					logErrorToSentry('Error saving new message', {
 						error: new Error('Error saving new message'),
 						message: 'Failed to save the Masterbot message.',
@@ -458,8 +479,49 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 				try {
 					newThreadMessages = await uploadNewMessages()
+
+					// Mark optimistic messages as sent with the actual server messages
+					const pendingMessages = optimisticState.pendingMessages.filter(
+						(msg) => msg.status === 'sending' && msg.role === 'user',
+					)
+
+					for (const pendingMsg of pendingMessages) {
+						// Find server message by content match since content is the most reliable identifier
+						const correspondingServerMessage = newThreadMessages.find(
+							(msg) =>
+								msg.role === 'user' &&
+								(msg.content.trim() === pendingMsg.content.trim() ||
+									msg.content.trim() === userContentRef.current.trim()),
+						)
+						if (correspondingServerMessage) {
+							console.log('MBChat: Marking optimistic message as sent:', {
+								optimisticId: pendingMsg.id,
+								serverMessageId: correspondingServerMessage.messageId,
+							})
+							optimisticActions.markMessageAsSent(
+								pendingMsg.id,
+								correspondingServerMessage,
+							)
+						} else {
+							console.warn(
+								'MBChat: Could not find matching server message for optimistic message:',
+								pendingMsg.id,
+							)
+						}
+					}
 				} catch (error) {
 					console.error('Error generating message slugs: ', error)
+
+					// Mark optimistic messages as failed
+					const pendingMessages = optimisticState.pendingMessages.filter(
+						(msg) => msg.status === 'sending',
+					)
+					for (const pendingMsg of pendingMessages) {
+						optimisticActions.markMessageAsFailed(
+							pendingMsg.id,
+							'Failed to save message to server',
+						)
+					}
 
 					// ? If the error is due to duplicate key value, we retry the upload one more time to do the recursive check again
 					// ! This might be an edge case now that we use drizzle for this query, but it is still a good practice to handle this error
@@ -576,6 +638,18 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		async onError(error: any) {
 			console.error('Error in chat: ', error)
+
+			// Mark all pending optimistic messages as failed
+			const pendingMessages = optimisticState.pendingMessages.filter(
+				(msg) => msg.status === 'sending' || msg.status === 'optimistic',
+			)
+			for (const pendingMsg of pendingMessages) {
+				optimisticActions.markMessageAsFailed(
+					pendingMsg.id,
+					error.message || 'Chat error occurred',
+				)
+			}
+
 			logErrorToSentry('Error in the chat', {
 				error,
 				message: 'Failed to complete chat.',
@@ -611,47 +685,67 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 	/**
 	 * @description
 	 * All messages coming from DB and continuing the chat, omitting the system prompts to provide to the LLM context.
+	 * Now includes optimistic messages for immediate UI feedback.
 	 */
-	const allMessages = uniqBy(
-		(initialMessages as Array<Message & AiMessage>)
-			?.concat(messages as Array<Message & AiMessage>)
-			?.concat(
-				activeThread?.messages?.map((msg) => ({
-					...msg,
-					id: msg.messageId,
-					role: msg.role as 'data' | 'system' | 'user' | 'assistant',
-				})) || [],
-			),
-		verifyDuplicateMessage,
-	)
-		.filter(Boolean)
-		.filter((m) => m.role !== 'system')
-		.sort((a, b) => {
-			// Extract timestamps, defaulting to 0 if missing
-			const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0
-			const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0
+	const allMessages = useMemo(() => {
+		const baseMessages = uniqBy(
+			(initialMessages as Array<Message & AiMessage>)
+				?.concat(messages as Array<Message & AiMessage>)
+				?.concat(
+					activeThread?.messages?.map((msg) => ({
+						...msg,
+						id: msg.messageId,
+						role: msg.role as 'data' | 'system' | 'user' | 'assistant',
+					})) || [],
+				),
+			verifyDuplicateMessage,
+		)
+			.filter(Boolean)
+			.filter((m) => m.role !== 'system')
+			.sort((a, b) => {
+				// Extract timestamps, defaulting to 0 if missing
+				const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0
+				const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0
 
-			// If timestamps are different, use them for sorting (chronological order)
-			if (timeA !== timeB) {
-				return timeA - timeB
-			}
+				// If timestamps are different, use them for sorting (chronological order)
+				if (timeA !== timeB) {
+					return timeA - timeB
+				}
 
-			// If timestamps are the same or both missing:
-			// 1. Find previous message(s) to determine conversation flow and
-			// 2. Ensure assistant message appears after its corresponding user message
-			if (a.role === 'assistant' && b.role === 'assistant') {
-				// If both are assistant messages, maintain chronological order and
-				// ensures multiple assistant messages appear in the correct sequence
-				return timeA - timeB || 0
-			}
+				// If timestamps are the same or both missing:
+				// 1. Find previous message(s) to determine conversation flow and
+				// 2. Ensure assistant message appears after its corresponding user message
+				if (a.role === 'assistant' && b.role === 'assistant') {
+					// If both are assistant messages, maintain chronological order and
+					// ensures multiple assistant messages appear in the correct sequence
+					return timeA - timeB || 0
+				}
 
-			// Keep user messages before assistant messages when timestamps are identical
-			if (a.role === 'user' && b.role === 'assistant') return -1
-			if (a.role === 'assistant' && b.role === 'user') return 1
+				// Keep user messages before assistant messages when timestamps are identical
+				if (a.role === 'user' && b.role === 'assistant') return -1
+				if (a.role === 'assistant' && b.role === 'user') return 1
 
-			// If both have the same role, maintain original order
-			return 0
-		})
+				// If both have the same role, maintain original order
+				return 0
+			})
+
+		// Merge with optimistic messages for immediate UI feedback
+		const mergedMessages = optimisticActions.getMergedMessages(baseMessages)
+		console.log(
+			'MBChat allMessages: baseMessages:',
+			baseMessages.length,
+			'mergedMessages:',
+			mergedMessages.length,
+		)
+		console.log('MBChat allMessages: optimistic state:', optimisticState)
+		return mergedMessages
+	}, [
+		initialMessages,
+		messages,
+		activeThread?.messages,
+		optimisticActions,
+		optimisticState,
+	])
 
 	useEffect(() => {
 		// Resetting the chat when the popup is closed
@@ -736,7 +830,9 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 		}
 		const userPrompt = {
 			content: userMessage.content,
-			allUserMessages: previousAiUserMessages.concat(allMessages),
+			allUserMessages: previousAiUserMessages.concat(
+				allMessages as unknown as Message[],
+			),
 		}
 		const { content, error } = await processUserMessage(
 			userPrompt,
@@ -762,7 +858,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 	)
 	const formDisabled = !chatbot || isPreProcessing
 
-	// we extend append function to add our system prompts
+	// we extend append function to add our system prompts with optimistic updates
 	const appendWithMbContextPrompts = async (
 		userMessage: AiMessage | CreateMessage,
 		chatRequestOptions?: ChatRequestOptions,
@@ -782,42 +878,114 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 			return
 		}
 
+		const cleanedContent = cleanPrompt(userMessage.content)
+
+		// Cache user input immediately for error recovery
+		const cacheId = serverCache.cachePrompt(cleanedContent, threadId)
+
+		// Add optimistic message for IMMEDIATE UI feedback - this should show instantly
+		console.log('MBChat: Adding optimistic message:', cleanedContent)
+		const optimisticMessageId = optimisticActions.addOptimisticMessage(
+			cleanedContent,
+			threadId,
+		)
+		console.log('MBChat: Optimistic message ID:', optimisticMessageId)
+
+		// Store original input for potential error recovery
+		userContentRef.current = cleanedContent
+
 		// * Loading: processing your request + opening pop-up...
 		messageAttachments.current =
 			(chatRequestOptions?.experimental_attachments || []) as FileAttachment[]
-		setLoadingState('processing')
-		setIsNewResponse(true)
-		updateNewThread()
 
+		// Show popup immediately for better UX
+		if (!isOpenPopup) {
+			setIsOpenPopup(true)
+		}
+
+		// Clear input field immediately after adding optimistic message for better UX
+		setInput('')
+
+		// Register retry callback for failed messages
+		optimisticActions.registerRetryCallback(optimisticMessageId, async () => {
+			const cachedPrompt = serverCache.getCachedPrompt(cacheId)
+			if (cachedPrompt) {
+				await appendWithMbContextPrompts(
+					{
+						...userMessage,
+						content: cachedPrompt.content,
+					},
+					chatRequestOptions,
+				)
+			}
+		})
+
+		try {
+			// Mark as sending to show proper loading state
+			optimisticActions.markMessageAsSending(optimisticMessageId)
+
+			setLoadingState('processing')
+			setIsNewResponse(true)
+			updateNewThread()
+
+			// Process the message (existing logic)
+			const processedThread = await processOptimisticMessage(
+				userMessage,
+				optimisticMessageId,
+				cacheId,
+			)
+
+			return await appendNewMessage(userMessage, chatRequestOptions)
+		} catch (error) {
+			// Mark as failed and provide retry mechanism
+			optimisticActions.markMessageAsFailed(
+				optimisticMessageId,
+				(error as Error).message,
+			)
+			serverCache.markPromptAsFailed(cacheId)
+
+			console.error('Error processing message:', error)
+			customSonner({
+				type: 'error',
+				text: 'Failed to send message. You can retry from the message menu.',
+			})
+
+			// Restore input field on error for user convenience
+			setInput(cleanedContent)
+
+			return null
+		}
+	}
+
+	const processOptimisticMessage = async (
+		userMessage: AiMessage | CreateMessage,
+		optimisticMessageId: string,
+		cacheId: string,
+	) => {
+		// Create optimistic thread state for immediate UI response
 		const defaultUserMessage: Partial<Message> = {
 			...userMessage,
-			content: cleanPrompt(userMessage.content),
+			content: userMessage.content, // Keep original content initially
 			slug: toSlug(userMessage.content),
 			role: 'user',
-			messageId: randomThreadId.current,
+			messageId: optimisticMessageId,
 			createdAt: new Date().toISOString(),
 			augmentedFrom: null,
 			examples: [],
 			threadId,
 		}
-		// ! Optimistic won't update on time due the ID's are not totally formed hence,
-		// ! when it wants to attach related content it can't because the references doesn't exist
-		// ! at the time we pre-populate information.
-		// ! So, we need to wait for the response to be processed and then update the thread with the new message. (currently working)
-		// We need a temporal state object that can be replaced with the real state object (like a ref) for the thread to be able to update it optimistically
+
+		// Create optimistic thread - this provides immediate UI feedback
 		const optimisticThread: Thread = {
 			...activeThread,
 			threadId,
 			chatbotId: chatbot?.chatbotId,
 			chatbot,
-			createdAt: new Date().toISOString(),
+			createdAt: activeThread?.createdAt || new Date().toISOString(),
+			updatedAt: new Date().toISOString(),
 			isApproved: false,
 			isBlocked: false,
-			// @ts-ignore
-			messages: uniqBy(
-				[...allMessages, defaultUserMessage],
-				verifyDuplicateMessage,
-			),
+			messages: activeThread?.messages || [],
 			metadata: {
 				attachments: uniqBy(
 					[
@@ -829,24 +997,37 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 			},
 			thread: isContinuousThread ? activeThread?.thread || null : null,
 			userId: session?.user.id,
-		}
+		} as Thread
+
+		// Update thread state optimistically for immediate UI response
 		const thread = await updateActiveThread(optimisticThread)
 
 		try {
 			await tunningUserContent(userMessage, thread)
-			// ! At this point, the UI respond and provides a feedback to the user... before it is now even showing the updated active thread, event though that it does update the active thread...
-			// TODO: improve response velocity here (split this fn to yet another cb fn? 🤔)
+
+			// After processUserMessage, update the optimistic message with the processed content
+			if (userContentRef.current !== userMessage.content) {
+				console.log(
+					'MBChat: Updating optimistic message with processed content:',
+					userContentRef.current,
+				)
+				optimisticActions.updateOptimisticMessageContent(
+					optimisticMessageId,
+					userContentRef.current,
+				)
+			}
+
+			// Mark server cache as processing
+			serverCache.markPromptAsSent(cacheId)
 		} catch (error) {
 			console.error(
-				'Error processing user message. Using og message. Error: ',
+				'Error processing user message. Using original message. Error: ',
 				error,
 			)
+			// Don't fail completely, just log and continue with original message
 		}
 
-		if (!isOpenPopup) {
-			setIsOpenPopup(true)
-		}
-		return await appendNewMessage(userMessage, chatRequestOptions)
+		return thread
 	}
 
 	const getMetadataLabels =
@@ -1004,7 +1185,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 							: followingQuestionsPrompt(
 									userContentRef.current,
 									previousAiUserMessages.concat(
-										allMessages,
+										allMessages as unknown as Message[],
 									) as unknown as Message[],
 									clickedContentRef.current,
 								),
@@ -1038,9 +1219,10 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					isNewChat,
 					webSearch,
 					isLoading,
-					allMessages: allMessages as OpenAi.UIMessage[],
+					allMessages: allMessages as unknown as OpenAi.UIMessage[],
 					initialMessages: initialMessages as OpenAi.UIMessage[],
 					newChatThreadId: threadId,
+					optimisticState,
 				},
 				{
 					appendWithMbContextPrompts,
@@ -1052,6 +1234,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					append,
 					reload,
 					stop,
+					optimisticActions,
 				},
 			]}
 		>
@@ -1077,6 +1260,7 @@ export type MBChatHookState = {
 	allMessages: OpenAi.UIMessage[]
 	initialMessages: OpenAi.UIMessage[]
 	newChatThreadId: string
+	optimisticState: OptimisticChatState
 }
 
 export type MBChatHookActions = {
@@ -1102,4 +1286,5 @@ export type MBChatHookActions = {
 	toggleWebSearch: () => void
 	setInput: React.Dispatch<React.SetStateAction<string>>
 	setMessages: (messages: OpenAi.UIMessage[]) => void
+	optimisticActions: OptimisticChatActions
 }

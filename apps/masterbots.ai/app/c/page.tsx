@@ -1,4 +1,5 @@
 import { authOptions } from '@/auth'
+import { OptimisticUpdatesTest } from '@/components/routes/chat/optimistic-updates-test'
 import { MainContentSkeleton } from '@/components/shared/skeletons/chat-page-skeleton'
 import { ChatPanelSkeleton } from '@/components/shared/skeletons/chat-panel-skeleton'
 import { PAGE_SIZE } from '@/lib/constants/hasura'
@@ -14,9 +15,6 @@ import { redirect } from 'next/navigation'
 
 const ThreadPanel = dynamic(
 	() => import('@/components/routes/thread/thread-panel'),
-	{
-		loading: () => <MainContentSkeleton />,
-	},
 )
 
 export default async function IndexPage() {
@@ -38,6 +36,7 @@ export default async function IndexPage() {
 
 	return (
 		<>
+			<OptimisticUpdatesTest className="mb-4" />
 			<ThreadPanel
 				threads={threads}
 				count={count}

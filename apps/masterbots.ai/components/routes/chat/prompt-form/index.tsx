@@ -254,7 +254,7 @@ export function PromptForm({
 		if (!input?.trim() || disabled) {
 			return
 		}
-		setInput('')
+		// Don't clear input here - it's handled by optimistic updates for better UX
 
 		const chatOptions: ChatRequestOptions = {}
 		if (attachments.length) {

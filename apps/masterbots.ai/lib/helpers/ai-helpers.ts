@@ -311,8 +311,23 @@ export function verifyDuplicateMessage(message: Partial<MBMessage>) {
 	}
 
 	// Filter out system prompts and messages with empty content
-	return message.content
-	// return message.slug || message.content
+	if (!message.content || message.role === 'system') {
+		return null
+	}
+
+	// For deduplication, normalize the content by:
+	// 1. Trimming whitespace
+	// 2. Converting to lowercase for case-insensitive comparison
+	// 3. Removing extra punctuation and spaces for grammar-corrected versions
+	const normalizedContent = message.content
+		.trim()
+		.toLowerCase()
+		.replace(/[^\w\s]/g, '') // Remove punctuation
+		.replace(/\s+/g, ' ') // Normalize whitespace
+
+	// Use messageId as primary key, fallback to normalized content for matching
+	// This helps identify both exact duplicates and grammar-corrected versions
+	return `${message.messageId || 'no-id'}_${normalizedContent}`
 }
 
 //? Check if the message has reasoning content

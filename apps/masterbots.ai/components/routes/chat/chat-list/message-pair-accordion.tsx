@@ -1,5 +1,6 @@
 import { AttachmentCards } from '@/components/routes/chat/chat-list/attachment-cards'
 import { MessageRenderer } from '@/components/routes/chat/chat-message-renderer'
+import { OptimisticMessageStatus } from '@/components/routes/chat/optimistic-message-status'
 import { SharedAccordion } from '@/components/shared/shared-accordion'
 import { ShortMessage } from '@/components/shared/short-message'
 import {
@@ -8,6 +9,7 @@ import {
 	TooltipTrigger,
 } from '@/components/ui/tooltip'
 import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
+import { useOptimisticChat } from '@/lib/hooks/use-optimistic-chat'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
@@ -244,10 +246,16 @@ export function MessagePairAccordion({
 				</AnimatePresence>
 				<div className="w-full ml-auto flex gap-1.5 items-start justify-between group">
 					{shouldShowUserMessage && (
-						<MessageRenderer
-							actionRequired={false}
-							message={pair.userMessage}
-						/>
+						<div className="flex-1 flex flex-col gap-1">
+							<MessageRenderer
+								actionRequired={false}
+								message={pair.userMessage}
+							/>
+							<OptimisticMessageStatus
+								messageId={pair.userMessage.messageId}
+								className="ml-2"
+							/>
+						</div>
 					)}
 
 					{activeThread && shouldShowUserMessage && (

@@ -12,9 +12,6 @@ import { redirect } from 'next/navigation'
 
 const ThreadPanel = dynamic(
 	() => import('@/components/routes/thread/thread-panel'),
-	{
-		loading: () => <MainContentSkeleton />,
-	},
 )
 
 export default async function ChatCategoryPage(props: {

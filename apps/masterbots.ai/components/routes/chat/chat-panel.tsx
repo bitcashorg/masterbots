@@ -364,7 +364,7 @@ export function ChatPanel({
 						<PromptForm
 							onSubmit={async (value, chatOptions) => {
 								scrollToBottom()
-								await append(
+								await appendWithMbContextPrompts(
 									{
 										id,
 										content: value,
