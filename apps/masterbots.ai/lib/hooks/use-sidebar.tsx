@@ -131,6 +131,15 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 	const [activeCategory, setActiveCategory] = React.useState<number | null>(
 		null,
 	)
+
+	// Debug logging for state changes
+	React.useEffect(() => {
+		console.log('[useSidebar] Active states changed:', {
+			activeCategory,
+			activeChatbot: activeChatbot?.name || 'none',
+			pathname,
+		})
+	}, [activeCategory, activeChatbot, pathname])
 	const [isFilterMode, setIsFilterMode] = React.useState(false)
 	const [filterValue, setFilterValue] = React.useState('')
 	const [selectedChats, setSelectedChats] = React.useState<string[]>([])
@@ -190,11 +199,16 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 						c.chatbot.name.toLowerCase() === domainSlugOrPublicChatbotSlug,
 				)
 				if (chatbot) {
+					console.log(
+						'[useSidebar] Setting active chatbot:',
+						chatbot.chatbot.name,
+					)
 					setActiveChatbot(chatbot.chatbot)
 				} else {
 					setActiveChatbot(null)
 				}
 			} else {
+				console.log('[useSidebar] No chatbot in URL, clearing active chatbot')
 				setActiveChatbot(null)
 			}
 		}

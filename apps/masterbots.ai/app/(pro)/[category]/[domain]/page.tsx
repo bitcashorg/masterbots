@@ -24,7 +24,7 @@ export default async function ChatCategoryPage(props: {
 		(category) => toSlug(category.name) === params.category,
 	)
 
-	return redirect(category ? `/pro/${toSlug(category.name)}` : '/')
+	return redirect(category ? `/${toSlug(category.name)}` : '/')
 }
 
 export async function generateMetadata(props: {

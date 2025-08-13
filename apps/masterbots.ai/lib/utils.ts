@@ -308,20 +308,20 @@ export function numberShortener(number: number): string {
 type RouteType = 'chat' | 'public' | 'profile' | 'pro' | 'bot' | 'org'
 
 export function getRouteType(pathname: string | null): RouteType {
-	if (!pathname || pathname === '/') return 'public'
+	if (!pathname || pathname === '/') return 'pro'
 
 	// ? Normalize the path by converting to lowercase and removing trailing slashes
 	const normalizedPath = pathname.toLowerCase().replace(/\/+$/, '')
 
 	// ? Check for chat routes (starting with /c but not being /career)
 	if (
-		normalizedPath.startsWith('/c') &&
-		normalizedPath !== '/career' &&
-		!normalizedPath.startsWith('/career/') &&
-		normalizedPath !== '/content-creation' &&
-		!normalizedPath.startsWith('/content-creation/')
+		normalizedPath.startsWith('/org') &&
+		normalizedPath !== '/org/career' &&
+		!normalizedPath.startsWith('/org/career/') &&
+		normalizedPath !== '/org/content-creation' &&
+		!normalizedPath.startsWith('/org/content-creation/')
 	) {
-		return 'chat'
+		return 'org'
 	}
 
 	// ? Check for profile routes
@@ -329,13 +329,6 @@ export function getRouteType(pathname: string | null): RouteType {
 		return 'profile'
 	}
 
-	// ? Check for pro routes
-	if (
-		normalizedPath.startsWith('/pro/') ||
-		(normalizedPath.startsWith('/pro') && normalizedPath !== 'prompt')
-	) {
-		return 'pro'
-	}
 	// ? Check for bot routes (starting with /b)
 	if (
 		normalizedPath.startsWith('/b') &&
@@ -345,13 +338,13 @@ export function getRouteType(pathname: string | null): RouteType {
 		return 'bot'
 	}
 
-	// ? Check for public routes
-	const publicRoutes = [/^\/$/, /^\/[^/]+\/[^/]+$/, /^\/[^/]+\/[^/]+\/[^/]+$/]
-	if (publicRoutes.some((route) => route.test(normalizedPath))) {
-		return 'public'
+	// ? Check for pro routes
+	const proRoutes = [/^\/$/, /^\/[^/]+\/[^/]+$/, /^\/[^/]+\/[^/]+\/[^/]+$/]
+	if (proRoutes.some((route) => route.test(normalizedPath))) {
+		return 'pro'
 	}
 
-	return 'public'
+	return 'pro'
 }
 
 export function getRouteColor(

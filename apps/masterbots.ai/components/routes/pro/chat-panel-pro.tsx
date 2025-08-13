@@ -1,6 +1,9 @@
 'use client'
 
-import { uploadWorkspaceDocumentToBucket } from '@/app/actions/thread.actions'
+import {
+	updateThreadDocumentsMetadata,
+	uploadWorkspaceDocumentToBucket,
+} from '@/app/actions/thread.actions'
 import { ChatShareDialog } from '@/components/routes/chat/chat-share-dialog'
 import { PromptForm } from '@/components/routes/chat/prompt-form'
 import { WorkspaceContent } from '@/components/routes/workspace/workspace-content'
@@ -217,6 +220,24 @@ export function ChatPanelPro({
 		setActiveDocumentType,
 	} = useWorkspace()
 
+	// Add debug logging to track ChatPanelPro re-renders
+	useEffect(() => {
+		console.log('🔍 ChatPanelPro re-render detected:', {
+			isWorkspaceActive,
+			activeProject,
+			activeDocument,
+			activeDocumentType,
+			hasDocumentContent: !!documentContent,
+			timestamp: Date.now(),
+		})
+	}, [
+		isWorkspaceActive,
+		activeProject,
+		activeDocument,
+		activeDocumentType,
+		documentContent,
+	])
+
 	// Keep a local mirror for UI only, but source of truth is workspace
 	const documentType =
 		activeDocumentType === 'all' ? 'text' : activeDocumentType
@@ -246,13 +267,33 @@ export function ChatPanelPro({
 			const content = documentContent?.[key] || ''
 			if (!content.trim()) return
 
-			// Create new thread if one doesn't exist
+			// Create new thread if one doesn't exist - Fixed thread creation for workspace mode
 			let threadSlug = activeThread?.slug
 			if (!threadSlug && session?.user?.hasuraJwt && chatbot) {
 				const newThreadId = nanoid(12)
 				const newThreadSlug = `${chatbot.name.toLowerCase().replace(/\s+/g, '-')}-${newThreadId}`
 
 				try {
+					// Include workspace metadata in thread creation
+					const threadMetadata = {
+						documents:
+							activeProject && activeDocument
+								? [
+										{
+											id: activeDocument, // Use document name as ID for now
+											project: activeProject,
+											name: activeDocument,
+											type: docType as 'text' | 'image' | 'spreadsheet',
+											currentVersion: 1,
+											versions: [],
+										},
+									]
+								: [],
+						organization: activeOrganization,
+						department: activeDepartment,
+						isWorkspaceThread: isWorkspaceActive,
+					}
+
 					const createdThread = await createThread({
 						threadId: newThreadId,
 						chatbotId: chatbot.chatbotId,
@@ -265,9 +306,23 @@ export function ChatPanelPro({
 
 					if (createdThread?.threadId) {
 						threadSlug = createdThread.slug || newThreadSlug
-						// Note: We don't set activeThread here as it would require complex Thread type construction
-						// The document will still be saved with the new thread slug
-						refreshActiveThread(createdThread.threadId, session.user.hasuraJwt)
+						// Update the thread with workspace metadata after creation
+						try {
+							await updateThreadDocumentsMetadata({
+								threadSlug,
+								documents: threadMetadata.documents,
+							})
+							// Refresh the active thread to include the new metadata
+							refreshActiveThread(
+								createdThread.threadId,
+								session.user.hasuraJwt,
+							)
+						} catch (metadataError) {
+							console.warn(
+								'Failed to update thread metadata, continuing with document save:',
+								metadataError,
+							)
+						}
 					}
 				} catch (error) {
 					console.error('Failed to create thread for document save:', error)
@@ -764,12 +819,9 @@ Please provide your response now:`
 						<div className="w-full h-[calc(100vh-220px)] bg-background border rounded-md shadow-sm">
 							{/* Removed duplicate document type dropdown. Breadcrumb is source of truth. */}
 							<WorkspaceContent
-								projectName={activeProject}
-								documentName={activeDocument}
-								documentType={documentType}
+								key={`workspace-${activeProject}-${activeDocument}-${activeDocumentType}`}
 								isLoading={isLoading}
 								className="h-[calc(100%-0px)] overflow-auto"
-								onActiveSectionChange={setActiveWorkspaceSection}
 								chatbot={chatbot}
 							/>
 						</div>
@@ -853,13 +905,75 @@ Please provide your response now:`
 									})
 
 									if (isWorkspaceActive) {
-										// In workspace mode, use the workspace chat hook
+										// ISSUE 1 FIX: Workspace mode should create/link thread properly
 										console.log(
 											'🏢 Workspace mode: AI assist requested for document:',
 											activeDocument,
 											'with query:',
 											value,
 										)
+
+										// Ensure thread exists and is linked to workspace
+										const { activeThread, setIsOpenPopup } = useThread()
+
+										// If no active thread exists, create one with workspace metadata
+										if (
+											!activeThread &&
+											activeProject &&
+											session?.user &&
+											chatbot
+										) {
+											console.log(
+												'Creating new thread for workspace interaction...',
+											)
+											try {
+												const newThreadId = nanoid(12)
+												const newThreadSlug =
+													`${activeProject}-${activeDocument || 'workspace'}-${Date.now()}`
+														.toLowerCase()
+														.replace(/[^a-z0-9-]/g, '-')
+
+												const createdThread = await createThread({
+													threadId: newThreadId,
+													chatbotId: chatbot.chatbotId,
+													slug: newThreadSlug,
+													jwt: session.user.hasuraJwt,
+													userId: session.user.id,
+													model: 'OPENAI',
+													isPublic: false,
+												})
+
+												if (createdThread?.threadId) {
+													// Update thread with workspace metadata
+													await updateThreadDocumentsMetadata({
+														threadSlug: createdThread.slug || newThreadSlug,
+														documents: [
+															{
+																id: `${activeProject}:${activeDocument || 'workspace'}`,
+																project: activeProject,
+																name: activeDocument || 'workspace',
+																type: 'text',
+																currentVersion: 1,
+																versions: [],
+															},
+														],
+													})
+
+													// Open popup to show the thread is being created
+													setIsOpenPopup(true)
+
+													console.log(
+														'Thread created and linked to workspace:',
+														createdThread.slug,
+													)
+												}
+											} catch (error) {
+												console.error(
+													'Failed to create workspace thread:',
+													error,
+												)
+											}
+										}
 
 										// Get current document content for meta prompt
 										const documentKey = `${activeProject}:${activeDocument}`
@@ -872,6 +986,24 @@ Please provide your response now:`
 											activeWorkspaceSection,
 										)
 
+										// ISSUE 6 FIX: Connect workspace messages with chat messages
+										// Store the original message in both systems
+										const messageData = {
+											id: nanoid(),
+											content: value,
+											role: 'user' as const,
+											createdAt: new Date(),
+										}
+
+										// Add to main chat context via workspaceAppend
+										if (workspaceAppend) {
+											await workspaceAppend(
+												messageData,
+												prepareMessageOptions(chatOptions),
+											)
+										}
+
+										// Then process workspace edit
 										await workspaceHandleEdit(
 											value,
 											metaPrompt,

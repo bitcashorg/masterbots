@@ -1,6 +1,6 @@
 // Base interfaces with all possible parameters
 export interface BasePersonalPublicUrlParams {
-	type: 'personal' | 'public' | 'pro' | 'bot'
+	type: 'personal' | 'public' | 'pro' | 'bot' | 'org'
 	raw?: boolean
 	category?: string
 	domain?: string

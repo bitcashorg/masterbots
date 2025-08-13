@@ -8,6 +8,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
+import React from 'react'
 
 interface WorkspaceDocumentSelectProps {
 	value: string | null
@@ -44,12 +45,12 @@ export function WorkspaceDocumentSelect({
 	const isDisabled = disabled || !hasOptions
 
 	// Create a key based on options to force rerender when options change
-	const optionsKey = safeOptions.join(',') || 'empty'
+	const componentKey = `${safeOptions.join(',') || 'empty'}-${value || 'no-value'}`
 
 	return (
 		<div className={cn('flex items-center', className)}>
 			<Select
-				key={optionsKey}
+				key={componentKey}
 				value={value || ''}
 				onValueChange={(newValue) => {
 					console.log('[WorkspaceDocumentSelect] Selected document:', newValue)

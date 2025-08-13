@@ -165,11 +165,11 @@ export const urlBuilders = {
 				case 'personal':
 					basePath = 'c'
 					break
-				case 'public':
-					basePath = ''
+				case 'org':
+					basePath = 'org'
 					break
 				case 'pro':
-					basePath = 'pro'
+					basePath = ''
 					break
 				default:
 					if (appConfig.features.devMode)
@@ -228,11 +228,11 @@ export const urlBuilders = {
 				case 'personal':
 					basePath = 'c'
 					break
-				case 'public':
-					basePath = ''
+				case 'org':
+					basePath = 'org'
 					break
 				case 'pro':
-					basePath = 'pro'
+					basePath = ''
 					break
 				default:
 					if (appConfig.features.devMode)
@@ -296,11 +296,11 @@ export const urlBuilders = {
 				case 'personal':
 					basePath = 'c'
 					break
-				case 'public':
-					basePath = ''
+				case 'org':
+					basePath = 'org'
 					break
 				case 'pro':
-					basePath = 'pro'
+					basePath = ''
 					break
 				default:
 					if (appConfig.features.devMode)
@@ -391,11 +391,11 @@ export const urlBuilders = {
 				case 'personal':
 					basePath = 'c'
 					break
-				case 'public':
-					basePath = ''
+				case 'org':
+					basePath = 'org'
 					break
 				case 'pro':
-					basePath = 'pro'
+					basePath = ''
 					break
 				default:
 					if (appConfig.features.devMode)

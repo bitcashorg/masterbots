@@ -79,11 +79,18 @@ export default function ThreadList({
 				)) ||
 			(activeChatbot && thread.chatbot.chatbotId === activeChatbot.chatbotId)
 
+		// ISSUE 2 FIX: Filter threads based on workspace documents from metadata
 		if (routeType !== 'pro' || !activeProject) return sidebarFilter
+
 		const docs = (thread.metadata as { documents?: DocMeta[] } | null)
 			?.documents
 		if (!docs) return sidebarFilter
-		if (activeDocumentType === 'all') return sidebarFilter
+
+		// Show threads that have documents for the active project
+		if (activeDocumentType === 'all') {
+			return sidebarFilter && docs.some((d) => d.project === activeProject)
+		}
+
 		return (
 			sidebarFilter &&
 			docs.some(
