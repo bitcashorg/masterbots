@@ -14,15 +14,9 @@ import { notFound, redirect } from 'next/navigation'
 
 const ThreadPanel = dynamic(
 	() => import('@/components/routes/thread/thread-panel'),
-	{
-		loading: () => <MainContentSkeleton />,
-	},
 )
-const ChatChatbot = dynamic(
-	() => import('@/components/routes/chat/chat').then((mod) => mod.Chat),
-	{
-		loading: () => <ChatPanelSkeleton />,
-	},
+const ChatChatbot = dynamic(() =>
+	import('@/components/routes/chat/chat').then((mod) => mod.Chat),
 )
 
 export default async function BotThreadsPage(props: {

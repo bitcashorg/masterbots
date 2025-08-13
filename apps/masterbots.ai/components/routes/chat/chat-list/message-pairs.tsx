@@ -5,11 +5,13 @@ import {
 	CONTINUE_GENERATION_PROMPT_2,
 } from '@/lib/constants/prompts'
 import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
+import { useOptimisticChat } from '@/lib/hooks/use-optimistic-chat'
 import { useThread } from '@/lib/hooks/use-thread'
 import type { MessagePair } from '@/lib/threads'
 import type { SendMessageFromResponseMessageData } from '@/types/types'
 import { Separator } from '@radix-ui/react-dropdown-menu'
-import type { Chatbot } from 'mb-genql'
+import type { Message as AiMessage } from 'ai'
+import type { Chatbot, Message } from 'mb-genql'
 import { Fragment, useMemo } from 'react'
 
 export type MessagePairsData = {
@@ -46,6 +48,7 @@ export function MessagePairs({
 	) => void
 }) {
 	const { isNewResponse, activeThread } = useThread()
+	const [optimisticState, optimisticActions] = useOptimisticChat()
 
 	// @AndlerRL
 	// ! Previous and Current messages mapping are the same. The only difference is the type of message (previous or current)
@@ -106,7 +109,35 @@ export function MessagePairs({
 	const currentPairsElements = useMemo(() => {
 		const { userMessages, assistantMessages } = messagesData.current
 
-		return userMessages
+		// Merge optimistic messages into userMessages array
+		const allUserMessages = [...userMessages]
+
+		if (optimisticState.optimisticMessages?.length > 0) {
+			for (const optimisticMessage of optimisticState.optimisticMessages) {
+				// Only add if not already in the userMessages array
+				const existsInUserMessages = allUserMessages.some(
+					(message) =>
+						message.messageId === optimisticMessage.messageId ||
+						message.id === optimisticMessage.id,
+				)
+
+				if (!existsInUserMessages) {
+					console.log(
+						'MessagePairs: Adding optimistic message:',
+						optimisticMessage,
+					)
+					allUserMessages.push(optimisticMessage as AiMessage & Message)
+				}
+			}
+
+			// Sort by creation time to maintain chronological order
+			allUserMessages.sort(
+				(a, b) =>
+					new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+			)
+		}
+
+		return allUserMessages
 			.map((userMessage, index) => {
 				const chatGptMessage = assistantMessages[index] || []
 				const pair = { userMessage, chatGptMessage }
@@ -118,7 +149,17 @@ export function MessagePairs({
 					userMessage.content = '(continued...)'
 				}
 
-				if (!chatGptMessage[0] || !userMessage) return null
+				// Don't filter out optimistic messages - they can exist without assistant responses
+				if (!userMessage) return null
+
+				console.log('MessagePairs: Rendering message pair:', {
+					userMessageId: userMessage.id,
+					hasAssistantResponse: chatGptMessage.length > 0,
+					isOptimistic: optimisticState.optimisticMessages?.some(
+						(m) =>
+							m.id === userMessage.id || m.messageId === userMessage.messageId,
+					),
+				})
 
 				const filteredUserAttachments =
 					userAttachments?.filter((attachment) =>
@@ -133,7 +174,7 @@ export function MessagePairs({
 							pair={pair}
 							isThread={isThread}
 							index={index}
-							arrayLength={userMessages.length}
+							arrayLength={allUserMessages.length}
 							isNewResponse={isNewResponse}
 							type="current"
 							chatTitleClass={chatTitleClass}
@@ -141,7 +182,8 @@ export function MessagePairs({
 							sendMessageFn={sendMessageFn}
 							userAttachments={filteredUserAttachments}
 						/>
-						{userMessages.length > 1 && index === userMessages.length - 1 ? (
+						{allUserMessages.length > 1 &&
+						index === allUserMessages.length - 1 ? (
 							<ChatLoadingState key="chat-loading-state" />
 						) : null}
 					</Fragment>
@@ -153,6 +195,7 @@ export function MessagePairs({
 		userAttachments,
 		isThread,
 		isNewResponse,
+		optimisticState,
 		chatTitleClass,
 		chatContentClass,
 	])

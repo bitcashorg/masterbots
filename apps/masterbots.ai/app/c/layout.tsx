@@ -6,29 +6,15 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { BrowseProvider } from '@/lib/hooks/use-browse'
 import dynamic from 'next/dynamic'
 
-const ResponsiveSidebar = dynamic(
-	() =>
-		import('@/components/layout/sidebar/sidebar-responsive').then(
-			(mod) => mod.ResponsiveSidebar,
-		),
-	{
-		loading: () => <SidebarSkeleton />,
-	},
+const ResponsiveSidebar = dynamic(() =>
+	import('@/components/layout/sidebar/sidebar-responsive').then(
+		(mod) => mod.ResponsiveSidebar,
+	),
 )
-const ChatLayoutSection = dynamic(
-	() =>
-		import('@/components/routes/chat/chat-layout-section').then(
-			(mod) => mod.ChatLayoutSection,
-		),
-	{
-		loading: () => (
-			<div className="flex h-screen">
-				<div className="flex-1 mt-16">
-					<Skeleton className="size-full absolute inset-0 z-0 opacity-80" />
-				</div>
-			</div>
-		),
-	},
+const ChatLayoutSection = dynamic(() =>
+	import('@/components/routes/chat/chat-layout-section').then(
+		(mod) => mod.ChatLayoutSection,
+	),
 )
 
 interface ChatLayoutProps {
