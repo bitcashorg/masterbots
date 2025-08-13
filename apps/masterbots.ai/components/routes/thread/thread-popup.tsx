@@ -1,6 +1,7 @@
 'use client'
 
 import { ChatList } from '@/components/routes/chat/chat-list'
+import { ChatListPro } from '@/components/routes/chat/chat-list/chat-list-pro'
 import { ExternalLink } from '@/components/shared/external-link'
 import { ChatPanelSkeleton } from '@/components/shared/skeletons/chat-panel-skeleton'
 import { Button, buttonVariants } from '@/components/ui/button'
@@ -47,6 +48,16 @@ const Pro = dynamic(
 export function ThreadPopup({ className }: { className?: string }) {
 	const { isOpenPopup, activeThread, isNewResponse } = useThread()
 	const [{ allMessages, isLoading }, { sendMessageFromResponse }] = useMBChat()
+	const {
+		activeProject,
+		activeDocumentType,
+		addDocument,
+		setActiveDocument,
+		setDocumentContent,
+		isWorkspaceActive,
+		toggleWorkspace,
+	} = useWorkspace()
+	const { customSonner } = useSonner()
 	const popupContentRef = useRef<HTMLDivElement | null>(null)
 	const threadRef = useRef<HTMLDivElement | null>(null)
 	const pathname = usePathname()
@@ -73,6 +84,7 @@ export function ThreadPopup({ className }: { className?: string }) {
 		routeType === 'profile' ||
 		(routeType === 'bot' && activeThread?.threadId)
 	const isProView = routeType === 'pro'
+	console.log('isProView', isProView)
 	const isBotView = routeType === 'bot'
 	const threadCategory = activeThread?.chatbot.categories?.[0]?.category
 		?.name as string
@@ -119,22 +131,122 @@ export function ThreadPopup({ className }: { className?: string }) {
 					)}
 				>
 					<div ref={threadRef}>
-						<ChatList
-							isThread={false}
-							messages={allMessages}
-							isLoadingMessages={isLoading}
-							sendMessageFn={(
-								messageData: SendMessageFromResponseMessageData,
-								callback?: () => void,
-							) => {
-								scrollToBottom()
-								sendMessageFromResponse(messageData, callback)
-							}}
-							chatContentClass="!border-x-gray-300 md:px-[16px] !mx-0 max-h-[none] dark:!border-x-mirage"
-							className="max-w-full md:px-[32px] !mx-0"
-							chatArrowClass="!right-0 !mr-0"
-							chatTitleClass="!px-2.5"
-						/>
+						{isProView ? (
+							<ChatListPro
+								isThread={false}
+								messages={allMessages}
+								isLoadingMessages={isLoading}
+								sendMessageFn={(
+									messageData: SendMessageFromResponseMessageData,
+									callback?: () => void,
+								) => {
+									scrollToBottom()
+									sendMessageFromResponse(messageData, callback)
+								}}
+								onConvertToDocument={(messageId: string) => {
+									// Handle document conversion in the popup - find the message and convert it
+									const message = allMessages.find((m) => m.id === messageId)
+									if (!message || (message as AiMessage).role !== 'assistant') {
+										console.error(
+											'Message not found or not an assistant message',
+										)
+										return
+									}
+
+									// Find the corresponding user message
+									const userMessage = allMessages.find((m, index) => {
+										// Find user message that comes before this assistant message
+										const assistantIndex = allMessages.findIndex(
+											(msg) => msg.id === messageId,
+										)
+										return (
+											index < assistantIndex && (m as AiMessage).role === 'user'
+										)
+									})
+
+									if (!userMessage) {
+										console.error('Corresponding user message not found')
+										return
+									}
+
+									if (!activeProject) {
+										customSonner({
+											type: 'error',
+											text: 'Please select a project from the breadcrumb navigation first',
+										})
+										return
+									}
+
+									try {
+										// Create document title from user question (first 50 chars)
+										const docTitle =
+											(userMessage as AiMessage).content
+												.substring(0, 50)
+												.replace(/[^\w\s-]/g, '')
+												.trim() || 'New Document'
+
+										// Generate structured markdown from assistant content
+										const structuredContent = createStructuredMarkdown(
+											(message as AiMessage).content,
+										)
+
+										// Add the document to workspace
+										const docType =
+											activeDocumentType === 'all' ? 'text' : activeDocumentType
+										addDocument(
+											activeProject,
+											docTitle,
+											docType as 'text' | 'image' | 'spreadsheet',
+										)
+
+										// Set document content
+										setDocumentContent(
+											activeProject,
+											docTitle,
+											structuredContent,
+										)
+										setActiveDocument(docTitle)
+
+										// Enable workspace mode if not already active
+										if (!isWorkspaceActive) {
+											toggleWorkspace()
+										}
+
+										customSonner({
+											type: 'success',
+											text: `Document "${docTitle}" created successfully!`,
+										})
+									} catch (error) {
+										console.error('Error creating document:', error)
+										customSonner({
+											type: 'error',
+											text: 'Failed to create document',
+										})
+									}
+								}}
+								chatContentClass="!border-x-gray-300 md:px-[16px] !mx-0 max-h-[none] dark:!border-x-mirage"
+								className="max-w-full md:px-[32px] !mx-0"
+								chatArrowClass="!right-0 !mr-0"
+								chatTitleClass="!px-2.5"
+							/>
+						) : (
+							<ChatList
+								isThread={false}
+								messages={allMessages}
+								isLoadingMessages={isLoading}
+								sendMessageFn={(
+									messageData: SendMessageFromResponseMessageData,
+									callback?: () => void,
+								) => {
+									scrollToBottom()
+									sendMessageFromResponse(messageData, callback)
+								}}
+								chatContentClass="!border-x-gray-300 md:px-[16px] !mx-0 max-h-[none] dark:!border-x-mirage"
+								className="max-w-full md:px-[32px] !mx-0"
+								chatArrowClass="!right-0 !mr-0"
+								chatTitleClass="!px-2.5"
+							/>
+						)}
 						{isBrowseView ? (
 							<div className="pt-6 text-center border-t border-t-iron dark:border-t-mirage mt-12 mb-5 lg:mt-20">
 								<ExternalLink

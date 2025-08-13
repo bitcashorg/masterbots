@@ -144,25 +144,81 @@ export function createStructuredMarkdown(text: string): string {
 		return ''
 	}
 
-	// Split text into paragraphs
-	const paragraphs = text.split(/\n{2,}/g).filter((p) => p.trim() !== '')
+	// Clean the input text
+	const cleanText = text.trim()
 
-	// If there's only one paragraph, return it with a single heading
-	if (paragraphs.length === 1) {
-		return `# Document\n\n${paragraphs[0]}`
+	// Check if the text already has good structure (contains multiple ## or ###)
+	const hasGoodStructure = (cleanText.match(/^#{2,3}\s/gm) || []).length >= 2
+	if (hasGoodStructure) {
+		// Just add a main heading if it doesn't have one
+		return cleanText.startsWith('#') ? cleanText : `# Document\n\n${cleanText}`
 	}
 
-	// For multiple paragraphs, create sections
-	let result = ''
-	paragraphs.forEach((paragraph, index) => {
-		// Try to extract a title from the first few words
-		const words = paragraph.split(' ')
-		const possibleTitle = words.slice(0, Math.min(5, words.length)).join(' ')
-		const title =
-			possibleTitle.length > 30 ? `Section ${index + 1}` : possibleTitle
+	// Split by major separators first
+	const majorParts = cleanText.split(/\n---\n|\n={3,}\n/)
+	let result = '# Business Plan\n\n'
 
-		result += `## ${title}\n\n${paragraph}\n\n`
-	})
+	for (const [partIndex, part] of majorParts.entries()) {
+		if (!part.trim()) continue
+
+		const partContent = part.trim()
+
+		// Look for numbered bold sections like "1. **Business Concept**"
+		const numberedSections = partContent.split(/(?=^\d+\.\s*\*\*[^*]+\*\*)/m)
+
+		// Handle the first part (usually intro text before numbered sections)
+		if (numberedSections[0] && !numberedSections[0].match(/^\d+\.\s*\*\*/)) {
+			const introText = numberedSections[0].trim()
+			if (introText) {
+				const sectionTitle = partIndex === 0 ? 'Overview' : 'Introduction'
+				result += `## ${sectionTitle}\n\n${introText}\n\n`
+			}
+			numberedSections.shift() // Remove the intro part
+		}
+
+		// Process numbered sections
+		for (const section of numberedSections) {
+			if (!section.trim()) continue
+
+			// Extract title from numbered bold pattern
+			const titleMatch = section.match(/^\d+\.\s*\*\*([^*]+)\*\*/)
+			if (titleMatch) {
+				const title = titleMatch[1].trim()
+				result += `## ${title}\n\n${section.trim()}\n\n`
+			} else {
+				// Handle sections that start with markdown headers or bold text
+				const lines = section.split('\n')
+				const firstLine = lines[0].trim()
+
+				let title = 'Additional Information'
+
+				// Check for markdown headers
+				const headerMatch = firstLine.match(/^#{1,6}\s+(.+)$/)
+				if (headerMatch) {
+					title = headerMatch[1].trim()
+				}
+				// Check for standalone bold headers
+				else if (firstLine.match(/^\*\*([^*]+)\*\*$/)) {
+					const boldMatch = firstLine.match(/^\*\*([^*]+)\*\*$/)
+					if (boldMatch) {
+						title = boldMatch[1].trim()
+					}
+				}
+				// Check for lines that look like titles (short, no special chars at end except :)
+				else if (
+					firstLine.length < 80 &&
+					firstLine.length > 5 &&
+					!firstLine.includes('?') &&
+					!firstLine.includes('.') &&
+					(firstLine.endsWith(':') || /^[A-Z]/.test(firstLine))
+				) {
+					title = firstLine.replace(':', '').trim()
+				}
+
+				result += `## ${title}\n\n${section.trim()}\n\n`
+			}
+		}
+	}
 
 	return result.trim()
 }

@@ -162,12 +162,10 @@ export const urlBuilders = {
 			let basePath = ''
 
 			switch (type) {
-				case 'personal':
-					basePath = 'c'
-					break
 				case 'org':
 					basePath = 'org'
 					break
+				case 'personal':
 				case 'pro':
 					basePath = ''
 					break
@@ -225,12 +223,10 @@ export const urlBuilders = {
 			let basePath = ''
 
 			switch (type) {
-				case 'personal':
-					basePath = 'c'
-					break
 				case 'org':
 					basePath = 'org'
 					break
+				case 'personal':
 				case 'pro':
 					basePath = ''
 					break
@@ -293,12 +289,10 @@ export const urlBuilders = {
 			let basePath = ''
 
 			switch (type) {
-				case 'personal':
-					basePath = 'c'
-					break
 				case 'org':
 					basePath = 'org'
 					break
+				case 'personal':
 				case 'pro':
 					basePath = ''
 					break
@@ -388,12 +382,10 @@ export const urlBuilders = {
 			let basePath = ''
 
 			switch (type) {
-				case 'personal':
-					basePath = 'c'
-					break
 				case 'org':
 					basePath = 'org'
 					break
+				case 'personal':
 				case 'pro':
 					basePath = ''
 					break

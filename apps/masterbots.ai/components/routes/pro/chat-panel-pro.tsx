@@ -629,7 +629,7 @@ Please provide your response now:`
 		<>
 			<div
 				className={cn(
-					'z-[2] fixed inset-x-0 bottom-0 w-full',
+					'z-10 fixed inset-x-0 bottom-0 w-full',
 					'pb-4',
 					'animate-in duration-300 ease-in-out',
 					'bg-gradient-to-b from-background/50 to-background',
