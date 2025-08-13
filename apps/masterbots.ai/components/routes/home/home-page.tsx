@@ -17,8 +17,14 @@ export default function HomePage({
 
 	useEffect(() => {
 		if (status === 'loading') return
-		setShowOnboarding(!session?.user)
-	}, [session?.user, status])
+		setShowOnboarding((prev) => {
+			//? set based on session
+			if (prev === false && !session?.user && selectedCategories.length === 0) {
+				return true
+			}
+			return prev
+		})
+	}, [session?.user, status, selectedCategories.length])
 
 	//? Show onboarding section for non-logged-in users
 	if (!session?.user) {
