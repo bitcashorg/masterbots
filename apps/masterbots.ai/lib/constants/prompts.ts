@@ -205,8 +205,8 @@ export function setOutputInstructionPrompt(userContent: string): Message {
 		role: 'system',
 		content: `
 	<output_instructions>
-	- Use different heading levels (e.g., H1, H2, H3) and punctuation for better readability.
-	- Use lists when necessary for clarity and organization.
+	- Use different markdown heading levels (from H1 to H4) and punctuation for better readability. Avoid to include the heading level in the heading text.
+	- Use lists when necessary for clarity and organization. Make the text bold for each item list title (i.e.: - **Content One:** This content is about something punctual) if apply.
 	- Analyze the content (attachments) given by the user as context; infer its structure based on the provided data.
 		- If one or more of the content (attachments) has "Thread Context" name on it, deeply analyze the thread context and provide a comprehensive answer based on the user's question.
 	- If relevant or for comparisons, include tables to further structure information and aid comprehension.

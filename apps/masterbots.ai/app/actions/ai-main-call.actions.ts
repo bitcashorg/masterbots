@@ -37,7 +37,7 @@ import {
 	streamText,
 	wrapLanguageModel,
 } from 'ai'
-import { createStreamableValue } from 'ai/rsc'
+import { createStreamableValue, readStreamableValue } from 'ai/rsc'
 import { appConfig } from 'mb-env'
 import type OpenAI from 'openai'
 import type { ZodType, z } from 'zod'
@@ -255,16 +255,18 @@ export async function processWithAiObject({
 			chatbotMetadata,
 		})
 
+		console.log('response::processWithAiObject', response)
+
 		// @ts-ignore
 		const responseObject = response.curr
 
 		// ! Experimental. Use when stable...
 		// for await (const resObj of readStreamableValue(response)) {
-		//   if (!resObj) {
-		//     throw new Error('Failed to process the request, object stream is null')
-		//   }
+		// 	if (!resObj) {
+		// 		throw new Error('Failed to process the request, object stream is null')
+		// 	}
 
-		//   responseObject = resObj
+		// 	responseObject = resObj
 		// }
 
 		if (!responseObject) {
@@ -380,7 +382,7 @@ export async function createResponseStream(
 							maxSteps: 3,
 							tools,
 						}
-				console.log('openAiStreamConfig', openAiStreamConfig)
+				// console.log('openAiStreamConfig', openAiStreamConfig)
 				if (appConfig.features.experimentalAiConfig) {
 					// @ts-ignore: It does exist in the config
 					openAiStreamConfig.experimental_transform = smoothStream({
@@ -459,7 +461,7 @@ export async function createResponseStream(
 				//? Adjust configuration for Gemini 2.0 Flash Exp image generation
 				const isGemini2FlashExp =
 					model === 'gemini-2.0-flash-preview-image-generation'
-				console.log('isGemini2FlashExp -> 🤖 ', isGemini2FlashExp)
+				// console.log('isGemini2FlashExp -> 🤖 ', isGemini2FlashExp)
 
 				//? If using Gemini 2.0 Flash Exp, only use user messages
 				// TODO: Improve adjustedMessages to include system prompts to have the 'user' role.
@@ -539,9 +541,10 @@ export async function createResponseStreamObject(
 	// if (webSearch) tools.webSearch = aiTools.webSearch
 
 	try {
-		const openaiModel = initializeOpenAi(model)
+		// ? Hardcoding to a specific model due to model limitations to temperature 0
+		const openaiModel = initializeOpenAi('gpt-4o-mini')
 		const stream = createStreamableValue()
-		const { partialObjectStream } = streamObject({
+		const streamObjectResponse = streamObject({
 			model: openaiModel,
 			schema,
 			output: 'object',
@@ -549,9 +552,10 @@ export async function createResponseStreamObject(
 		})
 
 		// ? This validates the object stream before to return a object stream
-		for await (const objectStream of partialObjectStream) {
+		for await (const objectStream of streamObjectResponse.partialObjectStream) {
 			if (!objectStream) {
-				throw new Error('Failed to process the request, object stream is null')
+				console.error('Failed to process the request, object stream is null')
+				continue
 			}
 
 			stream.update(objectStream)

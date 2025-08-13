@@ -3,6 +3,9 @@ import { Header } from '@/components/layout/header/header'
 import LayoutClient from '@/components/layout/layout-client'
 import { Providers } from '@/components/layout/providers'
 import { ServiceWorkerRegistration } from '@/components/layout/service-worker-registration'
+import CustomNextStepCard from '@/components/onboarding/custom-nextstep-card'
+import OnboardingCard from '@/components/onboarding/onboarding-card'
+import { Card } from '@/components/ui/card'
 import { Toaster } from '@/components/ui/sonner'
 import { cn } from '@/lib/utils'
 import { GoogleAnalytics } from '@next/third-parties/google'
@@ -12,6 +15,7 @@ import { appConfig } from 'mb-env'
 import type { Metadata } from 'next'
 import Script from 'next/script'
 import NextTopLoader from 'nextjs-toploader'
+import { NextStep, NextStepProvider, type Step } from 'nextstepjs'
 
 export default function RootLayout({ children }: RootLayoutProps) {
 	return (
@@ -37,6 +41,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 				{appConfig.features.topLoader && (
 					<NextTopLoader color="#1ED761" initialPosition={0.2} />
 				)}
+
 				<Providers
 					attribute="class"
 					defaultTheme="system"

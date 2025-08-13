@@ -278,7 +278,7 @@
 		background-origin: border-box;
 		background-clip: content-box, border-box;
 		display: inline-block;
-		transition: all 0.3s ease;
+		transition: all 0.3s ease-in-out;
 	}
 
 	.dark .border-gradient {
@@ -302,8 +302,9 @@
 				rgba(128, 128, 128, 0.2) 100%
 			);
 		background-size: 100% 100%, 200% 100%;
-		background-position: 0 0, 0 0;
-		animation: gradient-shift 3s linear infinite;
+		background-position: 0% 0%, 0% 0%;
+		transition-property: all;
+		animation: gradient-shift 1.5s linear infinite;
 	}
 
 	.dark .border-gradient:hover:not(.pro-card),
@@ -342,11 +343,11 @@
 	}
 
 	@keyframes gradient-shift {
-		0% {
-			background-position: 0 0, 0 0;
+		from {
+			background-position: 0% 0%, 0% 0%;
 		}
-		100% {
-			background-position: 0 0, 200% 0;
+		to {
+			background-position: 0% 0%, 200% 0%;
 		}
 	}
 
@@ -614,7 +615,7 @@
 	background-origin: border-box;
 	background-clip: content-box, border-box;
 	background-size: 100% 100%, 200% 100%;
-	background-position: 0 0, 0 0;
+	background-position: 0% 0%, 0% 0%;
 	animation: pro-gradient-shift 4s linear infinite;
 }
 
@@ -651,10 +652,10 @@
 
 @keyframes pro-gradient-shift {
 	0% {
-		background-position: 0 0, 0 0;
+		background-position: 0% 0%, 0% 0%;
 	}
 	100% {
-		background-position: 0 0, 200% 0;
+		background-position: 0% 0%, 200% 0%;
 	}
 }
 
@@ -852,5 +853,219 @@
 }
 
 .profile-hero-bg {
-	@apply w-full relative bg-center bg-cover bg-[url('/hero-bg.jpg')] bg-no-repeat py-6;
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+/* NextStep Onboarding Custom Styling */
+.nextstep-overlay {
+	background: rgba(0, 0, 0, 0.6) !important;
+	backdrop-filter: blur(2px);
+}
+
+.nextstep-card {
+	background: rgb(255 255 255 / 0.95) !important;
+	border: 2px solid rgb(139 92 246 / 0.3) !important;
+	border-radius: 12px !important;
+	box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px
+		rgba(0, 0, 0, 0.04), 0 0 0 2px rgba(139, 92, 246, 0.2) !important;
+	backdrop-filter: blur(8px) !important;
+	overflow: hidden !important;
+	position: relative !important;
+}
+
+.dark .nextstep-card {
+	background: rgb(9 9 11 / 0.95) !important;
+	border-color: rgb(139 92 246 / 0.4) !important;
+}
+
+/* Route-based theming for onboarding cards */
+[data-route="chat"] .nextstep-card {
+	border-color: rgb(139 92 246 / 0.3) !important;
+	box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px
+		rgba(0, 0, 0, 0.04), 0 0 0 2px rgba(139, 92, 246, 0.2) !important;
+}
+
+[data-route="public"] .nextstep-card {
+	border-color: rgb(34 197 94 / 0.3) !important;
+	box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px
+		rgba(0, 0, 0, 0.04), 0 0 0 2px rgba(34, 197, 94, 0.2) !important;
+}
+
+/* Background pattern for onboarding cards */
+.nextstep-card::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-image: url("/background-light.webp");
+	background-size: cover;
+	background-position: center;
+	opacity: 0.05;
+	z-index: -1;
+}
+
+.dark .nextstep-card::before {
+	background-image: url("/background.webp");
+	opacity: 0.08;
+}
+
+/* Card header styling */
+.nextstep-card .nextstep-card-header {
+	padding: 20px 24px 16px !important;
+	border-bottom: 1px solid rgb(229 231 235 / 0.5) !important;
+}
+
+.dark .nextstep-card .nextstep-card-header {
+	border-bottom-color: rgb(63 63 70 / 0.5) !important;
+}
+
+/* Title styling */
+.nextstep-card .nextstep-card-title {
+	font-size: 18px !important;
+	font-weight: 600 !important;
+	margin-bottom: 4px !important;
+	display: flex !important;
+	align-items: center !important;
+	gap: 8px !important;
+}
+
+[data-route="chat"] .nextstep-card .nextstep-card-title {
+	color: rgb(147 51 234) !important;
+}
+
+[data-route="public"] .nextstep-card .nextstep-card-title {
+	color: rgb(34 197 94) !important;
+}
+
+.dark [data-route="chat"] .nextstep-card .nextstep-card-title {
+	color: rgb(196 181 253) !important;
+}
+
+.dark [data-route="public"] .nextstep-card .nextstep-card-title {
+	color: rgb(134 239 172) !important;
+}
+
+/* Content styling */
+.nextstep-card .nextstep-card-content {
+	padding: 16px 24px 20px !important;
+	font-size: 14px !important;
+	line-height: 1.5 !important;
+	color: rgb(75 85 99) !important;
+}
+
+.dark .nextstep-card .nextstep-card-content {
+	color: rgb(209 213 219) !important;
+}
+
+/* Button styling */
+.nextstep-card .nextstep-card-footer {
+	padding: 16px 24px 20px !important;
+	border-top: 1px solid rgb(229 231 235 / 0.5) !important;
+	display: flex !important;
+	justify-content: space-between !important;
+	align-items: center !important;
+}
+
+.dark .nextstep-card .nextstep-card-footer {
+	border-top-color: rgb(63 63 70 / 0.5) !important;
+}
+
+.nextstep-card .nextstep-button {
+	padding: 8px 16px !important;
+	border-radius: 6px !important;
+	font-size: 14px !important;
+	font-weight: 500 !important;
+	transition: all 0.2s ease !important;
+}
+
+.nextstep-card .nextstep-button-primary {
+	background: rgb(139 92 246) !important;
+	color: white !important;
+	border: none !important;
+}
+
+.nextstep-card .nextstep-button-primary:hover {
+	background: rgb(124 58 237) !important;
+	transform: translateY(-1px) !important;
+}
+
+[data-route="public"] .nextstep-card .nextstep-button-primary {
+	background: rgb(34 197 94) !important;
+}
+
+[data-route="public"] .nextstep-card .nextstep-button-primary:hover {
+	background: rgb(22 163 74) !important;
+}
+
+.nextstep-card .nextstep-button-secondary {
+	background: transparent !important;
+	color: rgb(107 114 128) !important;
+	border: 1px solid rgb(209 213 219) !important;
+}
+
+.nextstep-card .nextstep-button-secondary:hover {
+	background: rgb(249 250 251) !important;
+	border-color: rgb(156 163 175) !important;
+}
+
+.dark .nextstep-card .nextstep-button-secondary {
+	color: rgb(156 163 175) !important;
+	border-color: rgb(75 85 99) !important;
+}
+
+.dark .nextstep-card .nextstep-button-secondary:hover {
+	background: rgb(31 41 55) !important;
+	border-color: rgb(107 114 128) !important;
+}
+
+/* Step indicator */
+.nextstep-card .nextstep-step-indicator {
+	position: absolute !important;
+	top: 16px !important;
+	right: 20px !important;
+	width: 32px !important;
+	height: 32px !important;
+	border-radius: 50% !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	font-size: 12px !important;
+	font-weight: bold !important;
+	color: white !important;
+	z-index: 10 !important;
+}
+
+[data-route="chat"] .nextstep-card .nextstep-step-indicator {
+	background: rgb(139 92 246) !important;
+}
+
+[data-route="public"] .nextstep-card .nextstep-step-indicator {
+	background: rgb(34 197 94) !important;
+}
+
+/* Shine effect */
+.nextstep-card::after {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: -100%;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(
+		90deg,
+		transparent,
+		rgba(255, 255, 255, 0.2),
+		transparent
+	);
+	transition: left 0.8s ease;
+	z-index: 5;
+	pointer-events: none;
+}
+
+.nextstep-card:hover::after {
+	left: 100%;
 }
