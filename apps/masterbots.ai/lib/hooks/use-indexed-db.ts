@@ -3,6 +3,7 @@ import {
 	getUserThreadsMetadata,
 	updateThreadMetadata,
 } from '@/app/actions'
+import { uploadAttachment } from '@/lib/api/attachments'
 import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
 import { prepareThreadAttachmentCheck } from '@/lib/threads'
 import { isEqual, uniqBy } from 'lodash'
@@ -285,23 +286,14 @@ export function useIndexedDB({
 						})
 
 						try {
-							const { data: uploadAttachmentData } = await fetchJson<{
-								data: FileAttachment | null
-								error: string | null
-							}>('/api/attachments/upload', {
-								method: 'POST',
-								body: JSON.stringify({
-									attachment,
-									thread,
-								}),
-								headers: {
-									'Content-Type': 'application/json',
-								},
-							})
+							const { data: uploadAttachmentData, error: uploadError } =
+								await uploadAttachment(attachment, thread)
 
-							if (!uploadAttachmentData) {
-								throw new Error('Failed to upload attachment, no data returned')
+							if (uploadError) {
+								console.error('Failed to upload attachment:', uploadError)
+								continue
 							}
+
 							newAttachments = newAttachments.map((att) => {
 								if (att.id === attachment.id) {
 									return {

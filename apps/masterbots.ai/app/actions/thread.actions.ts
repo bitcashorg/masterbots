@@ -226,8 +226,8 @@ export async function uploadAttachmentToBucket({
 	)
 
 	if (byteSize !== size) {
-		throw new Error(
-			`Attachment size mismatch: expected ${size} bytes, got ${byteSize} bytes`,
+		console.warn(
+			`Careful! Attachment size mismatch: expected ${size} bytes, got ${byteSize} bytes in return.`,
 		)
 	}
 

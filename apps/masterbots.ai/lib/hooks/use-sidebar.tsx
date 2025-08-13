@@ -151,8 +151,6 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 		prevPath.current,
 		userSlug,
 		selectedCategories,
-		setCategories,
-		setSelectedChatbots,
 		session?.user,
 		isCategoryStorageLoaded,
 	])
