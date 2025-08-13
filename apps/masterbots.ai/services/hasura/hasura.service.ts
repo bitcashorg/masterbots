@@ -30,6 +30,7 @@ import type {
 	GetThreadsParams,
 	SaveNewMessageParams,
 	UpdateUserArgs,
+	UpdateUserDArgs,
 	UpsertUserParams,
 } from './hasura.service.type'
 
@@ -1995,5 +1996,53 @@ export const deleteMessages = async (
 			success: false,
 			error: error instanceof Error ? error.message : 'Unknown error',
 		}
+	}
+}
+
+export async function updateUser({
+	userId,
+	email,
+	username,
+	slug,
+	jwt,
+}: {
+	userId: string | undefined
+	email: string | null
+	username: string | null
+	slug: string | null
+	jwt: string | undefined
+}) {
+	try {
+		if (!jwt) {
+			throw new Error('Authentication required to update user')
+		}
+
+		const client = getHasuraClient({ jwt })
+
+		// Build update arguments based on non-null values
+		const updateArgs: UpdateUserDArgs = {
+			pkColumns: { userId },
+		}
+
+		updateArgs._set = {
+			// ...(email !== null && { email }),
+			...(username !== null && { username }),
+			...(slug !== null && { slug }),
+		}
+
+		await client.mutation({
+			updateUserByPk: {
+				__args: updateArgs,
+				userId: true,
+				email: true,
+				username: true,
+				slug: true,
+			},
+		})
+
+		return { success: true }
+	} catch (error) {
+		console.error('Error updating user:', error)
+		return { success: false, error: "Failed to update user's details" }
 	}
 }
