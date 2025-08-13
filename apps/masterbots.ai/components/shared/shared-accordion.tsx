@@ -70,7 +70,7 @@ export function SharedAccordion({
 	const pathname = usePathname()
 	const params = useParams()
 	const accordionRef = useRef<HTMLDivElement>(null)
-	const isPublic = !/^\/(?:c|u)(?:\/|$)/.test(pathname)
+	const isPro = !/^\/(?:c|u)(?:\/|$)/.test(pathname)
 	// Handle profile page routing
 	const profilePage = /^\/u\/[^/]+\/t(?:\/|$)/.test(pathname)
 	// Handle bot page routing i.e.: /b/:chatbotName
@@ -157,8 +157,8 @@ export function SharedAccordion({
 
 		const fullThread = await getThread({
 			threadId: thread.threadId,
-			isPersonal: !isPublic,
-			jwt: !isPublic ? session?.user?.hasuraJwt : '',
+			isPersonal: isPro,
+			jwt: isPro ? session?.user?.hasuraJwt : '',
 			signal: abortController.signal,
 		})
 
@@ -206,7 +206,7 @@ export function SharedAccordion({
 				urlType: 'threadUrl',
 				shallow: true,
 				navigationParams: {
-					type: isPublic ? 'public' : 'personal',
+					type: isPro ? 'personal' : 'public',
 					category: fullThread?.chatbot?.categories[0]?.category?.name || 'AI',
 					domain: canonicalDomain,
 					chatbot: fullThread?.chatbot?.name || 'Masterbots',

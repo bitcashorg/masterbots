@@ -215,6 +215,12 @@ function ThreadPopUpCardHeader({
 		messages.length >= 2 &&
 		messages.filter((m) => (m as AiMessage).role === 'assistant').length === 1
 
+	// ISSUE 4 FIX: Show workspace mode indicator when no thread exists but user started creating document
+	const showWorkspaceMode =
+		isProView && (isWorkspaceActive || (!activeThread && activeProject))
+	const showCreateDocument =
+		hasFirstAssistantMessage && !isBrowseView && activeProject
+
 	const handleCreateDocument = async () => {
 		// Get the user question (first user message) and assistant answer (first assistant message)
 		const userMessage = messages.find(
@@ -387,6 +393,19 @@ function ThreadPopUpCardHeader({
 		<div className="relative rounded-t-[8px] px-2.5 md:px-[32px] py-[20px] dark:bg-[#1E293B] bg-[#E4E4E7]">
 			<div className="flex items-center justify-between gap-6">
 				<div className="items-center block overflow-y-auto whitespace-pre-line max-h-28 scrollbar small-thumb">
+					{/* ISSUE 4 FIX: Show workspace mode indicator */}
+					{showWorkspaceMode && (
+						<div className="flex items-center gap-2 mb-2">
+							<div className="w-2 h-2 bg-blue-500 rounded-full" />
+							<span className="text-sm text-blue-600 font-medium">
+								Workspace Mode
+								{activeProject && ` - ${activeProject}`}
+								{activeThread?.metadata?.documents &&
+									activeThread.metadata.documents.length > 0 &&
+									` (${activeThread.metadata.documents.length} document${activeThread.metadata.documents.length > 1 ? 's' : ''})`}
+							</span>
+						</div>
+					)}
 					{threadTitle ? (
 						threadTitleChunks.length > 32 ? (
 							`${threadTitleHeading}`
@@ -405,7 +424,7 @@ function ThreadPopUpCardHeader({
 
 				<div className="flex items-center gap-4">
 					{/* Create Document button for first assistant message */}
-					{hasFirstAssistantMessage && !isBrowseView && (
+					{showCreateDocument && (
 						<Button
 							type="button"
 							variant="outline"

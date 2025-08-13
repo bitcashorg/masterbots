@@ -111,6 +111,15 @@ export function SidebarLink({
 	const isSelected = selectedCategories.includes(category.categoryId)
 	const isPro = routeType === 'pro'
 
+	// Debug logging for active states
+	console.log(`[SidebarLink] ${category.name}:`, {
+		isActive,
+		isSelected,
+		activeCategory,
+		categoryId: category.categoryId,
+		routeType,
+	})
+
 	const categoryContent = (
 		<>
 			{isFilterMode && (
@@ -169,7 +178,7 @@ export function SidebarLink({
 					})
 		}
 
-		const fallbackUrl = isPro ? '/pro' : isPublic ? '/' : '/c'
+		const fallbackUrl = isPro ? '/' : isPublic ? '/org' : '/c'
 
 		// For personal routes
 		return category.categoryId && isNewCategory
@@ -298,6 +307,13 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(
 		)
 
 		const isSelected = selectedChatbots.includes(chatbot.chatbotId)
+
+		// Debug logging for chatbot active states
+		console.log(`[ChatbotComponent] ${chatbot.name}:`, {
+			isActive,
+			isSelected,
+			chatbotId: chatbot.chatbotId,
+		})
 
 		// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 		const handleCheckboxChange = useCallback(() => {

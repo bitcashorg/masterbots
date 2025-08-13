@@ -45,25 +45,22 @@ const WorkspaceContext = React.createContext<WorkspaceContextType | undefined>(
 )
 
 export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
-	const [isWorkspaceActive, setIsWorkspaceActive] = React.useState(true)
+	const [isWorkspaceActive, setIsWorkspaceActive] = React.useState(false)
 	const [activeOrganization, setActiveOrganization] = React.useState<
 		string | null
-	>('Company 1')
+	>(null) // ISSUE 5 FIX: No default selection
 	const [activeDepartment, setActiveDepartment] = React.useState<string | null>(
-		'General & Admin',
+		null, // ISSUE 5 FIX: No default selection
 	)
 	const [activeProject, setActiveProject] = React.useState<string | null>(
-		'Project 1A',
+		null, // ISSUE 5 FIX: No default selection
 	)
 	const [activeDocument, setActiveDocument] = React.useState<string | null>(
-		'Proposal',
+		null, // ISSUE 5 FIX: No document should be selected by default
 	)
-	// New: selected document type filter for the workspace (breadcrumb)
 	const [activeDocumentType, setActiveDocumentType] = React.useState<
 		'all' | 'text' | 'image' | 'spreadsheet'
 	>('all')
-
-	// Static -> stateful datasets to enable dynamic additions
 	const [organizationList, setOrganizationList] = React.useState<string[]>([
 		'Company 1',
 		'Company 2',
@@ -232,14 +229,126 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 			if (type === 'text') updater(setTextDocuments)
 			if (type === 'image') updater(setImageDocuments)
 			if (type === 'spreadsheet') updater(setSpreadsheetDocuments)
+
+			// Initialize document with type-appropriate content
+			const documentKey = `${project}:${name}`
+			let initialContent = ''
+
+			switch (type) {
+				case 'text':
+					initialContent = `# ${name}
+This is a new text document for ${project}.
+
+## Overview
+Document overview and purpose.
+
+## Details
+Detailed content goes here.
+
+## Conclusion
+Summary and next steps.
+`
+					break
+				case 'image':
+					initialContent = `# ${name}
+Visual assets and images for ${project}.
+
+## Image Collection
+Collection of images related to this document.
+
+## Design Assets
+Brand and design materials.
+
+## Reference Materials
+Reference images and inspiration.
+`
+					break
+				case 'spreadsheet':
+					initialContent = `# ${name}
+Data and analysis for ${project}.
+
+## Data Overview
+Summary of data sources and structure.
+
+## Key Metrics
+Important measurements and KPIs.
+
+## Analysis
+Data analysis and insights.
+`
+					break
+			}
+
+			// Set the initial content
+			setDocumentContentState((prev) => ({
+				...prev,
+				[documentKey]: initialContent,
+			}))
 		},
 		[],
 	)
 
-	// Initial document content
+	// Initial document content with sample content for different types
 	const [documentContent, setDocumentContentState] = React.useState<
 		Record<string, string>
-	>({})
+	>(() => {
+		// Initialize with some sample content for demonstration
+		const initialContent: Record<string, string> = {}
+
+		// Add sample text document content
+		initialContent['Project 1A:Proposal'] = `# Project Proposal
+This document outlines the project proposal with key objectives and deliverables.
+
+## Executive Summary
+Brief overview of the project goals and expected outcomes.
+
+## Scope of Work
+Detailed description of tasks and responsibilities.
+
+## Timeline
+Project milestones and delivery schedule.
+
+## Budget
+Cost breakdown and resource allocation.
+`
+
+		// Add sample image document content
+		initialContent['Campaign A:Assets'] = `# Visual Assets Collection
+This document manages visual assets for the Campaign A project.
+
+## Brand Assets
+Logo variations, brand colors, and typography guidelines.
+
+## Marketing Materials
+Banner designs, social media graphics, and promotional materials.
+
+## Product Images
+High-resolution product photos and lifestyle shots.
+
+## Design Variations
+Different design concepts and A/B testing materials.
+`
+
+		// Add sample spreadsheet document content
+		initialContent['Budget 2024:Financial Projections'] =
+			`# Financial Projections 2024
+This document contains financial data and projections for 2024.
+
+## Revenue Forecasting
+Monthly and quarterly revenue projections based on market analysis.
+
+## Expense Tracking
+Detailed breakdown of operational costs and budget allocations.
+
+## Performance Metrics
+Key performance indicators and financial health metrics.
+
+## Risk Analysis
+Financial risk assessment and mitigation strategies.
+`
+
+		return initialContent
+	})
 
 	// Function to set document content
 	const setDocumentContent = React.useCallback(
@@ -264,72 +373,29 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 				}
 			})
 
-			// Only update navigation state if we're not already on the correct project/document
-			// This prevents infinite loops when updating content for the currently active document
-			if (project !== activeProject || document !== activeDocument) {
-				console.log('📋 Navigation update needed for setDocumentContent:', {
-					currentProject: activeProject,
-					targetProject: project,
-					currentDocument: activeDocument,
-					targetDocument: document,
-				})
+			// Simplified navigation state updates - always update to ensure UI reflects current state
+			console.log('📋 Navigation update for setDocumentContent:', {
+				currentProject: activeProject,
+				targetProject: project,
+				currentDocument: activeDocument,
+				targetDocument: document,
+			})
 
-				// Use a debounced update approach with multiple checks
-				// This prevents cascading updates and infinite loops
-				let updateCancelled = false
-
-				// First check if we need to activate the workspace
-				if (!isWorkspaceActive) {
-					requestAnimationFrame(() => {
-						if (!updateCancelled) {
-							setIsWorkspaceActive(true)
-						}
-					})
-				}
-
-				// Batch the navigation updates using requestAnimationFrame
-				const updateNavigationFrame = requestAnimationFrame(() => {
-					if (updateCancelled) return
-
-					// Update project if needed, with strict equality check
-					const projectNeedsUpdate = project !== activeProject
-					if (projectNeedsUpdate) {
-						console.log(
-							'Updating active project in setDocumentContent:',
-							project,
-						)
-						setActiveProject(project)
-					}
-
-					// Use nested frame for document update to ensure it happens after project update settles
-					const documentUpdateFrame = requestAnimationFrame(() => {
-						if (updateCancelled) return
-
-						// Update document if needed, with strict equality check
-						const documentNeedsUpdate = document !== activeDocument
-						if (documentNeedsUpdate) {
-							console.log(
-								'Updating active document in setDocumentContent:',
-								document,
-							)
-							setActiveDocument(document)
-						}
-					})
-
-					// Clean up document frame on component unmount
-					return () => {
-						cancelAnimationFrame(documentUpdateFrame)
-					}
-				})
-
-				// Return cleanup function to cancel all pending updates if component unmounts
-				return () => {
-					updateCancelled = true
-					cancelAnimationFrame(updateNavigationFrame)
-				}
+			// Activate workspace if needed
+			if (!isWorkspaceActive) {
+				setIsWorkspaceActive(true)
 			}
-			// No navigation update needed - already on target document
-			console.log('📋 No navigation update needed - already on target document')
+
+			// Update project and document states directly
+			if (project !== activeProject) {
+				console.log('Updating active project in setDocumentContent:', project)
+				setActiveProject(project)
+			}
+
+			if (document !== activeDocument) {
+				console.log('Updating active document in setDocumentContent:', document)
+				setActiveDocument(document)
+			}
 		},
 		[isWorkspaceActive, activeProject, activeDocument],
 	)
@@ -521,46 +587,6 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 		],
 	)
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-	const value = React.useMemo(
-		() => ({
-			projectList,
-			documentList,
-			activeProject,
-			textDocuments,
-			imageDocuments,
-			activeDocument,
-			departmentList: departmentsByOrg,
-			projectsByDept,
-			documentContent,
-			activeDepartment,
-			organizationList,
-			isWorkspaceActive,
-			activeOrganization,
-			spreadsheetDocuments,
-			activeDocumentType,
-			...stableSetters,
-			setDocumentContent,
-		}),
-		[
-			isWorkspaceActive,
-			activeOrganization,
-			activeDepartment,
-			activeProject,
-			activeDocument,
-			organizationList,
-			departmentsByOrg,
-			projectList,
-			textDocuments,
-			imageDocuments,
-			spreadsheetDocuments,
-			projectsByDept,
-			documentContent,
-			stableSetters,
-			activeDocumentType,
-		],
-	)
-
 	// Persistence constants
 	const PERSIST_KEY = 'mb.workspace.v1'
 	const [hydrated, setHydrated] = React.useState(false)
@@ -700,7 +726,27 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 	])
 
 	return (
-		<WorkspaceContext.Provider value={value}>
+		<WorkspaceContext.Provider
+			value={{
+				projectList,
+				documentList,
+				activeProject,
+				textDocuments,
+				imageDocuments,
+				activeDocument,
+				departmentList: departmentsByOrg,
+				projectsByDept,
+				documentContent,
+				activeDepartment,
+				organizationList,
+				isWorkspaceActive,
+				activeOrganization,
+				spreadsheetDocuments,
+				activeDocumentType,
+				...stableSetters,
+				setDocumentContent,
+			}}
+		>
 			{children}
 		</WorkspaceContext.Provider>
 	)

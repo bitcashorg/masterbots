@@ -145,7 +145,7 @@ export function Header() {
 	const preserveContextNavigation = (e: React.MouseEvent) => {
 		//! The URL will be built with the current context
 	}
-	const publicUrl = '/'
+	const proUrl = '/'
 	const personalUrl = '/c'
 
 	const pathname = usePathname()
@@ -243,7 +243,7 @@ export function Header() {
 		setDocumentName('')
 
 		// Redirect to the pro workspace mode with the new document
-		router.push('/pro')
+		// router.push('/')
 	}
 
 	const Crumb = ({
@@ -336,7 +336,7 @@ export function Header() {
 				{/* Navigation links - Hidden on mobile */}
 				<div className="flex items-center gap-1 ml-2.5">
 					<HeaderLink
-						href="/pro"
+						href={proUrl}
 						onClick={resetNavigation}
 						text="Pro"
 						className={cn({
@@ -344,7 +344,7 @@ export function Header() {
 						})}
 					/>
 					<HeaderLink
-						href={publicUrl}
+						href="/org"
 						onClick={resetNavigation}
 						text="Org"
 						className={cn({
