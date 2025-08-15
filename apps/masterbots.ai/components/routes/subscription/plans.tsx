@@ -40,7 +40,7 @@ import type React from 'react'
 import { useState } from 'react'
 import { useAsync } from 'react-use'
 
-export function Plans({ next, goTo }: PlansPros) {
+export function Plans({ next, goTo, close }: PlansPros) {
 	const {
 		handlePlan,
 		handleSetSecret,
@@ -115,8 +115,9 @@ export function Plans({ next, goTo }: PlansPros) {
 	}
 
 	const handleCloseWizard = async () => {
-		const del = await handleDeleteCustomer(email)
-		if (del) return router.push('/c')
+		close()
+		// const del = await handleDeleteCustomer(email)
+		// if (del) return router.push('/c')
 	}
 
 	const handlePromoCodeSubmit = async () => {
@@ -224,7 +225,8 @@ export function Plans({ next, goTo }: PlansPros) {
 				{/* Free Plan Card */}
 				{plans?.find((plan) => plan.unit_amount === 0) &&
 					(() => {
-						const freePlan = plans.find((plan) => plan.unit_amount === 0)!
+						const freePlan = plans.find((plan) => plan.unit_amount === 0)
+						if (!freePlan) return null
 						return (
 							<PlanCard
 								key={freePlan.id}

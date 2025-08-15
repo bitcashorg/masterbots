@@ -38,7 +38,7 @@ export function ImageGenerationToggle() {
 			<TooltipTrigger asChild>
 				<div>
 					<Checkbox
-						custom
+						custom="true"
 						id="image-generation-toggle"
 						checked={isImageGeneration}
 						onClick={handleToggle}

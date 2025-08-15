@@ -45,6 +45,7 @@ export async function POST(req: NextRequest) {
 			})
 		}
 		//? Create a subscription with the provided plan ID and trial period
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		const subscriptionData: any = {
 			customer: customer.id,
 			items: [

@@ -70,7 +70,10 @@ export function OnboardingChatbotDetails({
 
 				<CardContent className="space-y-6 px-4">
 					<MemoizedReactMarkdown
-						className="pt-2.5 max-w-[calc(100%-160px)] text-base text-black dark:text-white min-h-24"
+						className={cn(
+							'pt-2.5 max-w-[calc(100%-160px)] text-base text-black dark:text-white min-h-24 onboarding-chatbot-card__content',
+							isWelcomeView && 'onboarding-chatbot-card__content--welcome',
+						)}
 						components={memoizedMarkdownComponents()}
 					>
 						{isWelcomeView

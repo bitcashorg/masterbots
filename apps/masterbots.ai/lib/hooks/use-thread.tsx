@@ -2,7 +2,12 @@
 
 import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
-import { getChatbots, getChatbotsCount, getUserBySlug } from '@/services/hasura'
+import {
+	getChatbots,
+	getChatbotsCount,
+	getUserBySlug,
+	refreshThreadAfterMetadataUpdate,
+} from '@/services/hasura'
 import type { AiToolCall, ChatLoadingState } from '@/types/types'
 import type { Chatbot, Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
@@ -30,6 +35,10 @@ interface ThreadContext {
 	setIsNewResponse: React.Dispatch<React.SetStateAction<boolean>>
 	getRandomChatbot: () => void
 	setShouldRefreshThreads: React.Dispatch<React.SetStateAction<boolean>>
+	refreshActiveThread: (
+		threadId: string,
+		jwt?: string,
+	) => Promise<Thread | null>
 }
 
 const ThreadContext = React.createContext<ThreadContext | undefined>(undefined)
@@ -198,6 +207,24 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
 		setState({ webSearch: !state || !webSearch })
 	}
 
+	const refreshActiveThread = async (threadId: string, jwt?: string) => {
+		try {
+			const result = await refreshThreadAfterMetadataUpdate({ threadId, jwt })
+
+			if (result.success && result.thread) {
+				// Update the activeThread state with the refreshed data
+				setActiveThread(result.thread)
+				return result.thread
+			}
+
+			console.error('Failed to refresh active thread:', result.error)
+			return null
+		} catch (error) {
+			console.error('Error refreshing active thread:', error)
+			return null
+		}
+	}
+
 	return (
 		<ThreadContext.Provider
 			value={{
@@ -221,6 +248,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
 				setActiveTool,
 				setLoadingState,
 				setWebSearch,
+				refreshActiveThread,
 			}}
 		>
 			{children}

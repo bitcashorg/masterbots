@@ -10,13 +10,14 @@ const Checkbox = ({
 	...props
 }: CheckboxPrimitive.CheckboxProps &
 	React.RefAttributes<HTMLButtonElement> & {
-		custom?: boolean
+		custom?: string
 		checkboxconfig?: {
 			check?: React.ReactNode
 			uncheck?: React.ReactNode
 			indeterminate?: React.ReactNode
 		}
 	}) => {
+	const custom = Boolean(props?.custom)
 	return (
 		<CheckboxPrimitive.Root
 			ref={props.ref}
@@ -27,13 +28,13 @@ const Checkbox = ({
 			{...props}
 		>
 			<CheckboxPrimitive.Indicator
-				forceMount={props?.custom || undefined}
-				asChild={props?.custom || undefined}
+				forceMount={custom || undefined}
+				asChild={custom || undefined}
 				className={cn(
 					'flex relative items-center justify-center text-current h-full transition-opacity',
 				)}
 			>
-				{props?.custom && props?.checkboxconfig ? (
+				{custom && props?.checkboxconfig ? (
 					<div>
 						<span className="flex items-center transition-all opacity-0 group-data-[state=checked]:opacity-100 group-data-[state=checked]:relative absolute origin-right">
 							{props?.checkboxconfig?.check}

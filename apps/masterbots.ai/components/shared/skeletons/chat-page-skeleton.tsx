@@ -16,6 +16,7 @@ export function SidebarSkeleton() {
 				<Skeleton className="w-full h-10" />
 				<div className="space-y-2">
 					{Array.from({ length: 8 }).map((_, i) => (
+						// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
 						<div key={i} className="flex items-center p-4 space-x-4">
 							<div className="space-y-2">
 								<Skeleton className="h-4 w-[200px]" />
