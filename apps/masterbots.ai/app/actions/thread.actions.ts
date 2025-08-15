@@ -439,3 +439,102 @@ export async function updateThreadDocumentsMetadata({
 		.returning()
 	return { success: true }
 }
+
+/**
+ * Get all threads with workspace documents metadata for a user
+ */
+export async function getUserThreadsWithDocuments(userId: string) {
+	const results = await db
+		.select({
+			threadId: thread.threadId,
+			slug: thread.slug,
+			metadata: thread.metadata,
+			chatbotId: thread.chatbotId,
+			createdAt: thread.createdAt,
+			updatedAt: thread.updatedAt,
+		})
+		.from(thread)
+		.where(
+			sql`${thread.userId} = ${userId} 
+			AND ${thread.metadata} IS NOT NULL 
+			AND ${thread.metadata}::jsonb ? 'documents'
+			AND jsonb_array_length(${thread.metadata}::jsonb->'documents') > 0`,
+		)
+		.orderBy(sql`${thread.updatedAt} DESC`)
+
+	return results.map((result) => ({
+		...result,
+		documents: (result.metadata as ThreadMetadataFull)?.documents || [],
+	}))
+}
+
+/**
+ * Extract unique workspace breadcrumb data from user threads
+ */
+export async function getUserWorkspaceBreadcrumbs(userId: string) {
+	const threadsWithDocs = await getUserThreadsWithDocuments(userId)
+
+	const organizations = new Set<string>()
+	const departments = new Set<string>()
+	const projects = new Set<string>()
+	const documentsByProject: Record<string, string[]> = {}
+	const threadsWithDocuments: Array<{
+		threadId: string
+		slug: string
+		documents: WorkspaceDocumentMetadata[]
+	}> = []
+
+	for (const threadData of threadsWithDocs) {
+		const documents = threadData.documents as WorkspaceDocumentMetadata[]
+
+		if (documents && documents.length > 0) {
+			threadsWithDocuments.push({
+				threadId: threadData.threadId,
+				slug: threadData.slug,
+				documents: documents,
+			})
+
+			// Process each document to extract project and document names
+			for (const doc of documents) {
+				projects.add(doc.project)
+
+				if (!documentsByProject[doc.project]) {
+					documentsByProject[doc.project] = []
+				}
+
+				if (!documentsByProject[doc.project].includes(doc.name)) {
+					documentsByProject[doc.project].push(doc.name)
+				}
+			}
+		}
+
+		// Extract organization and department from thread metadata if available
+		// Note: This assumes the thread metadata might contain organization info
+		// If not available, we'll use default values
+		interface ThreadMetadataWithOrg extends ThreadMetadataFull {
+			organization?: string
+			department?: string
+		}
+		const orgInfo = (threadData.metadata as ThreadMetadataWithOrg)?.organization
+		const deptInfo = (threadData.metadata as ThreadMetadataWithOrg)?.department
+
+		if (orgInfo) organizations.add(orgInfo)
+		if (deptInfo) departments.add(deptInfo)
+	}
+
+	// Create default organization/department structure if none found
+	if (organizations.size === 0) {
+		organizations.add('My Organization')
+	}
+	if (departments.size === 0) {
+		departments.add('General')
+	}
+
+	return {
+		organizations: Array.from(organizations),
+		departments: Array.from(departments),
+		projects: Array.from(projects),
+		documentsByProject,
+		threadsWithDocuments: threadsWithDocuments,
+	}
+}
