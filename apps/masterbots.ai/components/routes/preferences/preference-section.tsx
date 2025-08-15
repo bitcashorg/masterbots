@@ -17,20 +17,25 @@ import {
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { IconSpinner } from '@/components/ui/icons'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { useProfile } from '@/lib/hooks/use-profile'
 import { useSonner } from '@/lib/hooks/useSonner'
 import { cn } from '@/lib/utils'
 import {
 	deleteUserMessagesAndThreads,
 	updatePreferences,
+	updateUser,
 	updateUserDeletionRequest,
 } from '@/services/hasura'
 import type { PreferenceSectionProps } from '@/types/types'
 import { AArrowDown, AArrowUp, Plus } from 'lucide-react'
 import type { PreferenceSetInput } from 'mb-genql'
+import { toSlug } from 'mb-lib'
 import { signOut, useSession } from 'next-auth/react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAsyncFn } from 'react-use'
 import { PreferenceItemTitle } from './preference-item'
 
@@ -44,6 +49,19 @@ export function PreferenceSection({
 	const [buttonType, setButtonType] = useState('')
 	const { data: session } = useSession()
 	const { customSonner } = useSonner()
+	const { currentUser, getUserInfo, updateUserDetails } = useProfile()
+	const [errorMessage, setErrorMessage] = useState('')
+	const [isLoading, setIsLoading] = useState(false)
+	const [inputValue, setInputValue] = useState({ username: '', email: '' })
+
+	useEffect(() => {
+		if (currentUser) {
+			setInputValue({
+				username: currentUser.username || '',
+				email: currentUser.email || '',
+			})
+		}
+	}, [currentUser])
 
 	function executeButton(buttonText: string) {
 		setDeleteDialogOpen(true)
@@ -201,6 +219,57 @@ export function PreferenceSection({
 		})
 	}
 
+	function updateInput(
+		inputId: string | undefined,
+		e: React.ChangeEvent<HTMLInputElement>,
+	) {
+		if (!inputId) return
+
+		const value = e.target.value
+		setInputValue((prev) => ({ ...prev, [inputId]: value }))
+
+		if (inputId === 'username') {
+			const usernameRegex = /^[a-zA-Z0-9_]{3,24}$/
+
+			if (!usernameRegex.test(value)) {
+				setErrorMessage(
+					'Username must be 3–24 characters and contain only letters, numbers, or underscores.',
+				)
+				console.log('Invalid username format:', value)
+				return
+			}
+		}
+		setErrorMessage('')
+	}
+
+	async function handleUpdateProfile() {
+		if (!session?.user) {
+			customSonner({
+				type: 'error',
+				text: 'User must be authenticated to update profile.',
+			})
+			return
+		}
+		// if it's the seesion user, update the profile
+		if (session.user.slug !== currentUser?.slug) {
+			customSonner({
+				type: 'error',
+				text: `You must be logged in as ${currentUser?.slug} to update your profile.`,
+			})
+			return
+		}
+		setIsLoading(true)
+		const { username, email } = inputValue
+		const slug = toSlug(username)
+
+		await updateUserDetails(email, username, slug)
+		customSonner({
+			type: 'success',
+			text: 'Profile updated successfully.',
+		})
+		setIsLoading(false)
+	}
+
 	return (
 		<>
 			<AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
@@ -238,6 +307,9 @@ export function PreferenceSection({
 					<AccordionContent>
 						<Card className="bg-transparent border-mirage">
 							<CardContent className="flex flex-col items-center justify-center w-full px-4 py-8 gap-y-4">
+								<div>
+									<span className="text-red-700">{errorMessage}</span>
+								</div>
 								{items.map((item, idx) => (
 									<div
 										key={item.title}
@@ -246,10 +318,36 @@ export function PreferenceSection({
 											idx === items.length - 1 ? 'border-none' : '',
 										)}
 									>
-										<PreferenceItemTitle
-											title={item.title}
-											description={item.description}
-										/>
+										{title === 'User profile' && item.type === 'input' ? (
+											<div className="space-y-2 w-full">
+												<Label htmlFor="password">
+													{item.props?.inputName}
+												</Label>
+												<div className="relative w-full">
+													<Input
+														type="text"
+														className="w-full h-10 rounded-md dark:text-white text-black px-3"
+														placeholder={item.props?.inputPlaceholder || ''}
+														value={
+															inputValue[
+																item.props?.inputId as keyof typeof inputValue
+															] || ''
+														}
+														name={item.props?.inputId}
+														onChange={(e) =>
+															updateInput(item.props?.inputId, e)
+														}
+													/>
+												</div>
+											</div>
+										) : null}
+										{item.type !== 'input' && (
+											<PreferenceItemTitle
+												title={item.title}
+												description={item.description}
+											/>
+										)}
+
 										{item.type === 'switch' && (
 											<Switch
 												defaultChecked={
@@ -307,6 +405,22 @@ export function PreferenceSection({
 													<item.icon className="mr-1 size-4" />
 												)}
 												{'buttonText' in item && item.buttonText}
+											</Button>
+										)}
+										{item.type === 'profileButton' && (
+											<Button
+												onClick={() => handleUpdateProfile()}
+												disabled={isLoading || !currentUser}
+												id={item.props?.buttonId}
+												className="p-2 text-sm  min-h-9"
+											>
+												{'icon' in item && item.icon && (
+													<item.icon className="mr-1 size-4" />
+												)}
+												{isLoading ? (
+													<IconSpinner className="mr-1 size-4 animate-spin" />
+												) : null}
+												{item.props?.buttonText || 'Update Profile'}
 											</Button>
 										)}
 									</div>
