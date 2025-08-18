@@ -1,6 +1,7 @@
+import OgBgImage from '@/components/shared/og-bg-image'
 import type { Thread } from 'mb-genql'
 
-interface OgImageProps {
+export interface OgImageProps {
 	thread?: Partial<Thread>
 	question?: string
 	answer?: string
@@ -14,15 +15,6 @@ interface OgImageProps {
 	domain?: string
 	description?: string
 	title?: string
-}
-
-// Helper to get the correct OG background image
-const getOgBgImage = (ogType: OgImageProps['ogType']) => {
-	if (ogType === 'bot_thread') return '/og-mb-images/bot_thread.png'
-	if (ogType === 'user_thread') return '/og-mb-images/user_thread.png'
-	if (ogType === 'bot_profile' || ogType === 'category_profile')
-		return '/og-mb-images/bot_og.png'
-	return '/og-mb-images/bot_og.png'
 }
 
 export default function OgImage(props: OgImageProps) {
@@ -42,10 +34,15 @@ export default function OgImage(props: OgImageProps) {
 		title,
 	} = props
 
-	// Layout selection logic
-	const bgImage = getOgBgImage(ogType)
+	//? Ensures relative image URLs become absolute
+	const makeAbsolute = (url?: string) => {
+		if (!url) return undefined
+		if (url.startsWith('http://') || url.startsWith('https://')) return url
+		const base = process.env.BASE_URL || 'http://localhost:3000'
+		return url.startsWith('/') ? `${base}${url}` : `${base}/${url}`
+	}
 
-	// --- Bot/Public Thread Layout ---
+	//? --- Bot/Public Thread Layout ---
 	if (ogType === 'bot_thread') {
 		return (
 			<div
@@ -57,9 +54,13 @@ export default function OgImage(props: OgImageProps) {
 					display: 'flex',
 					flexDirection: 'column',
 					justifyContent: 'flex-end',
-					background: `url(${bgImage}) center/cover no-repeat`,
+					background: isLightTheme ? '#ffffff' : '#18181B',
+					backgroundSize: 'cover',
+					backgroundPosition: 'center',
+					backgroundRepeat: 'no-repeat',
 				}}
 			>
+				<OgBgImage isLightTheme={isLightTheme} />
 				<div
 					style={{
 						padding: '64px',
@@ -67,9 +68,11 @@ export default function OgImage(props: OgImageProps) {
 						flexDirection: 'column',
 						height: '100%',
 						justifyContent: 'flex-end',
+						position: 'relative',
+						zIndex: 1,
 					}}
 				>
-					<div style={{ marginBottom: '32px' }}>
+					<div style={{ marginBottom: '32px', display: 'flex' }}>
 						<span
 							style={{
 								color: '#388DE2',
@@ -152,7 +155,7 @@ export default function OgImage(props: OgImageProps) {
 									objectFit: 'cover',
 									marginRight: '18px',
 								}}
-								src={user_avatar}
+								src={makeAbsolute(user_avatar) || ''}
 							/>
 						) : (
 							<div
@@ -183,7 +186,7 @@ export default function OgImage(props: OgImageProps) {
 				</div>
 				{botAvatar && (
 					<img
-						src={botAvatar}
+						src={makeAbsolute(botAvatar) || ''}
 						alt="Bot avatar"
 						style={{
 							position: 'absolute',
@@ -203,7 +206,7 @@ export default function OgImage(props: OgImageProps) {
 		)
 	}
 
-	// --- User Thread Layout ---
+	//? --- User Thread Layout ---
 	if (ogType === 'user_thread') {
 		return (
 			<div
@@ -215,9 +218,13 @@ export default function OgImage(props: OgImageProps) {
 					display: 'flex',
 					flexDirection: 'column',
 					justifyContent: 'flex-end',
-					background: `url(${bgImage}) center/cover no-repeat`,
+					background: isLightTheme ? '#ffffff' : '#18181B',
+					backgroundSize: 'cover',
+					backgroundPosition: 'center',
+					backgroundRepeat: 'no-repeat',
 				}}
 			>
+				<OgBgImage isLightTheme={isLightTheme} />
 				<div
 					style={{
 						padding: '64px',
@@ -225,9 +232,11 @@ export default function OgImage(props: OgImageProps) {
 						flexDirection: 'column',
 						height: '100%',
 						justifyContent: 'flex-end',
+						position: 'relative',
+						zIndex: 1,
 					}}
 				>
-					<div style={{ marginBottom: '32px' }}>
+					<div style={{ marginBottom: '32px', display: 'flex' }}>
 						<span
 							style={{
 								color: '#388DE2',
@@ -310,7 +319,7 @@ export default function OgImage(props: OgImageProps) {
 									objectFit: 'cover',
 									marginRight: '18px',
 								}}
-								src={user_avatar}
+								src={makeAbsolute(user_avatar) || ''}
 							/>
 						) : (
 							<div
@@ -341,7 +350,7 @@ export default function OgImage(props: OgImageProps) {
 				</div>
 				{botAvatar && (
 					<img
-						src={botAvatar}
+						src={makeAbsolute(botAvatar) || ''}
 						alt="Bot avatar"
 						style={{
 							position: 'absolute',
@@ -361,7 +370,7 @@ export default function OgImage(props: OgImageProps) {
 		)
 	}
 
-	// --- Bot Profile / Category Profile Layout ---
+	//? --- Bot Profile / Category Profile Layout ---
 	if (ogType === 'bot_profile' || ogType === 'category_profile') {
 		return (
 			<div
@@ -374,9 +383,13 @@ export default function OgImage(props: OgImageProps) {
 					flexDirection: 'column',
 					justifyContent: 'center',
 					alignItems: 'center',
-					background: `url(${bgImage}) center/cover no-repeat`,
+					background: isLightTheme ? '#ffffff' : '#18181B',
+					backgroundSize: 'cover',
+					backgroundPosition: 'center',
+					backgroundRepeat: 'no-repeat',
 				}}
 			>
+				<OgBgImage isLightTheme={isLightTheme} />
 				<div
 					style={{
 						display: 'flex',
@@ -385,11 +398,13 @@ export default function OgImage(props: OgImageProps) {
 						justifyContent: 'center',
 						width: '100%',
 						height: '100%',
+						position: 'relative',
+						zIndex: 1,
 					}}
 				>
 					{botAvatar && (
 						<img
-							src={botAvatar}
+							src={makeAbsolute(botAvatar) || ''}
 							alt="Bot avatar"
 							style={{
 								width: '180px',
@@ -448,7 +463,7 @@ export default function OgImage(props: OgImageProps) {
 		)
 	}
 
-	// --- Fallback Layout ---
+	//? --- Fallback Layout ---
 	return (
 		<div
 			style={{
