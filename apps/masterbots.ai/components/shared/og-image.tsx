@@ -1,216 +1,481 @@
 import OgBgImage from '@/components/shared/og-bg-image'
 import type { Thread } from 'mb-genql'
-interface OgImageProps {
+
+export interface OgImageProps {
 	thread?: Partial<Thread>
-	question: string
-	answer: string
-	username: string | undefined
-	user_avatar: string
-	isLightTheme: boolean
+	question?: string
+	answer?: string
+	username?: string
+	user_avatar?: string
+	isLightTheme?: boolean
+	ogType?: 'bot_thread' | 'user_thread' | 'bot_profile' | 'category_profile'
+	botName?: string
+	botAvatar?: string
+	category?: string
+	domain?: string
+	description?: string
+	title?: string
 }
-export default function OgImage({
-	thread,
-	question,
-	answer,
-	username,
-	user_avatar,
-	isLightTheme,
-}: OgImageProps) {
-	// console.log('OG IMG Props', {
-	// 	question,
-	// 	answer,
-	// 	username,
-	// 	user_avatar,
-	// 	isLightTheme,
-	// })
-	return (
-		<div
-			style={{
-				height: '100%',
-				width: '100%',
-				display: 'flex',
-				alignItems: 'flex-start',
-				justifyContent: 'flex-start',
-				backgroundColor: isLightTheme ? '#ffff' : '#17171b',
-				padding: 0,
-				color: isLightTheme ? '#17171b' : '#ffff',
-			}}
-		>
-			<OgBgImage isLightTheme={isLightTheme} />
+
+export default function OgImage(props: OgImageProps) {
+	const {
+		thread,
+		question,
+		answer,
+		username,
+		user_avatar,
+		isLightTheme = false,
+		ogType = 'bot_thread',
+		botName,
+		botAvatar,
+		category,
+		domain,
+		description,
+		title,
+	} = props
+
+	//? Ensures relative image URLs become absolute
+	const makeAbsolute = (url?: string) => {
+		if (!url) return undefined
+		if (url.startsWith('http://') || url.startsWith('https://')) return url
+		const base = process.env.BASE_URL || 'http://localhost:3000'
+		return url.startsWith('/') ? `${base}${url}` : `${base}/${url}`
+	}
+
+	//? --- Bot/Public Thread Layout ---
+	if (ogType === 'bot_thread') {
+		return (
 			<div
 				style={{
+					width: '1200px',
+					height: '630px',
+					position: 'relative',
+					overflow: 'hidden',
 					display: 'flex',
-					height: '100%',
-					alignItems: 'center',
-					justifyContent: 'space-between',
-					width: '100%',
-					padding: '42px 64px',
-					gap: '32px',
+					flexDirection: 'column',
+					justifyContent: 'flex-end',
+					background: isLightTheme ? '#ffffff' : '#18181B',
+					backgroundSize: 'cover',
+					backgroundPosition: 'center',
+					backgroundRepeat: 'no-repeat',
 				}}
 			>
+				<OgBgImage isLightTheme={isLightTheme} />
 				<div
 					style={{
-						flex: '1',
+						padding: '64px',
 						display: 'flex',
 						flexDirection: 'column',
-						gap: '16px',
 						height: '100%',
+						justifyContent: 'flex-end',
+						position: 'relative',
+						zIndex: 1,
 					}}
 				>
-					{thread?.chatbot ? (
-						<>
-							<p
+					<div style={{ marginBottom: '32px', display: 'flex' }}>
+						<span
+							style={{
+								color: '#388DE2',
+								fontWeight: 700,
+								fontSize: '32px',
+								textTransform: 'uppercase',
+								letterSpacing: '0.04em',
+								background: 'rgba(255,255,255,0.85)',
+								borderRadius: '8px',
+								padding: '4px 16px',
+								marginRight: '16px',
+							}}
+						>
+							{category ||
+								thread?.chatbot?.categories?.[0]?.category?.name ||
+								'AI'}
+						</span>
+						<span
+							style={{
+								color: '#17171b',
+								fontWeight: 700,
+								fontSize: '32px',
+								background: 'rgba(255,255,255,0.85)',
+								borderRadius: '8px',
+								padding: '4px 16px',
+							}}
+						>
+							{botName || thread?.chatbot?.name || 'Masterbots'}
+						</span>
+					</div>
+					<h1
+						style={{
+							fontSize: '56px',
+							fontWeight: 800,
+							color: '#17171b',
+							margin: 0,
+							lineHeight: 1.1,
+							background: 'rgba(255,255,255,0.85)',
+							borderRadius: '12px',
+							padding: '16px 32px',
+							maxWidth: '1000px',
+							overflow: 'hidden',
+							textOverflow: 'ellipsis',
+							display: '-webkit-box',
+							WebkitLineClamp: 2,
+							WebkitBoxOrient: 'vertical',
+						}}
+					>
+						{question}
+					</h1>
+					<p
+						style={{
+							fontSize: '28px',
+							color: '#388DE2',
+							margin: '32px 0 0 0',
+							background: 'rgba(255,255,255,0.85)',
+							borderRadius: '8px',
+							padding: '12px 24px',
+							maxWidth: '900px',
+							overflow: 'hidden',
+							textOverflow: 'ellipsis',
+							display: '-webkit-box',
+							WebkitLineClamp: 3,
+							WebkitBoxOrient: 'vertical',
+						}}
+					>
+						{answer}
+					</p>
+					<div
+						style={{ display: 'flex', alignItems: 'center', marginTop: '40px' }}
+					>
+						{user_avatar ? (
+							<img
+								alt="User avatar"
 								style={{
-									fontWeight: 'bold',
+									width: '56px',
+									height: '56px',
+									borderRadius: '50%',
+									border: '3px solid #388DE2',
+									objectFit: 'cover',
+									marginRight: '18px',
+								}}
+								src={makeAbsolute(user_avatar) || ''}
+							/>
+						) : (
+							<div
+								style={{
+									width: '56px',
+									height: '56px',
+									borderRadius: '50%',
+									backgroundColor: '#388DE2',
 									display: 'flex',
-									flexDirection: 'column',
-									marginTop: '0px',
-									marginBottom: 'auto',
-									fontSize: 32,
-									color: isLightTheme ? '#17171b' : '#ffff',
+									alignItems: 'center',
+									justifyContent: 'center',
+									marginRight: '18px',
 								}}
 							>
 								<span
-									style={{
-										color: '#ef4444',
-										fontSize: '18px',
-										marginTop: '0px',
-										left: '0px',
-									}}
+									style={{ color: '#fff', fontSize: '32px', fontWeight: 700 }}
 								>
-									{' '}
-									{thread.chatbot.categories[0]?.category.name}
+									{username?.replace('@', '')?.charAt(0) || ''}
 								</span>
-								{thread.chatbot.name}
-							</p>
-						</>
-					) : null}
-
-					<div
+							</div>
+						)}
+						<span
+							style={{ color: '#17171b', fontSize: '28px', fontWeight: 700 }}
+						>
+							{username}
+						</span>
+					</div>
+				</div>
+				{botAvatar && (
+					<img
+						src={makeAbsolute(botAvatar) || ''}
+						alt="Bot avatar"
 						style={{
-							display: 'flex',
-							flexDirection: 'column',
-							marginTop: 'auto',
-							marginBottom: 'auto',
+							position: 'absolute',
+							right: '64px',
+							top: '64px',
+							width: '120px',
+							height: '120px',
+							borderRadius: '50%',
+							border: '6px solid #388DE2',
+							background: '#fff',
+							objectFit: 'cover',
+							zIndex: 2,
+						}}
+					/>
+				)}
+			</div>
+		)
+	}
+
+	//? --- User Thread Layout ---
+	if (ogType === 'user_thread') {
+		return (
+			<div
+				style={{
+					width: '1200px',
+					height: '630px',
+					position: 'relative',
+					overflow: 'hidden',
+					display: 'flex',
+					flexDirection: 'column',
+					justifyContent: 'flex-end',
+					background: isLightTheme ? '#ffffff' : '#18181B',
+					backgroundSize: 'cover',
+					backgroundPosition: 'center',
+					backgroundRepeat: 'no-repeat',
+				}}
+			>
+				<OgBgImage isLightTheme={isLightTheme} />
+				<div
+					style={{
+						padding: '64px',
+						display: 'flex',
+						flexDirection: 'column',
+						height: '100%',
+						justifyContent: 'flex-end',
+						position: 'relative',
+						zIndex: 1,
+					}}
+				>
+					<div style={{ marginBottom: '32px', display: 'flex' }}>
+						<span
+							style={{
+								color: '#388DE2',
+								fontWeight: 700,
+								fontSize: '32px',
+								textTransform: 'uppercase',
+								letterSpacing: '0.04em',
+								background: 'rgba(255,255,255,0.85)',
+								borderRadius: '8px',
+								padding: '4px 16px',
+								marginRight: '16px',
+							}}
+						>
+							{category ||
+								thread?.chatbot?.categories?.[0]?.category?.name ||
+								'AI'}
+						</span>
+						<span
+							style={{
+								color: '#17171b',
+								fontWeight: 700,
+								fontSize: '32px',
+								background: 'rgba(255,255,255,0.85)',
+								borderRadius: '8px',
+								padding: '4px 16px',
+							}}
+						>
+							{botName || thread?.chatbot?.name || 'Masterbots'}
+						</span>
+					</div>
+					<h1
+						style={{
+							fontSize: '56px',
+							fontWeight: 800,
+							color: '#17171b',
+							margin: 0,
+							lineHeight: 1.1,
+							background: 'rgba(255,255,255,0.85)',
+							borderRadius: '12px',
+							padding: '16px 32px',
+							maxWidth: '1000px',
+							overflow: 'hidden',
+							textOverflow: 'ellipsis',
+							display: '-webkit-box',
+							WebkitLineClamp: 2,
+							WebkitBoxOrient: 'vertical',
 						}}
 					>
-						<h1
+						{question}
+					</h1>
+					<p
+						style={{
+							fontSize: '28px',
+							color: '#388DE2',
+							margin: '32px 0 0 0',
+							background: 'rgba(255,255,255,0.85)',
+							borderRadius: '8px',
+							padding: '12px 24px',
+							maxWidth: '900px',
+							overflow: 'hidden',
+							textOverflow: 'ellipsis',
+							display: '-webkit-box',
+							WebkitLineClamp: 3,
+							WebkitBoxOrient: 'vertical',
+						}}
+					>
+						{answer}
+					</p>
+					<div
+						style={{ display: 'flex', alignItems: 'center', marginTop: '40px' }}
+					>
+						{user_avatar ? (
+							<img
+								alt="User avatar"
+								style={{
+									width: '56px',
+									height: '56px',
+									borderRadius: '50%',
+									border: '3px solid #388DE2',
+									objectFit: 'cover',
+									marginRight: '18px',
+								}}
+								src={makeAbsolute(user_avatar) || ''}
+							/>
+						) : (
+							<div
+								style={{
+									width: '56px',
+									height: '56px',
+									borderRadius: '50%',
+									backgroundColor: '#388DE2',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									marginRight: '18px',
+								}}
+							>
+								<span
+									style={{ color: '#fff', fontSize: '32px', fontWeight: 700 }}
+								>
+									{username?.replace('@', '')?.charAt(0) || ''}
+								</span>
+							</div>
+						)}
+						<span
+							style={{ color: '#17171b', fontSize: '28px', fontWeight: 700 }}
+						>
+							{username}
+						</span>
+					</div>
+				</div>
+				{botAvatar && (
+					<img
+						src={makeAbsolute(botAvatar) || ''}
+						alt="Bot avatar"
+						style={{
+							position: 'absolute',
+							right: '64px',
+							top: '64px',
+							width: '120px',
+							height: '120px',
+							borderRadius: '50%',
+							border: '6px solid #388DE2',
+							background: '#fff',
+							objectFit: 'cover',
+							zIndex: 2,
+						}}
+					/>
+				)}
+			</div>
+		)
+	}
+
+	//? --- Bot Profile / Category Profile Layout ---
+	if (ogType === 'bot_profile' || ogType === 'category_profile') {
+		return (
+			<div
+				style={{
+					width: '1200px',
+					height: '630px',
+					position: 'relative',
+					overflow: 'hidden',
+					display: 'flex',
+					flexDirection: 'column',
+					justifyContent: 'center',
+					alignItems: 'center',
+					background: isLightTheme ? '#ffffff' : '#18181B',
+					backgroundSize: 'cover',
+					backgroundPosition: 'center',
+					backgroundRepeat: 'no-repeat',
+				}}
+			>
+				<OgBgImage isLightTheme={isLightTheme} />
+				<div
+					style={{
+						display: 'flex',
+						flexDirection: 'column',
+						alignItems: 'center',
+						justifyContent: 'center',
+						width: '100%',
+						height: '100%',
+						position: 'relative',
+						zIndex: 1,
+					}}
+				>
+					{botAvatar && (
+						<img
+							src={makeAbsolute(botAvatar) || ''}
+							alt="Bot avatar"
 							style={{
-								fontSize: '64px',
-								lineHeight: 1.15,
-								color: isLightTheme ? '#17171b' : '#ffff',
+								width: '180px',
+								height: '180px',
+								borderRadius: '50%',
+								border: '8px solid #388DE2',
+								background: '#fff',
+								objectFit: 'cover',
+								marginBottom: '32px',
+							}}
+						/>
+					)}
+					<h1
+						style={{
+							fontSize: '64px',
+							fontWeight: 800,
+							color: '#17171b',
+							margin: 0,
+							background: 'rgba(255,255,255,0.85)',
+							borderRadius: '12px',
+							padding: '16px 48px',
+							textAlign: 'center',
+							maxWidth: '900px',
+							overflow: 'hidden',
+							textOverflow: 'ellipsis',
+							display: '-webkit-box',
+							WebkitLineClamp: 2,
+							WebkitBoxOrient: 'vertical',
+						}}
+					>
+						{title || botName || 'Masterbots'}
+					</h1>
+					{description && ogType !== 'bot_profile' && (
+						<p
+							style={{
+								fontSize: '32px',
+								color: '#388DE2',
+								margin: '32px 0 0 0',
+								background: 'rgba(255,255,255,0.85)',
+								borderRadius: '8px',
+								padding: '12px 32px',
+								maxWidth: '800px',
+								textAlign: 'center',
 								overflow: 'hidden',
 								textOverflow: 'ellipsis',
 								display: '-webkit-box',
 								WebkitLineClamp: 2,
 								WebkitBoxOrient: 'vertical',
-								maxHeight: '3.6em',
 							}}
 						>
-							{question}
-						</h1>
-						<p
-							style={{
-								fontSize: '24px',
-								color: isLightTheme ? '#17171b' : '#ffff',
-								overflow: 'hidden',
-								textOverflow: 'ellipsis',
-								display: '-webkit-box',
-								WebkitLineClamp: 3,
-								WebkitBoxOrient: 'vertical',
-								maxHeight: '96px',
-							}}
-						>
-							{answer}
+							{description}
 						</p>
-					</div>
-
-					<div
-						style={{
-							display: 'flex',
-							alignItems: 'center',
-							marginTop: 'auto',
-						}}
-					>
-						{user_avatar ? (
-							<img
-								alt=""
-								style={{
-									objectFit: 'cover',
-									width: '42px',
-									height: '42px',
-									borderRadius: '50%',
-									border: '2px solid #388DE2',
-								}}
-								src={user_avatar}
-							/>
-						) : (
-							<div
-								style={{
-									width: '42px',
-									height: '42px',
-									borderRadius: '50%',
-									backgroundColor: '#388DE2',
-									display: 'flex',
-									justifyContent: 'center',
-									alignItems: 'center',
-								}}
-							>
-								<p
-									style={{
-										color: isLightTheme ? '#17171b' : '#ffff',
-										fontSize: '34px',
-										fontWeight: 'bold',
-										lineHeight: 1,
-										textTransform: 'lowercase',
-									}}
-								>
-									{username?.replace('@', '')?.charAt(0) || ''}
-								</p>
-							</div>
-						)}
-						<p
-							style={{
-								color: isLightTheme ? '#17171b' : '#ffff',
-								fontSize: '26px',
-								lineHeight: 1,
-								marginLeft: '15px',
-								textTransform: 'lowercase',
-							}}
-						>
-							{username}
-						</p>
-					</div>
+					)}
 				</div>
-				{thread?.chatbot?.avatar ? (
-					<div style={{ display: 'flex' }}>
-						<div
-							style={{
-								backgroundColor: '#1E293B',
-								display: 'flex',
-								minWidth: '300px',
-								width: '300px',
-								height: '300px',
-								borderRadius: '50%',
-							}}
-						>
-							<img
-								alt=""
-								style={{
-									objectFit: 'cover',
-									margin: 'auto',
-									border: '8px solid #388DE2',
-									width: '300px',
-									height: '300px',
-									borderRadius: '50%',
-									zIndex: '1', // Ensure the image is above the SVG
-								}}
-								src={thread.chatbot.avatar}
-							/>
-						</div>
-					</div>
-				) : null}
 			</div>
+		)
+	}
+
+	//? --- Fallback Layout ---
+	return (
+		<div
+			style={{
+				width: '1200px',
+				height: '630px',
+				background: '#fff',
+				display: 'flex',
+				alignItems: 'center',
+				justifyContent: 'center',
+			}}
+		>
+			<h1 style={{ color: '#17171b', fontSize: '48px' }}>Masterbots OG</h1>
 		</div>
 	)
 }
