@@ -31,7 +31,7 @@ import {
 	updateUserDeletionRequest,
 } from '@/services/hasura'
 import type { PreferenceSectionProps } from '@/types/types'
-import { AArrowDown, AArrowUp, Plus } from 'lucide-react'
+import { AArrowDown, AArrowUp, Plus, Send } from 'lucide-react'
 import type { PreferenceSetInput } from 'mb-genql'
 import { toSlug } from 'mb-lib'
 import { signOut, useSession } from 'next-auth/react'
@@ -56,6 +56,9 @@ export function PreferenceSection({
 
 	useEffect(() => {
 		if (currentUser) {
+			console.log({
+				currentUser,
+			})
 			setInputValue({
 				username: currentUser.username || '',
 				email: currentUser.email || '',
@@ -307,9 +310,6 @@ export function PreferenceSection({
 					<AccordionContent>
 						<Card className="bg-transparent border-mirage">
 							<CardContent className="flex flex-col items-center justify-center w-full px-4 py-8 gap-y-4">
-								<div>
-									<span className="text-red-700">{errorMessage}</span>
-								</div>
 								{items.map((item, idx) => (
 									<div
 										key={item.title}
@@ -318,12 +318,12 @@ export function PreferenceSection({
 											idx === items.length - 1 ? 'border-none' : '',
 										)}
 									>
-										{title === 'User profile' && item.type === 'input' ? (
+										{item.type === 'input' ? (
 											<div className="space-y-2 w-full">
 												<Label htmlFor="password">
 													{item.props?.inputName}
 												</Label>
-												<div className="relative w-full">
+												<div className="relative w-full flex  space-x-4">
 													<Input
 														type="text"
 														className="w-full h-10 rounded-md dark:text-white text-black px-3"
@@ -337,16 +337,68 @@ export function PreferenceSection({
 														onChange={(e) =>
 															updateInput(item.props?.inputId, e)
 														}
+														readOnly={
+															(item.props
+																?.inputReadOnly as unknown as boolean) ||
+															undefined
+														}
 													/>
+													{item.props?.asInlineButton && (
+														<Button
+															onClick={() => handleUpdateProfile()}
+															disabled={isLoading || !currentUser}
+															id={item.props?.buttonId}
+															className="p-2 text-sm  min-h-9"
+														>
+															{'icon' in item.props && item.props.icon && (
+																<item.props.icon />
+															)}
+															{isLoading ? (
+																<IconSpinner className="mr-1 size-4 animate-spin" />
+															) : null}
+															{item.props?.buttonText || 'Save'}
+														</Button>
+													)}
+												</div>
+												<div>
+													<span className="text-red-700">{errorMessage}</span>
 												</div>
 											</div>
 										) : null}
-										{item.type !== 'input' && (
-											<PreferenceItemTitle
-												title={item.title}
-												description={item.description}
-											/>
-										)}
+										{item.type === 'emailVerification' &&
+											!currentUser?.isVerified && (
+												<div className="flex justify-between item-center w-full">
+													<div className="flex flex-col items-start gap-y-0 text-left">
+														<p className="text-lg font-medium">{item.title}</p>
+														<p className="text-sm font-normal text-[#A1A1AA]">
+															{item.description}
+														</p>
+													</div>
+
+													<Button
+														id={item.props?.buttonId}
+														//disabled={item.props?.buttonDisabled}
+														onClick={() => {
+															customSonner({
+																type: 'success',
+																text: 'Verification email sent!',
+															})
+														}}
+														className="mt-2"
+													>
+														<Send className="mr-1 size-4" />
+														{item.props?.buttonText}
+													</Button>
+												</div>
+											)}
+
+										{item.type !== 'input' &&
+											item.type !== 'emailVerification' && (
+												<PreferenceItemTitle
+													title={item.title}
+													description={item.description}
+												/>
+											)}
 
 										{item.type === 'switch' && (
 											<Switch
