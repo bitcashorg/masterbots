@@ -22,6 +22,10 @@ export default async function ProfilePageLayout({
 		slug: userSlug as string,
 		isSameUser: session?.user.slug === userSlug,
 	})
+
+	console.log('ProfilePageLayout user:', user)
+	console.log('ProfilePageLayout params:', userSlug)
+	console.log('ProfilePageLayout session:', session)
 	return (
 		// <section className="flex flex-col p-0">
 		<BrowseProvider>
