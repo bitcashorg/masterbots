@@ -8,6 +8,7 @@ import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { cn, getRouteType } from '@/lib/utils'
 import type { User } from 'mb-genql'
 import { usePathname } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import NextTopLoader from 'nextjs-toploader'
 
 export function ProfileLayoutContent({
@@ -19,8 +20,6 @@ export function ProfileLayoutContent({
 }) {
 	const { isDashboardOpen, setIsDashboardOpen, allCategories } = useSidebar()
 	const pathname = usePathname()
-	const routeType = getRouteType(pathname)
-
 	return (
 		<>
 			<NextTopLoader color="#1ED761" initialPosition={0.2} />
