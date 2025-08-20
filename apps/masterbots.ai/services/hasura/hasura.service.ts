@@ -1,3 +1,4 @@
+import { sendEmailVerification } from '@/lib/email'
 import type {
 	ChatbotMetadata,
 	ChatbotMetadataClassification,
@@ -19,6 +20,7 @@ import {
 	createMbClient,
 	everything,
 } from 'mb-genql'
+import { nanoid } from 'nanoid'
 import type {
 	CreateThreadParams,
 	GetBrowseThreadsParams,

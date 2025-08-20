@@ -27,7 +27,6 @@ import { cn } from '@/lib/utils'
 import {
 	deleteUserMessagesAndThreads,
 	updatePreferences,
-	updateUser,
 	updateUserDeletionRequest,
 } from '@/services/hasura'
 import type { PreferenceSectionProps } from '@/types/types'
@@ -52,6 +51,7 @@ export function PreferenceSection({
 	const { currentUser, getUserInfo, updateUserDetails } = useProfile()
 	const [errorMessage, setErrorMessage] = useState('')
 	const [isLoading, setIsLoading] = useState(false)
+	const [sendindVEmail, setSendingVEmail] = useState(false)
 	const [inputValue, setInputValue] = useState({ username: '', email: '' })
 
 	useEffect(() => {
@@ -273,6 +273,48 @@ export function PreferenceSection({
 		setIsLoading(false)
 	}
 
+	async function SendVerificationEmail() {
+		const jwt = session?.user?.hasuraJwt
+		if (!jwt || !session.user?.id) {
+			customSonner({
+				type: 'error',
+				text: 'User not authenticated. Please log in to send verification email.',
+			})
+			return
+		}
+
+		try {
+			if (!currentUser?.email) {
+				customSonner({
+					type: 'error',
+					text: 'Email is not set. Please update your email before sending verification.',
+				})
+				return
+			}
+			setSendingVEmail(true)
+
+			//   const { success, message }
+			//    = await createVerificationToken(
+			// 	{
+			// 	 userId: session.user.id, jwt,
+			// 	 email: currentUser?.email || ''
+			// 	 })
+
+			// 	customSonner({
+			// 		type: success ? 'success' : 'error',
+			// 		text: message || (success ? 'Verification email sent successfully.' : 'Failed to send verification email.'),
+			// 	})
+			setSendingVEmail(false)
+		} catch (error) {
+			console.error('Failed to send verification email:', error)
+			customSonner({
+				type: 'error',
+				text: 'Failed to send verification email. Please try again later.',
+			})
+			setSendingVEmail(false)
+		}
+	}
+
 	return (
 		<>
 			<AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
@@ -370,23 +412,21 @@ export function PreferenceSection({
 												<div className="flex justify-between item-center w-full">
 													<div className="flex flex-col items-start gap-y-0 text-left">
 														<p className="text-lg font-medium">{item.title}</p>
-														<p className="text-sm font-normal text-[#A1A1AA]">
+														<p className="text-sm font-normal text-red-700">
 															{item.description}
 														</p>
 													</div>
 
 													<Button
 														id={item.props?.buttonId}
-														//disabled={item.props?.buttonDisabled}
-														onClick={() => {
-															customSonner({
-																type: 'success',
-																text: 'Verification email sent!',
-															})
-														}}
+														disabled={sendindVEmail}
+														onClick={SendVerificationEmail}
 														className="mt-2"
 													>
-														<Send className="mr-1 size-4" />
+														{sendindVEmail && (
+															<IconSpinner className="mr-1 size-4 animate-spin" />
+														)}
+														{!sendindVEmail && <Send className="mr-1 size-4" />}
 														{item.props?.buttonText}
 													</Button>
 												</div>
