@@ -95,12 +95,12 @@ export function WorkspaceSectionItem({
 	const hasChildren = children && React.Children.count(children) > 0
 
 	return (
-		<div className="relative">
+		<div className="w-full relative">
 			{/* Main section item */}
 			<button
 				type="button"
 				className={cn(
-					'relative group flex items-center gap-2 w-full text-left px-3 py-2 rounded-md text-sm transition-colors cursor-pointer',
+					'group flex-1 flex items-center gap-3 w-full text-left px-3 py-2 rounded-md text-sm transition-colors cursor-pointer',
 					isActive
 						? 'bg-primary/10 text-primary font-medium'
 						: 'hover:bg-muted',
@@ -137,12 +137,12 @@ export function WorkspaceSectionItem({
 				)}
 
 				{/* Section level indicator */}
-				<span className="text-xs text-muted-foreground font-mono min-w-[24px]">
+				{/* <span className="text-xs text-muted-foreground font-mono min-w-[24px]">
 					h{section.level}
-				</span>
+				</span> */}
 
 				{/* Section title (editable or display) */}
-				<div className="flex-1 flex items-center gap-2">
+				<div className="w-full flex-1 flex items-center gap-2">
 					{isEditing ? (
 						<input
 							type="text"
@@ -162,7 +162,7 @@ export function WorkspaceSectionItem({
 				{/* Action buttons (show on hover or when editing) */}
 				<div
 					className={cn(
-						'flex items-center gap-1 transition-opacity duration-200',
+						'sticky right-1 flex items-center gap-1 transition-opacity duration-200',
 						isHovered || isEditing ? 'opacity-100' : 'opacity-0',
 					)}
 				>

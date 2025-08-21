@@ -125,6 +125,7 @@ export function ChatPanelPro({
 		setWebSearch,
 		refreshActiveThread,
 		activeThread,
+		setIsOpenPopup,
 	} = useThread()
 	const { data: session } = useSession()
 	const { isPowerUp, togglePowerUp } = usePowerUp()
@@ -640,7 +641,12 @@ Please provide your response now:`
 			>
 				<div className="relative w-full mx-auto">
 					{/* Header Section */}
-					<div className="flex flex-col items-center justify-between w-full px-2 py-3.5 space-y-2 bg-background md:flex-row md:space-y-0">
+					<div
+						className={cn(
+							'flex flex-col items-center justify-between w-full px-2 py-3.5 space-y-2 bg-background md:flex-row md:space-y-0',
+							isWorkspaceActive && 'hidden',
+						)}
+					>
 						<div className="flex items-center justify-between w-full gap-4 mx-2">
 							{!isWorkspaceActive && (
 								<div className="flex items-center space-x-6 w-full max-w-[60%] overflow-y-hidden scrollbar scrollbar-thin">
@@ -727,20 +733,6 @@ Please provide your response now:`
 										)}
 								</div>
 							)}
-							{isWorkspaceActive && (
-								<div className="flex-grow flex items-center justify-end gap-2">
-									<Button
-										variant="outline"
-										size="sm"
-										disabled={!activeProject || !activeDocument}
-										onClick={handleSaveDocument}
-										className="gap-2"
-									>
-										<SaveIcon className="h-4 w-4" />
-										Save
-									</Button>
-								</div>
-							)}
 
 							{/* Right side controls - always shown */}
 							<div className="flex items-center gap-3.5">
@@ -816,12 +808,19 @@ Please provide your response now:`
 
 					{/* Workspace Section (conditionally shown) */}
 					{isWorkspaceActive && (
-						<div className="w-full h-[calc(100vh-220px)] bg-background border rounded-md shadow-sm">
+						<div
+							className={cn(
+								'w-full bg-background border rounded-md shadow-sm',
+								activeThread
+									? 'h-[calc(100vh-424px)]'
+									: 'h-[calc(100vh-220px)]',
+							)}
+						>
 							{/* Removed duplicate document type dropdown. Breadcrumb is source of truth. */}
 							<WorkspaceContent
 								key={`workspace-${activeProject}-${activeDocument}-${activeDocumentType}`}
 								isLoading={isLoading}
-								className="h-[calc(100%-0px)] overflow-auto"
+								className="size-full overflow-auto scrollbar"
 								chatbot={chatbot}
 							/>
 						</div>
@@ -912,9 +911,6 @@ Please provide your response now:`
 											'with query:',
 											value,
 										)
-
-										// Ensure thread exists and is linked to workspace
-										const { activeThread, setIsOpenPopup } = useThread()
 
 										// If no active thread exists, create one with workspace metadata
 										if (

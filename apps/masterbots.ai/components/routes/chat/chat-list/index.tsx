@@ -42,6 +42,7 @@ export interface ChatList {
 		messageData: SendMessageFromResponseMessageData,
 		callback?: () => void,
 	) => void
+	onConvertToWorkspaceDocument?: (messageId: string) => void
 }
 
 export function ChatList({
@@ -53,6 +54,7 @@ export function ChatList({
 	chatTitleClass,
 	chatArrowClass,
 	containerRef: externalContainerRef,
+	onConvertToWorkspaceDocument,
 	sendMessageFn,
 }: ChatList) {
 	const { isNewResponse, activeThread } = useThread()
@@ -163,6 +165,7 @@ export function ChatList({
 					chatContentClass={chatContentClass}
 					sendMessageFn={sendMessageFn}
 					userAttachments={userAttachments as FileAttachment[] | undefined}
+					onConvertToWorkspaceDocument={onConvertToWorkspaceDocument}
 				/>
 			</div>
 		</div>

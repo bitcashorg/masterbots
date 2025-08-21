@@ -36,6 +36,7 @@ export function ChatMessage({
 	chatbot,
 	actionRequired = true,
 	webSearchResults = [],
+	onConvertToWorkspaceDocument,
 	...props
 }: ChatMessageProps) {
 	const pathname = usePathname()
@@ -166,7 +167,11 @@ export function ChatMessage({
 				{ImagesSection}
 
 				{actionRequired && (
-					<ChatMessageActions className="md:!right-0" message={message} />
+					<ChatMessageActions
+						className="md:!right-0"
+						message={message}
+						onConvertToWorkspaceDocument={onConvertToWorkspaceDocument}
+					/>
 				)}
 
 				<ReferencesSection />

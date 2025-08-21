@@ -78,7 +78,7 @@ export function WorkspaceTextEditor({
 			{viewMode === 'sections' && (
 				<div className="h-[calc(100%-64px)] grid grid-cols-12 gap-4">
 					{/* Enhanced section navigation with tree structure */}
-					<div className="col-span-4 border rounded-lg p-2 h-full overflow-y-auto">
+					<div className="col-span-4 border rounded-lg p-2 h-full overflow-y-auto scrollbar relative">
 						<h3 className="font-medium mb-2 p-2">Document Sections</h3>
 						<div className="space-y-1">
 							<WorkspaceSectionTree

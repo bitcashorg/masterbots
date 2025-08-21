@@ -28,6 +28,7 @@ export function MessagePairAccordion({
 	isNewResponse,
 	type,
 	userAttachments,
+	onConvertToWorkspaceDocument,
 	...props
 }: {
 	pair: MessagePair
@@ -43,6 +44,7 @@ export function MessagePairAccordion({
 		messageData: SendMessageFromResponseMessageData,
 		callback?: () => void,
 	) => void
+	onConvertToWorkspaceDocument?: (messageId: string) => void
 }) {
 	const { activeThread } = useThread()
 	const { navigateTo } = useSidebar()
@@ -180,7 +182,7 @@ export function MessagePairAccordion({
 				isPrevious && 'bg-accent/25 rounded-[8px] border-l-accent/20 ',
 			)}
 			triggerClass={cn(
-				'py-[0.4375rem] z-10 ease-in-out',
+				'py-[0.4375rem] z-[1] ease-in-out',
 				{
 					'sticky top-0 md:-top-10 z-[1] px-3 [&[data-state=open]]:rounded-t-[8px]':
 						isThread,
@@ -310,9 +312,9 @@ export function MessagePairAccordion({
 								)}
 								<MessageRenderer
 									id={message.slug}
-									actionRequired={false}
 									message={message}
 									sendMessageFromResponse={props.sendMessageFn}
+									onConvertToWorkspaceDocument={onConvertToWorkspaceDocument}
 								/>
 							</Fragment>
 						))
