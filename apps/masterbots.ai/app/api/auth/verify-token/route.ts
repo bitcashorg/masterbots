@@ -75,7 +75,8 @@ export async function POST(req: NextRequest) {
 		return NextResponse.json(
 			{
 				success: true,
-				message: 'Verification token created successfully',
+				message:
+					'Verification link has been sent to your email, check your inbox to continue',
 				token: verificationToken,
 			},
 			{ status: 200 },
