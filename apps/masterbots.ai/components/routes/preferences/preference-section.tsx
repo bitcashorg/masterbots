@@ -30,7 +30,7 @@ import {
 	updateUserDeletionRequest,
 } from '@/services/hasura'
 import type { PreferenceSectionProps } from '@/types/types'
-import { AArrowDown, AArrowUp, Plus, Send } from 'lucide-react'
+import { AArrowDown, AArrowUp, MailCheck, Plus, Send } from 'lucide-react'
 import type { PreferenceSetInput } from 'mb-genql'
 import { toSlug } from 'mb-lib'
 import { signOut, useSession } from 'next-auth/react'
@@ -293,17 +293,30 @@ export function PreferenceSection({
 			}
 			setSendingVEmail(true)
 
-			//   const { success, message }
-			//    = await createVerificationToken(
-			// 	{
-			// 	 userId: session.user.id, jwt,
-			// 	 email: currentUser?.email || ''
-			// 	 })
+			const res = await fetch('/api/auth/verify-token', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					userId: session.user.id,
+					email: currentUser.email,
+					jwt,
+				}),
+			})
 
-			// 	customSonner({
-			// 		type: success ? 'success' : 'error',
-			// 		text: message || (success ? 'Verification email sent successfully.' : 'Failed to send verification email.'),
-			// 	})
+			const data = await res.json()
+
+			if (!res.ok || !data.success) {
+				throw new Error(data.error || 'Failed to send verification email.')
+			}
+
+			await getUserInfo(currentUser.slug || toSlug(currentUser.username))
+
+			customSonner({
+				type: 'success',
+				text: data.message || 'Verification email sent successfully.',
+			})
 			setSendingVEmail(false)
 		} catch (error) {
 			console.error('Failed to send verification email:', error)
@@ -393,7 +406,9 @@ export function PreferenceSection({
 															className="p-2 text-sm  min-h-9"
 														>
 															{'icon' in item.props && item.props.icon && (
-																<item.props.icon />
+																<span className="mr-1 size-4 inline-flex items-center justify-center">
+																	<item.props.icon />
+																</span>
 															)}
 															{isLoading ? (
 																<IconSpinner className="mr-1 size-4 animate-spin" />
@@ -407,16 +422,35 @@ export function PreferenceSection({
 												</div>
 											</div>
 										) : null}
-										{item.type === 'emailVerification' &&
-											!currentUser?.isVerified && (
-												<div className="flex justify-between item-center w-full">
-													<div className="flex flex-col items-start gap-y-0 text-left">
-														<p className="text-lg font-medium">{item.title}</p>
+										{item.type === 'emailVerification' && (
+											<div className="flex justify-between item-center w-full">
+												<div className="flex flex-col items-start gap-y-0 text-left">
+													<p className="text-lg font-medium">
+														<MailCheck
+															className={cn(
+																'inline mr-1 size-5',
+																currentUser?.isVerified ? 'text-green-500' : '',
+															)}
+														/>
+														{currentUser?.isVerified
+															? 'Email Verified'
+															: item.title}
+													</p>
+													{sendindVEmail ? (
+														<p className="text-sm font-normal text-gray-500">
+															Sending verification email...
+														</p>
+													) : !sendindVEmail && currentUser?.isVerified ? (
+														<p className="text-sm font-normal text-gray-500">
+															Your email is verified and good to go!
+														</p>
+													) : (
 														<p className="text-sm font-normal text-red-700">
 															{item.description}
 														</p>
-													</div>
-
+													)}
+												</div>
+												{currentUser?.isVerified ? null : (
 													<Button
 														id={item.props?.buttonId}
 														disabled={sendindVEmail}
@@ -429,8 +463,9 @@ export function PreferenceSection({
 														{!sendindVEmail && <Send className="mr-1 size-4" />}
 														{item.props?.buttonText}
 													</Button>
-												</div>
-											)}
+												)}
+											</div>
+										)}
 
 										{item.type !== 'input' &&
 											item.type !== 'emailVerification' && (
