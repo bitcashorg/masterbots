@@ -33,7 +33,8 @@ import type { PreferenceSectionProps } from '@/types/types'
 import { AArrowDown, AArrowUp, MailCheck, Plus, Send } from 'lucide-react'
 import type { PreferenceSetInput } from 'mb-genql'
 import { toSlug } from 'mb-lib'
-import { signOut, useSession } from 'next-auth/react'
+import { getSession, signOut, useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useAsyncFn } from 'react-use'
 import { PreferenceItemTitle } from './preference-item'
@@ -53,12 +54,10 @@ export function PreferenceSection({
 	const [isLoading, setIsLoading] = useState(false)
 	const [sendindVEmail, setSendingVEmail] = useState(false)
 	const [inputValue, setInputValue] = useState({ username: '', email: '' })
+	const router = useRouter()
 
 	useEffect(() => {
 		if (currentUser) {
-			console.log({
-				currentUser,
-			})
 			setInputValue({
 				username: currentUser.username || '',
 				email: currentUser.email || '',
@@ -270,6 +269,13 @@ export function PreferenceSection({
 			type: 'success',
 			text: 'Profile updated successfully.',
 		})
+		const getSessions = await getSession()
+		if (getSessions?.user) {
+			getSessions.user.name = username
+			getSessions.user.slug = slug
+		}
+		// redirect to the profile page
+		router.push(`/u/${slug}/s/pref`)
 		setIsLoading(false)
 	}
 
