@@ -1,3 +1,4 @@
+import { sendEmailVerification } from '@/lib/email'
 import type {
 	ChatbotMetadata,
 	ChatbotMetadataClassification,
@@ -19,6 +20,7 @@ import {
 	createMbClient,
 	everything,
 } from 'mb-genql'
+import { nanoid } from 'nanoid'
 import type {
 	CreateThreadParams,
 	GetBrowseThreadsParams,
@@ -30,6 +32,7 @@ import type {
 	GetThreadsParams,
 	SaveNewMessageParams,
 	UpdateUserArgs,
+	UpdateUserDArgs,
 	UpsertUserParams,
 } from './hasura.service.type'
 
@@ -1258,6 +1261,7 @@ export async function getUserBySlug({
 	slug: string
 	isSameUser: boolean
 }) {
+	console.log('Fetching user by slug:', slug, 'isSameUser:', isSameUser)
 	try {
 		const client = getHasuraClient({})
 		const { user } = await client.query({
@@ -1277,6 +1281,7 @@ export async function getUserBySlug({
 				bio: true,
 				favouriteTopic: true,
 				proUserSubscriptionId: true,
+				isVerified: true,
 				threads: {
 					__args: {
 						where: isSameUser
@@ -1995,5 +2000,75 @@ export const deleteMessages = async (
 			success: false,
 			error: error instanceof Error ? error.message : 'Unknown error',
 		}
+	}
+}
+
+async function isUsernameTaken(username: string, jwt: string) {
+	const client = getHasuraClient({ jwt })
+
+	const result = await client.query({
+		user: {
+			__args: {
+				where: { username: { _eq: username } },
+			},
+			userId: true,
+		},
+	})
+
+	return result.user.length > 0
+}
+
+export async function updateUser({
+	userId,
+	email,
+	username,
+	slug,
+	jwt,
+}: {
+	userId: string | undefined
+	email: string | null
+	username: string | null
+	slug: string | null
+	jwt: string | undefined
+}) {
+	try {
+		if (!jwt) {
+			throw new Error('Authentication required to update user')
+		}
+
+		const client = getHasuraClient({ jwt })
+
+		if (username) {
+			const taken = await isUsernameTaken(username, jwt)
+			if (taken) {
+				throw new Error('Username is already taken')
+			}
+		}
+
+		// Build update arguments based on non-null values
+		const updateArgs: UpdateUserDArgs = {
+			pkColumns: { userId },
+		}
+
+		updateArgs._set = {
+			...(email !== null && { email }),
+			...(username !== null && { username }),
+			...(slug !== null && { slug }),
+		}
+
+		await client.mutation({
+			updateUserByPk: {
+				__args: updateArgs,
+				userId: true,
+				email: true,
+				username: true,
+				slug: true,
+			},
+		})
+
+		return { success: true }
+	} catch (error) {
+		console.error('Error updating user:', error)
+		return { success: false, error: "Failed to update user's details" }
 	}
 }

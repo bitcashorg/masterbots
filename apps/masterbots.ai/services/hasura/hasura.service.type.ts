@@ -91,3 +91,12 @@ export interface UpdateUserArgs {
 		favouriteTopic?: string
 	}
 }
+
+export interface UpdateUserDArgs {
+	pkColumns: { userId: string | undefined }
+	_set?: {
+		username?: string
+		email?: string
+		slug?: string
+	}
+}

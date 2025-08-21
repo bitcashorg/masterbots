@@ -1,15 +1,52 @@
 import type { PreferenceItemType } from '@/types/types'
-import { MessageSquareX, UserRoundX } from 'lucide-react'
+import { MessageSquareX, Save, UserRoundX } from 'lucide-react'
 
 export const preferences = [
 	{
 		title: 'General',
 		items: [
-			// {
-			// 	title: 'Preferred Language',
-			// 	description: 'Receive emails about new products, features, and more.',
-			// 	type: 'switch',
-			// },
+			{
+				title: 'Email',
+				description: 'Change your email address to receive notifications.',
+				type: 'input',
+				props: {
+					inputId: 'email',
+					inputName: 'Email',
+					inputPlaceholder: 'Enter your email address',
+					defaultValue: '',
+					inputReadOnly: true,
+				},
+			},
+			{
+				title: 'Email not verified',
+				description:
+					'Your email is not verified. Please check your inbox for the verification email.',
+				type: 'emailVerification',
+				props: {
+					buttonText: 'Re-send Email Verification',
+					buttonId: 'resend_verification_email',
+					buttonDisabled: false,
+				},
+			},
+			{
+				title: 'Username',
+				description: 'Change your username to something unique.',
+				type: 'input',
+				props: {
+					inputId: 'username',
+					inputName: 'Username',
+					inputPlaceholder: 'Enter your username',
+					defaultValue: '',
+					asInlineButton: true,
+					buttonText: 'Save',
+					icon: Save,
+				},
+			},
+			{
+				title: 'Preferred Language',
+				description: 'Receive emails about new products, features, and more.',
+				type: 'switch',
+			},
 			{
 				title: 'Masterbots Theme',
 				description: 'Change the default theme for the Masterbots site.',
@@ -52,6 +89,44 @@ export const preferences = [
 				props: {
 					switchId: 'deep-expertise',
 					switchName: 'deep-expertise',
+				},
+			},
+		] as PreferenceItemType[],
+	},
+	{
+		title: 'User profile',
+		items: [
+			{
+				title: 'Username',
+				description: 'Change your username to something unique.',
+				type: 'input',
+				props: {
+					inputId: 'username',
+					inputName: 'Username',
+					inputPlaceholder: 'Enter your username',
+					defaultValue: '',
+					onChange: (value: string) => {
+						console.log('Username changed to:', value)
+					},
+				},
+			},
+			{
+				title: 'Email',
+				description: 'Change your email address to receive notifications.',
+				type: 'input',
+				props: {
+					inputId: 'email',
+					inputName: 'Email',
+					inputPlaceholder: 'Enter your email address',
+					defaultValue: '',
+				},
+			},
+			{
+				title: '',
+				type: 'profileButton',
+				props: {
+					buttonText: 'Update Profile',
+					buttonId: 'update_profile',
 				},
 			},
 		] as PreferenceItemType[],

@@ -17,8 +17,11 @@ import {
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { IconSpinner } from '@/components/ui/icons'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { useProfile } from '@/lib/hooks/use-profile'
 import { useSonner } from '@/lib/hooks/useSonner'
 import { cn } from '@/lib/utils'
 import {
@@ -27,10 +30,12 @@ import {
 	updateUserDeletionRequest,
 } from '@/services/hasura'
 import type { PreferenceSectionProps } from '@/types/types'
-import { AArrowDown, AArrowUp, Plus } from 'lucide-react'
+import { AArrowDown, AArrowUp, MailCheck, Plus, Send } from 'lucide-react'
 import type { PreferenceSetInput } from 'mb-genql'
-import { signOut, useSession } from 'next-auth/react'
-import { useState } from 'react'
+import { toSlug } from 'mb-lib'
+import { getSession, signOut, useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { useAsyncFn } from 'react-use'
 import { PreferenceItemTitle } from './preference-item'
 
@@ -44,6 +49,21 @@ export function PreferenceSection({
 	const [buttonType, setButtonType] = useState('')
 	const { data: session } = useSession()
 	const { customSonner } = useSonner()
+	const { currentUser, getUserInfo, updateUserDetails } = useProfile()
+	const [errorMessage, setErrorMessage] = useState('')
+	const [isLoading, setIsLoading] = useState(false)
+	const [sendindVEmail, setSendingVEmail] = useState(false)
+	const [inputValue, setInputValue] = useState({ username: '', email: '' })
+	const router = useRouter()
+
+	useEffect(() => {
+		if (currentUser) {
+			setInputValue({
+				username: currentUser.username || '',
+				email: currentUser.email || '',
+			})
+		}
+	}, [currentUser])
 
 	function executeButton(buttonText: string) {
 		setDeleteDialogOpen(true)
@@ -201,6 +221,119 @@ export function PreferenceSection({
 		})
 	}
 
+	function updateInput(
+		inputId: string | undefined,
+		e: React.ChangeEvent<HTMLInputElement>,
+	) {
+		if (!inputId) return
+
+		const value = e.target.value
+		setInputValue((prev) => ({ ...prev, [inputId]: value }))
+
+		if (inputId === 'username') {
+			const usernameRegex = /^[a-zA-Z0-9_]{3,24}$/
+
+			if (!usernameRegex.test(value)) {
+				setErrorMessage(
+					'Username must be 3–24 characters and contain only letters, numbers, or underscores.',
+				)
+				console.log('Invalid username format:', value)
+				return
+			}
+		}
+		setErrorMessage('')
+	}
+
+	async function handleUpdateProfile() {
+		if (!session?.user) {
+			customSonner({
+				type: 'error',
+				text: 'User must be authenticated to update profile.',
+			})
+			return
+		}
+		// if it's the seesion user, update the profile
+		if (session.user.slug !== currentUser?.slug) {
+			customSonner({
+				type: 'error',
+				text: `You must be logged in as ${currentUser?.slug} to update your profile.`,
+			})
+			return
+		}
+		setIsLoading(true)
+		const { username, email } = inputValue
+		const slug = toSlug(username)
+
+		await updateUserDetails(email, username, slug)
+		customSonner({
+			type: 'success',
+			text: 'Profile updated successfully.',
+		})
+		const getSessions = await getSession()
+		if (getSessions?.user) {
+			getSessions.user.name = username
+			getSessions.user.slug = slug
+		}
+		// redirect to the profile page
+		router.push(`/u/${slug}/s/pref`)
+		setIsLoading(false)
+	}
+
+	async function SendVerificationEmail() {
+		const jwt = session?.user?.hasuraJwt
+		if (!jwt || !session.user?.id) {
+			customSonner({
+				type: 'error',
+				text: 'User not authenticated. Please log in to send verification email.',
+			})
+			return
+		}
+
+		try {
+			if (!currentUser?.email) {
+				customSonner({
+					type: 'error',
+					text: 'Email is not set. Please update your email before sending verification.',
+				})
+				return
+			}
+			setSendingVEmail(true)
+
+			const res = await fetch('/api/auth/verify-token', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					userId: session.user.id,
+					email: currentUser.email,
+					jwt,
+				}),
+			})
+
+			const data = await res.json()
+
+			if (!res.ok || !data.success) {
+				throw new Error(data.error || 'Failed to send verification email.')
+			}
+
+			await getUserInfo(currentUser.slug || toSlug(currentUser.username))
+
+			customSonner({
+				type: 'success',
+				text: data.message || 'Verification email sent successfully.',
+			})
+			setSendingVEmail(false)
+		} catch (error) {
+			console.error('Failed to send verification email:', error)
+			customSonner({
+				type: 'error',
+				text: 'Failed to send verification email. Please try again later.',
+			})
+			setSendingVEmail(false)
+		}
+	}
+
 	return (
 		<>
 			<AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
@@ -246,10 +379,108 @@ export function PreferenceSection({
 											idx === items.length - 1 ? 'border-none' : '',
 										)}
 									>
-										<PreferenceItemTitle
-											title={item.title}
-											description={item.description}
-										/>
+										{item.type === 'input' ? (
+											<div className="space-y-2 w-full">
+												<Label htmlFor="password">
+													{item.props?.inputName}
+												</Label>
+												<div className="relative w-full flex  space-x-4">
+													<Input
+														type="text"
+														className="w-full h-10 rounded-md dark:text-white text-black px-3"
+														placeholder={item.props?.inputPlaceholder || ''}
+														value={
+															inputValue[
+																item.props?.inputId as keyof typeof inputValue
+															] || ''
+														}
+														name={item.props?.inputId}
+														onChange={(e) =>
+															updateInput(item.props?.inputId, e)
+														}
+														readOnly={
+															(item.props
+																?.inputReadOnly as unknown as boolean) ||
+															undefined
+														}
+													/>
+													{item.props?.asInlineButton && (
+														<Button
+															onClick={() => handleUpdateProfile()}
+															disabled={isLoading || !currentUser}
+															id={item.props?.buttonId}
+															className="p-2 text-sm  min-h-9"
+														>
+															{'icon' in item.props && item.props.icon && (
+																<span className="mr-1 size-4 inline-flex items-center justify-center">
+																	<item.props.icon />
+																</span>
+															)}
+															{isLoading ? (
+																<IconSpinner className="mr-1 size-4 animate-spin" />
+															) : null}
+															{item.props?.buttonText || 'Save'}
+														</Button>
+													)}
+												</div>
+												<div>
+													<span className="text-red-700">{errorMessage}</span>
+												</div>
+											</div>
+										) : null}
+										{item.type === 'emailVerification' && (
+											<div className="flex justify-between item-center w-full">
+												<div className="flex flex-col items-start gap-y-0 text-left">
+													<p className="text-lg font-medium">
+														<MailCheck
+															className={cn(
+																'inline mr-1 size-5',
+																currentUser?.isVerified ? 'text-green-500' : '',
+															)}
+														/>
+														{currentUser?.isVerified
+															? 'Email Verified'
+															: item.title}
+													</p>
+													{sendindVEmail ? (
+														<p className="text-sm font-normal text-gray-500">
+															Sending verification email...
+														</p>
+													) : !sendindVEmail && currentUser?.isVerified ? (
+														<p className="text-sm font-normal text-gray-500">
+															Your email is verified and good to go!
+														</p>
+													) : (
+														<p className="text-sm font-normal text-red-700">
+															{item.description}
+														</p>
+													)}
+												</div>
+												{currentUser?.isVerified ? null : (
+													<Button
+														id={item.props?.buttonId}
+														disabled={sendindVEmail}
+														onClick={SendVerificationEmail}
+														className="mt-2"
+													>
+														{sendindVEmail && (
+															<IconSpinner className="mr-1 size-4 animate-spin" />
+														)}
+														{!sendindVEmail && <Send className="mr-1 size-4" />}
+														{item.props?.buttonText}
+													</Button>
+												)}
+											</div>
+										)}
+
+										{item.type !== 'input' &&
+											item.type !== 'emailVerification' && (
+												<PreferenceItemTitle
+													title={item.title}
+													description={item.description}
+												/>
+											)}
+
 										{item.type === 'switch' && (
 											<Switch
 												defaultChecked={
@@ -307,6 +538,22 @@ export function PreferenceSection({
 													<item.icon className="mr-1 size-4" />
 												)}
 												{'buttonText' in item && item.buttonText}
+											</Button>
+										)}
+										{item.type === 'profileButton' && (
+											<Button
+												onClick={() => handleUpdateProfile()}
+												disabled={isLoading || !currentUser}
+												id={item.props?.buttonId}
+												className="p-2 text-sm  min-h-9"
+											>
+												{'icon' in item && item.icon && (
+													<item.icon className="mr-1 size-4" />
+												)}
+												{isLoading ? (
+													<IconSpinner className="mr-1 size-4 animate-spin" />
+												) : null}
+												{item.props?.buttonText || 'Update Profile'}
 											</Button>
 										)}
 									</div>

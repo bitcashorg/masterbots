@@ -57,6 +57,7 @@ export function UserCard({ user: userProps, loading }: UserCardProps) {
 	const { customSonner } = useSonner()
 	const [displayedBio, setDisplayedBio] = useState<string>('')
 
+	// console.log("userProps", userProps)
 	const userQuestions = useMemo(
 		() =>
 			(userProps?.threads || [])
