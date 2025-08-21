@@ -2003,6 +2003,21 @@ export const deleteMessages = async (
 	}
 }
 
+async function isUsernameTaken(username: string, jwt: string) {
+	const client = getHasuraClient({ jwt })
+
+	const result = await client.query({
+		user: {
+			__args: {
+				where: { username: { _eq: username } },
+			},
+			userId: true,
+		},
+	})
+
+	return result.user.length > 0
+}
+
 export async function updateUser({
 	userId,
 	email,
@@ -2023,13 +2038,20 @@ export async function updateUser({
 
 		const client = getHasuraClient({ jwt })
 
+		if (username) {
+			const taken = await isUsernameTaken(username, jwt)
+			if (taken) {
+				throw new Error('Username is already taken')
+			}
+		}
+
 		// Build update arguments based on non-null values
 		const updateArgs: UpdateUserDArgs = {
 			pkColumns: { userId },
 		}
 
 		updateArgs._set = {
-			// ...(email !== null && { email }),
+			...(email !== null && { email }),
 			...(username !== null && { username }),
 			...(slug !== null && { slug }),
 		}
