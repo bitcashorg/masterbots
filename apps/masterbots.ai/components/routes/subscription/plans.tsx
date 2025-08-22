@@ -51,7 +51,6 @@ export function Plans({ next, goTo }: PlansPros) {
 		handleDeleteCustomer,
 		handleSetError,
 		handleSetStripePublishKey,
-		handleSetStripeSecret,
 		promo,
 		handleSetPromo,
 		handleValidatePromoCode,
@@ -74,7 +73,6 @@ export function Plans({ next, goTo }: PlansPros) {
 		async () =>
 			await getSubscriptionPlans({
 				handleSetStripePublishKey,
-				handleSetStripeSecret,
 			}),
 	)
 

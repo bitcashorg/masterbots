@@ -59,10 +59,8 @@ export async function getUserCurrentSubscription(email: string) {
 
 export async function getSubscriptionPlans({
 	handleSetStripePublishKey,
-	handleSetStripeSecret,
 }: {
 	handleSetStripePublishKey: (key: string) => void
-	handleSetStripeSecret: (key: string) => void
 }) {
 	let plans: PlanList[] = []
 
@@ -80,13 +78,11 @@ export async function getSubscriptionPlans({
 
 		const data: {
 			plans: PlanList[]
-			stripeSecret: string
 			stripe_publishable: string
 			error?: string
 		} = await response.json()
 
 		handleSetStripePublishKey(data.stripe_publishable)
-		handleSetStripeSecret(data.stripeSecret)
 
 		// Sort plans by price (free plans first, then by amount)
 		data.plans.sort((a: PlanList, b: PlanList) => {

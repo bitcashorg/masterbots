@@ -46,8 +46,15 @@ interface PaymentContextProps {
 	handleSetSecret: (secret: string) => void
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	handleDeleteCustomer: (email: string) => Promise<any>
-	stripeSecret: string
-	handleSetStripeSecret: (stripeSecret: string) => void
+	// Cancellation and invoices helpers
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+	cancelSubscription: (email: string, atPeriodEnd?: boolean) => Promise<any>
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+	fetchInvoices: (email: string) => Promise<any>
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+	resumeSubscription: (email: string) => Promise<any>
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+	fetchUpcomingInvoice: (email: string) => Promise<any>
 	stripePublishkey: string
 	handleSetStripePublishKey: (stripePublishkey: string) => void
 	// Promotion code related props
@@ -90,7 +97,6 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
 		string | undefined
 	>('')
 	const [secret, setSecret] = useState<string>('')
-	const [stripeSecret, setStripeSecret] = useState<string>('')
 	const [stripePublishkey, setStripePublishKey] = useState<string>('')
 
 	// Unified promotion code state
@@ -145,11 +151,61 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
 		}
 	}
 
-	const handleSetStripeSecret = (stripeSecret: string) => {
-		setStripeSecret(stripeSecret)
-	}
 	const handleSetStripePublishKey = (stripePublishkey: string) => {
 		setStripePublishKey(stripePublishkey)
+	}
+
+	const cancelSubscription = async (email: string, atPeriodEnd = true) => {
+		try {
+			const response = await fetch('/api/payment/subscription', {
+				method: 'DELETE',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ email, at_period_end: atPeriodEnd }),
+			})
+
+			return await response.json()
+		} catch (error) {
+			console.error('Error cancelling subscription:', error)
+			throw new Error('Failed to cancel subscription. Please try again.')
+		}
+	}
+
+	const fetchInvoices = async (email: string) => {
+		try {
+			const res = await fetch(
+				`/api/payment/invoices?email=${encodeURIComponent(email)}`,
+			)
+			return await res.json()
+		} catch (error) {
+			console.error('Error fetching invoices:', error)
+			throw new Error('Failed to fetch invoices.')
+		}
+	}
+
+	const resumeSubscription = async (email: string) => {
+		try {
+			const res = await fetch('/api/payment/subscription', {
+				method: 'PATCH',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ email }),
+			})
+			return await res.json()
+		} catch (error) {
+			console.error('Error resuming subscription:', error)
+			throw new Error('Failed to resume subscription.')
+		}
+	}
+
+	const fetchUpcomingInvoice = async (email: string) => {
+		try {
+			const res = await fetch(
+				`/api/payment/upcoming-invoice?email=${encodeURIComponent(email)}`,
+			)
+			return await res.json()
+		} catch (error) {
+			console.error('Error fetching upcoming invoice:', error)
+			throw new Error('Failed to fetch upcoming invoice.')
+		}
 	}
 
 	//? Unified promotion code handlers
@@ -210,7 +266,6 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
 				loading,
 				paymentIntent,
 				confirmationToken,
-				stripeSecret,
 				stripePublishkey,
 				promo,
 				handleSetPromo,
@@ -222,7 +277,10 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
 				handleSetLoading,
 				handlePaymentIntent,
 				handleDeleteCustomer,
-				handleSetStripeSecret,
+				cancelSubscription,
+				fetchInvoices,
+				resumeSubscription,
+				fetchUpcomingInvoice,
 				handleSetStripePublishKey,
 				handleSetConfirmationToken,
 				handleValidatePromoCode,

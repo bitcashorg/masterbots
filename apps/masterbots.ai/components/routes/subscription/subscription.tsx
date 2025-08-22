@@ -20,7 +20,6 @@
  * Props:
  * - user: An object containing the user's email and name
  */
-import { checkIfCustomerHasActiveSub } from '@/app/actions/subscriptions.actions'
 import { Checkout } from '@/components/routes/subscription/checkout'
 import { WrappedPaymentInformation } from '@/components/routes/subscription/payment-information'
 import { Plans } from '@/components/routes/subscription/plans'
@@ -32,7 +31,6 @@ import { usePayment } from '@/lib/hooks/use-payment'
 import type { Session } from 'next-auth'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { useAsync } from 'react-use'
 
 const steps: WizardStep[] = [
 	{ component: Plans, name: 'Plans' },
@@ -68,7 +66,7 @@ export default function Subscription({ isOpen = false }: SubscriptionProps) {
 	}
 
 	return (
-		<div className="flex items-center justify-center">
+		<div className="flex justify-center items-center">
 			<DialogWizard
 				handleCloseWizard={handleCloseWizard}
 				dialogOpen={isOpen}

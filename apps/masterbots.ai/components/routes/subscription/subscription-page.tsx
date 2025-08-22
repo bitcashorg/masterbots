@@ -5,6 +5,17 @@ import {
 	getUserCurrentSubscription,
 } from '@/app/actions/subscriptions.actions'
 import Subscription from '@/components/routes/subscription/subscription'
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { IconArrowRight, IconCreditCard, IconHelp } from '@/components/ui/icons'
 import { usePayment } from '@/lib/hooks/use-payment'
@@ -39,7 +50,13 @@ const itemVariants: MotionProps['variants'] = {
 export function SubscriptionPageComponent() {
 	const [openSubscriptionSteps, setOpenSubscriptionSteps] = useState(false)
 	const { data: session, status } = useSession()
-	const { card, plan, paymentIntent } = usePayment()
+	const {
+		card,
+		paymentIntent,
+		fetchInvoices,
+		resumeSubscription,
+		fetchUpcomingInvoice,
+	} = usePayment()
 
 	// Fetch current user subscription
 	const { value: currentSubscription } = useAsync(async () => {
@@ -51,11 +68,40 @@ export function SubscriptionPageComponent() {
 
 	// Fetch subscription data from payment intent (for recent transactions)
 	const { value: subscriptionData } = useAsync(async () => {
-		if (paymentIntent) {
-			return await fetchPayment(paymentIntent)
+		const intentId =
+			typeof paymentIntent === 'string' ? paymentIntent : paymentIntent?.id
+		if (intentId) {
+			return await fetchPayment(intentId)
 		}
 		return null
 	}, [paymentIntent])
+
+	// Narrow returned card details for UI (brand/expiry may be present)
+	const pmCard = subscriptionData?.card as unknown as {
+		brand?: string
+		exp_month?: number
+		exp_year?: number
+		last4?: string
+	}
+
+	// Fetch invoices for the current user
+	const { value: invoicesResponse, loading: loadingInvoices } =
+		useAsync(async () => {
+			if (session?.user?.email) {
+				return await fetchInvoices(session.user.email)
+			}
+			return null
+		}, [session?.user?.email])
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+	const invoices: any[] = invoicesResponse?.invoices || []
+
+	// Upcoming invoice
+	const { value: upcoming } = useAsync(async () => {
+		if (session?.user?.email) {
+			return await fetchUpcomingInvoice(session.user.email)
+		}
+		return null
+	}, [session?.user?.email])
 
 	const handleOpenSubscriptionSteps = () => {
 		setOpenSubscriptionSteps(!openSubscriptionSteps)
@@ -97,12 +143,12 @@ export function SubscriptionPageComponent() {
 				variants={containerVariants}
 				initial="hidden"
 				animate="visible"
-				className="flex flex-col gap-8 justify-center items-center pt-10 w-full"
+				className="grid grid-cols-1 gap-8 pt-10 w-full md:grid-cols-2"
 			>
 				{/* Active Subscription Section */}
 				<motion.div
 					variants={itemVariants}
-					className="flex flex-col gap-4 items-center p-8 w-full max-w-2xl rounded-xl border shadow-sm transition-shadow duration-300 hover:shadow-md bg-card"
+					className="flex flex-col gap-4 p-8 w-full rounded-xl border shadow-sm transition-shadow duration-300 hover:shadow-md bg-card"
 				>
 					<h2 className="text-2xl font-semibold text-foreground">
 						Current Plan
@@ -153,7 +199,7 @@ export function SubscriptionPageComponent() {
 				{!currentSubscription && (
 					<motion.div
 						variants={itemVariants}
-						className="flex flex-col gap-4 items-center p-8 w-full max-w-2xl rounded-xl border shadow-sm transition-shadow duration-300 hover:shadow-md bg-card"
+						className="flex flex-col gap-4 p-8 w-full rounded-xl border shadow-sm transition-shadow duration-300 hover:shadow-md bg-card"
 					>
 						<h2 className="text-2xl font-semibold text-foreground">
 							Pro Plan Benefits
@@ -184,33 +230,67 @@ export function SubscriptionPageComponent() {
 				{/* Payment Method Section */}
 				<motion.div
 					variants={itemVariants}
-					className="flex flex-col gap-4 items-center p-8 w-full max-w-2xl rounded-xl border shadow-sm transition-shadow duration-300 hover:shadow-md bg-card"
+					className="flex flex-col gap-4 p-8 w-full rounded-xl border shadow-sm transition-shadow duration-300 hover:shadow-md bg-card"
 				>
 					<h2 className="text-2xl font-semibold text-foreground">
 						Payment Method
 					</h2>
 					{card || subscriptionData?.card?.last4 ? (
-						<div className="flex items-center p-4 space-x-3 w-full rounded-lg border backdrop-blur-sm bg-muted/50">
-							<IconCreditCard className="fill-primary" />
-							<span className="text-foreground">
-								Card ending with{' '}
-								<strong>
-									****{card?.last4 || subscriptionData?.card?.last4}
-								</strong>
-							</span>
-							<Button
-								variant="outline"
-								className="ml-auto transition-colors border-primary/20 hover:bg-primary/10"
-								onClick={handleOpenSubscriptionSteps}
-							>
-								Update Payment Method
-							</Button>
+						<div className="flex flex-col gap-4 w-full">
+							{/* Stylized credit card */}
+							<div className="overflow-hidden relative p-5 text-white bg-gradient-to-tr rounded-xl shadow-lg from-primary/90 via-primary to-primary/70">
+								<div className="absolute top-4 right-4 text-xs tracking-widest uppercase opacity-80">
+									{pmCard?.brand || 'Card'}
+								</div>
+								<div className="flex gap-2 items-center text-white/90">
+									<IconCreditCard className="size-5 fill-white/90" />
+									<span className="text-sm">Masterbots</span>
+								</div>
+								<div className="mt-6 text-2xl font-semibold tracking-widest">
+									**** **** **** {card?.last4 || pmCard?.last4}
+								</div>
+								<div className="flex justify-between items-center mt-4 text-xs">
+									<div className="space-y-1">
+										<p className="opacity-80">Cardholder</p>
+										<p className="font-medium">
+											{session?.user?.name || 'Your Name'}
+										</p>
+									</div>
+									<div className="space-y-1 text-right">
+										<p className="opacity-80">Expires</p>
+										<p className="font-medium">
+											{pmCard?.exp_month || 'MM'}/
+											{pmCard?.exp_year?.toString()?.slice(-2) || 'YY'}
+										</p>
+									</div>
+								</div>
+							</div>
+							{/* Actions */}
+							<div className="flex flex-wrap gap-3">
+								<Button
+									variant="outline"
+									className="transition-colors border-primary/20 hover:bg-primary/10"
+									onClick={handleOpenSubscriptionSteps}
+								>
+									Change Card
+								</Button>
+								<Button
+									className="transition-colors bg-primary hover:bg-primary/90"
+									onClick={handleOpenSubscriptionSteps}
+								>
+									Add New Payment Method
+								</Button>
+							</div>
 						</div>
 					) : (
-						<div className="space-y-4 w-full text-center">
-							<p className="text-sm text-muted-foreground">
-								No payment method on file
-							</p>
+						<div className="space-y-4 w-full">
+							{/* Placeholder stylized card */}
+							<div className="overflow-hidden relative p-5 bg-gradient-to-tr rounded-xl border from-muted via-muted/80 to-muted/60 text-foreground/80">
+								<div className="text-sm">No payment method on file</div>
+								<div className="mt-6 text-2xl font-semibold tracking-widest opacity-60">
+									**** **** **** ----
+								</div>
+							</div>
 							<Button
 								className="w-full max-w-xs transition-colors bg-primary hover:bg-primary/90"
 								onClick={handleOpenSubscriptionSteps}
@@ -224,10 +304,10 @@ export function SubscriptionPageComponent() {
 				{/* Transaction History */}
 				<motion.div
 					variants={itemVariants}
-					className="flex flex-col gap-4 items-center p-8 w-full max-w-2xl rounded-xl border shadow-sm transition-shadow duration-300 hover:shadow-md bg-card"
+					className="flex flex-col gap-4 p-8 w-full rounded-xl border shadow-sm transition-shadow duration-300 hover:shadow-md bg-card"
 				>
 					<h2 className="text-2xl font-semibold text-foreground">
-						Transaction History
+						Invoice Information
 					</h2>
 					<div className="space-y-4 w-full">
 						{currentSubscription ? (
@@ -240,19 +320,47 @@ export function SubscriptionPageComponent() {
 								<div className="space-y-1">
 									<h3 className="font-medium text-foreground">Next Invoice</h3>
 									<p className="text-sm text-muted-foreground">
-										Due on{' '}
+										{upcoming?.amount_due != null && (
+											<>
+												Next bill: $
+												{(Number(upcoming.amount_due || 0) / 100).toFixed(2)} on{' '}
+											</>
+										)}
 										{new Date(
-											currentSubscription.current_period_end * 1000,
+											(upcoming?.next_payment_attempt ||
+												currentSubscription.current_period_end) * 1000,
 										).toLocaleDateString()}
 									</p>
+									{currentSubscription.cancel_at_period_end && (
+										<div className="flex justify-between items-center px-3 py-2 mt-2 text-amber-800 bg-amber-50 rounded border dark:bg-amber-900/20 dark:text-amber-200">
+											<span className="text-xs">
+												Your subscription will cancel at period end on{' '}
+												{new Date(
+													currentSubscription.current_period_end * 1000,
+												).toLocaleDateString()}
+											</span>
+											<Button
+												size="sm"
+												variant="outline"
+												className="ml-3"
+												onClick={async () => {
+													if (session?.user?.email) {
+														await resumeSubscription(session.user.email)
+													}
+												}}
+											>
+												Resume
+											</Button>
+										</div>
+									)}
+									{!currentSubscription.cancel_at_period_end && (
+										<div className="mt-3">
+											<UnsubscribeDialog
+												endEpoch={currentSubscription.current_period_end}
+											/>
+										</div>
+									)}
 								</div>
-								<Link
-									href={`/u/${session?.user.slug}/s/subs`}
-									className="flex items-center space-x-2 transition-colors text-primary hover:text-primary/80"
-								>
-									<span>View Details</span>
-									<IconArrowRight className="w-4 h-4" />
-								</Link>
 							</motion.div>
 						) : (
 							<p className="text-sm text-center text-muted-foreground">
@@ -262,8 +370,145 @@ export function SubscriptionPageComponent() {
 					</div>
 				</motion.div>
 
-				<Subscription isOpen={openSubscriptionSteps} />
+				{/* Invoices Section */}
+				<motion.div
+					variants={itemVariants}
+					className="flex flex-col gap-4 p-8 w-full rounded-xl border shadow-sm transition-shadow duration-300 hover:shadow-md bg-card"
+				>
+					<h2 className="text-2xl font-semibold text-foreground">Invoices</h2>
+					<div className="space-y-4 w-full">
+						{loadingInvoices ? (
+							<div className="w-full h-32 rounded-lg animate-pulse bg-muted/30" />
+						) : invoices.length ? (
+							<div className="rounded-lg border divide-y bg-muted/30">
+								{invoices.map((inv) => (
+									<div
+										key={inv.id}
+										className="flex flex-col gap-2 p-4 md:flex-row md:items-center md:justify-between"
+									>
+										<div className="space-y-1">
+											<p className="text-sm text-muted-foreground">
+												Invoice #{inv.number || inv.id}
+											</p>
+											<p className="text-xs text-muted-foreground">
+												{inv.created
+													? new Date(inv.created * 1000).toLocaleDateString()
+													: ''}
+											</p>
+										</div>
+										<div className="flex gap-4 items-center">
+											<span className="text-sm text-foreground">
+												$
+												{(
+													((inv.amount_paid || inv.amount_due || 0) as number) /
+													100
+												).toFixed(2)}
+											</span>
+											<span className="px-2 py-1 text-xs capitalize rounded border bg-background">
+												{inv.status}
+											</span>
+											{inv.hosted_invoice_url && (
+												<Link
+													href={inv.hosted_invoice_url as string}
+													target="_blank"
+													rel="noopener noreferrer"
+													className="text-sm text-primary hover:underline"
+												>
+													View
+												</Link>
+											)}
+										</div>
+									</div>
+								))}
+							</div>
+						) : (
+							<p className="text-sm text-center text-muted-foreground">
+								No invoices found
+							</p>
+						)}
+					</div>
+				</motion.div>
 			</motion.div>
+			<Subscription isOpen={openSubscriptionSteps} />
 		</div>
+	)
+}
+
+function UnsubscribeDialog({ endEpoch }: { endEpoch?: number }) {
+	const { data: session } = useSession()
+	const { cancelSubscription } = usePayment()
+	const [loading, setLoading] = useState(false)
+	const endDate = endEpoch ? new Date(endEpoch * 1000) : null
+	const daysRemaining = endEpoch
+		? Math.max(
+				0,
+				Math.ceil((endEpoch * 1000 - Date.now()) / (1000 * 60 * 60 * 24)),
+			)
+		: null
+
+	const onConfirm = async () => {
+		try {
+			setLoading(true)
+			if (session?.user?.email) {
+				await cancelSubscription(session.user.email, true)
+			}
+		} finally {
+			setLoading(false)
+		}
+	}
+
+	return (
+		<AlertDialog>
+			<AlertDialogTrigger asChild>
+				<Button
+					variant="outline"
+					className="border-destructive/30 text-destructive hover:bg-destructive/10"
+				>
+					Unsubscribe
+				</Button>
+			</AlertDialogTrigger>
+			<AlertDialogContent>
+				<AlertDialogHeader>
+					<AlertDialogTitle>
+						Are you sure you want to unsubscribe?
+					</AlertDialogTitle>
+					<AlertDialogDescription>
+						You will lose access to:
+						<ul className="mt-3 space-y-1 list-disc list-inside text-foreground">
+							<li>Advanced AI models and features</li>
+							<li>Priority access to new model releases</li>
+							<li>Unlimited AI across tools in one subscription</li>
+						</ul>
+						Your plan will remain active until the end of the current billing
+						period
+						{endDate ? (
+							<>
+								: <strong>{endDate.toLocaleDateString()}</strong>
+								{typeof daysRemaining === 'number' && (
+									<>
+										{' '}
+										({daysRemaining} day{daysRemaining === 1 ? '' : 's'}{' '}
+										remaining)
+									</>
+								)}
+								.
+							</>
+						) : (
+							'.'
+						)}
+					</AlertDialogDescription>
+				</AlertDialogHeader>
+				<AlertDialogFooter>
+					<AlertDialogCancel disabled={loading}>Keep Plan</AlertDialogCancel>
+					<AlertDialogAction
+						onClick={onConfirm}
+						disabled={loading}
+						className="text-white bg-destructive hover:bg-destructive/90"
+					>
+						{loading ? 'Processing...' : 'Confirm Unsubscribe'}
+					</AlertDialogAction>
+				</AlertDialogFooter>
+			</AlertDialogContent>
+		</AlertDialog>
 	)
 }
