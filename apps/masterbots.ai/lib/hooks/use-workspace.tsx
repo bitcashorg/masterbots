@@ -1,5 +1,7 @@
 'use client'
 
+import type { WorkspaceStatePayload } from '@/app/api/workspace/state/route'
+import { useSession } from 'next-auth/react'
 import * as React from 'react'
 
 interface WorkspaceContextType {
@@ -48,112 +50,35 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 	const [isWorkspaceActive, setIsWorkspaceActive] = React.useState(false)
 	const [activeOrganization, setActiveOrganization] = React.useState<
 		string | null
-	>(null) // ISSUE 5 FIX: No default selection
+	>(null)
 	const [activeDepartment, setActiveDepartment] = React.useState<string | null>(
-		null, // ISSUE 5 FIX: No default selection
+		null,
 	)
-	const [activeProject, setActiveProject] = React.useState<string | null>(
-		null, // ISSUE 5 FIX: No default selection
-	)
+	const [activeProject, setActiveProject] = React.useState<string | null>(null)
 	const [activeDocument, setActiveDocument] = React.useState<string | null>(
-		null, // ISSUE 5 FIX: No document should be selected by default
+		null,
 	)
 	const [activeDocumentType, setActiveDocumentType] = React.useState<
 		'all' | 'text' | 'image' | 'spreadsheet'
 	>('all')
-	const [organizationList, setOrganizationList] = React.useState<string[]>([
-		'Company 1',
-		'Company 2',
-		'Client 1',
-		'Client 2',
-	])
+	const [organizationList, setOrganizationList] = React.useState<string[]>([])
 	const [departmentsByOrg, setDepartmentsByOrg] = React.useState<
 		Record<string, string[]>
-	>({
-		'Company 1': ['General & Admin', 'Sales & Marketing', 'Product/Service'],
-		'Company 2': ['Finance', 'HR', 'Operations'],
-		'Client 1': ['Legal', 'Support', 'Implementation'],
-		'Client 2': ['Design', 'Development', 'QA'],
-	})
+	>({})
 	const [projectsByDept, setProjectsByDept] = React.useState<
 		Record<string, Record<string, string[]>>
-	>({
-		'Company 1': {
-			'General & Admin': ['Project 1A', 'Project 1B'],
-			'Sales & Marketing': ['Campaign A', 'Campaign B'],
-			'Product/Service': ['Product X', 'Service Y'],
-		},
-		'Company 2': {
-			Finance: ['Budget 2024', 'Forecasting'],
-			HR: ['Recruiting', 'Training'],
-			Operations: ['Logistics', 'Supply Chain'],
-		},
-		'Client 1': {
-			Legal: ['Contracts', 'Compliance'],
-			Support: ['Tickets', 'Knowledge Base'],
-			Implementation: ['Onboarding', 'Integration'],
-		},
-		'Client 2': {
-			Design: ['UI Mockups', 'Branding'],
-			Development: ['Frontend', 'Backend'],
-			QA: ['Testing', 'Bug Tracking'],
-		},
-	})
+	>({})
 	// Document maps (type segregated)
 	const [textDocuments, setTextDocuments] = React.useState<
 		Record<string, string[]>
-	>({
-		'Project 1A': ['Proposal', 'Timeline', 'Budget'],
-		'Project 1B': ['Requirements', 'Specifications'],
-		'Campaign A': ['Creative Brief', 'Schedule'],
-		'Campaign B': ['Market Analysis', 'Audience Segments'],
-		'Product X': ['Features', 'Roadmap', 'Pricing'],
-		'Service Y': ['Service Tiers', 'Implementation Guide'],
-		'Budget 2024': ['Q1 Forecast', 'Q2 Forecast', 'Annual Summary'],
-		Forecasting: ['Models', 'Assumptions'],
-		Recruiting: ['Job Descriptions', 'Interview Questions'],
-		Training: ['Onboarding Materials', 'Development Plans'],
-		Logistics: ['Shipping Routes', 'Warehouse Plans'],
-		'Supply Chain': ['Vendor List', 'Procurement Process'],
-		Contracts: ['MSA Template', 'SOW Template', 'NDA'],
-		Compliance: ['Requirements', 'Audit Checklist'],
-		Tickets: ['Open Issues', 'Resolved Cases'],
-		'Knowledge Base': ['FAQ', 'Troubleshooting Guide'],
-		Onboarding: ['Client Setup', 'Training Schedule'],
-		Integration: ['API Documentation', 'Implementation Steps'],
-		'UI Mockups': ['Homepage', 'Dashboard', 'Settings'],
-		Branding: ['Logo Guidelines', 'Color Palette'],
-		Frontend: ['Component Library', 'State Management'],
-		Backend: ['API Endpoints', 'Database Schema'],
-		Testing: ['Test Cases', 'QA Process'],
-		'Bug Tracking': ['Current Sprint', 'Backlog'],
-	})
+	>({})
 	const [imageDocuments, setImageDocuments] = React.useState<
 		Record<string, string[]>
-	>({
-		'Campaign A': ['Assets', 'Banner Images', 'Social Media Graphics'],
-		Branding: ['Logo Variants', 'Brand Illustrations', 'Icon Set'],
-		'UI Mockups': ['Design Concepts', 'Mobile Screens', 'User Flow Diagrams'],
-		'Product X': ['Product Photos', 'Marketing Visuals', 'Infographics'],
-		Frontend: ['UI Components', 'Animation Examples'],
-	})
+	>({})
 	const [spreadsheetDocuments, setSpreadsheetDocuments] = React.useState<
 		Record<string, string[]>
-	>({
-		'Budget 2024': [
-			'Financial Projections',
-			'Expense Tracker',
-			'Investment Calculator',
-		],
-		'Project 1A': ['Project Timeline', 'Resource Allocation', 'Cost Analysis'],
-		'Campaign B': ['Campaign Metrics', 'ROI Calculator', 'Target Demographics'],
-		'Supply Chain': [
-			'Inventory Management',
-			'Supplier Comparison',
-			'Shipping Logistics',
-		],
-		Forecasting: ['Sales Projections', 'Growth Models', 'Trend Analysis'],
-	})
+	>({})
+	const { data: session } = useSession()
 	// Derived projectList (flatten) recomputed on changes
 	const projectList = React.useMemo(() => {
 		return Object.values(projectsByDept).flatMap((deptMap) =>
@@ -210,33 +135,32 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 		[],
 	)
 
-	const addDocument = React.useCallback(
-		(
-			project: string,
-			name: string,
-			type: 'text' | 'image' | 'spreadsheet' = 'text',
+	const addDocument = (
+		project: string,
+		name: string,
+		type: 'text' | 'image' | 'spreadsheet' = 'text',
+	) => {
+		if (!project || !name) return
+		const updater = <T extends Record<string, string[]>>(
+			setFn: React.Dispatch<React.SetStateAction<T>>,
 		) => {
-			if (!project || !name) return
-			const updater = <T extends Record<string, string[]>>(
-				setFn: React.Dispatch<React.SetStateAction<T>>,
-			) => {
-				setFn((prev: T) => {
-					const existing = prev[project] || []
-					if (existing.includes(name)) return prev
-					return { ...prev, [project]: [...existing, name] } as T
-				})
-			}
-			if (type === 'text') updater(setTextDocuments)
-			if (type === 'image') updater(setImageDocuments)
-			if (type === 'spreadsheet') updater(setSpreadsheetDocuments)
+			setFn((prev: T) => {
+				const existing = prev[project] || []
+				if (existing.includes(name)) return prev
+				return { ...prev, [project]: [...existing, name] } as T
+			})
+		}
+		if (type === 'text') updater(setTextDocuments)
+		if (type === 'image') updater(setImageDocuments)
+		if (type === 'spreadsheet') updater(setSpreadsheetDocuments)
 
-			// Initialize document with type-appropriate content
-			const documentKey = `${project}:${name}`
-			let initialContent = ''
+		// Initialize document with type-appropriate content
+		const documentKey = `${project}:${name}`
+		let initialContent = ''
 
-			switch (type) {
-				case 'text':
-					initialContent = `# ${name}
+		switch (type) {
+			case 'text':
+				initialContent = `# ${name}
 This is a new text document for ${project}.
 
 ## Overview
@@ -248,9 +172,9 @@ Detailed content goes here.
 ## Conclusion
 Summary and next steps.
 `
-					break
-				case 'image':
-					initialContent = `# ${name}
+				break
+			case 'image':
+				initialContent = `# ${name}
 Visual assets and images for ${project}.
 
 ## Image Collection
@@ -262,9 +186,9 @@ Brand and design materials.
 ## Reference Materials
 Reference images and inspiration.
 `
-					break
-				case 'spreadsheet':
-					initialContent = `# ${name}
+				break
+			case 'spreadsheet':
+				initialContent = `# ${name}
 Data and analysis for ${project}.
 
 ## Data Overview
@@ -276,17 +200,18 @@ Important measurements and KPIs.
 ## Analysis
 Data analysis and insights.
 `
-					break
-			}
+				break
+		}
 
-			// Set the initial content
-			setDocumentContentState((prev) => ({
-				...prev,
-				[documentKey]: initialContent,
-			}))
-		},
-		[],
-	)
+		// Set the initial content
+		setDocumentContentState((prev) => ({
+			...prev,
+			[documentKey]: initialContent,
+		}))
+		if (!isWorkspaceActive) {
+			setIsWorkspaceActive(true)
+		}
+	}
 
 	// Initial document content with sample content for different types
 	const [documentContent, setDocumentContentState] = React.useState<
@@ -500,9 +425,10 @@ Financial risk assessment and mitigation strategies.
 				setActiveProject(defaultProject)
 			}
 		}
-	}, [activeOrganization, activeDepartment, deptProjects, activeProject])
+	}, [activeOrganization, activeDepartment, activeProject, deptProjects])
 
 	// Memoize project documents to prevent unnecessary recalculations (respect type filter)
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const projectDocs = React.useMemo(() => {
 		if (!activeProject) return null
 		if (activeDocumentType === 'all') return documentList[activeProject] || null
@@ -514,6 +440,7 @@ Financial risk assessment and mitigation strategies.
 					: spreadsheetDocuments
 		return source[activeProject] || null
 	}, [
+		activeDepartment,
 		activeProject,
 		activeDocumentType,
 		documentList,
@@ -563,29 +490,19 @@ Financial risk assessment and mitigation strategies.
 	}, [activeProject, projectDocs, activeDocument])
 
 	// Stable reference to state update functions
-	const stableSetters = React.useMemo(
-		() => ({
-			setActiveOrganization,
-			setActiveDepartment,
-			setActiveProject,
-			setActiveDocument,
-			setDocumentContent,
-			toggleWorkspace,
-			addOrganization,
-			addDepartment,
-			addProject,
-			addDocument,
-			setActiveDocumentType,
-		}),
-		[
-			addOrganization,
-			addDepartment,
-			addProject,
-			addDocument,
-			toggleWorkspace,
-			setDocumentContent,
-		],
-	)
+	const stableSetters = {
+		setActiveOrganization,
+		setActiveDepartment,
+		setActiveProject,
+		setActiveDocument,
+		setDocumentContent,
+		toggleWorkspace,
+		addOrganization,
+		addDepartment,
+		addProject,
+		addDocument,
+		setActiveDocumentType,
+	}
 
 	// Persistence constants
 	const PERSIST_KEY = 'mb.workspace.v1'
@@ -612,7 +529,24 @@ Financial risk assessment and mitigation strategies.
 		}
 	}, [])
 
+	const updateBreadcrumbNavigation = (data: WorkspaceStatePayload) => {
+		setOrganizationList(data.organizations)
+		setDepartmentsByOrg(data.departmentsByOrg)
+		setProjectsByDept(data.projectsByDept)
+		setTextDocuments(data.textDocuments)
+		setImageDocuments(data.imageDocuments)
+		setSpreadsheetDocuments(data.spreadsheetDocuments)
+		setDocumentContentState(data.documentContent)
+		setActiveOrganization(data.activeOrganization)
+		setActiveDepartment(data.activeDepartment)
+		setActiveProject(data.activeProject)
+		setActiveDocument(data.activeDocument)
+		setActiveDocumentType(data.activeDocumentType)
+		setLastUpdatedAt(data.updatedAt)
+	}
+
 	// Hydrate from localStorage on mount
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	React.useEffect(() => {
 		try {
 			const raw =
@@ -621,22 +555,7 @@ Financial risk assessment and mitigation strategies.
 			if (raw) {
 				const data = JSON.parse(raw)
 				localTimestamp = data.updatedAt || null
-				if (data.organizations) setOrganizationList(data.organizations)
-				if (data.departmentsByOrg) setDepartmentsByOrg(data.departmentsByOrg)
-				if (data.projectsByDept) setProjectsByDept(data.projectsByDept)
-				if (data.textDocuments) setTextDocuments(data.textDocuments)
-				if (data.imageDocuments) setImageDocuments(data.imageDocuments)
-				if (data.spreadsheetDocuments)
-					setSpreadsheetDocuments(data.spreadsheetDocuments)
-				if (data.documentContent) setDocumentContentState(data.documentContent)
-				if (data.activeOrganization)
-					setActiveOrganization(data.activeOrganization)
-				if (data.activeDepartment) setActiveDepartment(data.activeDepartment)
-				if (data.activeProject) setActiveProject(data.activeProject)
-				if (data.activeDocument) setActiveDocument(data.activeDocument)
-				if (data.activeDocumentType)
-					setActiveDocumentType(data.activeDocumentType)
-				if (data.updatedAt) setLastUpdatedAt(data.updatedAt)
+				updateBreadcrumbNavigation(data)
 			}
 			// Attempt server hydrate
 			fetch('/api/workspace/state')
@@ -645,23 +564,8 @@ Financial risk assessment and mitigation strategies.
 					if (!remote || !remote.data) return
 					// If remote is newer than local, adopt it
 					if (!localTimestamp || remote.data.updatedAt > localTimestamp) {
-						const d = remote.data
-						if (d.organizations) setOrganizationList(d.organizations)
-						if (d.departmentsByOrg) setDepartmentsByOrg(d.departmentsByOrg)
-						if (d.projectsByDept) setProjectsByDept(d.projectsByDept)
-						if (d.textDocuments) setTextDocuments(d.textDocuments)
-						if (d.imageDocuments) setImageDocuments(d.imageDocuments)
-						if (d.spreadsheetDocuments)
-							setSpreadsheetDocuments(d.spreadsheetDocuments)
-						if (d.documentContent) setDocumentContentState(d.documentContent)
-						if (d.activeOrganization)
-							setActiveOrganization(d.activeOrganization)
-						if (d.activeDepartment) setActiveDepartment(d.activeDepartment)
-						if (d.activeProject) setActiveProject(d.activeProject)
-						if (d.activeDocument) setActiveDocument(d.activeDocument)
-						if (d.activeDocumentType)
-							setActiveDocumentType(d.activeDocumentType)
-						if (d.updatedAt) setLastUpdatedAt(d.updatedAt)
+						const d = remote.data as WorkspaceStatePayload
+						updateBreadcrumbNavigation(d)
 					}
 				})
 				.catch(() => {})
@@ -670,7 +574,7 @@ Financial risk assessment and mitigation strategies.
 		} finally {
 			setHydrated(true)
 		}
-	}, [])
+	}, [session?.user?.id])
 
 	// Persist when key structures change (debounced via requestAnimationFrame batch)
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
@@ -679,7 +583,7 @@ Financial risk assessment and mitigation strategies.
 		let frame: number | null = null
 		const save = () => {
 			try {
-				const payload = {
+				const payload: WorkspaceStatePayload = {
 					organisationsVersion: 1,
 					updatedAt: Date.now(),
 					organizations: organizationList,

@@ -38,7 +38,9 @@ function WorkspaceContentInternal({
 	documentType,
 	chatbot,
 }: WorkspaceContentInternalProps) {
-	const { documentContent, setDocumentContent } = useWorkspace()
+	const { documentContent, setDocumentContent, ...rest } = useWorkspace()
+	console.log('useWorkspace documentContent', documentContent)
+	console.log('rest of useWorkspace state', rest)
 	const {
 		setCursorPosition: setGlobalCursorPosition,
 		handleWorkspaceEdit,

@@ -59,18 +59,19 @@ function HeaderLink({
 	const pathname = usePathname()
 	const routeType = getRouteType(pathname)
 	// Check if this link represents the current active route
-	const isActive =
+	const isActive = Boolean(
 		// Exact match for root paths
 		pathname === href ||
-		// For public route: href is "/" and pathname starts with any route except "/c"
-		(href === '/' &&
-			routeType === 'public' &&
-			pathname.length > 1 &&
-			!pathname.startsWith('/c')) ||
-		// For personal/chat route: href is "/c" and pathname starts with "/c/"
-		(href === '/c' &&
-			routeType === 'chat' &&
-			(pathname === '/c' || pathname.startsWith('/c/')))
+			// For public route: href is "/" and pathname starts with any route except "/c"
+			(href === '/' &&
+				routeType.match(/(public|org)/) &&
+				pathname.length > 1 &&
+				!pathname.startsWith('/')) ||
+			// For personal/chat route: href is "/c" and pathname starts with "/c/"
+			(href === '/' &&
+				routeType.match(/(pro|chat)/) &&
+				(pathname === '/c' || pathname.startsWith('/c/'))),
+	)
 	const routeColour = getRouteColor(isActive, pathname)
 
 	return (
@@ -107,11 +108,13 @@ export function Header() {
 		imageDocuments,
 		spreadsheetDocuments,
 		activeDocumentType,
+		isWorkspaceActive,
 		setActiveDocumentType,
 		setActiveOrganization,
 		setActiveDepartment,
 		setActiveProject,
 		setActiveDocument,
+		toggleWorkspace,
 		addOrganization,
 		addDepartment,
 		addProject,
@@ -124,8 +127,8 @@ export function Header() {
 	const [isDocumentDialogOpen, setIsDocumentDialogOpen] = useState(false)
 	const [documentName, setDocumentName] = useState('')
 	const [documentType, setDocumentType] = useState<
-		'text' | 'image' | 'spreadsheet'
-	>('text')
+		'all' | 'text' | 'image' | 'spreadsheet'
+	>('all')
 	const [mounted, setMounted] = useState(false)
 
 	const resetNavigation = (e: React.MouseEvent) => {
@@ -142,11 +145,7 @@ export function Header() {
 		resolvedTheme === 'dark'
 			? '/logos/mb-logo-short-dark.webp'
 			: '/logos/mb-logo-short-light.webp'
-	const preserveContextNavigation = (e: React.MouseEvent) => {
-		//! The URL will be built with the current context
-	}
 	const proUrl = '/'
-	const personalUrl = '/c'
 
 	const pathname = usePathname()
 	const routeType = getRouteType(pathname)
@@ -169,19 +168,29 @@ export function Header() {
 	const documentOptions = useMemo(() => {
 		if (!activeProject) return ['None']
 		let docs: string[] = []
-		if (activeDocumentType === 'all') {
-			docs = [
-				...(textDocuments[activeProject] || []),
-				...(imageDocuments[activeProject] || []),
-				...(spreadsheetDocuments[activeProject] || []),
-			]
-		} else if (activeDocumentType === 'text') {
-			docs = textDocuments[activeProject] || []
-		} else if (activeDocumentType === 'image') {
-			docs = imageDocuments[activeProject] || []
-		} else if (activeDocumentType === 'spreadsheet') {
-			docs = spreadsheetDocuments[activeProject] || []
+
+		switch (activeDocumentType) {
+			case 'all':
+				docs = [
+					...(textDocuments[activeProject] || []),
+					...(imageDocuments[activeProject] || []),
+					...(spreadsheetDocuments[activeProject] || []),
+				]
+				break
+			case 'text':
+				docs = textDocuments[activeProject] || []
+				break
+			case 'image':
+				docs = imageDocuments[activeProject] || []
+				break
+			case 'spreadsheet':
+				docs = spreadsheetDocuments[activeProject] || []
+				break
+			default:
+				docs = []
+				break
 		}
+
 		return ['None', ...docs]
 	}, [
 		activeProject,
@@ -190,43 +199,50 @@ export function Header() {
 		imageDocuments,
 		spreadsheetDocuments,
 	])
+	const docType: 'text' | 'image' | 'spreadsheet' =
+		documentType === 'all' ? 'text' : documentType
 
 	// Generic helpers
 	const handleAddEntity = (
 		type: 'organization' | 'department' | 'project' | 'document',
 	) => {
-		if (type === 'document') {
-			if (!activeProject) return
-			// Open the document creation dialog instead of using prompt
-			setDocumentName('')
-			// Set initial document type based on current selection
-			const docType: 'text' | 'image' | 'spreadsheet' =
-				activeDocumentType === 'all' ? 'text' : activeDocumentType
-			setDocumentType(docType)
-			setIsDocumentDialogOpen(true)
-			return
+		let name = ''
+		if (type.match(/(organization|department|project)/)) {
+			name = prompt(`Enter new ${type} name`) || ''
+			name = name.trim()
+
+			if (!name) return
 		}
 
-		// Handle other entity types with prompt as before
-		const name = prompt(`Enter new ${type} name`)
-		if (!name) return
-		if (type === 'organization') {
-			addOrganization(name)
-			setActiveOrganization(name)
-			setActiveDepartment(null)
-			setActiveProject(null)
-			setActiveDocument(null)
-		} else if (type === 'department') {
-			if (!activeOrganization) return
-			addDepartment(activeOrganization, name)
-			setActiveDepartment(name)
-			setActiveProject(null)
-			setActiveDocument(null)
-		} else if (type === 'project') {
-			if (!activeOrganization || !activeDepartment) return
-			addProject(activeOrganization, activeDepartment, name)
-			setActiveProject(name)
-			setActiveDocument(null)
+		switch (type) {
+			case 'organization':
+				addOrganization(name)
+				setActiveOrganization(name)
+				setActiveDepartment(null)
+				setActiveProject(null)
+				setActiveDocument(null)
+				break
+			case 'department':
+				if (!activeOrganization) return
+				addDepartment(activeOrganization, name)
+				setActiveDepartment(name)
+				setActiveProject(null)
+				setActiveDocument(null)
+				break
+			case 'project':
+				if (!activeOrganization || !activeDepartment) return
+				addProject(activeOrganization, activeDepartment, name)
+				setActiveProject(name)
+				setActiveDocument(null)
+				break
+			// ? Document
+			default: {
+				if (!activeProject) return
+				// Set initial document type based on current selection
+				setActiveDocumentType(docType)
+				setIsDocumentDialogOpen(true)
+				break
+			}
 		}
 	}
 
@@ -235,7 +251,7 @@ export function Header() {
 		if (!documentName.trim() || !activeProject) return
 
 		// Add the document
-		addDocument(activeProject, documentName.trim(), documentType)
+		addDocument(activeProject, documentName.trim(), docType)
 		setActiveDocument(documentName.trim())
 
 		// Close dialog and reset state
@@ -487,6 +503,9 @@ export function Header() {
 							}
 							if (v === activeDocument) return
 							setActiveDocument(v)
+							if (!isWorkspaceActive) {
+								toggleWorkspace()
+							}
 						}}
 						addType="document"
 						disabled={!activeProject}
@@ -555,16 +574,26 @@ export function Header() {
 										</Button>
 									</DropdownMenuTrigger>
 									<DropdownMenuContent>
-										<DropdownMenuItem onClick={() => setDocumentType('text')}>
+										<DropdownMenuItem
+											onClick={() => {
+												setDocumentType('text')
+											}}
+										>
 											<FileTextIcon className="w-4 h-4 mr-2" />
 											Text
 										</DropdownMenuItem>
-										<DropdownMenuItem onClick={() => setDocumentType('image')}>
+										<DropdownMenuItem
+											onClick={() => {
+												setDocumentType('image')
+											}}
+										>
 											<ImageIcon className="w-4 h-4 mr-2" />
 											Image
 										</DropdownMenuItem>
 										<DropdownMenuItem
-											onClick={() => setDocumentType('spreadsheet')}
+											onClick={() => {
+												setDocumentType('spreadsheet')
+											}}
 										>
 											<FileSpreadsheetIcon className="w-4 h-4 mr-2" />
 											Spreadsheet

@@ -5,7 +5,7 @@ import { appConfig } from 'mb-env'
 let cachedWorkspaceState: WorkspaceStatePayload | null = null
 let cachedChecksum: string | null = null
 
-interface WorkspaceStatePayload {
+export interface WorkspaceStatePayload {
 	organisationsVersion: number
 	updatedAt: number
 	organizations: string[]
@@ -19,6 +19,7 @@ interface WorkspaceStatePayload {
 	activeDepartment: string | null
 	activeProject: string | null
 	activeDocument: string | null
+	activeDocumentType: 'all' | 'text' | 'image' | 'spreadsheet'
 }
 
 function computeChecksum(obj: unknown) {
