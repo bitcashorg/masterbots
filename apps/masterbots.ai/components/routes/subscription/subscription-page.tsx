@@ -353,7 +353,7 @@ export function SubscriptionPageComponent() {
 											</Button>
 										</div>
 									)}
-									{currentSubscription.cancel_at_period_end && (
+									{!currentSubscription.cancel_at_period_end && (
 										<div className="mt-3">
 											<UnsubscribeDialog
 												endEpoch={currentSubscription.current_period_end}
