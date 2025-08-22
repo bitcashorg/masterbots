@@ -123,14 +123,16 @@ export function ProfileProvider({ children }: ProfileProviderProps) {
 				throw new Error('User not authenticated')
 			}
 
-			await updateUser({
+			const result = await updateUser({
 				userId: session.user.id,
 				jwt,
 				email,
 				username,
 				slug,
 			})
-
+			if (!result.success) {
+				throw new Error('An error occurred while updating user details')
+			}
 			setCurrentUser((prevUser) => {
 				if (!prevUser) return null
 				return {
@@ -142,7 +144,7 @@ export function ProfileProvider({ children }: ProfileProviderProps) {
 			})
 		} catch (error) {
 			console.error('Failed to update user details', error)
-			customSonner({ type: 'error', text: 'Failed to update user details' })
+			throw error
 		}
 	}
 
