@@ -50,8 +50,13 @@ const itemVariants: MotionProps['variants'] = {
 export function SubscriptionPageComponent() {
 	const [openSubscriptionSteps, setOpenSubscriptionSteps] = useState(false)
 	const { data: session, status } = useSession()
-	const { card, plan, paymentIntent, fetchInvoices } = usePayment()
-	const { resumeSubscription, fetchUpcomingInvoice } = usePayment()
+	const {
+		card,
+		paymentIntent,
+		fetchInvoices,
+		resumeSubscription,
+		fetchUpcomingInvoice,
+	} = usePayment()
 
 	// Fetch current user subscription
 	const { value: currentSubscription } = useAsync(async () => {
