@@ -169,6 +169,7 @@ export async function PUT(req: NextRequest) {
 				current_period_start: expandedSubscription.current_period_start,
 				current_period_end: expandedSubscription.current_period_end,
 				status: expandedSubscription.status,
+				cancel_at_period_end: expandedSubscription.cancel_at_period_end,
 			}
 
 			return new Response(
@@ -195,5 +196,159 @@ export async function PUT(req: NextRequest) {
 			status: stripeError?.statusCode || 500,
 			headers: { 'Content-Type': 'application/json' },
 		})
+	}
+}
+
+// Cancel a customer's active subscription(s)
+export async function DELETE(req: NextRequest) {
+	try {
+		const { email, at_period_end } = await req.json()
+		if (!email) {
+			return new Response(JSON.stringify({ error: 'Email is required' }), {
+				status: 400,
+				headers: { 'Content-Type': 'application/json' },
+			})
+		}
+
+		const customers = await stripe.customers.list({
+			email,
+			limit: 1,
+		})
+
+		if (customers.data.length === 0) {
+			return new Response(JSON.stringify({ error: 'Customer not found' }), {
+				status: 404,
+				headers: { 'Content-Type': 'application/json' },
+			})
+		}
+
+		const customer = customers.data[0]
+
+		const subscriptions = await stripe.subscriptions.list({
+			customer: customer.id,
+			status: 'all',
+			limit: 100,
+		})
+
+		const activeOrTrialing = subscriptions.data.filter(
+			(s) =>
+				s.status === 'active' ||
+				s.status === 'trialing' ||
+				s.status === 'past_due',
+		)
+
+		if (activeOrTrialing.length === 0) {
+			return new Response(
+				JSON.stringify({ message: 'No cancellable subscriptions found' }),
+				{
+					status: 200,
+					headers: { 'Content-Type': 'application/json' },
+				},
+			)
+		}
+
+		const results = [] as Array<{
+			id: string
+			status: string
+			cancel_at_period_end?: boolean
+		}>
+		for (const sub of activeOrTrialing) {
+			if (at_period_end) {
+				const updated = await stripe.subscriptions.update(sub.id, {
+					cancel_at_period_end: true,
+				})
+				results.push({
+					id: updated.id,
+					status: updated.status,
+					cancel_at_period_end: updated.cancel_at_period_end || false,
+				})
+			} else {
+				const cancelled = await stripe.subscriptions.cancel(sub.id)
+				results.push({ id: cancelled.id, status: cancelled.status })
+			}
+		}
+
+		return new Response(JSON.stringify({ success: true, results }), {
+			status: 200,
+			headers: { 'Content-Type': 'application/json' },
+		})
+	} catch (error: unknown) {
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		const stripeError = (error as any)?.raw || error
+		return new Response(
+			JSON.stringify({
+				error:
+					(stripeError as Error)?.message || 'Failed to cancel subscription',
+			}),
+			{
+				// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+				status: ((stripeError as any)?.statusCode as number) || 500,
+				headers: { 'Content-Type': 'application/json' },
+			},
+		)
+	}
+}
+
+// Resume a customer's subscription(s) that are set to cancel at period end
+export async function PATCH(req: NextRequest) {
+	try {
+		const { email } = await req.json()
+		if (!email) {
+			return new Response(JSON.stringify({ error: 'Email is required' }), {
+				status: 400,
+				headers: { 'Content-Type': 'application/json' },
+			})
+		}
+
+		const customers = await stripe.customers.list({ email, limit: 1 })
+		if (customers.data.length === 0) {
+			return new Response(JSON.stringify({ error: 'Customer not found' }), {
+				status: 404,
+				headers: { 'Content-Type': 'application/json' },
+			})
+		}
+
+		const customer = customers.data[0]
+		const subscriptions = await stripe.subscriptions.list({
+			customer: customer.id,
+			status: 'all',
+			limit: 100,
+		})
+
+		const toResume = subscriptions.data.filter((s) => s.cancel_at_period_end)
+		const results = [] as Array<{
+			id: string
+			cancel_at_period_end: boolean
+			status: string
+		}>
+		for (const sub of toResume) {
+			const updated = await stripe.subscriptions.update(sub.id, {
+				cancel_at_period_end: false,
+			})
+			results.push({
+				id: updated.id,
+				cancel_at_period_end: updated.cancel_at_period_end,
+				status: updated.status,
+			})
+		}
+
+		return new Response(JSON.stringify({ success: true, results }), {
+			status: 200,
+			headers: { 'Content-Type': 'application/json' },
+		})
+	} catch (error: unknown) {
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		const stripeError = (error as any)?.raw || error
+		return new Response(
+			JSON.stringify({
+				error:
+					(stripeError as Error)?.message || 'Failed to resume subscription',
+			}),
+			{
+				// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+				status: ((stripeError as any)?.statusCode as number) || 500,
+				headers: { 'Content-Type': 'application/json' },
+			},
+		)
 	}
 }

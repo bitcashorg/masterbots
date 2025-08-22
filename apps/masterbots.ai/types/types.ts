@@ -127,6 +127,13 @@ export type Subscription = {
 	current_period_start: number
 	current_period_end: number
 	status: string
+	cancel_at_period_end?: boolean
+}
+
+export type UpcomingInvoice = {
+	amount_due: number
+	currency: string
+	next_payment_attempt: number | null
 }
 
 export type Card = {
