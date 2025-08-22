@@ -58,9 +58,6 @@ export function Pro({
 
 	const pathname = usePathname()
 	const prevPathname = React.useRef(pathname)
-
-	const { isWorkspaceActive } = useWorkspace()
-
 	const { isNearBottom, smoothScrollToBottom, scrollToTop } = useMBScroll({
 		containerRef,
 		threadRef,

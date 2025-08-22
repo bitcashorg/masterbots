@@ -5,6 +5,7 @@ import {
 	uploadWorkspaceDocumentToBucket,
 } from '@/app/actions/thread.actions'
 import { Button } from '@/components/ui/button'
+import { computeChecksum } from '@/lib/checksum'
 import { type IndexedDBItem, useIndexedDB } from '@/lib/hooks/use-indexed-db'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useWorkspace } from '@/lib/hooks/use-workspace'
@@ -18,12 +19,77 @@ import {
 } from '@/lib/markdown-utils'
 import { buildSectionTree } from '@/lib/section-tree-utils'
 import { cn } from '@/lib/utils'
+import {
+	type WorkspaceStatePayload,
+	getWorkspaceState,
+	postWorkspaceState,
+	upsertDocumentDraft,
+} from '@/lib/workspace-state'
+import { createThread } from '@/services/hasura/hasura.service'
 import { FileIcon, Image, PlusIcon, Table } from 'lucide-react'
 import type { Chatbot } from 'mb-genql'
+import { nanoid } from 'nanoid'
+import { useSession } from 'next-auth/react'
 import * as React from 'react'
 import { WorkspaceContentHeader } from './workspace-content-header'
 import { WorkspaceContentWrapper } from './workspace-content-wrapper'
 import { WorkspaceTextEditor } from './workspace-text-editor'
+
+// Lightweight types for thread metadata documents
+type ThreadDocVersion = {
+	version: number
+	updatedAt: string
+	checksum: string
+	url: string
+}
+type ThreadDocMeta = {
+	id: string
+	name?: string
+	project?: string
+	type?: 'text' | 'image' | 'spreadsheet'
+	currentVersion?: number
+	versions?: ThreadDocVersion[]
+}
+
+function isThreadDocVersion(v: unknown): v is ThreadDocVersion {
+	return (
+		!!v &&
+		typeof (v as ThreadDocVersion).version === 'number' &&
+		typeof (v as ThreadDocVersion).updatedAt === 'string' &&
+		typeof (v as ThreadDocVersion).checksum === 'string' &&
+		typeof (v as ThreadDocVersion).url === 'string'
+	)
+}
+
+function isThreadDocMeta(d: unknown): d is ThreadDocMeta {
+	const doc = d as ThreadDocMeta
+	const versionsOk =
+		!doc.versions ||
+		(Array.isArray(doc.versions) && doc.versions.every(isThreadDocVersion))
+	return !!doc && typeof doc.id === 'string' && versionsOk
+}
+// Minimal typing for useWorkspace fields we rely on here
+type WorkspaceHookSlice = {
+	documentContent: Record<string, string>
+	setDocumentContent: (
+		project: string,
+		document: string,
+		content: string,
+	) => void
+	activeOrganization: string | null
+	activeDepartment: string | null
+	organizationList: string[]
+	projectList: string[]
+	documentList: Record<string, string[]>
+	textDocuments: Record<string, string[]>
+	imageDocuments: Record<string, string[]>
+	spreadsheetDocuments: Record<string, string[]>
+	projectsByDept: Record<string, Record<string, string[]>>
+	departmentList: Record<string, string[]>
+}
+
+// Workspace server cache payload (mirrors /api/workspace/state)
+// Workspace server cache types are imported from '@/lib/workspace-state'
 
 interface WorkspaceContentInternalProps {
 	projectName: string
@@ -38,19 +104,35 @@ function WorkspaceContentInternal({
 	documentType,
 	chatbot,
 }: WorkspaceContentInternalProps) {
-	const { documentContent, setDocumentContent, ...rest } = useWorkspace()
+	const {
+		documentContent,
+		setDocumentContent,
+		activeOrganization,
+		activeDepartment,
+		organizationList,
+		projectList,
+		documentList,
+		textDocuments,
+		imageDocuments,
+		spreadsheetDocuments,
+		projectsByDept,
+		departmentList,
+	} = useWorkspace() as unknown as WorkspaceHookSlice
 	console.log('useWorkspace documentContent', documentContent)
-	console.log('rest of useWorkspace state', rest)
+	// console.log('workspace context slice loaded')
 	const {
 		setCursorPosition: setGlobalCursorPosition,
 		handleWorkspaceEdit,
 		workspaceProcessingState,
 		setActiveWorkspaceSection: onActiveSectionChange,
 	} = useWorkspaceChat()
-	const { activeThread } = useThread()
+	const { activeThread, refreshActiveThread } = useThread()
+	const { data: session } = useSession()
 	const { addItem: addIndexedItem, updateItem: updateIndexedItem } =
 		useIndexedDB({})
 	const { customSonner } = useSonner()
+
+	// Shared checksum now imported from '@/lib/checksum'
 
 	// Initial content for different document types
 	const initialContent = React.useMemo(() => {
@@ -461,19 +543,210 @@ Please provide your response now:`
 		[createWorkspaceMetaPrompt, handleWorkspaceEdit, cursorPosition],
 	)
 
-	const doSaveDocument = React.useCallback(async () => {
-		if (!projectName || !documentName || !activeThread) return
-		setIsSaving(true)
+	// Unified save function (create thread if needed, verify checksum, versioning, upload, cache)
+	const handleSaveDocument = async () => {
 		try {
-			const content = fullMarkdown
+			if (!projectName || !documentName) return
+
+			// Ensure latest section edits are merged into fullMarkdown
+			if (activeSection && editableContent.trim()) {
+				// Persist current section into full source before saving
+				const updatedSections = sections.map((section) =>
+					section.id === activeSection
+						? { ...section, content: editableContent }
+						: section,
+				)
+				const newMarkdown = combineMarkdownSections(updatedSections)
+				setSections(updatedSections)
+				setFullMarkdown(newMarkdown)
+				if (projectName && documentName) {
+					setDocumentContent(projectName, documentName, newMarkdown)
+				}
+			}
+
+			const content =
+				activeSection && editableContent.trim()
+					? combineMarkdownSections(
+							sections.map((s) =>
+								s.id === activeSection ? { ...s, content: editableContent } : s,
+							),
+						)
+					: fullMarkdown
+
+			if (!content?.trim()) return
+
+			// Determine type
+			const type: 'text' | 'image' | 'spreadsheet' = documentType || 'text'
+
+			// 1) Sync workspace server cache (drafts): load existing, update document content, post back
+			try {
+				const { data } = await getWorkspaceState()
+				// Build payload from server cache if present, otherwise from local workspace context
+				const serverState: WorkspaceStatePayload = data ?? {
+					organisationsVersion: 1,
+					updatedAt: Date.now(),
+					organizations: organizationList ?? [],
+					departmentsByOrg: (departmentList as Record<string, string[]>) ?? {},
+					projectsByDept: projectsByDept ?? {},
+					textDocuments: textDocuments ?? {},
+					imageDocuments: imageDocuments ?? {},
+					spreadsheetDocuments: spreadsheetDocuments ?? {},
+					documentContent: documentContent ?? {},
+					activeOrganization,
+					activeDepartment,
+					activeProject: projectName,
+					activeDocument: documentName,
+					activeDocumentType:
+						(documentType as 'text' | 'image' | 'spreadsheet') ?? 'text',
+				}
+
+				// Update doc content in server payload
+				const nextState = upsertDocumentDraft(serverState, {
+					project: projectName,
+					document: documentName,
+					content,
+					type,
+					activeOrganization,
+					activeDepartment,
+				})
+
+				// Persist to server cache
+				await postWorkspaceState(nextState)
+
+				// Align local state with server cache
+				setDocumentContent(projectName, documentName, content)
+			} catch (err) {
+				console.warn('Workspace cache sync failed, continuing save:', err)
+			}
+
+			// Prepare checksum and compare with latest version (if any)
+			const docId = `${projectName}:${documentName}`
+			const currentChecksum = computeChecksum(content)
+			let threadDocuments: ThreadDocMeta[] = []
+			const meta = (activeThread as unknown as { metadata?: unknown })?.metadata
+			if (
+				meta &&
+				typeof meta === 'object' &&
+				Array.isArray((meta as { documents?: unknown }).documents)
+			) {
+				const docs = (meta as { documents?: unknown }).documents as unknown[]
+				threadDocuments = docs.filter(isThreadDocMeta)
+			}
+			const metaDoc = threadDocuments.find(
+				(d) =>
+					d?.id === docId || d?.name === documentName || d?.id === documentName,
+			)
+			let latestChecksum: string | null = null
+			if (metaDoc?.versions?.length) {
+				// Prefer currentVersion pointer, fallback to latest by updatedAt
+				const byVersion = metaDoc.versions.find(
+					(v: ThreadDocVersion) => v.version === metaDoc.currentVersion,
+				)
+				const latest = byVersion
+					? byVersion
+					: [...metaDoc.versions].sort(
+							(a: ThreadDocVersion, b: ThreadDocVersion) =>
+								new Date(b.updatedAt).getTime() -
+								new Date(a.updatedAt).getTime(),
+						)[0]
+				latestChecksum = latest?.checksum || null
+			}
+
+			if (latestChecksum && latestChecksum === currentChecksum) {
+				customSonner({ type: 'info', text: 'No changes to save.' })
+				return
+			}
+
+			setIsSaving(true)
+
+			// 2) Resolve or create thread; official versions go to thread metadata and bucket
+			let threadSlug = activeThread?.slug
+			if (!threadSlug) {
+				// Need session and chatbot to create a thread
+				if (!session?.user?.hasuraJwt || !chatbot) {
+					customSonner({
+						type: 'error',
+						text: 'Cannot create thread: missing session or chatbot.',
+					})
+					setIsSaving(false)
+					return
+				}
+
+				const newThreadId = crypto.randomUUID()
+				const newThreadSlug = `${chatbot.name
+					.toLowerCase()
+					.replace(/\s+/g, '-')}-${newThreadId}`
+
+				try {
+					// Preseed metadata with workspace context and initial doc entry
+					const threadMetadata = {
+						documents: [
+							{
+								id: docId,
+								project: projectName,
+								name: documentName,
+								type,
+								currentVersion: 1,
+								versions: [],
+							},
+						],
+						organization: activeOrganization,
+						department: activeDepartment,
+						isWorkspaceThread: true,
+					}
+
+					const createdThread = await createThread({
+						threadId: newThreadId,
+						chatbotId: chatbot.chatbotId,
+						slug: newThreadSlug,
+						jwt: session.user.hasuraJwt,
+						userId: session.user.id,
+						model: 'OPENAI',
+						isPublic: false,
+					})
+
+					if (createdThread?.threadId) {
+						threadSlug = createdThread.slug || newThreadSlug
+						try {
+							await updateThreadDocumentsMetadata({
+								threadSlug,
+								documents: threadMetadata.documents,
+							})
+							// Refresh to pull latest metadata
+							await refreshActiveThread(
+								createdThread.threadId,
+								session.user.hasuraJwt,
+							)
+						} catch (metadataError) {
+							console.warn('Failed to update thread metadata:', metadataError)
+						}
+					} else {
+						customSonner({ type: 'error', text: 'Failed to create thread.' })
+						setIsSaving(false)
+						return
+					}
+				} catch (error) {
+					console.error('Failed to create thread for document save:', error)
+					setIsSaving(false)
+					return
+				}
+			}
+
+			if (!threadSlug) {
+				setIsSaving(false)
+				return
+			}
+
+			// Upload document content to bucket (server handles official versioning + checksum)
 			const { document } = await uploadWorkspaceDocumentToBucket({
-				threadSlug: activeThread.slug,
+				threadSlug,
 				project: projectName,
 				name: documentName,
 				content,
-				type: documentType || 'text',
+				type,
 			})
 
+			// Store raw locally (IndexedDB) as data URL
 			const base64 = await new Promise<string>((resolve, reject) => {
 				try {
 					const blob = new Blob([content], { type: 'text/markdown' })
@@ -486,12 +759,12 @@ Please provide your response now:`
 				}
 			})
 
-			const id = document?.id || `${projectName}:${documentName}`
+			const id = document?.id || docId
 			const item = {
 				id,
 				name: documentName,
 				project: projectName,
-				type: documentType,
+				type,
 				url: base64,
 				content: base64,
 				size: new Blob([content]).size,
@@ -505,28 +778,25 @@ Please provide your response now:`
 				addIndexedItem(item)
 			}
 
-			setVersions(
-				(document?.versions || []).map((v) => ({
-					version: v.version,
-					updatedAt: v.updatedAt,
-					checksum: v.checksum,
-					url: v.url,
-				})),
-			)
+			if (document?.versions?.length) {
+				setVersions(
+					document.versions.map((v: ThreadDocVersion) => ({
+						version: v.version,
+						updatedAt: v.updatedAt,
+						checksum: v.checksum,
+						url: v.url,
+					})),
+				)
+			}
+
+			customSonner({ type: 'success', text: `${type} document saved.` })
 		} catch (e) {
 			console.error('Save failed', e)
+			customSonner({ type: 'error', text: 'Failed to save document.' })
 		} finally {
 			setIsSaving(false)
 		}
-	}, [
-		projectName,
-		documentName,
-		fullMarkdown,
-		documentType,
-		activeThread,
-		addIndexedItem,
-		updateIndexedItem,
-	])
+	}
 
 	const handleRollback = React.useCallback(
 		async (versionNumber: number) => {
@@ -560,16 +830,57 @@ Please provide your response now:`
 		[projectName, documentName, activeThread?.slug, versions, documentType],
 	)
 
+	// Load versions from thread metadata when opening History
+	const handleToggleVersions = React.useCallback(() => {
+		if (!showVersions) {
+			try {
+				const meta = (activeThread as unknown as { metadata?: unknown })
+					?.metadata
+				let threadDocuments: ThreadDocMeta[] = []
+				if (
+					meta &&
+					typeof meta === 'object' &&
+					Array.isArray((meta as { documents?: unknown }).documents)
+				) {
+					const docs = (meta as { documents?: unknown }).documents as unknown[]
+					threadDocuments = docs.filter(isThreadDocMeta)
+				}
+				const docId = `${projectName}:${documentName}`
+				const metaDoc = threadDocuments.find(
+					(d) =>
+						d?.id === docId ||
+						d?.name === documentName ||
+						d?.id === documentName,
+				)
+				if (metaDoc?.versions?.length) {
+					setVersions(
+						metaDoc.versions.map((v) => ({
+							version: v.version,
+							updatedAt: v.updatedAt,
+							checksum: v.checksum,
+							url: v.url,
+						})),
+					)
+				} else {
+					setVersions([])
+				}
+			} catch (e) {
+				console.warn('Failed to load versions from thread metadata:', e)
+			}
+		}
+		setShowVersions((v) => !v)
+	}, [showVersions, activeThread, projectName, documentName])
+
 	return (
-		<div className="flex flex-col space-y-4 p-4 size-full">
+		<div className="flex flex-col space-y-4 pb-4 px-4 size-full">
 			<WorkspaceContentHeader
 				documentType={documentType}
 				activeSection={activeSection}
 				isSaving={isSaving}
 				showVersions={showVersions}
 				versions={versions}
-				onSave={!activeThread ? handleSaveSection : doSaveDocument}
-				onToggleVersions={() => setShowVersions((v) => !v)}
+				onSave={handleSaveDocument}
+				onToggleVersions={handleToggleVersions}
 				onRollback={handleRollback}
 			/>
 

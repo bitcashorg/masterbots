@@ -16,7 +16,7 @@ export function ChatLayoutSection({ children }: { children: React.ReactNode }) {
 	const pathname = usePathname()
 	const isPublic = getRouteType(pathname) === 'public'
 	const chatClassNames = activeChatbot
-		? 'max-h-[calc(97vh-210px)] md:max-h-[calc(97vh-182px)]'
+		? 'max-h-[97vh]'
 		: 'max-h-[calc(97vh-26px)]'
 
 	return (
@@ -32,7 +32,6 @@ export function ChatLayoutSection({ children }: { children: React.ReactNode }) {
 			<div className="flex flex-col gap-5 px-4 pt-5 mx-auto w-full max-w-screen-xl h-full md:px-10">
 				{children}
 			</div>
-
 			{isOpenPopup && <ThreadPopup />}
 		</section>
 	)

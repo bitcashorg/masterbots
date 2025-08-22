@@ -1,6 +1,7 @@
 'use client'
 
 import { ChatList } from '@/components/routes/chat/chat-list'
+import { WorkspaceContent } from '@/components/routes/workspace/workspace-content'
 import { ExternalLink } from '@/components/shared/external-link'
 import { ChatPanelSkeleton } from '@/components/shared/skeletons/chat-panel-skeleton'
 import { Button, buttonVariants } from '@/components/ui/button'
@@ -62,6 +63,7 @@ export function ThreadPopup({ className }: { className?: string }) {
 	})
 	const {
 		activeProject,
+		activeDocument,
 		activeDocumentType,
 		addDocument,
 		setActiveDocument,
@@ -166,11 +168,11 @@ export function ThreadPopup({ className }: { className?: string }) {
 	return (
 		<div
 			className={cn(
-				'size-full bg-background/80 dark:bg-background/80',
+				'size-full max-h-[calc(100%-240px)]',
 				isBotView
 					? ''
 					: 'lg:max-w-[calc(100%-250px)] xl:max-w-[calc(100%-300px)]',
-				'flex justify-center items-center fixed top-16',
+				'flex justify-center items-end fixed top-16',
 				'h-[calc(100vh-4rem)] backdrop-blur-sm ease-in-out duration-500 z-40',
 				'transition-all',
 				isOpenPopup ? 'animate-fade-in' : 'animate-fade-out',
@@ -180,7 +182,7 @@ export function ThreadPopup({ className }: { className?: string }) {
 			<div
 				className={cn(
 					'flex flex-col z-50 rounded-lg duration-500 ease-in-out fixed',
-					'h-full max-h-[90%] max-w-[1032px] w-[95%]',
+					'h-full max-h-[85%] max-w-[1032px] w-[95%]',
 					'dark:border-mirage border-iron border bg-background dark:bg-background',
 					'transition-opacity',
 				)}
@@ -196,12 +198,25 @@ export function ThreadPopup({ className }: { className?: string }) {
 					className={cn(
 						'flex flex-col dark:bg-[#18181b] bg-white grow rounded-b-[8px] scrollbar h-full',
 						isBrowseView ? 'pb-2 md:pb-4' : 'pb-[120px] md:pb-[180px]',
-						isBrowseView
-							? ''
-							: 'max-h-[calc(100%-240px)] md:max-h-[calc(100%-220px)]',
 						className,
 					)}
 				>
+					{/* Workspace Section (conditionally shown) */}
+					{isWorkspaceActive && (
+						<div
+							className={cn(
+								'absolute bottom-0 z-50 size-full bg-background border rounded-md shadow-sm max-h-[calc(100%-86px)]',
+							)}
+						>
+							{/* Removed duplicate document type dropdown. Breadcrumb is source of truth. */}
+							<WorkspaceContent
+								key={`workspace-${activeProject}-${activeDocument}-${activeDocumentType}`}
+								isLoading={isLoading}
+								className="size-full overflow-auto scrollbar"
+								chatbot={activeThread?.chatbot}
+							/>
+						</div>
+					)}
 					<div ref={threadRef}>
 						<ChatList
 							isThread={false}
@@ -220,7 +235,7 @@ export function ThreadPopup({ className }: { className?: string }) {
 							chatArrowClass="!right-0 !mr-0"
 							chatTitleClass="!px-2.5"
 						/>
-						{isBrowseView ? (
+						{isBrowseView && (
 							<div className="pt-6 text-center border-t border-t-iron dark:border-t-mirage mt-12 mb-5 lg:mt-20">
 								<ExternalLink
 									className={cn(
@@ -237,22 +252,6 @@ export function ThreadPopup({ className }: { className?: string }) {
 									Continue Thread
 								</ExternalLink>
 							</div>
-						) : isProView ? (
-							// Pro view - use Pro component for workspace-integrated chat
-							<Pro
-								isPopup
-								chatPanelClassName="!pl-0 rounded-b-[8px] overflow-hidden !absolute"
-								scrollToBottomOfPopup={scrollToBottom}
-								isAtBottom={isNearBottom}
-							/>
-						) : (
-							// Chat view
-							<Chat
-								isPopup
-								chatPanelClassName="!pl-0 rounded-b-[8px] overflow-hidden !absolute"
-								scrollToBottomOfPopup={scrollToBottom}
-								isAtBottom={isNearBottom}
-							/>
 						)}
 					</div>
 				</div>

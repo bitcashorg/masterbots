@@ -353,11 +353,24 @@ export async function uploadWorkspaceDocumentToBucket({
 		},
 	})
 	const bucket = storage.bucket(storageBucketName)
-	const safeName = name.replace(/[^a-zA-Z0-9-_]/g, '_')
+	// Normalize name for storage path: replace spaces and illegal characters
+	const safeName = name
+		.trim()
+		.replace(/\s+/g, '_')
+		.replace(/[^a-zA-Z0-9-_]/g, '_')
 	const key = `documents/${threadSlug}/${project}/${safeName}/v${version}.md`
 	const fileUpload = bucket.file(key)
 	await fileUpload.save(buffer, {
-		metadata: { id, project, name, version: String(version), type },
+		metadata: {
+			contentType: 'text/markdown',
+			metadata: {
+				id,
+				project,
+				docName: name,
+				version: String(version),
+				type,
+			},
+		},
 		resumable: false,
 	})
 	const expires = Date.now() + 1000 * 60 * 60 * 24 * 7

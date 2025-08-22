@@ -1,6 +1,6 @@
 import { authOptions } from '@/auth'
 import { ChatChatbot } from '@/components/routes/chat/chat-chatbot'
-import { ProExtended } from '@/components/routes/pro/pro-extended'
+import { Pro } from '@/components/routes/pro/pro'
 import ThreadPanel from '@/components/routes/thread/thread-panel'
 import { botNames } from '@/lib/constants/bots-names'
 import { PAGE_SIZE } from '@/lib/constants/hasura'
@@ -51,18 +51,7 @@ export default async function BotThreadPopUpQuestionPage(props: {
 	return (
 		<>
 			<ThreadPanel threads={threads.threads} count={threads.count} />
-			<ProExtended
-				scrollToBottom={() => {}}
-				placeholder="Type your message..."
-				messages={[]}
-				append={async () => null}
-				isLoading={false}
-				reload={async () => null}
-				stop={() => {}}
-				input=""
-				setInput={() => {}}
-				chatbot={chatbot}
-			/>
+			<Pro />
 		</>
 	)
 }

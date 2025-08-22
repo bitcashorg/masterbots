@@ -1,3 +1,4 @@
+import { computeChecksum } from '@/lib/checksum'
 import { logErrorToSentry } from '@/lib/sentry'
 import { appConfig } from 'mb-env'
 
@@ -20,21 +21,6 @@ export interface WorkspaceStatePayload {
 	activeProject: string | null
 	activeDocument: string | null
 	activeDocumentType: 'all' | 'text' | 'image' | 'spreadsheet'
-}
-
-function computeChecksum(obj: unknown) {
-	try {
-		const json = JSON.stringify(obj)
-		let hash = 0
-		for (let i = 0; i < json.length; i++) {
-			const chr = json.charCodeAt(i)
-			hash = (hash << 5) - hash + chr
-			hash |= 0
-		}
-		return hash.toString()
-	} catch {
-		return '0'
-	}
 }
 
 export async function GET() {

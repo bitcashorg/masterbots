@@ -49,8 +49,8 @@ import {
 import { logErrorToSentry } from '@/lib/sentry'
 import { cn } from '@/lib/utils'
 import { createThread } from '@/services/hasura'
-import { type UseChatHelpers, useChat } from '@ai-sdk/react'
-import type { Message as AiMessage } from 'ai'
+import { type UseChatHelpers, UseChatOptions, useChat } from '@ai-sdk/react'
+import type { Message as AiMessage, ChatRequestOptions } from 'ai'
 import {
 	BrainIcon,
 	ChevronDownIcon,
@@ -125,7 +125,6 @@ export function ChatPanelPro({
 		setWebSearch,
 		refreshActiveThread,
 		activeThread,
-		setIsOpenPopup,
 	} = useThread()
 	const { data: session } = useSession()
 	const { isPowerUp, togglePowerUp } = usePowerUp()
@@ -186,35 +185,22 @@ export function ChatPanelPro({
 		messages: workspaceMessages,
 		workspaceProcessingState,
 		setInput: setWorkspaceInput,
-		setWorkspaceProcessingState,
 		activeWorkspaceSection,
-		setActiveWorkspaceSection,
 		cursorPosition: workspaceCursorPosition,
 		handleWorkspaceEdit: workspaceHandleEdit,
 		handleDocumentUpdate: workspaceHandleDocumentUpdate,
 	} = useWorkspaceChat()
-
-	// console.log('🔄 ChatPanelPro workspaceMessages:', workspaceMessages)
-	const [, { appendWithMbContextPrompts }] = useMBChat()
 	const {
 		isWorkspaceActive,
 		toggleWorkspace,
 		activeOrganization,
-		setActiveOrganization,
 		activeDepartment,
-		setActiveDepartment,
 		activeProject,
-		setActiveProject,
 		activeDocument,
 		setActiveDocument,
-		organizationList,
 		departmentList,
 		projectList,
 		documentList,
-		textDocuments,
-		imageDocuments,
-		spreadsheetDocuments,
-		projectsByDept,
 		documentContent,
 		setDocumentContent,
 		activeDocumentType,
@@ -256,8 +242,7 @@ export function ChatPanelPro({
 	const { addItem: addIndexedItem, updateItem: updateIndexedItem } =
 		useIndexedDB({})
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-	const handleSaveDocument = useCallback(async () => {
+	const handleSaveDocument = async () => {
 		try {
 			if (!activeProject || !activeDocument) return
 			// Determine type when All is selected
@@ -373,17 +358,7 @@ export function ChatPanelPro({
 		} catch (e) {
 			console.error('Failed to save document', e)
 		}
-	}, [
-		activeProject,
-		activeDocument,
-		activeDocumentType,
-		documentContent,
-		updateIndexedItem,
-		addIndexedItem,
-		activeThread,
-		session,
-		chatbot,
-	])
+	}
 
 	// Use departmentList as departmentsByOrg since they contain the same data
 	const departmentsByOrg = departmentList
@@ -392,7 +367,7 @@ export function ChatPanelPro({
 		const continuationPrompt = getContinuationPrompt()
 
 		try {
-			await appendWithMbContextPrompts({
+			await workspaceAppend?.({
 				id: chatId,
 				role: 'user',
 				content: continuationPrompt,
@@ -626,113 +601,225 @@ Please provide your response now:`
 		return id || `chat-panel-${nanoid(16)}`
 	}, [id])
 
+	const handleUserPrompt = async (
+		value: string,
+		chatOptions?: ChatRequestOptions,
+	) => {
+		console.log('🎯 PromptForm onSubmit called:', {
+			value,
+			isWorkspaceActive,
+			activeProject,
+			activeDocument,
+			documentContent,
+			appendFunction: typeof workspaceAppend,
+		})
+
+		if (isWorkspaceActive) {
+			if (!activeProject) {
+				console.error('No active project found')
+				return
+			}
+			// ISSUE 1 FIX: Workspace mode should create/link thread properly
+			console.log(
+				'🏢 Workspace mode: AI assist requested for document:',
+				activeDocument,
+				'with query:',
+				value,
+			)
+			// Get current document content for meta prompt
+			const documentKey = `${activeProject}:${activeDocument}`
+			const currentContent = documentContent?.[documentKey] || ''
+			// Create meta prompt with document context
+			const metaPrompt = createDocumentMetaPrompt(
+				value,
+				currentContent,
+				activeWorkspaceSection,
+			)
+
+			// Then process workspace edit
+			await workspaceHandleEdit(value, metaPrompt, workspaceCursorPosition)
+
+			// Optionally update thread documents metadata after successful edit.
+			// Trigger idea: add a CTA button in ChatPanelPro or reuse the Save CTA in WorkspaceContentHeader to set this to true.
+			const shouldUpdateMetadata = false
+			// Guard: only if we have an active thread and valid project/document.
+			if (
+				shouldUpdateMetadata &&
+				activeThread?.slug &&
+				activeProject &&
+				activeDocument
+			) {
+				// Compute next version number from existing thread metadata (if any)
+				const meta = (activeThread as unknown as { metadata?: unknown })
+					?.metadata
+				let nextVersion = 1
+				try {
+					if (
+						meta &&
+						typeof meta === 'object' &&
+						Array.isArray((meta as { documents?: unknown }).documents)
+					) {
+						type ThreadDocVersion = {
+							version: number
+							updatedAt: string
+							checksum: string
+							url: string
+						}
+						type ThreadDocMeta = {
+							id: string
+							name?: string
+							project?: string
+							type?: string
+							currentVersion?: number
+							versions?: ThreadDocVersion[]
+						}
+						const docsUnknown = (meta as { documents?: unknown })
+							.documents as unknown[]
+						const threadDocs = docsUnknown.filter(Boolean) as ThreadDocMeta[]
+						const docId = `${activeProject}:${activeDocument}`
+						const metaDoc = threadDocs.find(
+							(d) =>
+								d.id === docId ||
+								d.name === activeDocument ||
+								d.id === activeDocument,
+						)
+						if (metaDoc?.versions?.length) {
+							const byPointer = metaDoc.currentVersion
+							const lastVersion = byPointer
+								? Number(byPointer)
+								: Math.max(
+										...metaDoc.versions.map((v) => Number(v.version) || 0),
+									)
+							nextVersion = Number.isFinite(lastVersion) ? lastVersion + 1 : 1
+						}
+					}
+				} catch (e) {
+					console.warn('Failed to compute next version; defaulting to 1', e)
+					nextVersion = 1
+				}
+
+				// NOTE: This call is optional; keep behind a CTA. Example triggers:
+				// - ChatPanelPro: add a "Save version" button to call this block.
+				// - WorkspaceContentHeader: Save CTA already performs official save and updates metadata.
+				try {
+					await updateThreadDocumentsMetadata({
+						threadSlug: activeThread.slug,
+						documents: [
+							{
+								id: `${activeProject}:${activeDocument}`,
+								project: activeProject,
+								name: activeDocument,
+								type: 'text',
+								currentVersion: nextVersion,
+								versions: [],
+							},
+						],
+					})
+				} catch (e) {
+					console.warn('Optional metadata update failed (non-blocking):', e)
+				}
+			}
+		} else if (workspaceAppend) {
+			// In chat mode, use normal workspaceAppend behavior
+			console.log('💬 Chat mode: using normal workspaceAppend')
+			scrollToBottom()
+			await workspaceAppend(
+				{
+					id: chatId,
+					content: value,
+					role: 'user',
+					createdAt: new Date(),
+				},
+				prepareMessageOptions(chatOptions),
+			)
+		}
+	}
+
 	return (
-		<>
+		<div className="z-50 sticky inset-x-0 bottom-2 w-full max-w-[1032px] rounded-lg mx-auto">
+			{/* Workspace Section (conditionally shown) */}
+			{isWorkspaceActive && !activeThread && (
+				<div
+					className={cn(
+						'w-full bg-background border rounded-md shadow-sm',
+						activeThread ? 'h-[calc(100vh-424px)]' : 'h-[calc(100vh-220px)]',
+					)}
+				>
+					{/* Removed duplicate document type dropdown. Breadcrumb is source of truth. */}
+					<WorkspaceContent
+						key={`workspace-${activeProject}-${activeDocument}-${activeDocumentType}`}
+						isLoading={isLoading}
+						className="size-full overflow-auto scrollbar"
+						chatbot={chatbot}
+					/>
+				</div>
+			)}
 			<div
 				className={cn(
-					'z-[2] fixed inset-x-0 bottom-0 w-full',
 					'pb-4',
 					'animate-in duration-300 ease-in-out',
-					'bg-gradient-to-b from-background/50 to-background',
-					'dark:from-background/0 dark:to-background/80',
-					'lg:pl-[250px] xl:pl-[300px]',
+					'bg-gradient-to-b from-background/90 to-background',
 					className,
 				)}
 			>
-				<div className="relative w-full mx-auto">
+				<div className="relative w-full">
 					{/* Header Section */}
 					<div
 						className={cn(
-							'flex flex-col items-center justify-between w-full px-2 py-3.5 space-y-2 bg-background md:flex-row md:space-y-0',
-							isWorkspaceActive && 'hidden',
+							'flex flex-col items-center justify-between w-full p-2 space-y-2 md:flex-row md:space-y-0',
 						)}
 					>
 						<div className="flex items-center justify-between w-full gap-4 mx-2">
-							{!isWorkspaceActive && (
-								<div className="flex items-center space-x-6 w-full max-w-[60%] overflow-y-hidden scrollbar scrollbar-thin">
-									{/* Chat Feature Toggles - shown in header when workspace is inactive */}
-									<FeatureToggle
-										id="powerUp"
-										name="Deep Expertise"
-										icon={<GraduationCap />}
-										activeIcon={<GraduationCap />}
-										isActive={isPowerUp}
-										onChange={togglePowerUp}
-										activeColor="yellow"
-									/>
+							<div className="flex items-center space-x-6 w-full max-w-[60%] overflow-y-hidden scrollbar scrollbar-thin">
+								{/* Chat Feature Toggles - shown in header when workspace is inactive */}
+								<FeatureToggle
+									id="powerUp"
+									name="Deep Expertise"
+									icon={<GraduationCap />}
+									activeIcon={<GraduationCap />}
+									isActive={isPowerUp}
+									onChange={togglePowerUp}
+									activeColor="yellow"
+								/>
 
+								<FeatureToggle
+									id="reasoning"
+									name="Deep Thinking"
+									icon={<BrainIcon />}
+									activeIcon={<BrainIcon />}
+									isActive={isDeepThinking}
+									onChange={() => {
+										console.log('ChatPanelPro: Toggle Deep Thinking')
+										toggleDeepThinking()
+									}}
+									activeColor="green"
+								/>
+
+								{appConfig.features.webSearch && (
 									<FeatureToggle
-										id="reasoning"
-										name="Deep Thinking"
-										icon={<BrainIcon />}
-										activeIcon={<BrainIcon />}
-										isActive={isDeepThinking}
-										onChange={() => {
-											console.log('ChatPanelPro: Toggle Deep Thinking')
-											toggleDeepThinking()
+										id="webSearch"
+										name="Web Search"
+										icon={<GlobeIcon />}
+										activeIcon={<GlobeIcon />}
+										isActive={webSearch}
+										onChange={(newValue) => {
+											console.log('ChatPanelPro: Toggle Web Search:', newValue)
+											setWebSearch()
 										}}
-										activeColor="green"
+										activeColor="cyan"
 									/>
+								)}
 
-									{appConfig.features.webSearch && (
-										<FeatureToggle
-											id="webSearch"
-											name="Web Search"
-											icon={<GlobeIcon />}
-											activeIcon={<GlobeIcon />}
-											isActive={webSearch}
-											onChange={(newValue) => {
-												console.log(
-													'ChatPanelPro: Toggle Web Search:',
-													newValue,
-												)
-												setWebSearch()
-											}}
-											activeColor="cyan"
-										/>
-									)}
-
-									{appConfig.features.devMode && (
-										<FeatureToggle
-											id="workspace"
-											name="Workspace"
-											icon={<FileEditIcon />}
-											activeIcon={<FileEditIcon />}
-											isActive={isWorkspaceActive}
-											onChange={toggleWorkspace}
-											activeColor="cyan"
-										/>
-									)}
-
-									{/* Convert to Document Button - only shown when workspace is inactive */}
-									{workspaceMessages &&
-										workspaceMessages.length > 0 &&
-										appConfig.features.devMode && (
-											<Button
-												variant="ghost"
-												size="icon"
-												title="Convert Last Message to Document"
-												onClick={() => {
-													// Find the last assistant message
-													const lastAssistantMessage = [...workspaceMessages]
-														.reverse()
-														.find((m) => m.role === 'assistant')
-
-													if (lastAssistantMessage?.id) {
-														handleOpenConvertDialog(lastAssistantMessage.id)
-													}
-												}}
-												className="text-muted-foreground hover:text-primary relative group"
-											>
-												<FileTextIcon className="h-4 w-4" />
-												<span className="sr-only">Convert Last Message</span>
-												<span className="absolute whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity right-full mr-2 text-xs bg-background border rounded px-1 py-0.5">
-													Convert Message
-												</span>
-											</Button>
-										)}
-								</div>
-							)}
+								<FeatureToggle
+									id="workspace"
+									name="Workspace"
+									icon={<FileEditIcon />}
+									activeIcon={<FileEditIcon />}
+									isActive={isWorkspaceActive}
+									onChange={toggleWorkspace}
+									activeColor="cyan"
+								/>
+							</div>
 
 							{/* Right side controls - always shown */}
 							<div className="flex items-center gap-3.5">
@@ -806,26 +893,6 @@ Please provide your response now:`
 						</div>
 					</div>
 
-					{/* Workspace Section (conditionally shown) */}
-					{isWorkspaceActive && (
-						<div
-							className={cn(
-								'w-full bg-background border rounded-md shadow-sm',
-								activeThread
-									? 'h-[calc(100vh-424px)]'
-									: 'h-[calc(100vh-220px)]',
-							)}
-						>
-							{/* Removed duplicate document type dropdown. Breadcrumb is source of truth. */}
-							<WorkspaceContent
-								key={`workspace-${activeProject}-${activeDocument}-${activeDocumentType}`}
-								isLoading={isLoading}
-								className="size-full overflow-auto scrollbar"
-								chatbot={chatbot}
-							/>
-						</div>
-					)}
-
 					{/* Prompt Form (always shown) */}
 					<div
 						className={cn(
@@ -837,189 +904,9 @@ Please provide your response now:`
 							'min-h-[64px] sm:min-h-[80px]',
 						)}
 					>
-						{/* Feature Toggle Toolbar - shown here only when workspace is active */}
-						{isWorkspaceActive && (
-							<div className="flex items-center space-x-6 border-b dark:border-zinc-800 border-zinc-200 pb-[10px] pt-0 -mx-4 px-4 w-[calc(100%+2rem)] mb-0">
-								<FeatureToggle
-									id="powerUp"
-									name="Deep Expertise"
-									icon={<GraduationCap />}
-									activeIcon={<GraduationCap />}
-									isActive={isPowerUp}
-									onChange={togglePowerUp}
-									activeColor="yellow"
-								/>
-
-								<FeatureToggle
-									id="reasoning"
-									name="Deep Thinking"
-									icon={<BrainIcon />}
-									activeIcon={<BrainIcon />}
-									isActive={isDeepThinking}
-									onChange={() => {
-										console.log('ChatPanelPro: Toggle Deep Thinking')
-										toggleDeepThinking()
-									}}
-									activeColor="green"
-								/>
-
-								{appConfig.features.webSearch && (
-									<FeatureToggle
-										id="webSearch"
-										name="Web Search"
-										icon={<GlobeIcon />}
-										activeIcon={<GlobeIcon />}
-										isActive={webSearch}
-										onChange={(newValue) => {
-											console.log('ChatPanelPro: Toggle Web Search:', newValue)
-											setWebSearch()
-										}}
-										activeColor="cyan"
-									/>
-								)}
-
-								{appConfig.features.devMode && (
-									<FeatureToggle
-										id="workspace"
-										name="Workspace"
-										icon={<FileEditIcon />}
-										activeIcon={<FileEditIcon />}
-										isActive={isWorkspaceActive}
-										onChange={toggleWorkspace}
-										activeColor="cyan"
-									/>
-								)}
-							</div>
-						)}
 						<div className="mt-[1px]">
 							<PromptForm
-								onSubmit={async (value, chatOptions) => {
-									console.log('🎯 PromptForm onSubmit called:', {
-										value,
-										isWorkspaceActive,
-										activeProject,
-										activeDocument,
-										documentContent,
-										appendFunction: typeof workspaceAppend,
-									})
-
-									if (isWorkspaceActive) {
-										// ISSUE 1 FIX: Workspace mode should create/link thread properly
-										console.log(
-											'🏢 Workspace mode: AI assist requested for document:',
-											activeDocument,
-											'with query:',
-											value,
-										)
-
-										// If no active thread exists, create one with workspace metadata
-										if (
-											!activeThread &&
-											activeProject &&
-											session?.user &&
-											chatbot
-										) {
-											console.log(
-												'Creating new thread for workspace interaction...',
-											)
-											try {
-												const newThreadId = nanoid(12)
-												const newThreadSlug =
-													`${activeProject}-${activeDocument || 'workspace'}-${Date.now()}`
-														.toLowerCase()
-														.replace(/[^a-z0-9-]/g, '-')
-
-												const createdThread = await createThread({
-													threadId: newThreadId,
-													chatbotId: chatbot.chatbotId,
-													slug: newThreadSlug,
-													jwt: session.user.hasuraJwt,
-													userId: session.user.id,
-													model: 'OPENAI',
-													isPublic: false,
-												})
-
-												if (createdThread?.threadId) {
-													// Update thread with workspace metadata
-													await updateThreadDocumentsMetadata({
-														threadSlug: createdThread.slug || newThreadSlug,
-														documents: [
-															{
-																id: `${activeProject}:${activeDocument || 'workspace'}`,
-																project: activeProject,
-																name: activeDocument || 'workspace',
-																type: 'text',
-																currentVersion: 1,
-																versions: [],
-															},
-														],
-													})
-
-													// Open popup to show the thread is being created
-													setIsOpenPopup(true)
-
-													console.log(
-														'Thread created and linked to workspace:',
-														createdThread.slug,
-													)
-												}
-											} catch (error) {
-												console.error(
-													'Failed to create workspace thread:',
-													error,
-												)
-											}
-										}
-
-										// Get current document content for meta prompt
-										const documentKey = `${activeProject}:${activeDocument}`
-										const currentContent = documentContent?.[documentKey] || ''
-
-										// Create meta prompt with document context
-										const metaPrompt = createDocumentMetaPrompt(
-											value,
-											currentContent,
-											activeWorkspaceSection,
-										)
-
-										// ISSUE 6 FIX: Connect workspace messages with chat messages
-										// Store the original message in both systems
-										const messageData = {
-											id: nanoid(),
-											content: value,
-											role: 'user' as const,
-											createdAt: new Date(),
-										}
-
-										// Add to main chat context via workspaceAppend
-										if (workspaceAppend) {
-											await workspaceAppend(
-												messageData,
-												prepareMessageOptions(chatOptions),
-											)
-										}
-
-										// Then process workspace edit
-										await workspaceHandleEdit(
-											value,
-											metaPrompt,
-											workspaceCursorPosition,
-										)
-									} else if (workspaceAppend) {
-										// In chat mode, use normal workspaceAppend behavior
-										console.log('💬 Chat mode: using normal workspaceAppend')
-										scrollToBottom()
-										await workspaceAppend(
-											{
-												id: chatId,
-												content: value,
-												role: 'user',
-												createdAt: new Date(),
-											},
-											prepareMessageOptions(chatOptions),
-										)
-									}
-								}}
+								onSubmit={handleUserPrompt}
 								disabled={
 									(isWorkspaceActive && (!activeProject || !activeDocument)) ||
 									isLoading ||
@@ -1142,6 +1029,6 @@ Please provide your response now:`
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
-		</>
+		</div>
 	)
 }
