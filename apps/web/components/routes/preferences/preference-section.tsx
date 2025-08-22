@@ -47,7 +47,7 @@ export function PreferenceSection({
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 	const [isRemovePending, setIsRemovePending] = useState(false)
 	const [buttonType, setButtonType] = useState('')
-	const { data: session } = useSession()
+	const { data: session, update } = useSession()
 	const { customSonner } = useSonner()
 	const { currentUser, getUserInfo, updateUserDetails } = useProfile()
 	const [errorMessage, setErrorMessage] = useState('')
@@ -55,6 +55,10 @@ export function PreferenceSection({
 	const [sendindVEmail, setSendingVEmail] = useState(false)
 	const [inputValue, setInputValue] = useState({ username: '', email: '' })
 	const router = useRouter()
+
+	console.log({
+		session,
+	})
 
 	useEffect(() => {
 		if (currentUser) {
@@ -252,7 +256,7 @@ export function PreferenceSection({
 			})
 			return
 		}
-		// if it's the seesion user, update the profile
+
 		if (session.user.slug !== currentUser?.slug) {
 			customSonner({
 				type: 'error',
@@ -260,23 +264,38 @@ export function PreferenceSection({
 			})
 			return
 		}
-		setIsLoading(true)
-		const { username, email } = inputValue
-		const slug = toSlug(username)
 
-		await updateUserDetails(email, username, slug)
-		customSonner({
-			type: 'success',
-			text: 'Profile updated successfully.',
-		})
-		const getSessions = await getSession()
-		if (getSessions?.user) {
-			getSessions.user.name = username
-			getSessions.user.slug = slug
+		setIsLoading(true)
+
+		try {
+			const { username, email } = inputValue
+			const slug = toSlug(username)
+
+			await updateUserDetails(email, username, slug)
+
+			await update({
+				user: {
+					name: username,
+					slug: slug,
+				},
+			})
+
+			customSonner({
+				type: 'success',
+				text: 'Profile updated successfully.',
+			})
+
+			router.push(`/u/${slug}/s/pref`)
+		} catch (error) {
+			console.error('Error updating profile:', error)
+			customSonner({
+				type: 'error',
+				text:
+					error instanceof Error ? error.message : 'Failed to update profile',
+			})
+		} finally {
+			setIsLoading(false)
 		}
-		// redirect to the profile page
-		router.push(`/u/${slug}/s/pref`)
-		setIsLoading(false)
 	}
 
 	async function SendVerificationEmail() {

@@ -2051,7 +2051,7 @@ export async function updateUser({
 		}
 
 		updateArgs._set = {
-			...(email !== null && { email }),
+			// ...(email !== null && { email }),
 			...(username !== null && { username }),
 			...(slug !== null && { slug }),
 		}
@@ -2069,6 +2069,6 @@ export async function updateUser({
 		return { success: true }
 	} catch (error) {
 		console.error('Error updating user:', error)
-		return { success: false, error: "Failed to update user's details" }
+		throw error
 	}
 }
