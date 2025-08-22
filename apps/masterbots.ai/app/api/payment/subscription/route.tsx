@@ -76,12 +76,45 @@ export async function GET(req: NextRequest) {
 			},
 		)
 
-		const card = paymentIntent.payment_method
+		//? Transform subscription to simplified
+		const subCustomer = subscription.customer as Stripe.Customer
+		const subPlan = subscription.items.data[0]?.plan as Stripe.Plan &
+			Stripe.Plan.Tier
+		const subProduct = subPlan?.product as Stripe.Product
+		const transformedSubscription = {
+			customer: {
+				name: subCustomer?.name || '',
+			},
+			plan: {
+				amount:
+					(typeof subPlan?.unit_amount === 'number'
+						? subPlan?.unit_amount
+						: (subPlan as any)?.amount) || 0,
+				interval: subPlan?.interval || 'month',
+				product: {
+					name: subProduct?.name || 'Pro Plan',
+				},
+			},
+			current_period_start: subscription.current_period_start,
+			current_period_end: subscription.current_period_end,
+			status: subscription.status,
+		}
+
+		//? Extract card preview from payment method
+		const paymentMethod = paymentIntent.payment_method as unknown as {
+			card?: {
+				last4?: string
+				brand?: string
+				exp_month?: number
+				exp_year?: number
+			}
+		}
+		const card = { card: paymentMethod?.card || { last4: '' } }
 
 		return new Response(
 			JSON.stringify({
 				card,
-				subscription,
+				subscription: transformedSubscription,
 			}),
 			{
 				status: 200,

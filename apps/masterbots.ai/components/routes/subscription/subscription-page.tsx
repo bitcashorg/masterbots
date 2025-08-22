@@ -68,8 +68,10 @@ export function SubscriptionPageComponent() {
 
 	// Fetch subscription data from payment intent (for recent transactions)
 	const { value: subscriptionData } = useAsync(async () => {
-		if (paymentIntent) {
-			return await fetchPayment(paymentIntent)
+		const intentId =
+			typeof paymentIntent === 'string' ? paymentIntent : paymentIntent?.id
+		if (intentId) {
+			return await fetchPayment(intentId)
 		}
 		return null
 	}, [paymentIntent])
@@ -351,12 +353,13 @@ export function SubscriptionPageComponent() {
 											</Button>
 										</div>
 									)}
-								</div>
-								<div className="flex gap-3 items-center">
-									{/* Unsubscribe */}
-									<UnsubscribeDialog
-										endEpoch={currentSubscription.current_period_end}
-									/>
+									{currentSubscription.cancel_at_period_end && (
+										<div className="mt-3">
+											<UnsubscribeDialog
+												endEpoch={currentSubscription.current_period_end}
+											/>
+										</div>
+									)}
 								</div>
 							</motion.div>
 						) : (
