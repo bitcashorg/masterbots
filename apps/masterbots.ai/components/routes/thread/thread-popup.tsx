@@ -153,6 +153,7 @@ export function ThreadPopup({ className }: { className?: string }) {
 	const routeType = getRouteType(pathname)
 	const isBrowseView =
 		routeType === 'public' ||
+		routeType === 'org' ||
 		routeType === 'profile' ||
 		(routeType === 'bot' && activeThread?.threadId)
 	const isProView = routeType === 'pro'

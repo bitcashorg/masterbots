@@ -499,10 +499,12 @@ export function Header() {
 						onSelect={(v) => {
 							if (v === 'None') {
 								setActiveDocument(null)
+								setDocumentName('')
+								toggleWorkspace()
 								return
 							}
-							if (v === activeDocument) return
 							setActiveDocument(v)
+							setDocumentName(v)
 							if (!isWorkspaceActive) {
 								toggleWorkspace()
 							}
