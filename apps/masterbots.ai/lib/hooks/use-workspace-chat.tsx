@@ -1,13 +1,14 @@
 'use client'
 
+import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { useModel } from '@/lib/hooks/use-model'
 import { useSonner } from '@/lib/hooks/useSonner'
 import {
 	combineMarkdownSections,
 	parseMarkdownSections,
 } from '@/lib/markdown-utils'
-import { useChat } from '@ai-sdk/react'
-import type { ChatRequestOptions, Message } from 'ai'
+import type { useChat } from '@ai-sdk/react'
+import type { ChatRequestOptions, Message, UIMessage } from 'ai'
 import { nanoid } from 'nanoid'
 import * as React from 'react'
 import { useWorkspace } from './use-workspace'
@@ -103,54 +104,38 @@ export function WorkspaceChatProvider({
 	}, [currentMetaPrompt, chatId])
 
 	// Raw useChat hook for workspace mode with system message support
-	const { messages, isLoading, error, append, input, setInput, setMessages } =
-		useChat({
-			id: chatId,
-			initialMessages,
-			body: {
-				id: chatId,
-				model: selectedModel,
-				clientType,
-			},
-			onResponse(response) {
-				if (response.status === 401) {
-					customSonner({ type: 'error', text: response.statusText })
-				} else if (!response.ok) {
-					customSonner({ type: 'error', text: 'Failed to process request' })
-				}
-			},
-			onError(error) {
-				console.error('❌ Error in workspace chat:', error)
-				customSonner({ type: 'error', text: 'An error occurred' })
-			},
-			async onFinish(message) {
-				console.log(
-					'✅ onFinish: AI response complete, handling document update:',
-					message.content?.substring(0, 100),
-				)
+	const [
+		{ allMessages: messages, isLoading, input, error },
+		{ appendWithMbContextPrompts: append, setInput, setMessages },
+	] = useMBChat()
 
-				// Get current document info
-				const documentKey = `${activeProject}:${activeDocument}`
-				const currentContent = documentContent?.[documentKey] || ''
+	const onFinishWorkspaceChatRequest = (message: Message) => {
+		console.log(
+			'✅ onFinish: AI response complete, handling document update:',
+			message.content?.substring(0, 100),
+		)
 
-				// Process the AI response for document update
-				if (activeProject && activeDocument && message.content) {
-					console.log('📝 Processing document update in onFinish')
-					handleDocumentUpdate(
-						message.content,
-						activeWorkspaceSection,
-						currentContent,
-						documentKey,
-						cursorPosition,
-					)
-				}
+		// Get current document info
+		const documentKey = `${activeProject}:${activeDocument}`
+		const currentContent = documentContent?.[documentKey] || ''
 
-				// Note: Document updates are handled here instead of in workspace-content.tsx
-				// to prevent infinite loops and ensure proper state management
+		// Process the AI response for document update
+		if (activeProject && activeDocument && message.content) {
+			console.log('📝 Processing document update in onFinish')
+			handleDocumentUpdate(
+				message.content,
+				activeWorkspaceSection,
+				currentContent,
+				documentKey,
+				cursorPosition,
+			)
+		}
 
-				console.log('✅ onFinish: Document update complete')
-			},
-		})
+		// Note: Document updates are handled here instead of in workspace-content.tsx
+		// to prevent infinite loops and ensure proper state management
+
+		console.log('✅ onFinish: Document update complete')
+	}
 
 	// console.log('🔄 WorkspaceChatProvider messages:', messages)
 
@@ -342,12 +327,13 @@ export function WorkspaceChatProvider({
 			setCurrentMetaPrompt(metaPrompt)
 			// Reset messages to include the new system prompt
 			setMessages([
+				...messages.filter((msg) => msg.role === 'system'),
 				{
-					id: `system-${chatId}`,
+					id: `system-${nanoid()}-workspace`,
 					role: 'system',
 					content: metaPrompt,
 					createdAt: new Date(),
-				},
+				} as UIMessage,
 			])
 
 			// Now send the user prompt as a separate user message
@@ -356,6 +342,11 @@ export function WorkspaceChatProvider({
 				content: userPrompt,
 				role: 'user',
 				createdAt: new Date(),
+			}).then((response) => {
+				console.log('✅ User message sent successfully', response)
+				onFinishWorkspaceChatRequest(
+					messages.filter((msg) => msg.role === 'assistant').pop() as UIMessage,
+				)
 			})
 
 			console.log('✅ Workspace edit request sent successfully')

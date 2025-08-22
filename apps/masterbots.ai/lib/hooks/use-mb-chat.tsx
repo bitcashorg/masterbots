@@ -29,6 +29,7 @@ import { usePowerUp } from '@/lib/hooks/use-power-up'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
+import { useWorkspace } from '@/lib/hooks/use-workspace'
 import { logErrorToSentry } from '@/lib/sentry'
 import { generateUniqueSlug, getCanonicalDomain } from '@/lib/url'
 import {
@@ -223,6 +224,16 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 		}
 	}
 
+	// NEW: Handle documents from workspace and link them to messages
+	const {
+		documentList,
+		activeDepartment,
+		activeOrganization,
+		activeProject,
+		activeDocumentType,
+		activeDocument,
+		documentContent,
+	} = useWorkspace()
 	const useChatConfig: Partial<UseChatOptions> = {
 		initialMessages,
 		id: threadId,
@@ -243,6 +254,8 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 		input,
 		messages,
 		isLoading,
+		error,
+		experimental_resume: resume,
 		stop,
 		append,
 		reload,
@@ -378,6 +391,21 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 							],
 						}))
 					: []
+				const documentListKeys = Object.entries(documentList)
+				const newDocuments = documentListKeys
+					.map(([key, doc]) =>
+						key === activeProject
+							? {
+									documentName: doc,
+									project: activeProject,
+									organization: activeOrganization,
+									department: activeDepartment,
+									type: activeDocumentType.includes('all') || 'text',
+									messageIds: [userMessageId, assistantMessageId],
+								}
+							: null,
+					)
+					.filter(Boolean)
 
 				for (const attachment of newAttachments) {
 					try {
@@ -486,17 +514,25 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						? {
 								...activeThread,
 								messages: [...activeThread.messages, ...newThreadMessages],
-								metadata: newAttachments.length
-									? {
-											attachments: uniqBy(
-												[
-													...newAttachments,
-													...(activeThread.metadata.attachments || []),
-												],
-												'id',
-											),
-										}
-									: undefined,
+								metadata:
+									newAttachments.length || newDocuments.length
+										? {
+												attachments: uniqBy(
+													[
+														...newAttachments,
+														...(activeThread?.metadata?.attachments || []),
+													],
+													'id',
+												),
+												documents: uniqBy(
+													[
+														...newDocuments,
+														...(activeThread?.metadata?.documents || []),
+													],
+													'id',
+												),
+											}
+										: undefined,
 							}
 						: undefined
 					const thread = await updateActiveThread(newThread)
@@ -1035,6 +1071,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 			value={[
 				{
 					input,
+					error,
 					isNewChat,
 					webSearch,
 					isLoading,
@@ -1051,6 +1088,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					setInput,
 					append,
 					reload,
+					resume,
 					stop,
 				},
 			]}
@@ -1077,6 +1115,7 @@ export type MBChatHookState = {
 	allMessages: OpenAi.UIMessage[]
 	initialMessages: OpenAi.UIMessage[]
 	newChatThreadId: string
+	error?: Error
 }
 
 export type MBChatHookActions = {
@@ -1102,4 +1141,5 @@ export type MBChatHookActions = {
 	toggleWebSearch: () => void
 	setInput: React.Dispatch<React.SetStateAction<string>>
 	setMessages: (messages: OpenAi.UIMessage[]) => void
+	resume: ReturnType<typeof useChat>['experimental_resume']
 }
