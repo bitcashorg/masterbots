@@ -60,6 +60,7 @@ interface PaymentContextProps {
 		promotionCodeId?: string
 		trialPeriodDays?: number
 		discountInfo?: string
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		couponDetails?: any
 	}>
 	handleApplyPromoCode: () => void

@@ -18,6 +18,7 @@ type MessageRendererProps = {
 	chatbot?: any
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	webSearchResults?: any[]
+	onConvertToWorkspaceDocument?: (messageId: string) => void
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	[key: string]: any
 }
@@ -28,6 +29,7 @@ export function MessageRenderer({
 	sendMessageFromResponse,
 	chatbot,
 	webSearchResults = [],
+	onConvertToWorkspaceDocument,
 	...props
 }: MessageRendererProps) {
 	//? Determine if the message has reasoning content
@@ -52,6 +54,7 @@ export function MessageRenderer({
 				actionRequired={actionRequired}
 				sendMessageFromResponse={sendMessageFromResponse}
 				chatbot={chatbot}
+				onConvertToWorkspaceDocument={onConvertToWorkspaceDocument}
 				{...props}
 			/>
 		)
@@ -65,6 +68,7 @@ export function MessageRenderer({
 			sendMessageFromResponse={sendMessageFromResponse}
 			chatbot={chatbot}
 			webSearchResults={webSearchResults}
+			onConvertToWorkspaceDocument={onConvertToWorkspaceDocument}
 			{...props}
 		/>
 	)

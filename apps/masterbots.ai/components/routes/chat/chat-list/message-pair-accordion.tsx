@@ -12,6 +12,7 @@ import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import type { MessagePair } from '@/lib/threads'
+import { parsePath } from '@/lib/url'
 import { cn, getRouteType } from '@/lib/utils'
 import type { SendMessageFromResponseMessageData } from '@/types/types'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -27,6 +28,7 @@ export function MessagePairAccordion({
 	isNewResponse,
 	type,
 	userAttachments,
+	onConvertToWorkspaceDocument,
 	...props
 }: {
 	pair: MessagePair
@@ -42,17 +44,21 @@ export function MessagePairAccordion({
 		messageData: SendMessageFromResponseMessageData,
 		callback?: () => void,
 	) => void
+	onConvertToWorkspaceDocument?: (messageId: string) => void
 }) {
 	const { activeThread } = useThread()
 	const { navigateTo } = useSidebar()
 	const isPrevious = type === 'previous'
-	const defaultAccordionState =
-		// ? Case to show only the last message in the conversation and it is not previous
-		index === arrayLength - 1 && !isPrevious
+	const defaultAccordionState = false
+	// ? Case to show only the last message in the conversation and it is not previous
+	// index === arrayLength - 1 && !isPrevious  @jimoh: we can now move to open the current message by the slug in the URL (Line:80)
+
 	// ? Case for when we have the first message in the conversation or last and both are not previous
 	// ((!index || index === arrayLength - 1) && !isPrevious) ||
 	// ? Case for when we have the first message in the previous conversation
 	// (!index && isPrevious)
+
+	// default show if the url threadQuestionSlug is equal to the pair userMessage slug
 
 	const [isAccordionFocused, setIsAccordionFocused] = useState<boolean>(
 		defaultAccordionState,
@@ -61,11 +67,25 @@ export function MessagePairAccordion({
 	const pathname = usePathname()
 	const isPublic = getRouteType(pathname) === 'public'
 	const isProfile = getRouteType(pathname) === 'profile'
+	const isBot = getRouteType(pathname) === 'bot'
 	const { isSameUser } = useThreadVisibility()
 	const sameUser = activeThread ? isSameUser(activeThread) : false
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
-		if (!params.threadQuestionSlug) return
+		let setFocuse = false
+		if (!params.threadQuestionSlug) {
+			// If no threadQuestionSlug in URL, focus on the last message of the pair
+			setFocuse = index === arrayLength - 1 && !isPrevious
+		} else {
+			// If threadQuestionSlug exists, focus on the message with that slug
+			setFocuse =
+				pair.userMessage.slug === (params.threadQuestionSlug as string)
+		}
+
+		if (setFocuse) {
+			setIsAccordionFocused(true)
+		}
 
 		const $questionElement = document.getElementById(
 			params.threadQuestionSlug as string,
@@ -92,32 +112,26 @@ export function MessagePairAccordion({
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const toggleThreadQuestionUrl = useCallback(
 		(isOpen: boolean, isFirstQuestion: boolean) => {
-			if (!isFirstQuestion) {
-				setIsAccordionFocused(isOpen)
-				return
-			}
+			if (isFirstQuestion) return
 			setIsAccordionFocused(isOpen)
-			// console.log('window.location.pathname.split', window.location.pathname.split('/'))
-			// ? Chat Thread URL
-			const [
-				,
-				base,
+
+			const { category, domain, chatbot, threadSlug, threadQuestionSlug } =
+				parsePath(window.location.pathname)
+
+			const paramUserSlug = params.userSlug as string | undefined
+
+			const navigationParts = {
 				category,
 				domain,
 				chatbot,
 				threadSlug,
-				threadQuestionSlug,
-			] = window.location.pathname.split('/')
-			const navigationParts = {
-				category: isPublic ? base : category,
-				domain: isPublic ? category : domain,
-				chatbot: isPublic ? domain : chatbot,
-				threadSlug: isPublic ? chatbot : threadSlug,
-				threadQuestionSlug: pair.userMessage.slug,
+				threadQuestionSlug: threadQuestionSlug
+					? threadQuestionSlug
+					: pair.userMessage.slug,
+				usernameSlug: paramUserSlug || '',
 			}
 
 			if (!threadQuestionSlug && isOpen) {
-				// console.log('navigateTo threadQuestionUrl', navigationParts)
 				navigateTo({
 					urlType: isProfile
 						? 'profilesThreadQuestionUrl'
@@ -125,33 +139,32 @@ export function MessagePairAccordion({
 					shallow: true,
 					navigationParams: isProfile
 						? {
-								type: 'chatbot',
+								type: 'user',
 								...navigationParts,
 							}
 						: {
-								type: isPublic ? 'public' : 'personal',
+								type: isPublic ? 'public' : isBot ? 'bot' : 'personal',
 								...navigationParts,
 							},
 				})
 			}
 			if (threadQuestionSlug && !isOpen) {
-				// console.log('navigateTo threadUrl', navigationParts)
 				navigateTo({
 					urlType: isProfile ? 'profilesThreadUrl' : 'threadUrl',
 					shallow: true,
 					navigationParams: isProfile
 						? {
-								type: 'chatbot',
+								type: 'user',
 								...navigationParts,
 							}
 						: {
-								type: isPublic ? 'public' : 'personal',
+								type: isPublic ? 'public' : isBot ? 'bot' : 'personal',
 								...navigationParts,
 							},
 				})
 			}
 		},
-		[],
+		[pair.userMessage.slug],
 	)
 
 	const shouldShowUserMessage = activeThread?.thread?.messages
@@ -169,7 +182,7 @@ export function MessagePairAccordion({
 				isPrevious && 'bg-accent/25 rounded-[8px] border-l-accent/20 ',
 			)}
 			triggerClass={cn(
-				'py-[0.4375rem] z-10 ease-in-out',
+				'py-[0.4375rem] z-[1] ease-in-out',
 				{
 					'sticky top-0 md:-top-10 z-[1] px-3 [&[data-state=open]]:rounded-t-[8px]':
 						isThread,
@@ -231,8 +244,7 @@ export function MessagePairAccordion({
 						''
 					)}
 				</AnimatePresence>
-
-				<div className="w-full ml-auto flex gap-1.5 items-start justify-center group">
+				<div className="w-full ml-auto flex gap-1.5 items-start justify-between group">
 					{shouldShowUserMessage && (
 						<MessageRenderer
 							actionRequired={false}
@@ -248,7 +260,6 @@ export function MessagePairAccordion({
 							pair={pair}
 						/>
 					)}
-					{isAccordionFocused}
 				</div>
 			</div>
 			{/* Thread Description */}
@@ -301,9 +312,9 @@ export function MessagePairAccordion({
 								)}
 								<MessageRenderer
 									id={message.slug}
-									actionRequired={false}
 									message={message}
 									sendMessageFromResponse={props.sendMessageFn}
+									onConvertToWorkspaceDocument={onConvertToWorkspaceDocument}
 								/>
 							</Fragment>
 						))

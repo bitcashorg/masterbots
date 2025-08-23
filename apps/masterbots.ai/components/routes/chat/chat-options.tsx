@@ -19,17 +19,19 @@ import {
 import { IconSpinner } from '@/components/ui/icons'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
+import { useWorkspace } from '@/lib/hooks/use-workspace'
 import { useSonner } from '@/lib/hooks/useSonner'
+import { createStructuredMarkdown } from '@/lib/markdown-utils'
 import type { MessagePair } from '@/lib/threads'
 import { getCanonicalDomain, urlBuilders } from '@/lib/url'
 import { cn } from '@/lib/utils'
 import { deleteMessages, getThread } from '@/services/hasura'
-import { Eye, EyeOff, MoreVertical, Trash } from 'lucide-react'
+import { Eye, EyeOff, FileTextIcon, MoreVertical, Trash } from 'lucide-react'
 import type { Thread } from 'mb-genql'
 import { toSlug } from 'mb-lib'
 import { useSession } from 'next-auth/react'
 import type React from 'react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { ShareButton } from './share-button'
 
 interface ChatOptionsProps {
@@ -37,9 +39,15 @@ interface ChatOptionsProps {
 	thread: Thread
 	isBrowse: boolean
 	pair?: MessagePair
+	assistantMessageCount?: number // Track which assistant message this is
 }
 
-export function ChatOptions({ threadId, thread, pair }: ChatOptionsProps) {
+export function ChatOptions({
+	threadId,
+	thread,
+	pair,
+	assistantMessageCount = 1,
+}: ChatOptionsProps) {
 	const { toggleVisibility, isSameUser, initiateDeleteThread } =
 		useThreadVisibility()
 	const isUser = isSameUser(thread)
@@ -48,20 +56,99 @@ export function ChatOptions({ threadId, thread, pair }: ChatOptionsProps) {
 	const jwt = session?.data?.user?.hasuraJwt
 	const [isPublic, setIsPublic] = useState(thread.isPublic)
 
+	const {
+		activeProject,
+		activeDocumentType,
+		addDocument,
+		setActiveDocument,
+		setDocumentContent,
+		isWorkspaceActive,
+		toggleWorkspace,
+	} = useWorkspace()
+
 	const isSubThread = pair && pair !== undefined
-	const url = urlBuilders.profilesThreadUrl({
-		type: 'user',
-		threadSlug: thread.slug,
-		threadQuestionSlug: isSubThread ? pair.userMessage.slug : undefined,
-		category: thread.chatbot.categories[0]?.category.name,
-		chatbot: toSlug(thread.chatbot.name),
-		usernameSlug: thread?.user?.slug,
-		domain: canonicalDomain,
-	})
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	const url = useMemo(
+		() =>
+			!thread.slug
+				? '/'
+				: urlBuilders.profilesThreadUrl({
+						type: 'user',
+						threadSlug: thread.slug,
+						threadQuestionSlug: isSubThread ? pair.userMessage.slug : undefined,
+						category: thread.chatbot.categories[0]?.category.name,
+						chatbot: toSlug(thread.chatbot.name),
+						usernameSlug: thread?.user?.slug,
+						domain: canonicalDomain,
+					}),
+		[thread],
+	)
 	const [isDeleteOpen, setIsDeleteOpen] = useState(false)
 	const [isDeleting, setIsDeleting] = useState(false)
 	const { customSonner } = useSonner()
 	const { activeThread, setActiveThread } = useThread()
+
+	const handleCreateDocument = async () => {
+		if (!pair?.chatGptMessage?.[0]) {
+			customSonner({
+				type: 'error',
+				text: 'No assistant message found to create document from',
+			})
+			return
+		}
+
+		if (!activeProject) {
+			customSonner({
+				type: 'error',
+				text: 'Please select a project from the breadcrumb navigation first',
+			})
+			return
+		}
+
+		try {
+			// Get the assistant's response content
+			const assistantContent = pair.chatGptMessage[0].content
+			const userQuestion = pair.userMessage.content
+
+			// Create document title from user question (first 50 chars)
+			const docTitle =
+				userQuestion
+					.substring(0, 50)
+					.replace(/[^\w\s-]/g, '')
+					.trim() || 'New Document'
+
+			// Generate structured markdown from assistant content
+			const structuredContent = createStructuredMarkdown(assistantContent)
+
+			// Add the document to workspace
+			const docType = activeDocumentType === 'all' ? 'text' : activeDocumentType
+			addDocument(
+				activeProject,
+				docTitle,
+				docType as 'text' | 'image' | 'spreadsheet',
+			)
+
+			// Set document content
+			setDocumentContent(activeProject, docTitle, structuredContent)
+			setActiveDocument(docTitle)
+
+			// Enable workspace mode if not already active
+			if (!isWorkspaceActive) {
+				toggleWorkspace()
+			}
+
+			customSonner({
+				type: 'success',
+				text: `Document "${docTitle}" created successfully!`,
+			})
+		} catch (error) {
+			console.error('Error creating document:', error)
+			customSonner({
+				type: 'error',
+				text: 'Failed to create document',
+			})
+		}
+	}
 
 	const handleDelete = async (
 		e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
@@ -160,10 +247,6 @@ export function ChatOptions({ threadId, thread, pair }: ChatOptionsProps) {
 		</AlertDialog>
 	)
 
-	// console.log({
-	// 	"The Pair here": pair
-	// })
-
 	return (
 		<div className="flex items-center gap-4 sm:gap-3 pt-[3px]">
 			<AlertDialogue deleteDialogOpen={isDeleteOpen} />
@@ -178,8 +261,11 @@ export function ChatOptions({ threadId, thread, pair }: ChatOptionsProps) {
 						}),
 						'p-1',
 					)}
+					asChild
 				>
-					<MoreVertical className="w-4 h-4" />
+					<span>
+						<MoreVertical className="w-4 h-4" />
+					</span>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent
 					sideOffset={8}
@@ -198,8 +284,16 @@ export function ChatOptions({ threadId, thread, pair }: ChatOptionsProps) {
 								</DropdownMenuItem>
 							)}
 							<DropdownMenuItem
-								className="flex w-full p-0 rounded-none"
-								onClick={(event) => event.preventDefault()}
+								className="flex justify-between w-full px-4 rounded-none hover:bg-accent"
+								onSelect={async (event) => {
+									event.preventDefault()
+									try {
+										await toggleVisibility(!thread?.isPublic, threadId)
+										thread.isPublic = !thread?.isPublic
+									} catch (error) {
+										console.error('Failed to update thread visibility:', error)
+									}
+								}}
 							>
 								<Button
 									type="button"
@@ -248,32 +342,35 @@ export function ChatOptions({ threadId, thread, pair }: ChatOptionsProps) {
 							<ShareButton url={url} />
 						</DropdownMenuItem>
 					)}
+					{/* Create Document option - show after second assistant answer */}
+					{pair?.chatGptMessage?.[0] && assistantMessageCount >= 2 && (
+						<>
+							<DropdownMenuSeparator />
+							<DropdownMenuItem
+								className="flex justify-between w-full px-4 rounded-none hover:bg-accent"
+								onSelect={(event) => {
+									event.preventDefault()
+									handleCreateDocument()
+								}}
+							>
+								<FileTextIcon className="w-4 h-4" />
+								<span>Create Document</span>
+							</DropdownMenuItem>
+						</>
+					)}
 					{/* Delete thread option (only for thread owner) */}
 					{isUser && (
 						<>
 							<DropdownMenuSeparator />
 							<DropdownMenuItem
-								className="flex w-full p-0 rounded-none"
+								className="flex justify-between w-full px-4 rounded-none text-destructive hover:text-destructive hover:bg-destructive/10"
 								onSelect={(event) => {
 									event.preventDefault()
-									event.stopPropagation()
 									setIsDeleteOpen(true)
 								}}
 							>
-								<Button
-									type="button"
-									variant="destructive"
-									radius="none"
-									size="lg"
-									className="flex justify-between w-full px-4 rounded-none"
-									onClick={(event) => {
-										event.stopPropagation()
-										setIsDeleteOpen(true)
-									}}
-								>
-									<Trash className="w-4 h-4" />
-									<span>Delete</span>
-								</Button>
+								<Trash className="w-4 h-4" />
+								<span>Delete</span>
 							</DropdownMenuItem>
 						</>
 					)}

@@ -98,7 +98,9 @@ export async function refreshAttachmentLinks() {
 }
 
 async function processThread(
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	threadRecord: { threadId: string; slug: string; metadata: any },
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	bucket: any,
 ): Promise<ProcessResult> {
 	const result: ProcessResult = {

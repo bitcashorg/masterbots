@@ -24,9 +24,6 @@ export function ThreadPopupContentSkeleton({
 			className={cn(
 				'flex flex-col gap-3 p-2.5 dark:bg-[#18181b] bg-white grow rounded-b-[8px] scrollbar h-full',
 				isBrowseView ? 'pb-2 md:pb-4' : 'pb-[120px] md:pb-[180px]',
-				isBrowseView
-					? ''
-					: 'max-h-[calc(100%-240px)] md:max-h-[calc(100%-220px)]',
 				className,
 			)}
 		>

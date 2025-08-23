@@ -39,7 +39,7 @@ export function OnboardingChatbotCard({
 			className="mt-10 hidden h-[calc(50vh-196px)] md:flex items-center justify-center -translate-y-8 relative"
 			data-route={routeType}
 		>
-			<Card className="w-full max-w-2xl mx-auto bg-white dark:bg-[#09090B] relative z-10 overflow-hidden rounded-2xl">
+			<Card className="w-full max-w-screen-lg mx-auto bg-white dark:bg-[#09090B] relative z-10 overflow-hidden rounded-2xl">
 				{/* Background image layer */}
 				<div
 					className={`absolute inset-0 bg-center bg-cover opacity-20 ${bgImage}`}
@@ -76,7 +76,10 @@ export function OnboardingChatbotCard({
 
 					<CardContent className="px-4 space-y-1">
 						<MemoizedReactMarkdown
-							className="pt-2.5 max-w-[calc(100%-160px)] text-base text-black dark:text-white min-h-24"
+							className={cn(
+								'pt-2.5 max-w-[calc(100%-160px)] text-base text-black dark:text-white min-h-24 onboarding-chatbot-card__content',
+								isWelcomeView && 'onboarding-chatbot-card__content--welcome',
+							)}
 							components={memoizedMarkdownComponents()}
 						>
 							{isWelcomeView

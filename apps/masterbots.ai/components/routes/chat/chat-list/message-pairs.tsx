@@ -31,6 +31,7 @@ export function MessagePairs({
 	chatContentClass,
 	userAttachments,
 	sendMessageFn,
+	onConvertToWorkspaceDocument,
 }: {
 	isThread: boolean
 	messagesData: MessagePairsData
@@ -44,6 +45,7 @@ export function MessagePairs({
 		messageData: SendMessageFromResponseMessageData,
 		callback?: () => void,
 	) => void
+	onConvertToWorkspaceDocument?: (messageId: string) => void
 }) {
 	const { isNewResponse, activeThread } = useThread()
 
@@ -57,7 +59,7 @@ export function MessagePairs({
 	const previousPairsElements = useMemo(() => {
 		const { userMessages, assistantMessages } = messagesData.previous
 
-		return userMessages.map((userMessage, index) => {
+		return userMessages?.map((userMessage, index) => {
 			const chatGptMessage = assistantMessages[index] || []
 			const pair = { userMessage, chatGptMessage }
 
@@ -89,6 +91,7 @@ export function MessagePairs({
 					chatTitleClass={chatTitleClass}
 					userAttachments={filteredUserAttachments}
 					chatContentClass={chatContentClass}
+					onConvertToWorkspaceDocument={onConvertToWorkspaceDocument}
 				/>
 			)
 		})

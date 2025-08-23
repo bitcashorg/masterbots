@@ -277,6 +277,7 @@ export interface ChatMessageProps extends React.ComponentProps<'div'> {
 		messageData: SendMessageFromResponseMessageData,
 		callback?: () => void,
 	) => void
+	onConvertToWorkspaceDocument?: (messageId: string) => void
 	chatbot?: Chatbot
 	actionRequired?: boolean
 	webSearchResults?: WebSearchResult[]
@@ -487,6 +488,7 @@ export interface ImageMessage {
 }
 
 // Helper to check if a message contains image data
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 export function isImageMessage(message: any): message is ImageMessage {
 	return (
 		message &&

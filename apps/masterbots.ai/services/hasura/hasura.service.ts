@@ -1099,6 +1099,42 @@ export async function updateThreadVisibility({
 	}
 }
 
+/**
+ * Refresh and return updated thread data after metadata changes
+ */
+export async function refreshThreadAfterMetadataUpdate({
+	threadId,
+	jwt,
+}: {
+	threadId: string
+	jwt?: string
+}): Promise<{ success: boolean; thread?: Thread; error?: string }> {
+	try {
+		const updatedThread = await getThread({
+			threadId,
+			jwt,
+			isPersonal: true,
+		})
+
+		if (updatedThread) {
+			return {
+				success: true,
+				thread: updatedThread,
+			}
+		}
+
+		return {
+			success: false,
+			error: 'Thread not found after metadata update',
+		}
+	} catch (error) {
+		return {
+			success: false,
+			error: (error as Error).message,
+		}
+	}
+}
+
 export async function approveThread({
 	threadId,
 	jwt,

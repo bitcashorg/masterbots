@@ -1,7 +1,9 @@
 'use client'
 
 import ResetPasswordForm from '@/components/auth/reset-password-form'
+import { getAppLogoPath } from '@/lib/utils'
 import { motion } from 'framer-motion'
+import { useTheme } from 'next-themes'
 import Image from 'next/image'
 import { Suspense, use } from 'react'
 
@@ -9,6 +11,9 @@ export default function ResetPasswordPage(props: {
 	searchParams: Promise<{ token: string }>
 }) {
 	const searchParams = use(props.searchParams)
+	const { resolvedTheme } = useTheme()
+	const logoSrc = getAppLogoPath({ theme: resolvedTheme })
+
 	return (
 		<motion.div
 			className="flex flex-col min-h-[calc(100vh-4rem)] items-center py-6 sm:py-10"
@@ -18,13 +23,13 @@ export default function ResetPasswordPage(props: {
 		>
 			{/* Logo container with animation */}
 			<motion.div
-				className="w-full max-w-[320px] sm:max-w-[500px] md:max-w-[726px] relative aspect-[726/200] mb-6 sm:mb-10"
+				className="w-full max-w-[1006px] sm:max-w-[500px] md:max-w-[1006px]  relative aspect-[726/200] mb-6 sm:mb-10"
 				initial={{ y: 20 }}
 				animate={{ y: 0 }}
 				transition={{ duration: 0.4, delay: 0.1 }}
 			>
 				<Image
-					src="/images/masterbotslogo.png"
+					src={logoSrc}
 					fill
 					priority
 					alt="Masterbots Logo"
