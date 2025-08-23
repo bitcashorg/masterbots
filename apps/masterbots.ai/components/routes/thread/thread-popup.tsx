@@ -19,6 +19,7 @@ import { getCanonicalDomain, urlBuilders } from '@/lib/url'
 import { cn, getRouteType } from '@/lib/utils'
 import type { SendMessageFromResponseMessageData } from '@/types/types'
 import type { Message as AiMessage } from 'ai'
+import { AnimatePresence, motion } from 'framer-motion'
 import { FileTextIcon } from 'lucide-react'
 import type { Message } from 'mb-genql'
 import dynamic from 'next/dynamic'
@@ -166,97 +167,111 @@ export function ThreadPopup({ className }: { className?: string }) {
 	const canonicalDomain = getCanonicalDomain(chatbotName || 'prompt')
 
 	return (
-		<div
-			className={cn(
-				'size-full max-h-[calc(100%-240px)]',
-				isBotView
-					? ''
-					: 'lg:max-w-[calc(100%-250px)] xl:max-w-[calc(100%-300px)]',
-				'flex justify-center items-end fixed top-16',
-				'h-[calc(100vh-4rem)] backdrop-blur-sm ease-in-out duration-500 z-40',
-				'transition-all',
-				isOpenPopup ? 'animate-fade-in' : 'animate-fade-out',
-				className,
-			)}
-		>
-			<div
+		<AnimatePresence mode="wait">
+			<motion.div
 				className={cn(
-					'flex flex-col z-50 rounded-lg duration-500 ease-in-out fixed',
-					'h-full max-h-[85%] max-w-[1032px] w-[95%]',
-					'dark:border-mirage border-iron border bg-background dark:bg-background',
-					'transition-opacity',
+					'size-full max-h-[calc(100%-240px)]',
+					isBotView
+						? ''
+						: 'lg:max-w-[calc(100%-250px)] xl:max-w-[calc(100%-300px)]',
+					'flex justify-center items-end fixed bottom-[192px] left-0',
+					'h-[calc(100vh-4rem)] backdrop-blur-sm ease-in-out duration-500 z-40',
+					'transition-all',
+					isOpenPopup ? 'animate-fade-in' : 'animate-fade-out',
+					className,
 				)}
+				initial={{ y: 320, opacity: 0 }}
+				animate={{ y: 0, opacity: 1 }}
+				exit={{ y: 320, opacity: 0 }}
+				transition={{ duration: 0.35, ease: 'easeInOut' }}
+				key="thread-pop-up"
 			>
-				<ThreadPopUpCardHeader
-					messages={allMessages}
-					isBrowseView={isBrowseView}
-					isProView={isProView}
-				/>
-
 				<div
-					ref={popupContentRef}
 					className={cn(
-						'flex flex-col dark:bg-[#18181b] bg-white grow rounded-b-[8px] scrollbar h-full',
-						isBrowseView ? 'pb-2 md:pb-4' : 'pb-[120px] md:pb-[180px]',
-						className,
+						'flex flex-col z-50 rounded-lg duration-500 ease-in-out fixed',
+						'h-full max-h-[90%] max-w-[1032px] w-[calc(100%-3rem)] md:w-[calc(100%-5rem)] mx-4 md:mx-10',
+						'dark:border-mirage border-iron border bg-background dark:bg-background shadow-xl',
+						'transition-opacity overflow-hidden',
 					)}
 				>
-					{/* Workspace Section (conditionally shown) */}
-					{isWorkspaceActive && (
-						<div
-							className={cn(
-								'absolute bottom-0 z-50 size-full bg-background border rounded-md shadow-sm max-h-[calc(100%-86px)]',
-							)}
-						>
-							{/* Removed duplicate document type dropdown. Breadcrumb is source of truth. */}
-							<WorkspaceContent
-								key={`workspace-${activeProject}-${activeDocument}-${activeDocumentType}`}
-								isLoading={isLoading}
-								className="size-full overflow-auto scrollbar"
-								chatbot={activeThread?.chatbot}
-							/>
-						</div>
-					)}
-					<div ref={threadRef}>
-						<ChatList
-							isThread={false}
-							messages={allMessages}
-							isLoadingMessages={isLoading}
-							sendMessageFn={(
-								messageData: SendMessageFromResponseMessageData,
-								callback?: () => void,
-							) => {
-								scrollToBottom()
-								sendMessageFromResponse(messageData, callback)
-							}}
-							onConvertToWorkspaceDocument={convertToWorkspaceDocument}
-							chatContentClass="!border-x-gray-300 md:px-[16px] !mx-0 max-h-[none] dark:!border-x-mirage"
-							className="max-w-full md:px-[32px] !mx-0"
-							chatArrowClass="!right-0 !mr-0"
-							chatTitleClass="!px-2.5"
-						/>
-						{isBrowseView && (
-							<div className="pt-6 text-center border-t border-t-iron dark:border-t-mirage mt-12 mb-5 lg:mt-20">
-								<ExternalLink
-									className={cn(
-										buttonVariants({ size: 'xl', radius: 'full' }),
-										'text-xl hover:no-underline',
-									)}
-									href={`${urlBuilders.chatbotThreadListUrl({
-										type: 'personal',
-										category: threadCategory,
-										domain: canonicalDomain,
-										chatbot: chatbotName as string,
-									})}?continuousThreadId=${activeThread?.threadId}`}
-								>
-									Continue Thread
-								</ExternalLink>
-							</div>
+					<ThreadPopUpCardHeader
+						messages={allMessages}
+						isBrowseView={isBrowseView}
+						isProView={isProView}
+					/>
+
+					<div
+						ref={popupContentRef}
+						className={cn(
+							'flex flex-col dark:bg-[#18181b] bg-white grow rounded-b-[8px] scrollbar h-full',
+							isBrowseView ? 'pb-2 md:pb-4' : 'pb-[120px] md:pb-[180px]',
+							className,
 						)}
+					>
+						<AnimatePresence mode="wait">
+							{/* Workspace Section (conditionally shown) */}
+							{isWorkspaceActive && activeThread && (
+								<motion.div
+									className={cn(
+										'absolute bottom-0 z-50 size-full bg-background border border-b-0 rounded-md shadow-sm max-h-[calc(100%-88px)]',
+									)}
+									initial={{ y: 320, opacity: 0 }}
+									animate={{ y: 0, opacity: 1 }}
+									exit={{ y: 320, opacity: 0 }}
+									transition={{ duration: 0.35, ease: 'easeInOut' }}
+									key="workspace-content-thread-pop-up"
+								>
+									{/* Removed duplicate document type dropdown. Breadcrumb is source of truth. */}
+									<WorkspaceContent
+										key={`workspace-${activeProject}-${activeDocument}-${activeDocumentType}`}
+										isLoading={isLoading}
+										className="size-full overflow-auto scrollbar"
+										chatbot={activeThread?.chatbot}
+									/>
+								</motion.div>
+							)}
+						</AnimatePresence>
+						<div ref={threadRef}>
+							<ChatList
+								isThread={false}
+								messages={allMessages}
+								isLoadingMessages={isLoading}
+								sendMessageFn={(
+									messageData: SendMessageFromResponseMessageData,
+									callback?: () => void,
+								) => {
+									scrollToBottom()
+									sendMessageFromResponse(messageData, callback)
+								}}
+								onConvertToWorkspaceDocument={convertToWorkspaceDocument}
+								chatContentClass="!border-x-gray-300 md:px-[16px] !mx-0 max-h-[none] dark:!border-x-mirage"
+								className="max-w-full md:px-[32px] !mx-0"
+								chatArrowClass="!right-0 !mr-0"
+								chatTitleClass="!px-2.5"
+							/>
+							{isBrowseView && (
+								<div className="pt-6 text-center border-t border-t-iron dark:border-t-mirage mt-12 mb-5 lg:mt-20">
+									<ExternalLink
+										className={cn(
+											buttonVariants({ size: 'xl', radius: 'full' }),
+											'text-xl hover:no-underline',
+										)}
+										href={`${urlBuilders.chatbotThreadListUrl({
+											type: 'personal',
+											category: threadCategory,
+											domain: canonicalDomain,
+											chatbot: chatbotName as string,
+										})}?continuousThreadId=${activeThread?.threadId}`}
+									>
+										Continue Thread
+									</ExternalLink>
+								</div>
+							)}
+						</div>
 					</div>
 				</div>
-			</div>
-		</div>
+			</motion.div>
+		</AnimatePresence>
 	)
 }
 
@@ -474,22 +489,30 @@ function ThreadPopUpCardHeader({
 	const threadTitleSubHeading = threadTitleChunks?.slice(49).join(' ')
 
 	return (
-		<div className="relative rounded-t-[8px] px-2.5 md:px-[32px] py-[20px] dark:bg-[#1E293B] bg-[#E4E4E7]">
-			<div className="flex items-center justify-between gap-6">
-				<div className="items-center block overflow-y-auto whitespace-pre-line max-h-28 scrollbar small-thumb">
-					{/* ISSUE 4 FIX: Show workspace mode indicator */}
-					{showWorkspaceMode && (
-						<div className="flex items-center gap-2 mb-2">
-							<div className="w-2 h-2 bg-blue-500 rounded-full" />
-							<span className="text-sm text-blue-600 font-medium">
-								Workspace Mode
-								{activeProject && ` - ${activeProject}`}
-								{activeThread?.metadata?.documents &&
-									activeThread.metadata.documents.length > 0 &&
-									` (${activeThread.metadata.documents.length} document${activeThread.metadata.documents.length > 1 ? 's' : ''})`}
-							</span>
-						</div>
-					)}
+		<div className="relative rounded-t-[8px] px-2.5 md:px-4 py-[20px] dark:bg-[#1E293B] bg-[#E4E4E7] transition-all">
+			<div className="flex items-center justify-between gap-6 transition-all">
+				<div className="items-center block overflow-y-auto whitespace-pre-line max-h-28 scrollbar small-thumb gap-1 transition-all">
+					<AnimatePresence mode="wait">
+						{showWorkspaceMode && (
+							<motion.div
+								className="flex items-center gap-2 mb-2"
+								initial={{ opacity: 0 }}
+								animate={{ opacity: 1 }}
+								exit={{ opacity: 0 }}
+								transition={{ duration: 0.35, ease: 'easeInOut' }}
+								key="workspace-mode-flag"
+							>
+								<div className="w-2 h-2 bg-blue-500 rounded-full" />
+								<span className="text-sm text-blue-600 font-medium">
+									Workspace Mode
+									{activeProject && ` - ${activeProject}`}
+									{activeThread?.metadata?.documents &&
+										activeThread.metadata.documents.length > 0 &&
+										` (${activeThread.metadata.documents.length} document${activeThread.metadata.documents.length > 1 ? 's' : ''})`}
+								</span>
+							</motion.div>
+						)}
+					</AnimatePresence>
 					{threadTitle ? (
 						threadTitleChunks.length > 32 ? (
 							`${threadTitleHeading}`

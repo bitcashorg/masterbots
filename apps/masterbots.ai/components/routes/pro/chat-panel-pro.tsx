@@ -51,6 +51,7 @@ import { cn } from '@/lib/utils'
 import { createThread } from '@/services/hasura'
 import { type UseChatHelpers, UseChatOptions, useChat } from '@ai-sdk/react'
 import type { Message as AiMessage, ChatRequestOptions } from 'ai'
+import { AnimatePresence, motion } from 'framer-motion'
 import {
 	BrainIcon,
 	ChevronDownIcon,
@@ -736,27 +737,45 @@ Please provide your response now:`
 	}
 
 	return (
-		<div className="z-50 sticky inset-x-0 bottom-2 w-full max-w-[1032px] rounded-lg mx-auto">
+		<div className="z-50 sticky inset-x-0 bottom-2 w-full max-w-[1032px] mx-auto space-y-2">
 			{/* Workspace Section (conditionally shown) */}
-			{isWorkspaceActive && !activeThread && (
-				<div
-					className={cn(
-						'w-full bg-background border rounded-md shadow-sm',
-						activeThread ? 'h-[calc(100vh-424px)]' : 'h-[calc(100vh-220px)]',
-					)}
-				>
-					{/* Removed duplicate document type dropdown. Breadcrumb is source of truth. */}
-					<WorkspaceContent
-						key={`workspace-${activeProject}-${activeDocument}-${activeDocumentType}`}
-						isLoading={isLoading}
-						className="size-full overflow-auto scrollbar"
-						chatbot={chatbot}
-					/>
-				</div>
-			)}
+			<AnimatePresence>
+				{isWorkspaceActive && !activeThread && (
+					<div
+						className={cn(
+							'size-full min-h-[calc(100%-240px)] px-4 md:px-10',
+							'lg:max-w-[calc(100%-250px)] xl:max-w-[calc(100%-300px)]',
+							'flex justify-center items-end fixed -top-[126px] left-0',
+							'h-[calc(100vh-4rem)] backdrop-blur-sm ease-in-out duration-500 z-20',
+							'transition-all',
+							isWorkspaceActive ? 'animate-fade-in' : 'animate-fade-out',
+							className,
+						)}
+					>
+						<motion.div
+							className={cn(
+								'relative w-full bg-background border shadow-xl rounded-lg',
+								'h-[calc(90vh-220px)]',
+							)}
+							initial={{ y: 320, opacity: 0 }}
+							animate={{ y: 0, opacity: 1 }}
+							exit={{ y: 320, opacity: 0 }}
+							transition={{ duration: 0.35, ease: 'easeInOut' }}
+							key="workspace-content-chat-panel-pro"
+						>
+							<WorkspaceContent
+								key={`workspace-${activeProject}-${activeDocument}-${activeDocumentType}`}
+								isLoading={isLoading}
+								className="size-full overflow-auto scrollbar"
+								chatbot={chatbot}
+							/>
+						</motion.div>
+					</div>
+				)}
+			</AnimatePresence>
 			<div
 				className={cn(
-					'pb-4',
+					'relative pb-4 shadow-xl rounded-lg z-30 border',
 					'animate-in duration-300 ease-in-out',
 					'bg-gradient-to-b from-background/90 to-background',
 					className,
@@ -896,9 +915,8 @@ Please provide your response now:`
 					{/* Prompt Form (always shown) */}
 					<div
 						className={cn(
-							'relative flex flex-col w-full',
+							'border-t relative flex flex-col w-full',
 							'pt-3 pb-2 px-2 md:px-4 space-y-2 sm:space-y-2',
-							'border-t shadow-lg bg-background',
 							'dark:border-zinc-800 border-zinc-200',
 							isOpenPopup ? 'dark:border-mirage border-iron' : '',
 							'min-h-[64px] sm:min-h-[80px]',
