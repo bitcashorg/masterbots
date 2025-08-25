@@ -1261,7 +1261,6 @@ export async function getUserBySlug({
 	slug: string
 	isSameUser: boolean
 }) {
-	console.log('Fetching user by slug:', slug, 'isSameUser:', isSameUser)
 	try {
 		const client = getHasuraClient({})
 		const { user } = await client.query({

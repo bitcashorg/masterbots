@@ -56,10 +56,6 @@ export function PreferenceSection({
 	const [inputValue, setInputValue] = useState({ username: '', email: '' })
 	const router = useRouter()
 
-	console.log({
-		session,
-	})
-
 	useEffect(() => {
 		if (currentUser) {
 			setInputValue({
@@ -183,7 +179,6 @@ export function PreferenceSection({
 				throw new Error('Failed to complete action')
 			}
 
-			console.log('preferencesUpdate', preferencesUpdate)
 			return preferencesUpdate
 		},
 		[session?.user],
@@ -269,14 +264,17 @@ export function PreferenceSection({
 
 		try {
 			const { username, email } = inputValue
-			const slug = toSlug(username)
+			const slug = currentUser?.slug || session.user?.slug
 
-			await updateUserDetails(email, username, slug)
+			await updateUserDetails(email ?? null, username ?? null, slug ?? null)
 
 			await update({
+				...session,
 				user: {
-					name: username,
-					slug: slug,
+					...session.user,
+					email: email || session.user.email,
+					name: username || session.user.name,
+					slug: slug || session.user.slug,
 				},
 			})
 
@@ -284,8 +282,6 @@ export function PreferenceSection({
 				type: 'success',
 				text: 'Profile updated successfully.',
 			})
-
-			router.push(`/u/${slug}/s/pref`)
 		} catch (error) {
 			console.error('Error updating profile:', error)
 			customSonner({
@@ -448,7 +444,7 @@ export function PreferenceSection({
 											</div>
 										) : null}
 										{item.type === 'emailVerification' && (
-											<div className="flex justify-between item-center w-full">
+											<div className="flex lg:flex-row flex-col lg:space-y-0 space-y-5 justify-between item-center w-full">
 												<div className="flex flex-col items-start gap-y-0 text-left">
 													<p className="text-lg font-medium">
 														<MailCheck
