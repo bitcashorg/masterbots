@@ -170,7 +170,6 @@ export function UserCard({ user: userProps, loading }: UserCardProps) {
 		handleUpdateUserInfo()
 
 		if (userData?.profilePicture && !userProfilePicture) {
-			console.log('user.profilePicture', userData.profilePicture)
 			updateUserProfilePicture(userData.profilePicture)
 		}
 	}, [lastMessage, generateType, userProps?.profilePicture])

@@ -9,8 +9,7 @@ export function Preferences() {
 		(section) =>
 			(section.title.match(/(General|Thread Preferences)/) &&
 				appConfig.features.devMode) ||
-			section.title === 'Danger Zone' ||
-			section.title === 'User profile',
+			section.title === 'Danger Zone',
 	)
 	return (
 		<>

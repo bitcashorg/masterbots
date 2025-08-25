@@ -15,7 +15,7 @@ export default async function PreferencePage(props: PageProps) {
 		return <ErrorComponent message={`Login as ${userSlug} to view this page`} />
 
 	return (
-		<div className="max-w-screen-xl pb-10 mx-auto w-full py-[120px] px-[58px]">
+		<div className="max-w-screen-xl pb-10 mx-auto w-full lg:py-[120px] lg:px-[58px]  py-[70px] px-[50]">
 			<Preferences />
 		</div>
 	)
