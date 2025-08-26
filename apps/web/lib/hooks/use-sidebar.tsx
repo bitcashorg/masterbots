@@ -193,9 +193,7 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 
 	React.useEffect(() => {
 		const value = localStorage.getItem(LOCAL_STORAGE_KEY)
-		if (value) {
-			setSidebarOpen(JSON.parse(value))
-		}
+		setSidebarOpen(value ? JSON.parse(value) : window.innerWidth >= 1024)
 		setLoading(false)
 	}, [])
 
