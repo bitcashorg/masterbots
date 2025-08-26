@@ -50,7 +50,7 @@ In root folder, create an .env file based of .env_sample and the use `task` to e
 
 ## Running the Frontend
 
-In apps/masterbots.ai folder (set up .env file - see .env_sample):
+In apps/web folder (set up .env file - see .env_sample):
 
 ```
 bun install
