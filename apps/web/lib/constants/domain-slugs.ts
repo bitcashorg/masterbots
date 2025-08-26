@@ -212,4 +212,5 @@ export const domainSlugs = [
 	'business-development-sales',
 	'technical-documentation-apis',
 	'educational-learning-platforms',
+	'employee-engagement-operations',
 ]

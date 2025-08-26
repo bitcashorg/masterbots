@@ -120,6 +120,7 @@ const canonicalPathnames = [
 	'/biotech/chemical-biosciences/biochembot',
 	'/operations/business-scaling-growth/scaleupbot',
 	'/operations/agile-project-management/agilebot',
+	'/operations/employee-engagement-operations/employeeengagementbot',
 	'/product/user-experience-design/uxdesignbot',
 	'/product/product-management-strategy/productbot',
 	'/development/technical-documentation/docsbot',
