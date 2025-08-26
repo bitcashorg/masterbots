@@ -167,29 +167,29 @@ export function ThreadPopup({ className }: { className?: string }) {
 	const canonicalDomain = getCanonicalDomain(chatbotName || 'prompt')
 
 	return (
-		<AnimatePresence mode="wait">
+		<AnimatePresence propagate mode="popLayout">
 			<motion.div
 				className={cn(
-					'size-full max-h-[calc(100%-240px)]',
+					'size-full',
 					isBotView
 						? ''
-						: 'lg:max-w-[calc(100%-250px)] xl:max-w-[calc(100%-300px)]',
-					'flex justify-center items-end fixed bottom-[192px] left-0',
+						: 'lg:max-w-[calc(100%-250px)] xl:max-w-[calc(100%-300px)] lg:left-[250px] xl:left-[300px]',
+					'flex justify-center items-end fixed bottom-0 pb-[192px] pt-[10%] left-0',
 					'h-[calc(100vh-4rem)] backdrop-blur-sm ease-in-out duration-500 z-40',
 					'transition-all',
 					isOpenPopup ? 'animate-fade-in' : 'animate-fade-out',
 					className,
 				)}
-				initial={{ y: 320, opacity: 0 }}
-				animate={{ y: 0, opacity: 1 }}
-				exit={{ y: 320, opacity: 0 }}
+				initial={{ y: 640, opacity: 0, height: '0%' }}
+				animate={{ y: 0, opacity: 1, height: '100%' }}
+				exit={{ y: 640, opacity: 0, height: '0%' }}
 				transition={{ duration: 0.35, ease: 'easeInOut' }}
 				key="thread-pop-up"
 			>
 				<div
 					className={cn(
 						'flex flex-col z-50 rounded-lg duration-500 ease-in-out fixed',
-						'h-full max-h-[90%] max-w-[1032px] w-[calc(100%-3rem)] md:w-[calc(100%-5rem)] mx-4 md:mx-10',
+						'h-full max-h-[calc(95%-250px)] max-w-[1032px] w-[calc(100%-3rem)] md:w-[calc(100%-5rem)] mx-4 md:mx-10',
 						'dark:border-mirage border-iron border bg-background dark:bg-background shadow-xl',
 						'transition-opacity overflow-hidden',
 					)}

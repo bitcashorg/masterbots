@@ -743,9 +743,9 @@ Please provide your response now:`
 				{isWorkspaceActive && !activeThread && (
 					<div
 						className={cn(
-							'size-full min-h-[calc(100%-240px)] px-4 md:px-10',
-							'lg:max-w-[calc(100%-250px)] xl:max-w-[calc(100%-300px)]',
-							'flex justify-center items-end fixed -top-[126px] left-0',
+							'size-full px-4 md:px-10',
+							'lg:max-w-[calc(100%-250px)] xl:max-w-[calc(100%-300px)] lg:left-[250px] xl:left-[300px]',
+							'flex justify-center items-end fixed bottom-0 pb-[192px] pt-[10%] left-0',
 							'h-[calc(100vh-4rem)] backdrop-blur-sm ease-in-out duration-500 z-20',
 							'transition-all',
 							isWorkspaceActive ? 'animate-fade-in' : 'animate-fade-out',
@@ -754,12 +754,11 @@ Please provide your response now:`
 					>
 						<motion.div
 							className={cn(
-								'relative w-full bg-background border shadow-xl rounded-lg',
-								'h-[calc(90vh-220px)]',
+								'relative size-full max-w-[1032px] bg-background border shadow-xl rounded-lg',
 							)}
-							initial={{ y: 320, opacity: 0 }}
-							animate={{ y: 0, opacity: 1 }}
-							exit={{ y: 320, opacity: 0 }}
+							initial={{ y: 640, opacity: 0, height: '0%' }}
+							animate={{ y: 0, opacity: 1, height: '100%' }}
+							exit={{ y: 640, opacity: 0, height: '0%' }}
 							transition={{ duration: 0.35, ease: 'easeInOut' }}
 							key="workspace-content-chat-panel-pro"
 						>
