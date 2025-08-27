@@ -17,7 +17,7 @@
 			"import": "./tailwind.preset.ts",
 			"require": "./tailwind.preset.ts"
 		},
-		"./styles.css": "./src/styles/tailwind.css"
+		"./styles.css": "./src/styles.css"
 	},
 	"peerDependencies": {
 		"react": "*",

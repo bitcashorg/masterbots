@@ -42,17 +42,6 @@ import {
 	CommandList,
 } from '@/components/ui/command'
 import { IconArrowElbow } from '@/components/ui/icons'
-import { Input } from '@/components/ui/input'
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from '@/components/ui/popover'
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from '@/components/ui/tooltip'
 import {
 	type FileAttachment,
 	useFileAttachments,
@@ -63,6 +52,9 @@ import { useModel } from '@/lib/hooks/use-model'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { cn, nanoid } from '@/lib/utils'
+import { Input } from '@masterbots/mb-ui'
+import { Popover, PopoverContent, PopoverTrigger } from '@masterbots/mb-ui'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@masterbots/mb-ui'
 import type { Attachment, ChatRequestOptions } from 'ai'
 import type { UseChatHelpers } from 'ai/react'
 import { id } from 'date-fns/locale'

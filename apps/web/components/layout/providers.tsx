@@ -1,7 +1,6 @@
 'use client'
 
 import CustomNextStepCard from '@/components/onboarding/custom-nextstep-card'
-import { TooltipProvider } from '@/components/ui/tooltip'
 import { AccessibilityProvider } from '@/lib/hooks/use-accessibility'
 import { ContinueGenerationProvider } from '@/lib/hooks/use-continue-generation'
 import { DeepThinkingProvider } from '@/lib/hooks/use-deep-thinking'
@@ -16,6 +15,7 @@ import { SidebarProvider } from '@/lib/hooks/use-sidebar'
 import { ThreadProvider } from '@/lib/hooks/use-thread'
 import { ThreadSearchProvider } from '@/lib/hooks/use-thread-search'
 import { ThreadVisibilityProvider } from '@/lib/hooks/use-thread-visibility'
+import { TooltipProvider } from '@masterbots/mb-ui'
 import { SessionProvider } from 'next-auth/react'
 import {
 	type Attribute,

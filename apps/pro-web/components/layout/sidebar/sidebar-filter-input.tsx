@@ -2,9 +2,9 @@
 
 import { Button } from '@/components/ui/button'
 import { IconClose, IconFilter } from '@/components/ui/icons'
-import { Input } from '@/components/ui/input'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { cn } from '@/lib/utils'
+import { Input } from '@masterbots/mb-ui'
 import { usePathname } from 'next/navigation'
 import type * as React from 'react'
 

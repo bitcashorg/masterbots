@@ -1,13 +1,13 @@
 'use client'
 
-import { Checkbox } from '@/components/ui/checkbox'
+import { useImageToggle } from '@/lib/hooks/use-image-toggler'
+import { cn } from '@/lib/utils'
 import {
+	Checkbox,
 	Tooltip,
 	TooltipContent,
 	TooltipTrigger,
-} from '@/components/ui/tooltip'
-import { useImageToggle } from '@/lib/hooks/use-image-toggler'
-import { cn } from '@/lib/utils'
+} from '@masterbots/mb-ui'
 import { Image } from 'lucide-react'
 import React from 'react'
 

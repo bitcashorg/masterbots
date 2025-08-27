@@ -22,9 +22,9 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { Input } from '@masterbots/mb-ui'
+import { Label } from '@masterbots/mb-ui'
 import type React from 'react'
 import { useRef, useState } from 'react'
 

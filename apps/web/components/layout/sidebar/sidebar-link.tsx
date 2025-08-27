@@ -1,6 +1,5 @@
 'use client'
 
-import { Checkbox } from '@/components/ui/checkbox'
 import { IconCaretRight } from '@/components/ui/icons'
 import { useBrowse } from '@/lib/hooks/use-browse'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
@@ -12,6 +11,7 @@ import type {
 	ChatbotThreadListUrlParams,
 	UserChatbotThreadListUrlParams,
 } from '@/types/url'
+import { Checkbox } from '@masterbots/mb-ui'
 import type { Category, Chatbot } from 'mb-genql'
 import Image from 'next/image'
 import Link from 'next/link'

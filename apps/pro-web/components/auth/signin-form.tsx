@@ -2,9 +2,9 @@
 
 import { LoginButton } from '@/components/shared/login-button'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { getUserByEmail } from '@/services/hasura'
+import { Input } from '@masterbots/mb-ui'
+import { Label } from '@masterbots/mb-ui'
 import { Eye, EyeOff } from 'lucide-react'
 import { appConfig } from 'mb-env'
 import { signIn } from 'next-auth/react'

@@ -1,9 +1,9 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { useSonner } from '@/lib/hooks/useSonner'
 import { updateUserDeletionRequest } from '@/services/hasura'
+import { Dialog, DialogContent } from '@masterbots/mb-ui'
 import { signOut, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import React from 'react'

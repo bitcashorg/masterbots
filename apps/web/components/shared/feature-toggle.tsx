@@ -1,12 +1,8 @@
 'use client'
 
-import { Checkbox } from '@/components/ui/checkbox'
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
+import { Checkbox } from '@masterbots/mb-ui'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@masterbots/mb-ui'
 import React from 'react'
 
 export interface FeatureToggleProps {

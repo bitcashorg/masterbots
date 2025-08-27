@@ -16,10 +16,10 @@
 
 import { Button } from '@/components/ui/button'
 import { IconClose } from '@/components/ui/icons'
-import { Input } from '@/components/ui/input'
 import { useBrowse } from '@/lib/hooks/use-browse'
 import { useThreadSearch } from '@/lib/hooks/use-thread-search'
 import { cn } from '@/lib/utils'
+import { Input } from '@masterbots/mb-ui'
 import { Search } from 'lucide-react'
 
 export function BrowseSearchInput() {

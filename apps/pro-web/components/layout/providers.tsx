@@ -1,6 +1,5 @@
 'use client'
 
-import { TooltipProvider } from '@/components/ui/tooltip'
 import { AccessibilityProvider } from '@/lib/hooks/use-accessibility'
 import { ContinueGenerationProvider } from '@/lib/hooks/use-continue-generation'
 import { DeepThinkingProvider } from '@/lib/hooks/use-deep-thinking'
@@ -16,6 +15,7 @@ import { ThreadSearchProvider } from '@/lib/hooks/use-thread-search'
 import { ThreadVisibilityProvider } from '@/lib/hooks/use-thread-visibility'
 import { WorkspaceProvider } from '@/lib/hooks/use-workspace'
 import { WorkspaceChatProvider } from '@/lib/hooks/use-workspace-chat'
+import { TooltipProvider } from '@masterbots/mb-ui'
 import { SessionProvider } from 'next-auth/react'
 import {
 	type Attribute,

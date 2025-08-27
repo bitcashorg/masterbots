@@ -1,10 +1,10 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { useSonner } from '@/lib/hooks/useSonner'
 import { validateEmail } from '@/lib/utils'
+import { Input } from '@masterbots/mb-ui'
+import { Label } from '@masterbots/mb-ui'
 import type React from 'react'
 import { useState } from 'react'
 

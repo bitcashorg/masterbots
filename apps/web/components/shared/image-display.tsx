@@ -1,16 +1,16 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
+import { imageHelpers } from '@/lib/helpers/ai-image'
+import { cn } from '@/lib/utils'
+import type { ImageDisplayProps } from '@/types/types'
 import {
+	Label,
 	Tooltip,
 	TooltipContent,
 	TooltipProvider,
 	TooltipTrigger,
-} from '@/components/ui/tooltip'
-import { imageHelpers } from '@/lib/helpers/ai-image'
-import { cn } from '@/lib/utils'
-import type { ImageDisplayProps } from '@/types/types'
+} from '@masterbots/mb-ui'
 import { AlertCircle, Download, Share } from 'lucide-react'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
