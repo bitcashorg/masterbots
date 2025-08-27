@@ -1,3 +1,5 @@
+import { DashboardOnboarding } from '@/components/onboarding/dashboard-onboarding'
+
 import FooterCT from '@/components/layout/footer/footer-ct'
 import { Providers } from '@/components/layout/providers'
 import { ResponsiveSidebar } from '@/components/layout/sidebar/sidebar-responsive'
@@ -20,6 +22,7 @@ export default async function ChatLayout({ children }: ChatLayoutProps) {
 		<BrowseProvider>
 			<Providers>
 				<main className="relative flex flex-col h-[calc(100vh-4rem)] overflow-hidden">
+					<DashboardOnboarding />
 					{/* <NextTopLoader color="#1ED761" initialPosition={0.2} /> */}
 					<ResponsiveSidebar />
 					<ChatLayoutSection>{children}</ChatLayoutSection>
