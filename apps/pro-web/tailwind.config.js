@@ -1,11 +1,16 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
 	darkMode: ['class'],
+	presets: [
+		require('../../packages/mb-ui/tailwind.preset').default ||
+			require('../../packages/mb-ui/tailwind.preset'),
+	],
 	content: [
 		'./components/**/*.{ts,tsx}',
 		'./app/**/*.{ts,tsx}',
 		'./src/**/*.{ts,tsx}',
 		'./lib/**/*.{ts,tsx}',
+		'../../packages/mb-ui/src/**/*.{ts,tsx}',
 	],
 	theme: {
 		container: {
