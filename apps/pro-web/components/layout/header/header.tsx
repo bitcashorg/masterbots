@@ -543,7 +543,9 @@ export function Header() {
 							<Input
 								id="document-name"
 								value={documentName}
-								onChange={(e) => setDocumentName(e.target.value)}
+								onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+									setDocumentName(e.target.value)
+								}
 								className="col-span-3"
 								placeholder="Enter document name"
 								autoFocus

@@ -15,7 +15,11 @@
 			"node_modules",
 			"bun.lock",
 			"./packages/mb-genql/generated",
-			"./packages/mb-genql/generated/runtime"
+			"./packages/mb-genql/generated/runtime",
+			"./packages/mb-ui/dist",
+			"./packages/mb-ui/tailwind.preset.d.ts",
+			"./packages/mb-ui/tailwind.preset.d.ts.map",
+			"./packages/mb-ui/tailwind.preset.js"
 		]
 	},
 	"formatter": { "enabled": true, "indentStyle": "tab", "indentWidth": 2 },
