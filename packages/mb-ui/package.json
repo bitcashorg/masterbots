@@ -14,8 +14,8 @@
 			"require": "./dist/index.js"
 		},
 		"./tailwind-preset": {
-			"import": "./tailwind.preset.ts",
-			"require": "./tailwind.preset.ts"
+			"import": "./dist/tailwind.preset.js",
+			"require": "./dist/tailwind.preset.js"
 		},
 		"./styles.css": "./src/styles.css"
 	},
@@ -29,6 +29,7 @@
 	},
 	"scripts": {
 		"build": "tsc -p tsconfig.json",
+		"prepare": "bun run build",
 		"clean": "rimraf dist"
 	}
 }
