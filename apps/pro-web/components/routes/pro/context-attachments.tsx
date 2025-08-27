@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/accordion'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Textarea } from '@/components/ui/textarea'
+import { Textarea } from '@masterbots/mb-ui'
 import { Label } from '@masterbots/mb-ui'
 import {
 	ClipboardList,

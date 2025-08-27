@@ -3,7 +3,7 @@
 import { Sidebar } from '@/components/layout/sidebar/sidebar'
 import { Button } from '@/components/ui/button'
 import { IconSidebar } from '@/components/ui/icons'
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { Sheet, SheetContent, SheetTrigger } from '@masterbots/mb-ui'
 
 interface SidebarMobileProps {
 	children: React.ReactNode

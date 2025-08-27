@@ -1,9 +1,9 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
 import { useEnterSubmit } from '@/lib/hooks/use-enter-submit'
 import { cn } from '@/lib/utils'
+import { Textarea } from '@masterbots/mb-ui'
 import { SendIcon, SparklesIcon } from 'lucide-react'
 import * as React from 'react'
 

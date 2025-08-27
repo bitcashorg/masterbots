@@ -25,14 +25,6 @@ import {
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { IconShare, IconStop } from '@/components/ui/icons'
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
 import { useContinueGeneration } from '@/lib/hooks/use-continue-generation'
 import { useDeepThinking } from '@/lib/hooks/use-deep-thinking'
 import { type IndexedDBItem, useIndexedDB } from '@/lib/hooks/use-indexed-db'
@@ -50,6 +42,14 @@ import { logErrorToSentry } from '@/lib/sentry'
 import { cn } from '@/lib/utils'
 import { createThread } from '@/services/hasura'
 import { type UseChatHelpers, UseChatOptions, useChat } from '@ai-sdk/react'
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@masterbots/mb-ui'
+import { Textarea } from '@masterbots/mb-ui'
 import type { Message as AiMessage, ChatRequestOptions } from 'ai'
 import { AnimatePresence, motion } from 'framer-motion'
 import {

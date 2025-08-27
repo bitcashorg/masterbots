@@ -2,9 +2,9 @@
 
 import { ThemeToggle } from '@/components/shared/theme-toggle'
 import { Button, buttonVariants } from '@/components/ui/button'
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { cn } from '@/lib/utils'
+import { Sheet, SheetContent, SheetTrigger } from '@masterbots/mb-ui'
 import {
 	ChevronLeftIcon,
 	ChevronRightIcon,

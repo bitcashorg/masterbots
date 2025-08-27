@@ -1,6 +1,5 @@
 'use client'
 
-import { Textarea } from '@/components/ui/textarea'
 import { useWorkspace } from '@/lib/hooks/use-workspace'
 import { useWorkspaceChat } from '@/lib/hooks/use-workspace-chat'
 import {
@@ -10,6 +9,7 @@ import {
 } from '@/lib/markdown-utils'
 import { buildSectionTree } from '@/lib/section-tree-utils'
 import { cn } from '@/lib/utils'
+import { Textarea } from '@masterbots/mb-ui'
 import { FileText } from 'lucide-react'
 import * as React from 'react'
 import { WorkspaceSectionTree } from './workspace-section-tree'
