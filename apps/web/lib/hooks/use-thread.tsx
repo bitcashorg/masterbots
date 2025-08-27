@@ -9,6 +9,8 @@ import { useSession } from 'next-auth/react'
 import * as React from 'react'
 import { useAsync, useSetState } from 'react-use'
 
+const CHAT_PERSIST_KEY = 'mb.chat.state.v1'
+
 interface ThreadContext {
 	webSearch: boolean
 	sectionRef: React.RefObject<HTMLElement | null>
@@ -147,6 +149,42 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
 			setState({ randomChatbot: null })
 		}
 	}
+	// biome-ignore lint/correctness/useExhaustiveDependencies: setState from react-use is stable; hydration runs once on mount
+	React.useEffect(() => {
+		try {
+			const raw =
+				typeof window !== 'undefined'
+					? localStorage.getItem(CHAT_PERSIST_KEY)
+					: null
+			let localTimestamp: number | null = null
+			if (raw) {
+				const data = JSON.parse(raw) as {
+					updatedAt: number
+					isOpenPopup: boolean
+					activeThreadId: string | null
+				}
+				localTimestamp = data.updatedAt || null
+				if (typeof data.isOpenPopup === 'boolean') {
+					setState({ isOpenPopup: data.isOpenPopup })
+				}
+				// activeThreadId hydration intentionally light; actual thread data resolved elsewhere
+			}
+			fetch('/api/chat/state')
+				.then((r) => (r.ok ? r.json() : null))
+				.then((remote) => {
+					if (!remote || !remote.data) return
+					if (!localTimestamp || remote.data.updatedAt > localTimestamp) {
+						const d = remote.data as {
+							updatedAt: number
+							isOpenPopup: boolean
+							activeThreadId: string | null
+						}
+						setState({ isOpenPopup: d.isOpenPopup })
+					}
+				})
+				.catch(() => {})
+		} catch {}
+	}, [])
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	React.useEffect(() => {
@@ -197,6 +235,21 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
 	const setWebSearch = (state?: boolean) => {
 		setState({ webSearch: !state || !webSearch })
 	}
+	React.useEffect(() => {
+		try {
+			const payload = {
+				updatedAt: Date.now(),
+				isOpenPopup,
+				activeThreadId: activeThread?.threadId ?? null,
+			}
+			localStorage.setItem(CHAT_PERSIST_KEY, JSON.stringify(payload))
+			fetch('/api/chat/state', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(payload),
+			}).catch(() => {})
+		} catch {}
+	}, [isOpenPopup, activeThread?.threadId])
 
 	return (
 		<ThreadContext.Provider
@@ -224,6 +277,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
 			}}
 		>
 			{children}
+			{/* persist popup open state */}
 		</ThreadContext.Provider>
 	)
 }
