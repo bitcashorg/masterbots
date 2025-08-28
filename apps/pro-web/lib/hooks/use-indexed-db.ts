@@ -1,8 +1,10 @@
 import {
+	type WorkspaceDocumentMetadata,
 	getAllUserThreadMetadata,
 	getUserThreadsMetadata,
 	updateThreadMetadata,
 } from '@/app/actions'
+import { uploadAttachment } from '@/lib/api/attachments'
 import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
 import { prepareThreadAttachmentCheck } from '@/lib/threads'
 import { isEqual, uniqBy } from 'lodash'
@@ -10,6 +12,17 @@ import { appConfig } from 'mb-env'
 import { fetchJson } from 'mb-lib'
 import { useEffect, useRef, useState } from 'react'
 import { useLocalStorage } from './use-local-storage'
+
+// Narrow IndexedDB entries to real FileAttachment objects
+function isFileAttachment(item: unknown): item is FileAttachment {
+	if (!item || typeof item !== 'object') return false
+	const o = item as Record<string, unknown>
+	return (
+		typeof o.id === 'string' &&
+		typeof o.name === 'string' &&
+		Array.isArray(o.messageIds)
+	)
+}
 
 const DEFAULT_DB_NAME = 'masterbots_attachments_indexed_db'
 const DEFAULT_STORE_NAME = 'masterbots_attachments_store'
@@ -111,11 +124,18 @@ export function useIndexedDB({
 			const request = store.getAll()
 
 			request.onsuccess = async () => {
-				const attachments = request.result as IndexedDBItem[]
+				const allItems = request.result as IndexedDBItem[]
+				// Only treat FileAttachment-shaped records as attachments; other records (e.g., workspace documents) are ignored here
+				const attachments = (allItems as unknown[]).filter(
+					isFileAttachment,
+				) as FileAttachment[]
 
-				let newAttachments: FileAttachment[] = attachments as FileAttachment[]
+				let newAttachments: FileAttachment[] = attachments
+				// let newDocuments: WorkspaceDocumentMetadata[] =
+				// 	[] as WorkspaceDocumentMetadata[]
 				const currentUserMetadata = await getAllUserThreadMetadata()
 				const newAttachmentCheck = prepareThreadAttachmentCheck(newAttachments)
+				// const newDocumentCheck = prepareThreadDocumentCheck(newDocuments)
 				const currentAttachmentCheck =
 					prepareThreadAttachmentCheck(currentUserMetadata)
 
@@ -285,23 +305,14 @@ export function useIndexedDB({
 						})
 
 						try {
-							const { data: uploadAttachmentData } = await fetchJson<{
-								data: FileAttachment | null
-								error: string | null
-							}>('/api/attachments/upload', {
-								method: 'POST',
-								body: JSON.stringify({
-									attachment,
-									thread,
-								}),
-								headers: {
-									'Content-Type': 'application/json',
-								},
-							})
+							const { data: uploadAttachmentData, error: uploadError } =
+								await uploadAttachment(attachment, thread)
 
-							if (!uploadAttachmentData) {
-								throw new Error('Failed to upload attachment, no data returned')
+							if (uploadError) {
+								console.error('Failed to upload attachment:', uploadError)
+								continue
 							}
+
 							newAttachments = newAttachments.map((att) => {
 								if (att.id === attachment.id) {
 									return {
@@ -448,6 +459,26 @@ export function useIndexedDB({
 		})
 	}
 
+	// Raw reader for callers that need all items (attachments + documents) without filtering or remote sync logic
+	const getAllItemsRaw = (): Promise<IndexedDBItem[]> => {
+		return new Promise((resolve, reject) => {
+			const db = dbRef.current
+			if (!db) return reject('Database not initialized')
+			const transaction = db.transaction(storeName, 'readonly')
+
+			const store = transaction.objectStore(storeName)
+			const request = store.getAll()
+
+			request.onsuccess = async () => {
+				resolve(request.result as IndexedDBItem[])
+			}
+
+			request.onerror = () => {
+				reject(request.error)
+			}
+		})
+	}
+
 	const updateItem = (id: string, updatedItem: IndexedDBItem) => {
 		const db = dbRef.current
 		if (!db) return
@@ -465,7 +496,15 @@ export function useIndexedDB({
 		store.delete(id)
 	}
 
-	return { mounted, addItem, getItem, getAllItems, updateItem, deleteItem }
+	return {
+		mounted,
+		addItem,
+		getItem,
+		getAllItems, // attachments-focused with remote sync
+		getAllItemsRaw, // raw view for documents and other records
+		updateItem,
+		deleteItem,
+	}
 }
 
 export type IndexedDBItem = FileAttachment | Record<string, unknown>

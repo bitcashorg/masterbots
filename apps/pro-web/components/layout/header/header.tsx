@@ -35,10 +35,13 @@ import { IconSeparator } from '@/components/ui/icons'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { useThread } from '@/lib/hooks/use-thread'
+import { useThreadDocuments } from '@/lib/hooks/use-thread-documents'
 import { useWorkspace } from '@/lib/hooks/use-workspace'
 import { getCanonicalDomain } from '@/lib/url'
 import { cn, getRouteColor, getRouteType } from '@/lib/utils'
 import { appConfig } from 'mb-env'
+import { useSession } from 'next-auth/react'
 import { useTheme } from 'next-themes'
 import Image from 'next/image'
 import { useEffect, useMemo, useState } from 'react'
@@ -120,8 +123,37 @@ export function Header() {
 		addProject,
 		addDocument,
 	} = useWorkspace()
+	const {
+		isOpenPopup,
+		activeThread,
+		setIsOpenPopup,
+		setActiveThread,
+		refreshActiveThread,
+	} = useThread()
+	const { data: session } = useSession()
 	const router = useRouter()
 	const canonicalDomain = getCanonicalDomain(activeChatbot?.name || '')
+
+	// Unified thread documents (from metadata + local IDB where applicable)
+	const { userDocuments } = useThreadDocuments()
+
+	// Ensure thread documents metadata is hydrated even if popup is closed
+	const attemptedDocsRefreshRef = React.useRef<string | null>(null)
+	useEffect(() => {
+		const threadId = activeThread?.threadId as string | undefined
+		const hasDocsArray = Array.isArray(
+			(activeThread as unknown as { metadata?: { documents?: unknown } })
+				?.metadata?.documents,
+		)
+		if (
+			threadId &&
+			!hasDocsArray &&
+			attemptedDocsRefreshRef.current !== threadId
+		) {
+			attemptedDocsRefreshRef.current = threadId
+			void refreshActiveThread(threadId, session?.user?.hasuraJwt)
+		}
+	}, [activeThread, refreshActiveThread, session?.user?.hasuraJwt])
 
 	// State for document creation dialog
 	const [isDocumentDialogOpen, setIsDocumentDialogOpen] = useState(false)
@@ -134,6 +166,9 @@ export function Header() {
 	const resetNavigation = (e: React.MouseEvent) => {
 		setActiveCategory(null)
 		setActiveChatbot(null)
+		// Ensure we leave any open thread context when navigating
+		if (isOpenPopup) setIsOpenPopup(false)
+		setActiveThread(null)
 	}
 
 	useEffect(() => {
@@ -164,11 +199,92 @@ export function Header() {
 		return projectsByDept[activeOrganization]?.[activeDepartment] || []
 	}, [activeOrganization, activeDepartment, projectsByDept])
 
-	// Build document options based on selected type; include a 'None' option to clear
-	const documentOptions = useMemo(() => {
-		if (!activeProject) return ['None']
-		let docs: string[] = []
+	// Build document options based on unified thread documents (if any) and workspace docs.
+	// Non-thread workspace docs will be treated as Drafts in UI.
+	const { documentOptions, threadDocsByName } = useMemo(() => {
+		// Helper to dedupe while preserving order
+		const dedupe = (arr: string[]) => Array.from(new Set(arr))
+		console.log('userDocuments', userDocuments)
+		// Prefer documents from unified hook; fall back to thread metadata when empty
+		const threadDocs = (
+			userDocuments?.length
+				? userDocuments
+				: (activeThread?.metadata?.documents as Array<{
+						id?: string
+						name?: string
+						project?: string
+						type?: 'text' | 'image' | 'spreadsheet'
+					}>) || []
+		) as Array<{
+			id?: string
+			name?: string
+			project?: string
+			type?: 'text' | 'image' | 'spreadsheet'
+		}>
 
+		const byName = new Map<
+			string,
+			{
+				name: string
+				project?: string
+				type?: 'text' | 'image' | 'spreadsheet'
+			}
+		>()
+
+		if (threadDocs.length) {
+			// Filter by current type (unless 'all') and activeProject (if set)
+			const filtered = threadDocs.filter((d) => {
+				const nameOk = Boolean(d?.name)
+				const typeOk =
+					activeDocumentType === 'all' ||
+					!d?.type ||
+					d?.type === activeDocumentType
+				return nameOk && typeOk
+			})
+
+			for (const d of filtered) {
+				const name = (d.name || '') as string
+				if (!name) continue
+				if (!byName.has(name)) {
+					byName.set(name, { name, project: d.project, type: d.type })
+				}
+			}
+
+			const names = dedupe(Array.from(byName.keys()))
+			// Also include workspace-local documents for the active project that are not in thread (Drafts)
+			let draftDocs: string[] = []
+			if (activeProject) {
+				switch (activeDocumentType) {
+					case 'all':
+						draftDocs = [
+							...(textDocuments[activeProject] || []),
+							...(imageDocuments[activeProject] || []),
+							...(spreadsheetDocuments[activeProject] || []),
+						]
+						break
+					case 'text':
+						draftDocs = textDocuments[activeProject] || []
+						break
+					case 'image':
+						draftDocs = imageDocuments[activeProject] || []
+						break
+					case 'spreadsheet':
+						draftDocs = spreadsheetDocuments[activeProject] || []
+						break
+				}
+			}
+			const draftOnly = draftDocs.filter((n) => !byName.has(n))
+			return {
+				documentOptions: ['None', ...names, ...dedupe(draftOnly)],
+				threadDocsByName: byName,
+			}
+		}
+
+		// Fallback to workspace-local documents for the active project
+		if (!activeProject)
+			return { documentOptions: ['None'], threadDocsByName: byName }
+
+		let docs: string[] = []
 		switch (activeDocumentType) {
 			case 'all':
 				docs = [
@@ -186,19 +302,85 @@ export function Header() {
 			case 'spreadsheet':
 				docs = spreadsheetDocuments[activeProject] || []
 				break
-			default:
-				docs = []
-				break
 		}
-
-		return ['None', ...docs]
+		return {
+			documentOptions: ['None', ...dedupe(docs)],
+			threadDocsByName: byName,
+		}
 	}, [
+		userDocuments,
+		activeThread?.metadata?.documents,
 		activeProject,
 		activeDocumentType,
 		textDocuments,
 		imageDocuments,
 		spreadsheetDocuments,
 	])
+
+	const onDocumentSelect = (v: string) => {
+		if (v === 'None') {
+			setActiveDocument(null)
+			setDocumentName('')
+			if (isOpenPopup) setIsOpenPopup(false)
+			setActiveThread(null)
+			toggleWorkspace()
+			return
+		}
+		// If selecting from thread documents, align project and type first
+		if (threadDocsByName.has(v)) {
+			const meta = threadDocsByName.get(v)
+			if (meta) {
+				if (meta?.project && meta.project !== activeProject) {
+					setActiveProject(meta.project)
+				}
+				if (meta?.type && meta.type !== activeDocumentType) {
+					setActiveDocumentType(meta.type)
+				}
+				// Ensure document exists in local workspace lists
+				const existsInWorkspace = (() => {
+					const proj = meta.project || activeProject
+					if (!proj) return false
+					if (meta.type === 'text')
+						return (textDocuments[proj] || []).includes(v)
+					if (meta.type === 'image')
+						return (imageDocuments[proj] || []).includes(v)
+					if (meta.type === 'spreadsheet')
+						return (spreadsheetDocuments[proj] || []).includes(v)
+					return false
+				})()
+				if (!existsInWorkspace) {
+					const proj = meta.project || activeProject
+					if (proj && meta.type) addDocument(proj, v, meta.type)
+				}
+				// Proactively refresh the active thread so the popup has up-to-date data
+				if (activeThread?.threadId) {
+					void refreshActiveThread(
+						activeThread.threadId,
+						session?.user?.hasuraJwt,
+					)
+				}
+				// Open the thread popup (document is thread-related)
+				setIsOpenPopup(true)
+			}
+		}
+		if (isOpenPopup && !threadDocsByName.has(v)) {
+			// Not thread-related: ensure popup is closed so only workspace is visible
+			setIsOpenPopup(false)
+			setActiveThread(null)
+		}
+
+		setActiveDocument(v)
+		setDocumentName(v)
+		if (!isWorkspaceActive) toggleWorkspace()
+	}
+
+	const updateActiveDocumentTypeItem = (
+		type: 'text' | 'image' | 'spreadsheet' | 'all',
+	) => {
+		setActiveDocumentType(type)
+		setActiveDocument(null)
+	}
+
 	const docType: 'text' | 'image' | 'spreadsheet' =
 		documentType === 'all' ? 'text' : documentType
 
@@ -380,6 +562,8 @@ export function Header() {
 							setActiveDepartment(null)
 							setActiveProject(null)
 							setActiveDocument(null)
+							if (isOpenPopup) setIsOpenPopup(false)
+							setActiveThread(null)
 						}}
 						addType="organization"
 					/>
@@ -393,6 +577,8 @@ export function Header() {
 							setActiveDepartment(v)
 							setActiveProject(null)
 							setActiveDocument(null)
+							if (isOpenPopup) setIsOpenPopup(false)
+							setActiveThread(null)
 						}}
 						addType="department"
 						disabled={!activeOrganization}
@@ -406,6 +592,8 @@ export function Header() {
 							if (v === activeProject) return
 							setActiveProject(v)
 							setActiveDocument(null)
+							if (isOpenPopup) setIsOpenPopup(false)
+							setActiveThread(null)
 						}}
 						addType="project"
 						disabled={!activeDepartment}
@@ -432,10 +620,7 @@ export function Header() {
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align="start" className="min-w-[220px]">
 							<DropdownMenuItem
-								onClick={() => {
-									setActiveDocumentType('all')
-									setActiveDocument(null)
-								}}
+								onClick={() => updateActiveDocumentTypeItem('all')}
 								className={cn(
 									'text-sm',
 									activeDocumentType === 'all' ? 'font-semibold' : '',
@@ -448,10 +633,7 @@ export function Header() {
 								All
 							</DropdownMenuItem>
 							<DropdownMenuItem
-								onClick={() => {
-									setActiveDocumentType('text')
-									setActiveDocument(null)
-								}}
+								onClick={() => updateActiveDocumentTypeItem('text')}
 								className={cn(
 									'text-sm gap-2 flex',
 									activeDocumentType === 'text' ? 'font-semibold' : '',
@@ -462,10 +644,7 @@ export function Header() {
 								Text
 							</DropdownMenuItem>
 							<DropdownMenuItem
-								onClick={() => {
-									setActiveDocumentType('image')
-									setActiveDocument(null)
-								}}
+								onClick={() => updateActiveDocumentTypeItem('image')}
 								className={cn(
 									'text-sm gap-2 flex',
 									activeDocumentType === 'image' ? 'font-semibold' : '',
@@ -476,10 +655,7 @@ export function Header() {
 								Image
 							</DropdownMenuItem>
 							<DropdownMenuItem
-								onClick={() => {
-									setActiveDocumentType('spreadsheet')
-									setActiveDocument(null)
-								}}
+								onClick={() => updateActiveDocumentTypeItem('spreadsheet')}
 								className={cn(
 									'text-sm gap-2 flex',
 									activeDocumentType === 'spreadsheet' ? 'font-semibold' : '',
@@ -492,26 +668,77 @@ export function Header() {
 						</DropdownMenuContent>
 					</DropdownMenu>
 					<span className="text-xs opacity-50">/</span>
-					<Crumb
-						label="Doc"
-						value={activeDocument}
-						options={documentOptions}
-						onSelect={(v) => {
-							if (v === 'None') {
-								setActiveDocument(null)
-								setDocumentName('')
-								toggleWorkspace()
-								return
+					{/* Custom Doc dropdown with icons and Draft labels */}
+					<DropdownMenu>
+						<DropdownMenuTrigger
+							asChild
+							disabled={
+								!activeProject &&
+								!(
+									userDocuments?.length ||
+									activeThread?.metadata?.documents?.length
+								)
 							}
-							setActiveDocument(v)
-							setDocumentName(v)
-							if (!isWorkspaceActive) {
-								toggleWorkspace()
-							}
-						}}
-						addType="document"
-						disabled={!activeProject}
-					/>
+						>
+							<button
+								type="button"
+								className={cn(
+									'inline-flex items-center gap-1 px-2 py-1 text-sm rounded-md border bg-background/60 backdrop-blur hover:bg-accent transition',
+									!activeProject &&
+										!(
+											userDocuments?.length ||
+											activeThread?.metadata?.documents?.length
+										) &&
+										'opacity-50 cursor-not-allowed',
+								)}
+							>
+								<span className="font-medium truncate max-w-[180px]">
+									{activeDocument || 'Doc'}
+								</span>
+								<ChevronDown className="h-3.5 w-3.5 opacity-70" />
+							</button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent
+							align="start"
+							className="max-h-72 overflow-y-auto min-w-[260px]"
+						>
+							{documentOptions.length === 0 && (
+								<div className="px-2 py-1.5 text-xs text-muted-foreground">
+									No documents
+								</div>
+							)}
+							{documentOptions.map((opt) => (
+								<DropdownMenuItem
+									key={opt}
+									onClick={() => onDocumentSelect(opt)}
+									className={cn(
+										'text-sm flex items-center gap-2',
+										activeDocument === opt && 'font-semibold',
+									)}
+								>
+									{opt !== 'None' && threadDocsByName.has(opt) ? (
+										(() => {
+											const meta = threadDocsByName.get(opt)
+											if (meta?.type === 'text')
+												return <FileTextIcon className="size-4" />
+											if (meta?.type === 'image')
+												return <ImageIcon className="size-4" />
+											if (meta?.type === 'spreadsheet')
+												return <FileSpreadsheetIcon className="size-4" />
+											return null
+										})()
+									) : opt !== 'None' && threadDocsByName.size > 0 ? (
+										<span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+											Draft
+										</span>
+									) : (
+										<span className="text-[10px] text-muted-foreground">*</span>
+									)}
+									<span className="truncate">{opt}</span>
+								</DropdownMenuItem>
+							))}
+						</DropdownMenuContent>
+					</DropdownMenu>
 				</div>
 			</div>
 			{/* User login - Always show on mobile */}

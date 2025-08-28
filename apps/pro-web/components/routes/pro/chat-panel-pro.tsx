@@ -268,6 +268,8 @@ export function ChatPanelPro({
 								? [
 										{
 											id: activeDocument, // Use document name as ID for now
+											organization: activeOrganization as string,
+											department: activeDepartment as string,
 											project: activeProject,
 											name: activeDocument,
 											type: docType as 'text' | 'image' | 'spreadsheet',
@@ -321,6 +323,8 @@ export function ChatPanelPro({
 
 			const { document } = await uploadWorkspaceDocumentToBucket({
 				threadSlug,
+				organization: activeOrganization as string,
+				department: activeDepartment as string,
 				project: activeProject,
 				name: activeDocument,
 				content,
@@ -708,6 +712,8 @@ Please provide your response now:`
 						documents: [
 							{
 								id: `${activeProject}:${activeDocument}`,
+								organization: activeOrganization as string,
+								department: activeDepartment as string,
 								project: activeProject,
 								name: activeDocument,
 								type: 'text',
@@ -737,20 +743,30 @@ Please provide your response now:`
 	}
 
 	return (
-		<div className="z-50 sticky inset-x-0 bottom-2 w-full max-w-[1032px] mx-auto space-y-2">
+		<motion.div
+			className="z-50 sticky inset-x-0 bottom-2 w-full max-w-[1032px] mx-auto space-y-2"
+			initial={{ opacity: 0, y: 64 }}
+			animate={{ opacity: 1, y: 0 }}
+			exit={{ opacity: 0, y: 64 }}
+			transition={{ duration: 0.35, ease: 'easeInOut' }}
+		>
 			{/* Workspace Section (conditionally shown) */}
 			<AnimatePresence>
 				{isWorkspaceActive && !activeThread && (
-					<div
+					<motion.div
 						className={cn(
 							'size-full px-4 md:px-10',
 							'lg:max-w-[calc(100%-250px)] xl:max-w-[calc(100%-300px)] lg:left-[250px] xl:left-[300px]',
 							'flex justify-center items-end fixed bottom-0 pb-[192px] pt-[10%] left-0',
 							'h-[calc(100vh-4rem)] backdrop-blur-sm ease-in-out duration-500 z-20',
 							'transition-all',
-							isWorkspaceActive ? 'animate-fade-in' : 'animate-fade-out',
 							className,
 						)}
+						initial={{ opacity: 0 }}
+						animate={{ opacity: 1 }}
+						exit={{ opacity: 0 }}
+						transition={{ duration: 0.35, ease: 'easeInOut' }}
+						key="backdrop-workspace-content-chat-panel-pro"
 					>
 						<motion.div
 							className={cn(
@@ -769,7 +785,7 @@ Please provide your response now:`
 								chatbot={chatbot}
 							/>
 						</motion.div>
-					</div>
+					</motion.div>
 				)}
 			</AnimatePresence>
 			<div
@@ -1046,6 +1062,6 @@ Please provide your response now:`
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
-		</div>
+		</motion.div>
 	)
 }

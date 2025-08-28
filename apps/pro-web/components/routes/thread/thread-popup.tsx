@@ -22,9 +22,10 @@ import type { Message as AiMessage } from 'ai'
 import { AnimatePresence, motion } from 'framer-motion'
 import { FileTextIcon } from 'lucide-react'
 import type { Message } from 'mb-genql'
+import { useSession } from 'next-auth/react'
 import dynamic from 'next/dynamic'
 import { useParams, usePathname } from 'next/navigation'
-import { useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 
 const Chat = dynamic(
 	() => import('@/components/routes/chat/chat').then((mod) => mod.Chat),
@@ -176,7 +177,7 @@ export function ThreadPopup({ className }: { className?: string }) {
 						: 'lg:max-w-[calc(100%-250px)] xl:max-w-[calc(100%-300px)] lg:left-[250px] xl:left-[300px]',
 					'flex justify-center items-end fixed bottom-0 pb-[192px] pt-[10%] left-0',
 					'h-[calc(100vh-4rem)] backdrop-blur-sm ease-in-out duration-500 z-40',
-					'transition-all',
+					'transition-all origin-bottom',
 					isOpenPopup ? 'animate-fade-in' : 'animate-fade-out',
 					className,
 				)}
@@ -208,7 +209,7 @@ export function ThreadPopup({ className }: { className?: string }) {
 							className,
 						)}
 					>
-						<AnimatePresence mode="wait">
+						<AnimatePresence>
 							{/* Workspace Section (conditionally shown) */}
 							{isWorkspaceActive && activeThread && (
 								<motion.div
@@ -290,6 +291,7 @@ function ThreadPopUpCardHeader({
 		setIsOpenPopup,
 		setActiveThread,
 		setShouldRefreshThreads,
+		refreshActiveThread,
 	} = useThread()
 	const { navigateTo } = useSidebar()
 	const {
@@ -308,6 +310,32 @@ function ThreadPopUpCardHeader({
 	const isProfile = getRouteType(pathname) === 'profile'
 	const isBot = getRouteType(pathname) === 'bot'
 	const isPro = getRouteType(pathname) === 'pro'
+
+	// Ensure we have up-to-date thread documents metadata when the popup opens
+	// Attempt exactly once per threadId to avoid repeated fetches
+	const { data: session } = useSession()
+	const attemptedDocsRefreshRef = useRef<string | null>(null)
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	useEffect(() => {
+		const threadId = activeThread?.threadId as string | undefined
+		const hasDocsArray = Array.isArray(
+			(activeThread as unknown as { metadata?: { documents?: unknown } })
+				?.metadata?.documents,
+		)
+		if (
+			isOpenPopup &&
+			threadId &&
+			!hasDocsArray &&
+			attemptedDocsRefreshRef.current !== threadId
+		) {
+			attemptedDocsRefreshRef.current = threadId
+			// Try to refresh with JWT when available to fetch personal metadata
+			refreshActiveThread(threadId, session?.user?.hasuraJwt).catch(() => {
+				// Silently ignore; UI will fall back to workspace docs
+			})
+		}
+	}, [isOpenPopup, activeThread, session?.user?.hasuraJwt])
 
 	// Check if we have at least one assistant message and this is the first one
 	const hasFirstAssistantMessage =

@@ -6,6 +6,11 @@ import {
 } from '@/app/actions/thread.actions'
 import { Button } from '@/components/ui/button'
 import { computeChecksum } from '@/lib/checksum'
+import {
+	type WorkspaceTaskType,
+	createWorkspaceMetaPrompt,
+} from '@/lib/constants/prompts'
+import { getUserIndexedDBKeys } from '@/lib/hooks/use-chat-attachments'
 import { type IndexedDBItem, useIndexedDB } from '@/lib/hooks/use-indexed-db'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useWorkspace } from '@/lib/hooks/use-workspace'
@@ -128,8 +133,13 @@ function WorkspaceContentInternal({
 	} = useWorkspaceChat()
 	const { activeThread, refreshActiveThread } = useThread()
 	const { data: session } = useSession()
+	// Use the same per-user DB naming as readers (attachments/documents) so saved docs are discoverable
+	const dbKeys = React.useMemo(
+		() => getUserIndexedDBKeys(session?.user?.id),
+		[session?.user?.id],
+	)
 	const { addItem: addIndexedItem, updateItem: updateIndexedItem } =
-		useIndexedDB({})
+		useIndexedDB(dbKeys)
 	const { customSonner } = useSonner()
 
 	// Shared checksum now imported from '@/lib/checksum'
@@ -420,127 +430,46 @@ This is a new document. Add your content here.
 		[],
 	)
 
-	// Create meta prompt function
-	const createWorkspaceMetaPrompt = React.useCallback(
-		(
-			userPrompt: string,
-			sectionTitle: string,
-			taskType: 'expand' | 'rewrite',
-		) => {
-			const sectionsContext = sections
-				.map(
-					(section) =>
-						`## ${section.title} (Level ${section.level})\n${section.content}\n`,
-				)
-				.join('\n')
-
-			const focusedSection = sections.find((s) => s.title === sectionTitle)
-
-			if (!focusedSection) return ''
-
-			let chatbotExpertise = ''
-			if (chatbot?.prompts && chatbot.prompts.length > 0) {
-				const expertisePrompts = chatbot.prompts
-					.filter((p) => p.prompt.type === 'prompt')
-					.map((p) => `<expertise>\n${p.prompt.content}\n</expertise>`)
-					.join('\n\n')
-
-				const instructionPrompts = chatbot.prompts
-					.filter((p) => p.prompt.type === 'instruction')
-					.map((p) => `<instructions>\n${p.prompt.content}\n</instructions>`)
-					.join('\n\n')
-
-				chatbotExpertise = `\n\nCHATBOT EXPERTISE:\n${expertisePrompts}\n\n${instructionPrompts}\n`
-			}
-
-			const taskAction = taskType === 'expand' ? 'expand' : 'rewrite'
-			const taskDescription =
-				taskType === 'expand'
-					? "with detailed, relevant content that fits the document's context and purpose"
-					: "to improve clarity, coherence, and alignment with the document's overall purpose and structure"
-
-			const taskInstructions = `
-EDITING MODE: SECTION ${taskType.toUpperCase()}
-You are ${taskType === 'expand' ? 'expanding' : 'rewriting'} a specific section of a larger document. The user has requested to ${taskAction} the section "${focusedSection.title}".
-
-WORKSPACE CONTEXT:
-- Project: ${projectName || 'Untitled Project'}
-- Document: ${documentName || 'Untitled Document'}
-- Document Type: ${documentType}
-- Active Section: ${sectionTitle}
-- Total Sections: ${sections.length}
-
-CURRENT SECTION BEING EDITED:
-## ${focusedSection.title} (Level ${focusedSection.level})
-${focusedSection.content}
-
-USER REQUEST: ${userPrompt}
-
-TASK: ${taskAction.charAt(0).toUpperCase() + taskAction.slice(1)} the "${focusedSection.title}" section ${taskDescription}.`
-
-			const outputFormat = `
-<output_format>
-Return ONLY the ${taskType === 'expand' ? 'expanded' : 'rewritten'} content for the "${focusedSection.title}" section. Your response should be the new content that will replace the existing section content.
-
-ACCEPTABLE FORMATS:
-1. Plain text content (will be inserted as-is into the section).
-2. Markdown content with subsections (H3, H4, etc.) that belong under "${focusedSection.title}".
-
-DO NOT INCLUDE:
-- The section heading itself (## ${focusedSection.title}).
-- Other sections from the document.
-- Complete document restructure.
-- Content that belongs to other sections.
-</output_format>`
-
-			return `You are an expert document editor and content creator working with specialized chatbot expertise.${chatbotExpertise}
-
-${taskInstructions}
-
-${outputFormat}
-
-INSTRUCTIONS:
-1. Apply your specialized expertise to the document editing task
-2. Analyze the user's request in the context of the provided document
-3. Maintain the document's style and tone while applying your expertise
-4. Focus on providing valuable, actionable content improvements
-5. Ensure your response integrates well with the existing document structure
-
-Please provide your response now:`
-		},
-		[chatbot, projectName, documentName, documentType, sections],
-	)
-
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const handleExpandSection = React.useCallback(
 		async (sectionTitle: string) => {
 			const prompt = `Proceed to expand ${sectionTitle} section`
-			const metaPrompt = createWorkspaceMetaPrompt(
-				prompt,
+			const metaPrompt = createWorkspaceMetaPrompt({
+				userPrompt: prompt,
+				taskType: 'expand',
+				projectName,
+				documentName,
+				documentType,
+				sections,
 				sectionTitle,
-				'expand',
-			)
+			})
 
 			if (!metaPrompt) return
 
 			await handleWorkspaceEdit(prompt, metaPrompt, cursorPosition)
 		},
-		[createWorkspaceMetaPrompt, handleWorkspaceEdit, cursorPosition],
+		[handleWorkspaceEdit, cursorPosition],
 	)
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const handleRewriteSection = React.useCallback(
 		async (sectionTitle: string) => {
 			const prompt = `Rewrite ${sectionTitle} section`
-			const metaPrompt = createWorkspaceMetaPrompt(
-				prompt,
+			const metaPrompt = createWorkspaceMetaPrompt({
+				userPrompt: prompt,
+				taskType: 'rewrite',
+				projectName,
+				documentName,
+				documentType,
+				sections,
 				sectionTitle,
-				'rewrite',
-			)
+			})
 
 			if (!metaPrompt) return
 
 			await handleWorkspaceEdit(prompt, metaPrompt, cursorPosition)
 		},
-		[createWorkspaceMetaPrompt, handleWorkspaceEdit, cursorPosition],
+		[handleWorkspaceEdit, cursorPosition],
 	)
 
 	// Unified save function (create thread if needed, verify checksum, versioning, upload, cache)
@@ -683,6 +612,8 @@ Please provide your response now:`
 						documents: [
 							{
 								id: docId,
+								organization: activeOrganization as string,
+								department: activeDepartment as string,
 								project: projectName,
 								name: documentName,
 								type,
@@ -740,6 +671,8 @@ Please provide your response now:`
 			// Upload document content to bucket (server handles official versioning + checksum)
 			const { document } = await uploadWorkspaceDocumentToBucket({
 				threadSlug,
+				organization: activeOrganization as string,
+				department: activeDepartment as string,
 				project: projectName,
 				name: documentName,
 				content,
@@ -760,9 +693,12 @@ Please provide your response now:`
 			})
 
 			const id = document?.id || docId
+			const documentVersion = document?.currentVersion || 1
 			const item = {
 				id,
 				name: documentName,
+				organization: activeOrganization,
+				department: activeDepartment,
 				project: projectName,
 				type,
 				url: base64,
@@ -770,6 +706,8 @@ Please provide your response now:`
 				size: new Blob([content]).size,
 				messageIds: [],
 				expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+				threadSlug,
+				version: documentVersion,
 			} as unknown as IndexedDBItem
 
 			try {
@@ -798,6 +736,7 @@ Please provide your response now:`
 		}
 	}
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const handleRollback = React.useCallback(
 		async (versionNumber: number) => {
 			if (!projectName || !documentName || !activeThread?.slug) return
@@ -808,6 +747,8 @@ Please provide your response now:`
 					documents: [
 						{
 							id: `${projectName}:${documentName}`,
+							organization: activeOrganization as string,
+							department: activeDepartment as string,
 							project: projectName,
 							name: documentName,
 							type: documentType as 'text' | 'image' | 'spreadsheet',
@@ -817,7 +758,7 @@ Please provide your response now:`
 								updatedAt: u.updatedAt,
 								checksum: u.checksum,
 								url: u.url,
-								contentKey: '',
+								content: '',
 								size: 0,
 							})),
 						},

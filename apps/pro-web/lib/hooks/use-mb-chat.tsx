@@ -391,21 +391,19 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 							],
 						}))
 					: []
-				const documentListKeys = Object.entries(documentList)
-				const newDocuments = documentListKeys
-					.map(([key, doc]) =>
-						key === activeProject
-							? {
-									documentName: doc,
+				const newDocuments =
+					activeProject && activeDocument
+						? [
+								{
+									id: `${activeProject}:${activeDocument}`,
+									name: activeDocument,
 									project: activeProject,
-									organization: activeOrganization,
-									department: activeDepartment,
-									type: activeDocumentType.includes('all') || 'text',
-									messageIds: [userMessageId, assistantMessageId],
-								}
-							: null,
-					)
-					.filter(Boolean)
+									type: (activeDocumentType && activeDocumentType !== 'all'
+										? activeDocumentType
+										: 'text') as 'text' | 'image' | 'spreadsheet',
+								},
+							]
+						: []
 
 				for (const attachment of newAttachments) {
 					try {
@@ -529,7 +527,8 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 														...newDocuments,
 														...(activeThread?.metadata?.documents || []),
 													],
-													'id',
+													(d) =>
+														d?.id || `${d?.name}::${d?.project}::${d?.type}`,
 												),
 											}
 										: undefined,

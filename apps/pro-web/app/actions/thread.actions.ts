@@ -287,7 +287,7 @@ export async function getThreadBySlug(slug: string) {
 
 export interface WorkspaceDocumentVersion {
 	version: number
-	contentKey: string
+	content: string
 	checksum: string
 	size: number
 	url: string
@@ -295,6 +295,8 @@ export interface WorkspaceDocumentVersion {
 }
 export interface WorkspaceDocumentMetadata {
 	id: string
+	organization: string
+	department: string
 	project: string
 	name: string
 	type: 'text' | 'image' | 'spreadsheet'
@@ -309,12 +311,16 @@ export interface ThreadMetadataFull {
 
 export async function uploadWorkspaceDocumentToBucket({
 	threadSlug,
+	organization,
+	department,
 	project,
 	name,
 	content,
 	type = 'text',
 }: {
 	threadSlug: string
+	organization: string
+	department: string
 	project: string
 	name: string
 	content: string
@@ -381,7 +387,7 @@ export async function uploadWorkspaceDocumentToBucket({
 	})
 	const newVersion: WorkspaceDocumentVersion = {
 		version,
-		contentKey: key,
+		content: key,
 		checksum,
 		size,
 		url: signedUrl,
@@ -403,6 +409,8 @@ export async function uploadWorkspaceDocumentToBucket({
 			...existingDocs,
 			{
 				id,
+				organization,
+				department,
 				project,
 				name,
 				type,

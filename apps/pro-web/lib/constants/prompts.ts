@@ -1,6 +1,7 @@
 // ? The prompts are written with string concatenation and some string interpolation (when has dynamic data) for DX purposes.
 // ? Having the described above, the prompts are easy to read and understand, and the code is clean and maintainable.
 
+import type { MarkdownSection } from '@/lib/markdown-utils'
 import { getAllUserMessagesAsStringArray } from '@/lib/threads'
 import { nanoid } from '@/lib/utils'
 import type { ChatbotMetadata, ChatbotMetadataExamples } from '@/types/types'
@@ -249,4 +250,91 @@ export function createImageGenerationPrompt(
 	return IMAGE_GENERATION_PROMPT_TEMPLATE.replace('{description}', description)
 		.replace('{style}', style)
 		.replace('{details}', details)
+}
+
+export type WorkspaceTaskType = 'expand' | 'rewrite' | 'edit'
+
+export type WorkspaceMetaPromptProps = {
+	userPrompt: string
+	taskType: WorkspaceTaskType
+	projectName: string
+	documentName: string
+	documentType: 'text' | 'image' | 'spreadsheet'
+	sections: MarkdownSection[]
+	sectionTitle: string
+}
+
+export function createWorkspaceMetaPrompt({
+	userPrompt,
+	taskType,
+	projectName,
+	documentName,
+	documentType,
+	sections,
+	sectionTitle,
+}: WorkspaceMetaPromptProps) {
+	const sectionsContext = sections
+		.map(
+			(section) =>
+				`## ${section.title} (Level ${section.level})\n${section.content}\n`,
+		)
+		.join('\n')
+
+	const focusedSection = sections.find((s) => s.title === sectionTitle)
+
+	if (!focusedSection) return ''
+
+	const taskDescription =
+		taskType === 'expand'
+			? "with detailed, relevant content that fits the document's context and purpose"
+			: "to improve clarity, coherence, and alignment with the document's overall purpose and structure"
+
+	const taskInstructions = `
+EDITING MODE: SECTION ${taskType.toUpperCase()}
+You are ${taskType === 'expand' ? 'expanding' : 'rewriting'} a specific section of a larger document. The user has requested to ${taskType} the section "${focusedSection.title}".
+
+WORKSPACE CONTEXT:
+- Project: ${projectName || 'Untitled Project'}
+- Document: ${documentName || 'Untitled Document'}
+- Document Type: ${documentType}
+- Active Section: ${sectionTitle}
+- Total Sections: ${sections.length}
+
+CURRENT SECTION BEING EDITED:
+## ${focusedSection.title} (Level ${focusedSection.level})
+${focusedSection.content}
+
+USER REQUEST: ${userPrompt}
+
+TASK: ${taskType.charAt(0).toUpperCase() + taskType.slice(1)} the "${focusedSection.title}" section ${taskDescription}.`
+
+	const outputFormat = `
+<output_format>
+Return ONLY the ${taskType === 'expand' ? 'expanded' : 'rewritten'} content for the "${focusedSection.title}" section. Your response should be the new content that will replace the existing section content.
+
+ACCEPTABLE FORMATS:
+1. Plain text content (will be inserted as-is into the section).
+2. Markdown content with subsections (H3, H4, etc.) that belong under "${focusedSection.title}".
+
+DO NOT INCLUDE:
+- The section heading itself (## ${focusedSection.title}).
+- Other sections from the document.
+- Complete document restructure.
+- Content that belongs to other sections.
+</output_format>`
+
+	return `You are an expert document editor and content creator working with specialized chatbot expertise.
+
+${taskInstructions}
+
+${outputFormat}
+
+INSTRUCTIONS:
+1. Apply your specialized expertise to the document editing task
+2. Analyze the user's request in the context of the provided document
+3. Maintain the document's style and tone while applying your expertise
+4. Focus on providing valuable, actionable content improvements
+5. Ensure your response integrates well with the existing document structure
+
+Please provide your response now:`
 }

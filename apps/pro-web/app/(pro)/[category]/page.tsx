@@ -41,7 +41,7 @@ export default async function ChatCategoryPage(props: {
 	return (
 		<>
 			<ThreadPanel threads={threads.threads} count={threads.count} />
-			<Pro />
+			<Pro showChatPanel={false} />
 			<Subscription />
 		</>
 	)
