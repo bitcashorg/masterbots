@@ -554,6 +554,7 @@ export function PreferenceSection({ title, items }: PreferenceSectionProps) {
 																(opt: {
 																	value: string
 																	label: string
+																	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 																	icon: any
 																}) => (
 																	<SelectItem value={opt.value} key={opt.value}>
