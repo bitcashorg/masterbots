@@ -1,5 +1,12 @@
 import type { PreferenceItemType } from '@/types/types'
-import { MessageSquareX, Save, UserRoundX } from 'lucide-react'
+import {
+	LetterText,
+	MessageSquareX,
+	Moon,
+	Save,
+	Sun,
+	UserRoundX,
+} from 'lucide-react'
 
 export const preferences = [
 	{
@@ -42,28 +49,62 @@ export const preferences = [
 					icon: Save,
 				},
 			},
-			{
-				title: 'Preferred Language',
-				description: 'Receive emails about new products, features, and more.',
-				type: 'switch',
-			},
+			// {
+			// 	title: 'Preferred Language',
+			// 	description: 'Receive emails about new products, features, and more.',
+			// 	type: 'switch',
+			// },
 			{
 				title: 'Masterbots Theme',
 				description: 'Change the default theme for the Masterbots site.',
-				type: 'switch',
+				type: 'dropdown',
 				props: {
 					switchId: 'theme',
 					switchName: 'theme',
+					items: [
+						{
+							value: 'dark',
+							label: 'Dark',
+							icon: Moon,
+						},
+						{
+							value: 'light',
+							label: 'Light',
+							icon: Sun,
+						},
+					],
 				},
 			},
 			{
 				title: 'Default Font Size',
 				description:
 					'Change overall font-size website (does not change your browser font-size).',
-				type: 'toggleGroup',
+				type: 'dropdown',
 				props: {
 					switchId: 'font-size',
 					switchName: 'font-size',
+					items: [
+						{
+							value: 'normal',
+							label: 'Normal',
+							icon: LetterText,
+						},
+						{
+							value: 'small',
+							label: 'Small',
+							icon: LetterText,
+						},
+						{
+							value: 'medium',
+							label: 'Medium',
+							icon: LetterText,
+						},
+						{
+							value: 'large',
+							label: 'large',
+							icon: LetterText,
+						},
+					],
 				},
 			},
 		] as PreferenceItemType[],
@@ -93,7 +134,6 @@ export const preferences = [
 			},
 		] as PreferenceItemType[],
 	},
-
 	// {
 	// 	title: 'Email Notifications',
 	// 	items: [

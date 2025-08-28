@@ -19,8 +19,16 @@ import { Card, CardContent } from '@/components/ui/card'
 import { IconSpinner } from '@/components/ui/icons'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { useAccessibility } from '@/lib/hooks/use-accessibility'
 import { useProfile } from '@/lib/hooks/use-profile'
 import { useSonner } from '@/lib/hooks/useSonner'
 import { cn } from '@/lib/utils'
@@ -33,17 +41,13 @@ import type { PreferenceSectionProps } from '@/types/types'
 import { AArrowDown, AArrowUp, MailCheck, Plus, Send } from 'lucide-react'
 import type { PreferenceSetInput } from 'mb-genql'
 import { toSlug } from 'mb-lib'
-import { getSession, signOut, useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
+import { signOut, useSession } from 'next-auth/react'
+import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
 import { useAsyncFn } from 'react-use'
 import { PreferenceItemTitle } from './preference-item'
 
-export function PreferenceSection({
-	title,
-	items,
-	variant,
-}: PreferenceSectionProps) {
+export function PreferenceSection({ title, items }: PreferenceSectionProps) {
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 	const [isRemovePending, setIsRemovePending] = useState(false)
 	const [buttonType, setButtonType] = useState('')
@@ -54,7 +58,8 @@ export function PreferenceSection({
 	const [isLoading, setIsLoading] = useState(false)
 	const [sendindVEmail, setSendingVEmail] = useState(false)
 	const [inputValue, setInputValue] = useState({ username: '', email: '' })
-	const router = useRouter()
+	const { setTheme, theme } = useTheme()
+	const { fontSize, setFontSize } = useAccessibility()
 
 	useEffect(() => {
 		if (currentUser) {
@@ -236,7 +241,7 @@ export function PreferenceSection({
 				setErrorMessage(
 					'Username must be 3–24 characters and contain only letters, numbers, or underscores.',
 				)
-				console.log('Invalid username format:', value)
+				console.error('Invalid username format:', value)
 				return
 			}
 		}
@@ -349,6 +354,22 @@ export function PreferenceSection({
 		}
 	}
 
+	function handleDropDown(type: string | undefined, value: string) {
+		if (type === 'theme') {
+			setTheme(value)
+			return
+		}
+
+		if (type === 'font-size') {
+			setFontSize(value as 'normal' | 'large' | 'x-large' | 'small' | 'medium')
+			return
+		}
+	}
+
+	function getDropDownSelectedValue(type: string | undefined) {
+		if (type === 'theme') return theme
+		if (type === 'font-size') return fontSize
+	}
 	return (
 		<>
 			<AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
@@ -514,11 +535,44 @@ export function PreferenceSection({
 												}
 											/>
 										)}
+										{item.type === 'dropdown' && (
+											<div className="w-[140px]">
+												<Select
+													defaultValue={getDropDownSelectedValue(
+														item?.props?.switchName,
+													)}
+													onValueChange={(val) =>
+														handleDropDown(item?.props?.switchName, val)
+													}
+												>
+													<SelectTrigger>
+														<SelectValue />
+													</SelectTrigger>
+													<SelectContent>
+														{Array.isArray(item?.props?.items) &&
+															item.props.items.map(
+																(opt: {
+																	value: string
+																	label: string
+																	icon: any
+																}) => (
+																	<SelectItem value={opt.value} key={opt.value}>
+																		<div className="flex items-center gap-2">
+																			<opt.icon className="h-4 w-4" />
+																			<span>{opt.label}</span>
+																		</div>
+																	</SelectItem>
+																),
+															)}
+													</SelectContent>
+												</Select>
+											</div>
+										)}
 										{item.type === 'toggleGroup' && (
 											<ToggleGroup
 												type="single"
 												defaultValue="b"
-												disabled={true}
+												disabled={false}
 												className="gap-0 border rounded-full opacity-50 border-mirage h-7"
 											>
 												<ToggleGroupItem
