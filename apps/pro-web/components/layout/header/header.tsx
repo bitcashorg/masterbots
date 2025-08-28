@@ -444,67 +444,6 @@ export function Header() {
 		// router.push('/')
 	}
 
-	const Crumb = ({
-		label,
-		value,
-		options,
-		onSelect,
-		addType,
-		disabled,
-	}: {
-		label: string
-		value: string | null
-		options: string[]
-		onSelect: (v: string) => void
-		addType: 'organization' | 'department' | 'project' | 'document'
-		disabled?: boolean
-	}) => {
-		return (
-			<DropdownMenu>
-				<DropdownMenuTrigger asChild disabled={disabled}>
-					<button
-						type="button"
-						className={cn(
-							'inline-flex items-center gap-1 px-2 py-1 text-sm rounded-md border bg-background/60 backdrop-blur hover:bg-accent transition',
-							disabled && 'opacity-50 cursor-not-allowed',
-						)}
-					>
-						<span className="font-medium truncate max-w-[140px]">
-							{value || label}
-						</span>
-						<ChevronDown className="h-3.5 w-3.5 opacity-70" />
-					</button>
-				</DropdownMenuTrigger>
-				<DropdownMenuContent
-					align="start"
-					className="max-h-72 overflow-y-auto min-w-[200px]"
-				>
-					{options.length === 0 && (
-						<div className="px-2 py-1.5 text-xs text-muted-foreground">
-							No {label.toLowerCase()}s
-						</div>
-					)}
-					{options.map((opt) => (
-						<DropdownMenuItem
-							key={opt}
-							onClick={() => onSelect(opt)}
-							className={cn('text-sm', value === opt && 'font-semibold')}
-						>
-							{opt}
-						</DropdownMenuItem>
-					))}
-					<DropdownMenuSeparator />
-					<DropdownMenuItem
-						onClick={() => handleAddEntity(addType)}
-						className="text-xs text-primary"
-					>
-						+ New {label}
-					</DropdownMenuItem>
-				</DropdownMenuContent>
-			</DropdownMenu>
-		)
-	}
-
 	return (
 		<header className="sticky top-0 z-50 flex items-center justify-between w-full h-16 px-4 border-b shrink-0 bg-gradient-to-b from-background/10 via-background/50 to-background/80 backdrop-blur-xl">
 			<div className="flex items-center">
@@ -566,6 +505,7 @@ export function Header() {
 							setActiveThread(null)
 						}}
 						addType="organization"
+						onNewItem={handleAddEntity}
 					/>
 					<span className="text-xs opacity-50">/</span>
 					<Crumb
@@ -582,6 +522,7 @@ export function Header() {
 						}}
 						addType="department"
 						disabled={!activeOrganization}
+						onNewItem={handleAddEntity}
 					/>
 					<span className="text-xs opacity-50">/</span>
 					<Crumb
@@ -597,6 +538,7 @@ export function Header() {
 						}}
 						addType="project"
 						disabled={!activeDepartment}
+						onNewItem={handleAddEntity}
 					/>
 					<span className="text-xs opacity-50">/</span>
 					{/* New: Document Type crumb */}
@@ -667,7 +609,9 @@ export function Header() {
 							</DropdownMenuItem>
 						</DropdownMenuContent>
 					</DropdownMenu>
+
 					<span className="text-xs opacity-50">/</span>
+
 					{/* Custom Doc dropdown with icons and Draft labels */}
 					<DropdownMenu>
 						<DropdownMenuTrigger
@@ -846,5 +790,70 @@ export function Header() {
 				</AlertDialogContent>
 			</AlertDialog>
 		</header>
+	)
+}
+
+export function Crumb({
+	label,
+	value,
+	options,
+	onSelect,
+	addType,
+	onNewItem,
+	disabled,
+}: {
+	label: string
+	value: string | null
+	options: string[]
+	onSelect: (v: string) => void
+	addType: 'organization' | 'department' | 'project' | 'document'
+	onNewItem: (
+		type: 'organization' | 'department' | 'project' | 'document',
+	) => void
+	disabled?: boolean
+}) {
+	return (
+		<DropdownMenu>
+			<DropdownMenuTrigger asChild disabled={disabled}>
+				<button
+					type="button"
+					className={cn(
+						'inline-flex items-center gap-1 px-2 py-1 text-sm rounded-md border bg-background/60 backdrop-blur hover:bg-accent transition',
+						disabled && 'opacity-50 cursor-not-allowed',
+					)}
+				>
+					<span className="font-medium truncate max-w-[140px]">
+						{value || label}
+					</span>
+					<ChevronDown className="h-3.5 w-3.5 opacity-70" />
+				</button>
+			</DropdownMenuTrigger>
+			<DropdownMenuContent
+				align="start"
+				className="max-h-72 overflow-y-auto min-w-[200px]"
+			>
+				{options.length === 0 && (
+					<div className="px-2 py-1.5 text-xs text-muted-foreground">
+						No {label.toLowerCase()}s
+					</div>
+				)}
+				{options.map((opt) => (
+					<DropdownMenuItem
+						key={opt}
+						onClick={() => onSelect(opt)}
+						className={cn('text-sm', value === opt && 'font-semibold')}
+					>
+						{opt}
+					</DropdownMenuItem>
+				))}
+				<DropdownMenuSeparator />
+				<DropdownMenuItem
+					onClick={() => onNewItem(addType)}
+					className="text-xs text-primary"
+				>
+					+ New {label}
+				</DropdownMenuItem>
+			</DropdownMenuContent>
+		</DropdownMenu>
 	)
 }

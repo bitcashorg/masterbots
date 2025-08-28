@@ -1,3 +1,4 @@
+import { getAllUserThreadDocumentsMetadata } from '@/app/actions'
 import { type IndexedDBItem, useIndexedDB } from '@/lib/hooks/use-indexed-db'
 import { useThread } from '@/lib/hooks/use-thread'
 import { getRouteType } from '@/lib/utils'
@@ -24,10 +25,14 @@ export type ThreadWorkspaceDocument = {
 }
 
 function isThreadWorkspaceDocument(x: unknown): x is ThreadWorkspaceDocument {
+	if (!x || typeof x !== 'object') return false
 	const obj = x as Record<string, unknown>
-	console.log('isThreadWorkspaceDocument', obj)
-	console.log('isThreadWorkspaceDocument', typeof obj)
-	return !obj || ('project' in obj && 'name' in obj && 'type' in obj)
+	return (
+		typeof obj.id === 'string' &&
+		typeof obj.project === 'string' &&
+		typeof obj.name === 'string' &&
+		(obj.type === 'text' || obj.type === 'image' || obj.type === 'spreadsheet')
+	)
 }
 
 export function useThreadDocuments() {
@@ -77,8 +82,16 @@ export function useThreadDocuments() {
 				isThreadWorkspaceDocument,
 			) as ThreadWorkspaceDocument[]
 
-			console.log('localDocs', localDocs)
-			console.log('fallbackDocs', fallbackDocs)
+			// Helper to compare doc sets similar to attachments check
+			const docKey = (
+				d: Pick<
+					ThreadWorkspaceDocument,
+					'id' | 'name' | 'project' | 'type' | 'currentVersion'
+				>,
+			) =>
+				`${d.id}::${d.name}::${d.project}::${d.type}::${d.currentVersion ?? 0}`
+			const prepareDocCheck = (docs: ThreadWorkspaceDocument[]) =>
+				[...docs].map(docKey).sort()
 
 			// If we have no thread metadata yet, try to use local docs that are linked to the current thread via threadSlug
 			if (!fallbackDocs?.length && activeThread) {
@@ -103,17 +116,96 @@ export function useThreadDocuments() {
 			for (const d of localDocs) {
 				if (byId.has(d.id) || keySet.has(keyOf(d))) {
 					for (const fd of fallbackDocs) {
-						if (isSameDoc(fd, d)) {
-							// Enrich fallbackDocs with local data
-							Object.assign(fd, d)
-						}
+						// if (isSameDoc(fd, d)) {
+						// 	// Enrich fallbackDocs with local data
+						// }
+						Object.assign(fd, d)
 					}
 				}
 			}
 
-			// TODO: Improve logic below. We must fetch all documents per user not per thread so we can update the local cache and avoid missing documents
+			// Global docs mode: when not in an activeThread, check remote docs across all threads and sync local if needed (similar to getAllItems for attachments)
 			if (!activeThread) {
-				return merged
+				const remoteDocsRaw = (await getAllUserThreadDocumentsMetadata()) || []
+				const remoteDocs = (remoteDocsRaw as unknown[])
+					.filter(isThreadWorkspaceDocument)
+					.map((d) => ({ ...d })) as ThreadWorkspaceDocument[]
+
+				const localCheck = prepareDocCheck(localDocs)
+				const remoteCheck = prepareDocCheck(remoteDocs)
+
+				// If local is already in sync with remote, return local immediately
+				if (isEqual(localCheck, remoteCheck)) {
+					return localDocs
+				}
+
+				// If remote has more documents, download missing ones and cache locally
+				if (remoteDocs.length > localDocs.length) {
+					const isSameDoc = (
+						a: ThreadWorkspaceDocument,
+						b: ThreadWorkspaceDocument,
+					) => a.id === b.id || keyOf(a) === keyOf(b)
+					const missingRemote = remoteDocs.filter(
+						(rd) => !localDocs.some((ld) => isSameDoc(rd, ld)),
+					)
+					const downloadedItems: ThreadWorkspaceDocument[] = []
+					for (const md of missingRemote) {
+						const versionList = Array.isArray(md.versions) ? md.versions : []
+						let chosen = versionList.find(
+							(v) => v.version === md.currentVersion && !!v.url,
+						)
+						if (!chosen) {
+							chosen = [...versionList]
+								.sort((a, b) => (b.version || 0) - (a.version || 0))
+								.find((v) => !!v.url)
+						}
+						if (!chosen?.url) continue
+						try {
+							const res = await fetch(chosen.url)
+							if (!res.ok) continue
+							const blob = await res.blob()
+							const base64 = await new Promise<string>((resolve, reject) => {
+								const reader = new FileReader()
+								reader.onloadend = () => resolve(reader.result as string)
+								reader.onerror = reject
+								reader.readAsDataURL(blob)
+							})
+							const item = {
+								id: md.id,
+								name: md.name,
+								project: md.project,
+								type: md.type,
+								url: base64,
+								content: base64,
+								size: blob.size,
+								messageIds: [],
+								expires: new Date(
+									Date.now() + 7 * 24 * 60 * 60 * 1000,
+								).toISOString(),
+								// No specific threadSlug when aggregating globally
+							} as unknown as IndexedDBItem
+							try {
+								updateItem(md.id, item)
+							} catch {
+								addItem(item)
+							}
+							downloadedItems.push({
+								id: md.id,
+								name: md.name,
+								project: md.project,
+								type: (md.type as 'text' | 'image' | 'spreadsheet') || 'text',
+								currentVersion: md.currentVersion,
+								versions: md.versions,
+							})
+						} catch {
+							// Ignore individual failures
+						}
+					}
+					return uniq([...localDocs, ...downloadedItems])
+				}
+
+				// If not strictly remote > local, keep local view
+				return localDocs
 			}
 
 			const slug = activeThread.slug

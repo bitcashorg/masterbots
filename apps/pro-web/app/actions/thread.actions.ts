@@ -460,3 +460,22 @@ export async function updateThreadDocumentsMetadata({
 		.returning()
 	return { success: true }
 }
+
+// Fetch documents metadata across all user threads to support global document backfill/sync
+export async function getAllUserThreadDocumentsMetadata() {
+	const results = await db
+		.select({
+			metadata: thread.metadata,
+		})
+		.from(thread)
+		.where(isNotNull(thread.metadata))
+
+	if (results.length === 0) return null
+
+	const documents = results.flatMap((result) => {
+		const meta = result.metadata as ThreadMetadataFull | null
+		return meta?.documents || []
+	})
+
+	return documents
+}
