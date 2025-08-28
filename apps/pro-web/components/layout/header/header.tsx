@@ -1,46 +1,27 @@
 'use client'
 
-import {
-	ChevronDown,
-	FileSpreadsheetIcon,
-	FileTextIcon,
-	ImageIcon,
-} from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import * as React from 'react'
 
 import { UserLogin } from '@/components/auth/user-login'
+import {
+	Crumb,
+	DocumentCrumb,
+	DocumentTypeCrumb,
+} from '@/components/layout/header/crumb-header'
+import { DocumentCreateAlert } from '@/components/layout/header/crumb-nav-alert'
 import { SidebarToggle } from '@/components/layout/sidebar/sidebar-toggle'
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import { IconSeparator } from '@/components/ui/icons'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { getUserIndexedDBKeys } from '@/lib/hooks/use-chat-attachments'
+import { type IndexedDBItem, useIndexedDB } from '@/lib/hooks/use-indexed-db'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadDocuments } from '@/lib/hooks/use-thread-documents'
 import { useWorkspace } from '@/lib/hooks/use-workspace'
 import { getCanonicalDomain } from '@/lib/url'
 import { cn, getRouteColor, getRouteType } from '@/lib/utils'
-import { appConfig } from 'mb-env'
 import { useSession } from 'next-auth/react'
 import { useTheme } from 'next-themes'
 import Image from 'next/image'
@@ -104,6 +85,7 @@ export function Header() {
 		activeDepartment,
 		activeProject,
 		activeDocument,
+		documentContent,
 		organizationList,
 		departmentList,
 		projectsByDept,
@@ -117,6 +99,7 @@ export function Header() {
 		setActiveDepartment,
 		setActiveProject,
 		setActiveDocument,
+		setDocumentContent,
 		toggleWorkspace,
 		addOrganization,
 		addDepartment,
@@ -133,6 +116,16 @@ export function Header() {
 	const { data: session } = useSession()
 	const router = useRouter()
 	const canonicalDomain = getCanonicalDomain(activeChatbot?.name || '')
+
+	// Access user-scoped IndexedDB for reading backfilled document payloads
+	const dbKeys = React.useMemo(
+		() => getUserIndexedDBKeys(session?.user?.id),
+		[session?.user?.id],
+	)
+	const { getItem, getAllItemsRaw } = useIndexedDB(dbKeys) as unknown as {
+		getItem: (id: IDBValidKey) => Promise<IndexedDBItem>
+		getAllItemsRaw: () => Promise<IndexedDBItem[]>
+	}
 
 	// Unified thread documents (from metadata + local IDB where applicable)
 	const { userDocuments } = useThreadDocuments()
@@ -225,6 +218,7 @@ export function Header() {
 		const byName = new Map<
 			string,
 			{
+				id?: string
 				name: string
 				project?: string
 				type?: 'text' | 'image' | 'spreadsheet'
@@ -246,7 +240,12 @@ export function Header() {
 				const name = (d.name || '') as string
 				if (!name) continue
 				if (!byName.has(name)) {
-					byName.set(name, { name, project: d.project, type: d.type })
+					byName.set(name, {
+						id: typeof d.id === 'string' ? d.id : undefined,
+						name,
+						project: d.project,
+						type: d.type,
+					})
 				}
 			}
 
@@ -317,7 +316,83 @@ export function Header() {
 		spreadsheetDocuments,
 	])
 
-	const onDocumentSelect = (v: string) => {
+	// Decode a data URL or fetch a remote URL to plain text
+	const resolveContentToText = async (value: string): Promise<string> => {
+		try {
+			if (value?.startsWith('data:')) {
+				const base64 = value.split(',')[1] || ''
+				try {
+					return decodeURIComponent(escape(atob(base64)))
+				} catch {
+					return atob(base64)
+				}
+			}
+			const res = await fetch(value)
+			if (!res.ok) return ''
+			return await res.text()
+		} catch {
+			return ''
+		}
+	}
+
+	// Ensure the selected doc exists in workspace server cache by hydrating from local IDB or remote URL
+	const ensureWorkspaceCacheForDoc = async (name: string) => {
+		// Find full metadata for this doc by name (prefer unified docs)
+		const meta = (userDocuments || []).find((d) => d.name === name)
+		const project = meta?.project || activeProject
+		const type = meta?.type || activeDocumentType || 'text'
+		if (!project) return
+		const key = `${project}:${name}`
+		// If content already present, nothing to do
+		if (documentContent?.[key]) return
+
+		// Try IndexedDB by id or composite
+		let payload: IndexedDBItem | null = null
+		if (meta?.id) {
+			try {
+				payload = await getItem(meta.id)
+			} catch {
+				payload = null
+			}
+		}
+		if (!payload) {
+			try {
+				const all = await getAllItemsRaw()
+				payload =
+					all.find(
+						(it): it is IndexedDBItem =>
+							isWorkspaceDocItem(it) &&
+							it.project === project &&
+							it.name === name &&
+							(it.type === 'text' ||
+								it.type === 'image' ||
+								it.type === 'spreadsheet'),
+					) || null
+			} catch {
+				payload = null
+			}
+		}
+
+		let text = ''
+		const urlOrData = (payload?.url || payload?.content) as string | undefined
+		if (urlOrData) {
+			text = await resolveContentToText(urlOrData)
+		} else if (meta?.versions?.length) {
+			// Fallback to remote signed URL from metadata
+			const pick =
+				meta.versions.find((v) => v.version === meta.currentVersion && v.url) ||
+				[...meta.versions]
+					.sort((a, b) => (b.version || 0) - (a.version || 0))
+					.find((v) => v.url)
+			if (pick?.url) text = await resolveContentToText(pick.url)
+		}
+
+		if (text) {
+			setDocumentContent(project, name, text)
+		}
+	}
+
+	const onDocumentSelect = async (v: string) => {
 		if (v === 'None') {
 			setActiveDocument(null)
 			setDocumentName('')
@@ -352,6 +427,9 @@ export function Header() {
 					const proj = meta.project || activeProject
 					if (proj && meta.type) addDocument(proj, v, meta.type)
 				}
+
+				// Ensure the document has content in workspace cache (server + local)
+				await ensureWorkspaceCacheForDoc(v)
 				// Proactively refresh the active thread so the popup has up-to-date data
 				if (activeThread?.threadId) {
 					void refreshActiveThread(
@@ -542,147 +620,25 @@ export function Header() {
 					/>
 					<span className="text-xs opacity-50">/</span>
 					{/* New: Document Type crumb */}
-					<DropdownMenu>
-						<DropdownMenuTrigger asChild disabled={!activeProject}>
-							<button
-								type="button"
-								className={cn(
-									'inline-flex items-center gap-1 px-2 py-1 text-sm rounded-md border bg-background/60 backdrop-blur hover:bg-accent transition',
-									!activeProject && 'opacity-50 cursor-not-allowed',
-								)}
-							>
-								<span className="font-medium truncate max-w-[140px]">
-									{activeDocumentType === 'all'
-										? 'All Types'
-										: activeDocumentType.charAt(0).toUpperCase() +
-											activeDocumentType.slice(1)}
-								</span>
-								<ChevronDown className="h-3.5 w-3.5 opacity-70" />
-							</button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align="start" className="min-w-[220px]">
-							<DropdownMenuItem
-								onClick={() => updateActiveDocumentTypeItem('all')}
-								className={cn(
-									'text-sm',
-									activeDocumentType === 'all' ? 'font-semibold' : '',
-								)}
-							>
-								{/* Left icon for All */}
-								<span className="mr-2 inline-flex h-4 w-4 items-center justify-center">
-									*
-								</span>
-								All
-							</DropdownMenuItem>
-							<DropdownMenuItem
-								onClick={() => updateActiveDocumentTypeItem('text')}
-								className={cn(
-									'text-sm gap-2 flex',
-									activeDocumentType === 'text' ? 'font-semibold' : '',
-								)}
-							>
-								{/* Left icon for Text */}
-								<FileTextIcon className="size-4" />
-								Text
-							</DropdownMenuItem>
-							<DropdownMenuItem
-								onClick={() => updateActiveDocumentTypeItem('image')}
-								className={cn(
-									'text-sm gap-2 flex',
-									activeDocumentType === 'image' ? 'font-semibold' : '',
-								)}
-							>
-								{/* Left icon for Image */}
-								<ImageIcon className="size-4" />
-								Image
-							</DropdownMenuItem>
-							<DropdownMenuItem
-								onClick={() => updateActiveDocumentTypeItem('spreadsheet')}
-								className={cn(
-									'text-sm gap-2 flex',
-									activeDocumentType === 'spreadsheet' ? 'font-semibold' : '',
-								)}
-							>
-								{/* Left icon for Spreadsheet */}
-								<FileSpreadsheetIcon className="size-4" />
-								Spreadsheet
-							</DropdownMenuItem>
-						</DropdownMenuContent>
-					</DropdownMenu>
+
+					<DocumentTypeCrumb
+						activeProject={activeProject as string}
+						activeDocumentType={activeDocumentType as string}
+						updateActiveDocumentTypeItem={updateActiveDocumentTypeItem}
+					/>
 
 					<span className="text-xs opacity-50">/</span>
 
 					{/* Custom Doc dropdown with icons and Draft labels */}
-					<DropdownMenu>
-						<DropdownMenuTrigger
-							asChild
-							disabled={
-								!activeProject &&
-								!(
-									userDocuments?.length ||
-									activeThread?.metadata?.documents?.length
-								)
-							}
-						>
-							<button
-								type="button"
-								className={cn(
-									'inline-flex items-center gap-1 px-2 py-1 text-sm rounded-md border bg-background/60 backdrop-blur hover:bg-accent transition',
-									!activeProject &&
-										!(
-											userDocuments?.length ||
-											activeThread?.metadata?.documents?.length
-										) &&
-										'opacity-50 cursor-not-allowed',
-								)}
-							>
-								<span className="font-medium truncate max-w-[180px]">
-									{activeDocument || 'Doc'}
-								</span>
-								<ChevronDown className="h-3.5 w-3.5 opacity-70" />
-							</button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent
-							align="start"
-							className="max-h-72 overflow-y-auto min-w-[260px]"
-						>
-							{documentOptions.length === 0 && (
-								<div className="px-2 py-1.5 text-xs text-muted-foreground">
-									No documents
-								</div>
-							)}
-							{documentOptions.map((opt) => (
-								<DropdownMenuItem
-									key={opt}
-									onClick={() => onDocumentSelect(opt)}
-									className={cn(
-										'text-sm flex items-center gap-2',
-										activeDocument === opt && 'font-semibold',
-									)}
-								>
-									{opt !== 'None' && threadDocsByName.has(opt) ? (
-										(() => {
-											const meta = threadDocsByName.get(opt)
-											if (meta?.type === 'text')
-												return <FileTextIcon className="size-4" />
-											if (meta?.type === 'image')
-												return <ImageIcon className="size-4" />
-											if (meta?.type === 'spreadsheet')
-												return <FileSpreadsheetIcon className="size-4" />
-											return null
-										})()
-									) : opt !== 'None' && threadDocsByName.size > 0 ? (
-										<span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
-											Draft
-										</span>
-									) : (
-										<span className="text-[10px] text-muted-foreground">*</span>
-									)}
-									<span className="truncate">{opt}</span>
-								</DropdownMenuItem>
-							))}
-						</DropdownMenuContent>
-					</DropdownMenu>
+					<DocumentCrumb
+						activeProject={activeProject as string}
+						activeDocument={activeDocument as string}
+						userDocuments={userDocuments}
+						activeThread={activeThread}
+						documentOptions={documentOptions}
+						onDocumentSelect={onDocumentSelect}
+						threadDocsByName={threadDocsByName}
+					/>
 				</div>
 			</div>
 			{/* User login - Always show on mobile */}
@@ -694,166 +650,34 @@ export function Header() {
 			</div>
 
 			{/* Document Creation Dialog */}
-			<AlertDialog
-				open={isDocumentDialogOpen}
-				onOpenChange={setIsDocumentDialogOpen}
-			>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>Create New Document</AlertDialogTitle>
-						<AlertDialogDescription>
-							Create a new document in the "{activeProject}" project. You'll be
-							redirected to the workspace mode after creation.
-						</AlertDialogDescription>
-					</AlertDialogHeader>
-					<div className="grid gap-4 py-4">
-						<div className="grid grid-cols-4 items-center gap-4">
-							<Label htmlFor="document-name" className="text-right">
-								Name
-							</Label>
-							<Input
-								id="document-name"
-								value={documentName}
-								onChange={(e) => setDocumentName(e.target.value)}
-								className="col-span-3"
-								placeholder="Enter document name"
-								autoFocus
-							/>
-						</div>
-						<div className="grid grid-cols-4 items-center gap-4">
-							<Label htmlFor="document-type" className="text-right">
-								Type
-							</Label>
-							<div className="col-span-3">
-								<DropdownMenu>
-									<DropdownMenuTrigger asChild>
-										<Button
-											variant="outline"
-											className="w-full justify-between"
-										>
-											<span className="capitalize flex items-center gap-2">
-												{documentType === 'text' && (
-													<FileTextIcon className="w-4 h-4" />
-												)}
-												{documentType === 'image' && (
-													<ImageIcon className="w-4 h-4" />
-												)}
-												{documentType === 'spreadsheet' && (
-													<FileSpreadsheetIcon className="w-4 h-4" />
-												)}
-												{documentType}
-											</span>
-											<ChevronDown className="h-4 w-4 opacity-50" />
-										</Button>
-									</DropdownMenuTrigger>
-									<DropdownMenuContent>
-										<DropdownMenuItem
-											onClick={() => {
-												setDocumentType('text')
-											}}
-										>
-											<FileTextIcon className="w-4 h-4 mr-2" />
-											Text
-										</DropdownMenuItem>
-										<DropdownMenuItem
-											onClick={() => {
-												setDocumentType('image')
-											}}
-										>
-											<ImageIcon className="w-4 h-4 mr-2" />
-											Image
-										</DropdownMenuItem>
-										<DropdownMenuItem
-											onClick={() => {
-												setDocumentType('spreadsheet')
-											}}
-										>
-											<FileSpreadsheetIcon className="w-4 h-4 mr-2" />
-											Spreadsheet
-										</DropdownMenuItem>
-									</DropdownMenuContent>
-								</DropdownMenu>
-							</div>
-						</div>
-					</div>
-					<AlertDialogFooter>
-						<AlertDialogCancel onClick={() => setDocumentName('')}>
-							Cancel
-						</AlertDialogCancel>
-						<AlertDialogAction
-							onClick={handleCreateDocument}
-							disabled={!documentName.trim()}
-						>
-							Create Document
-						</AlertDialogAction>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
+			<DocumentCreateAlert
+				isDocumentDialogOpen={isDocumentDialogOpen}
+				documentType={documentType as 'text' | 'image' | 'spreadsheet'}
+				activeProject={activeProject as string}
+				documentName={documentName}
+				setDocumentName={setDocumentName}
+				setDocumentType={setDocumentType}
+				handleCreateDocument={handleCreateDocument}
+				setIsDocumentDialogOpen={setIsDocumentDialogOpen}
+			/>
 		</header>
 	)
 }
 
-export function Crumb({
-	label,
-	value,
-	options,
-	onSelect,
-	addType,
-	onNewItem,
-	disabled,
-}: {
-	label: string
-	value: string | null
-	options: string[]
-	onSelect: (v: string) => void
-	addType: 'organization' | 'department' | 'project' | 'document'
-	onNewItem: (
-		type: 'organization' | 'department' | 'project' | 'document',
-	) => void
-	disabled?: boolean
-}) {
+// Narrow unknown IndexedDB records that represent workspace documents
+function isWorkspaceDocItem(it: unknown): it is {
+	id?: string
+	project?: string
+	name?: string
+	type?: 'text' | 'image' | 'spreadsheet'
+	url?: string
+	content?: string
+} {
+	if (!it || typeof it !== 'object') return false
+	const o = it as Record<string, unknown>
 	return (
-		<DropdownMenu>
-			<DropdownMenuTrigger asChild disabled={disabled}>
-				<button
-					type="button"
-					className={cn(
-						'inline-flex items-center gap-1 px-2 py-1 text-sm rounded-md border bg-background/60 backdrop-blur hover:bg-accent transition',
-						disabled && 'opacity-50 cursor-not-allowed',
-					)}
-				>
-					<span className="font-medium truncate max-w-[140px]">
-						{value || label}
-					</span>
-					<ChevronDown className="h-3.5 w-3.5 opacity-70" />
-				</button>
-			</DropdownMenuTrigger>
-			<DropdownMenuContent
-				align="start"
-				className="max-h-72 overflow-y-auto min-w-[200px]"
-			>
-				{options.length === 0 && (
-					<div className="px-2 py-1.5 text-xs text-muted-foreground">
-						No {label.toLowerCase()}s
-					</div>
-				)}
-				{options.map((opt) => (
-					<DropdownMenuItem
-						key={opt}
-						onClick={() => onSelect(opt)}
-						className={cn('text-sm', value === opt && 'font-semibold')}
-					>
-						{opt}
-					</DropdownMenuItem>
-				))}
-				<DropdownMenuSeparator />
-				<DropdownMenuItem
-					onClick={() => onNewItem(addType)}
-					className="text-xs text-primary"
-				>
-					+ New {label}
-				</DropdownMenuItem>
-			</DropdownMenuContent>
-		</DropdownMenu>
+		typeof o.project === 'string' &&
+		typeof o.name === 'string' &&
+		(o.type === 'text' || o.type === 'image' || o.type === 'spreadsheet')
 	)
 }
