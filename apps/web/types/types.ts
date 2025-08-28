@@ -395,7 +395,8 @@ export type PreferenceItemType = {
 	title: string
 	description: string
 	type?: string
-	props?: Record<string, string>
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+	props?: Record<string, any>
 	defaultChecked?: boolean
 	icon?: React.ElementType
 	buttonText?: string
