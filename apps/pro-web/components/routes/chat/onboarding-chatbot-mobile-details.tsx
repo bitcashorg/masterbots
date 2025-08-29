@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { cn, getRouteType, isFollowed, numberShortener } from '@/lib/utils'
-import type { ChatbotDetailsProps } from '@/types/types'
+import type { ChatbotDetailsProps } from '@/types'
 import { Bot, BotMessageSquareIcon, Users } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import Image from 'next/image'

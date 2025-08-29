@@ -14,7 +14,7 @@ import {
 import { IconSpinner } from '@/components/ui/icons'
 import { useCopyToClipboard } from '@/lib/hooks/use-copy-to-clipboard'
 import { useSonner } from '@/lib/hooks/useSonner'
-import type { Chat } from '@/types/types'
+import type { Chat } from '@/types'
 import type { DialogProps } from '@radix-ui/react-dialog'
 import * as React from 'react'
 

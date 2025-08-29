@@ -1,4 +1,4 @@
-import type { ImageToggleContextType } from '@/types/types'
+import type { ImageToggleContextType } from '@/types'
 import { type ReactNode, createContext, useContext, useState } from 'react'
 
 const ImageToggleContext = createContext<ImageToggleContextType | undefined>(

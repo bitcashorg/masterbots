@@ -1,11 +1,7 @@
 /**
  * Helper functions for image generation and manipulation
  */
-import {
-	type GeneratedImage,
-	type ImageMessage,
-	isImageMessage,
-} from '@/types/types'
+import { type GeneratedImage, type ImageMessage, isImageMessage } from '@/types'
 
 export const imageHelpers = {
 	/**

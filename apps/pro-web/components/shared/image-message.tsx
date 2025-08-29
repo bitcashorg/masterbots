@@ -4,7 +4,7 @@ import { ChatMessageActions } from '@/components/routes/chat/chat-message-action
 import { MemoizedReactMarkdown } from '@/components/shared/markdown'
 import { memoizedMarkdownComponents } from '@/lib/memoized-markdown-components'
 import { cn } from '@/lib/utils'
-import type { ImageMessageProps } from '@/types/types'
+import type { ImageMessageProps } from '@/types'
 import rehypeMathJax from 'rehype-mathjax'
 import remarkGfm from 'remark-gfm'
 import remarkRehype from 'remark-rehype'

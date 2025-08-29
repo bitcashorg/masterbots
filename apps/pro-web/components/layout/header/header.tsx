@@ -1,5 +1,6 @@
 'use client'
 
+import { getThreadBySlug } from '@/app/actions/thread.actions'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import * as React from 'react'
@@ -22,6 +23,10 @@ import { useThreadDocuments } from '@/lib/hooks/use-thread-documents'
 import { useWorkspace } from '@/lib/hooks/use-workspace'
 import { getCanonicalDomain } from '@/lib/url'
 import { cn, getRouteColor, getRouteType } from '@/lib/utils'
+
+import type { WorkspaceDocumentMetadata } from '@/types/thread.types'
+import { uniq } from 'lodash'
+import { nanoid } from 'nanoid'
 import { useSession } from 'next-auth/react'
 import { useTheme } from 'next-themes'
 import Image from 'next/image'
@@ -88,6 +93,7 @@ export function Header() {
 		documentContent,
 		organizationList,
 		departmentList,
+		documentList,
 		projectsByDept,
 		textDocuments,
 		imageDocuments,
@@ -132,6 +138,7 @@ export function Header() {
 
 	// Ensure thread documents metadata is hydrated even if popup is closed
 	const attemptedDocsRefreshRef = React.useRef<string | null>(null)
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		const threadId = activeThread?.threadId as string | undefined
 		const hasDocsArray = Array.isArray(
@@ -144,9 +151,9 @@ export function Header() {
 			attemptedDocsRefreshRef.current !== threadId
 		) {
 			attemptedDocsRefreshRef.current = threadId
-			void refreshActiveThread(threadId, session?.user?.hasuraJwt)
+			void refreshActiveThread({ threadId })
 		}
-	}, [activeThread, refreshActiveThread, session?.user?.hasuraJwt])
+	}, [activeThread, session?.user?.hasuraJwt])
 
 	// State for document creation dialog
 	const [isDocumentDialogOpen, setIsDocumentDialogOpen] = useState(false)
@@ -202,28 +209,11 @@ export function Header() {
 		const threadDocs = (
 			userDocuments?.length
 				? userDocuments
-				: (activeThread?.metadata?.documents as Array<{
-						id?: string
-						name?: string
-						project?: string
-						type?: 'text' | 'image' | 'spreadsheet'
-					}>) || []
-		) as Array<{
-			id?: string
-			name?: string
-			project?: string
-			type?: 'text' | 'image' | 'spreadsheet'
-		}>
+				: (activeThread?.metadata
+						?.documents as Array<WorkspaceDocumentMetadata>) || []
+		) as Array<WorkspaceDocumentMetadata>
 
-		const byName = new Map<
-			string,
-			{
-				id?: string
-				name: string
-				project?: string
-				type?: 'text' | 'image' | 'spreadsheet'
-			}
-		>()
+		const byName = new Map<string, WorkspaceDocumentMetadata>()
 
 		if (threadDocs.length) {
 			// Filter by current type (unless 'all') and activeProject (if set)
@@ -241,10 +231,8 @@ export function Header() {
 				if (!name) continue
 				if (!byName.has(name)) {
 					byName.set(name, {
-						id: typeof d.id === 'string' ? d.id : undefined,
+						...d,
 						name,
-						project: d.project,
-						type: d.type,
 					})
 				}
 			}
@@ -336,127 +324,72 @@ export function Header() {
 	}
 
 	// Ensure the selected doc exists in workspace server cache by hydrating from local IDB or remote URL
-	const ensureWorkspaceCacheForDoc = async (name: string) => {
-		// Find full metadata for this doc by name (prefer unified docs)
-		const meta = (userDocuments || []).find((d) => d.name === name)
-		const project = meta?.project || activeProject
-		const type = meta?.type || activeDocumentType || 'text'
+	const ensureWorkspaceCacheForDoc = async (doc: WorkspaceDocumentMetadata) => {
+		const project = doc.project || activeProject
 		if (!project) return
-		const key = `${project}:${name}`
-		// If content already present, nothing to do
+
+		const key = `${project}:${doc.name}`
+		// If content is already in the cache, we're done.
 		if (documentContent?.[key]) return
 
-		// Try IndexedDB by id or composite
-		let payload: IndexedDBItem | null = null
-		if (meta?.id) {
-			try {
-				payload = await getItem(meta.id)
-			} catch {
-				payload = null
-			}
-		}
-		if (!payload) {
-			try {
-				const all = await getAllItemsRaw()
-				payload =
-					all.find(
-						(it): it is IndexedDBItem =>
-							isWorkspaceDocItem(it) &&
-							it.project === project &&
-							it.name === name &&
-							(it.type === 'text' ||
-								it.type === 'image' ||
-								it.type === 'spreadsheet'),
-					) || null
-			} catch {
-				payload = null
-			}
-		}
-
 		let text = ''
+		let payload: IndexedDBItem | null = null
+
+		if (doc.id) {
+			try {
+				payload = await getItem(doc.id)
+			} catch {
+				/* not found */
+			}
+		}
 		const urlOrData = (payload?.url || payload?.content) as string | undefined
 		if (urlOrData) {
 			text = await resolveContentToText(urlOrData)
-		} else if (meta?.versions?.length) {
-			// Fallback to remote signed URL from metadata
-			const pick =
-				meta.versions.find((v) => v.version === meta.currentVersion && v.url) ||
-				[...meta.versions]
-					.sort((a, b) => (b.version || 0) - (a.version || 0))
-					.find((v) => v.url)
-			if (pick?.url) text = await resolveContentToText(pick.url)
-		}
-
-		if (text) {
-			setDocumentContent(project, name, text)
-		}
-	}
-
-	const onDocumentSelect = async (v: string) => {
-		if (v === 'None') {
-			setActiveDocument(null)
-			setDocumentName('')
-			if (isOpenPopup) setIsOpenPopup(false)
-			setActiveThread(null)
-			toggleWorkspace()
-			return
-		}
-		// If selecting from thread documents, align project and type first
-		if (threadDocsByName.has(v)) {
-			const meta = threadDocsByName.get(v)
-			if (meta) {
-				if (meta?.project && meta.project !== activeProject) {
-					setActiveProject(meta.project)
-				}
-				if (meta?.type && meta.type !== activeDocumentType) {
-					setActiveDocumentType(meta.type)
-				}
-				// Ensure document exists in local workspace lists
-				const existsInWorkspace = (() => {
-					const proj = meta.project || activeProject
-					if (!proj) return false
-					if (meta.type === 'text')
-						return (textDocuments[proj] || []).includes(v)
-					if (meta.type === 'image')
-						return (imageDocuments[proj] || []).includes(v)
-					if (meta.type === 'spreadsheet')
-						return (spreadsheetDocuments[proj] || []).includes(v)
-					return false
-				})()
-				if (!existsInWorkspace) {
-					const proj = meta.project || activeProject
-					if (proj && meta.type) addDocument(proj, v, meta.type)
-				}
-
-				// Ensure the document has content in workspace cache (server + local)
-				await ensureWorkspaceCacheForDoc(v)
-				// Proactively refresh the active thread so the popup has up-to-date data
-				if (activeThread?.threadId) {
-					void refreshActiveThread(
-						activeThread.threadId,
-						session?.user?.hasuraJwt,
-					)
-				}
-				// Open the thread popup (document is thread-related)
-				setIsOpenPopup(true)
+		} else if (doc.versions?.length) {
+			const latestVersion = [...doc.versions].sort(
+				(a, b) => (b.version || 0) - (a.version || 0),
+			)[0]
+			if (latestVersion?.url) {
+				text = await resolveContentToText(latestVersion.url)
 			}
 		}
-		if (isOpenPopup && !threadDocsByName.has(v)) {
-			// Not thread-related: ensure popup is closed so only workspace is visible
-			setIsOpenPopup(false)
-			setActiveThread(null)
-		}
 
-		setActiveDocument(v)
-		setDocumentName(v)
-		if (!isWorkspaceActive) toggleWorkspace()
+		// 3. If we found content, update the server cache.
+		if (text) {
+			setDocumentContent(project, doc.name, text)
+		}
 	}
 
-	const updateActiveDocumentTypeItem = (
-		type: 'text' | 'image' | 'spreadsheet' | 'all',
-	) => {
-		setActiveDocumentType(type)
-		setActiveDocument(null)
+	const onDocumentSelect = async (name: string) => {
+		if (!activeProject) return
+
+		const doc = userDocuments.find(
+			(d) => d.name === name && d.project === activeProject,
+		)
+
+		setActiveDocument(name)
+
+		if (!doc || (!doc.threadSlug && isOpenPopup)) {
+			// This is a local draft document (not in userDocuments).
+			// Its content should already be in the workspace context.
+			setActiveThread(null)
+			setIsOpenPopup(false)
+
+			if (!isWorkspaceActive) toggleWorkspace()
+
+			return
+		}
+
+		// This is an existing document, possibly from a thread.
+		await ensureWorkspaceCacheForDoc(doc)
+
+		if (doc.threadSlug && doc.threadSlug !== activeThread?.slug) {
+			await refreshActiveThread({ threadSlug: doc.threadSlug })
+
+			setIsOpenPopup(true)
+
+			if (!isWorkspaceActive) toggleWorkspace()
+		}
 	}
 
 	const docType: 'text' | 'image' | 'spreadsheet' =
@@ -624,7 +557,7 @@ export function Header() {
 					<DocumentTypeCrumb
 						activeProject={activeProject as string}
 						activeDocumentType={activeDocumentType as string}
-						updateActiveDocumentTypeItem={updateActiveDocumentTypeItem}
+						updateActiveDocumentTypeItem={setActiveDocumentType}
 					/>
 
 					<span className="text-xs opacity-50">/</span>
@@ -633,7 +566,14 @@ export function Header() {
 					<DocumentCrumb
 						activeProject={activeProject as string}
 						activeDocument={activeDocument as string}
-						userDocuments={userDocuments}
+						userDocuments={uniq([
+							...userDocuments,
+							...Object.values(documentList)
+								.flat()
+								.map(
+									(name) => ({ name }) as unknown as WorkspaceDocumentMetadata,
+								),
+						])}
 						activeThread={activeThread}
 						documentOptions={documentOptions}
 						onDocumentSelect={onDocumentSelect}

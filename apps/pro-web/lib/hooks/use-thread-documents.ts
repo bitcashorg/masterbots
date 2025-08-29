@@ -2,29 +2,13 @@ import { getAllUserThreadDocumentsMetadata } from '@/app/actions'
 import { type IndexedDBItem, useIndexedDB } from '@/lib/hooks/use-indexed-db'
 import { useThread } from '@/lib/hooks/use-thread'
 import { getRouteType } from '@/lib/utils'
+import type { WorkspaceDocumentMetadata } from '@/types/thread.types'
 import { isEqual, uniq } from 'lodash'
 import { useSession } from 'next-auth/react'
 import { useAsync } from 'react-use'
 import { getUserIndexedDBKeys } from './use-chat-attachments'
 
-// Minimal type reflecting WorkspaceDocumentMetadata from thread.actions
-export type ThreadWorkspaceDocument = {
-	id: string
-	project: string
-	name: string
-	type: 'text' | 'image' | 'spreadsheet'
-	currentVersion?: number
-	versions?: Array<{
-		version: number
-		updatedAt: string
-		checksum?: string
-		url?: string
-	}>
-	// Optional local hint linking a saved doc to a specific thread for offline-first
-	threadSlug?: string
-}
-
-function isThreadWorkspaceDocument(x: unknown): x is ThreadWorkspaceDocument {
+function isThreadWorkspaceDocument(x: unknown): x is WorkspaceDocumentMetadata {
 	if (!x || typeof x !== 'object') return false
 	const obj = x as Record<string, unknown>
 	return (
@@ -60,7 +44,7 @@ export function useThreadDocuments() {
 					(activeThread as unknown as { metadata?: { documents?: unknown } })
 						?.metadata?.documents as unknown[]
 				).filter(isThreadWorkspaceDocument)
-			: ([] as ThreadWorkspaceDocument[])
+			: ([] as WorkspaceDocumentMetadata[])
 
 		const route =
 			typeof window !== 'undefined'
@@ -80,17 +64,17 @@ export function useThreadDocuments() {
 			// Pick items that look like documents (project+name+type)
 			const localDocs = items.filter(
 				isThreadWorkspaceDocument,
-			) as ThreadWorkspaceDocument[]
+			) as WorkspaceDocumentMetadata[]
 
 			// Helper to compare doc sets similar to attachments check
 			const docKey = (
 				d: Pick<
-					ThreadWorkspaceDocument,
+					WorkspaceDocumentMetadata,
 					'id' | 'name' | 'project' | 'type' | 'currentVersion'
 				>,
 			) =>
 				`${d.id}::${d.name}::${d.project}::${d.type}::${d.currentVersion ?? 0}`
-			const prepareDocCheck = (docs: ThreadWorkspaceDocument[]) =>
+			const prepareDocCheck = (docs: WorkspaceDocumentMetadata[]) =>
 				[...docs].map(docKey).sort()
 
 			// If we have no thread metadata yet, try to use local docs that are linked to the current thread via threadSlug
@@ -100,17 +84,17 @@ export function useThreadDocuments() {
 
 			// Merge local docs that correspond to the same doc by id or by (name, project, type)
 			const byId = new Map(fallbackDocs.map((d) => [d.id, d]))
-			const keyOf = (d: ThreadWorkspaceDocument) =>
+			const keyOf = (d: WorkspaceDocumentMetadata) =>
 				`${d.name}::${d.project}::${d.type}`
 			const keySet = new Set(fallbackDocs.map(keyOf))
-			const merged: ThreadWorkspaceDocument[] = uniq([
+			const merged: WorkspaceDocumentMetadata[] = uniq([
 				...fallbackDocs,
 				...localDocs,
 			])
 
 			const isSameDoc = (
-				a: ThreadWorkspaceDocument,
-				b: ThreadWorkspaceDocument,
+				a: WorkspaceDocumentMetadata,
+				b: WorkspaceDocumentMetadata,
 			) => a.id === b.id || keyOf(a) === keyOf(b)
 
 			for (const d of localDocs) {
@@ -129,7 +113,7 @@ export function useThreadDocuments() {
 				const remoteDocsRaw = (await getAllUserThreadDocumentsMetadata()) || []
 				const remoteDocs = (remoteDocsRaw as unknown[])
 					.filter(isThreadWorkspaceDocument)
-					.map((d) => ({ ...d })) as ThreadWorkspaceDocument[]
+					.map((d) => ({ ...d })) as WorkspaceDocumentMetadata[]
 
 				const localCheck = prepareDocCheck(localDocs)
 				const remoteCheck = prepareDocCheck(remoteDocs)
@@ -142,13 +126,13 @@ export function useThreadDocuments() {
 				// If remote has more documents, download missing ones and cache locally
 				if (remoteDocs.length > localDocs.length) {
 					const isSameDoc = (
-						a: ThreadWorkspaceDocument,
-						b: ThreadWorkspaceDocument,
+						a: WorkspaceDocumentMetadata,
+						b: WorkspaceDocumentMetadata,
 					) => a.id === b.id || keyOf(a) === keyOf(b)
 					const missingRemote = remoteDocs.filter(
 						(rd) => !localDocs.some((ld) => isSameDoc(rd, ld)),
 					)
-					const downloadedItems: ThreadWorkspaceDocument[] = []
+					const downloadedItems: WorkspaceDocumentMetadata[] = []
 					for (const md of missingRemote) {
 						const versionList = Array.isArray(md.versions) ? md.versions : []
 						let chosen = versionList.find(
@@ -171,10 +155,7 @@ export function useThreadDocuments() {
 								reader.readAsDataURL(blob)
 							})
 							const item = {
-								id: md.id,
-								name: md.name,
-								project: md.project,
-								type: md.type,
+								...md,
 								url: base64,
 								content: base64,
 								size: blob.size,
@@ -183,20 +164,13 @@ export function useThreadDocuments() {
 									Date.now() + 7 * 24 * 60 * 60 * 1000,
 								).toISOString(),
 								// No specific threadSlug when aggregating globally
-							} as unknown as IndexedDBItem
+							}
 							try {
 								updateItem(md.id, item)
 							} catch {
 								addItem(item)
 							}
-							downloadedItems.push({
-								id: md.id,
-								name: md.name,
-								project: md.project,
-								type: (md.type as 'text' | 'image' | 'spreadsheet') || 'text',
-								currentVersion: md.currentVersion,
-								versions: md.versions,
-							})
+							downloadedItems.push(item)
 						} catch {
 							// Ignore individual failures
 						}
@@ -272,7 +246,7 @@ export function useThreadDocuments() {
 	}, [session?.user, mounted, isNewResponse, activeThread, loadingState])
 
 	return {
-		userDocuments: (value || []) as ThreadWorkspaceDocument[],
+		userDocuments: (value || []) as WorkspaceDocumentMetadata[],
 		loading,
 		error,
 	}

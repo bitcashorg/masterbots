@@ -11,7 +11,7 @@ import { cn, getRouteType } from '@/lib/utils'
 import type {
 	ChatbotThreadListUrlParams,
 	UserChatbotThreadListUrlParams,
-} from '@/types/url'
+} from '@/types/url.types'
 import type { Category, Chatbot } from 'mb-genql'
 import Image from 'next/image'
 import Link from 'next/link'

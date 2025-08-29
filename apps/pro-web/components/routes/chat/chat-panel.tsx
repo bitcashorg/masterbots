@@ -24,7 +24,7 @@ import { useThread } from '@/lib/hooks/use-thread'
 import { logErrorToSentry } from '@/lib/sentry'
 import { cn } from '@/lib/utils'
 import { getUserBySlug } from '@/services/hasura'
-import type { ExampleQuestion } from '@/types/types'
+import type { ExampleQuestion } from '@/types'
 import type { Message as AiMessage } from 'ai'
 import type { UseChatHelpers } from 'ai/react'
 import {

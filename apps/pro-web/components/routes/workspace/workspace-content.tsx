@@ -1,5 +1,3 @@
-'use client'
-
 import {
 	updateThreadDocumentsMetadata,
 	uploadWorkspaceDocumentToBucket,
@@ -31,6 +29,10 @@ import {
 	upsertDocumentDraft,
 } from '@/lib/workspace-state'
 import { createThread } from '@/services/hasura/hasura.service'
+import type {
+	WorkspaceDocumentMetadata,
+	WorkspaceDocumentVersion,
+} from '@/types/thread.types'
 import { FileIcon, Image, PlusIcon, Table } from 'lucide-react'
 import type { Chatbot } from 'mb-genql'
 import { nanoid } from 'nanoid'
@@ -40,34 +42,18 @@ import { WorkspaceContentHeader } from './workspace-content-header'
 import { WorkspaceContentWrapper } from './workspace-content-wrapper'
 import { WorkspaceTextEditor } from './workspace-text-editor'
 
-// Lightweight types for thread metadata documents
-type ThreadDocVersion = {
-	version: number
-	updatedAt: string
-	checksum: string
-	url: string
-}
-type ThreadDocMeta = {
-	id: string
-	name?: string
-	project?: string
-	type?: 'text' | 'image' | 'spreadsheet'
-	currentVersion?: number
-	versions?: ThreadDocVersion[]
-}
-
-function isThreadDocVersion(v: unknown): v is ThreadDocVersion {
+function isThreadDocVersion(v: unknown): v is WorkspaceDocumentVersion {
 	return (
 		!!v &&
-		typeof (v as ThreadDocVersion).version === 'number' &&
-		typeof (v as ThreadDocVersion).updatedAt === 'string' &&
-		typeof (v as ThreadDocVersion).checksum === 'string' &&
-		typeof (v as ThreadDocVersion).url === 'string'
+		typeof (v as WorkspaceDocumentVersion).version === 'number' &&
+		typeof (v as WorkspaceDocumentVersion).updatedAt === 'string' &&
+		typeof (v as WorkspaceDocumentVersion).checksum === 'string' &&
+		typeof (v as WorkspaceDocumentVersion).url === 'string'
 	)
 }
 
-function isThreadDocMeta(d: unknown): d is ThreadDocMeta {
-	const doc = d as ThreadDocMeta
+function isThreadDocMeta(d: unknown): d is WorkspaceDocumentMetadata {
+	const doc = d as WorkspaceDocumentMetadata
 	const versionsOk =
 		!doc.versions ||
 		(Array.isArray(doc.versions) && doc.versions.every(isThreadDocVersion))
@@ -228,12 +214,7 @@ This is a new document. Add your content here.
 	const [isSaving, setIsSaving] = React.useState(false)
 	const [showVersions, setShowVersions] = React.useState(false)
 	const [versions, setVersions] = React.useState<
-		Array<{
-			version: number
-			updatedAt: string
-			checksum: string
-			url: string
-		}>
+		Array<WorkspaceDocumentVersion>
 	>([])
 
 	// Refs
@@ -549,9 +530,7 @@ This is a new document. Add your content here.
 			}
 
 			// Prepare checksum and compare with latest version (if any)
-			const docId = `${projectName}:${documentName}`
-			const currentChecksum = computeChecksum(content)
-			let threadDocuments: ThreadDocMeta[] = []
+			let threadDocuments: WorkspaceDocumentMetadata[] = []
 			const meta = (activeThread as unknown as { metadata?: unknown })?.metadata
 			if (
 				meta &&
@@ -561,20 +540,23 @@ This is a new document. Add your content here.
 				const docs = (meta as { documents?: unknown }).documents as unknown[]
 				threadDocuments = docs.filter(isThreadDocMeta)
 			}
+
 			const metaDoc = threadDocuments.find(
-				(d) =>
-					d?.id === docId || d?.name === documentName || d?.id === documentName,
+				(d) => d.name === documentName && d.project === projectName,
 			)
+			const docId = metaDoc?.id || nanoid()
+			const currentChecksum = computeChecksum(content)
+
 			let latestChecksum: string | null = null
 			if (metaDoc?.versions?.length) {
 				// Prefer currentVersion pointer, fallback to latest by updatedAt
 				const byVersion = metaDoc.versions.find(
-					(v: ThreadDocVersion) => v.version === metaDoc.currentVersion,
+					(v: WorkspaceDocumentVersion) => v.version === metaDoc.currentVersion,
 				)
 				const latest = byVersion
 					? byVersion
 					: [...metaDoc.versions].sort(
-							(a: ThreadDocVersion, b: ThreadDocVersion) =>
+							(a: WorkspaceDocumentVersion, b: WorkspaceDocumentVersion) =>
 								new Date(b.updatedAt).getTime() -
 								new Date(a.updatedAt).getTime(),
 						)[0]
@@ -588,7 +570,6 @@ This is a new document. Add your content here.
 
 			setIsSaving(true)
 
-			// 2) Resolve or create thread; official versions go to thread metadata and bucket
 			let threadSlug = activeThread?.slug
 			if (!threadSlug) {
 				// Need session and chatbot to create a thread
@@ -612,6 +593,10 @@ This is a new document. Add your content here.
 						documents: [
 							{
 								id: docId,
+								url: '',
+								content: '',
+								size: 0,
+								threadSlug: newThreadSlug,
 								organization: activeOrganization as string,
 								department: activeDepartment as string,
 								project: projectName,
@@ -619,7 +604,10 @@ This is a new document. Add your content here.
 								type,
 								currentVersion: 1,
 								versions: [],
-							},
+								expires: new Date(
+									Date.now() + 7 * 24 * 60 * 60 * 1000,
+								).toISOString(),
+							} as WorkspaceDocumentMetadata,
 						],
 						organization: activeOrganization,
 						department: activeDepartment,
@@ -644,10 +632,7 @@ This is a new document. Add your content here.
 								documents: threadMetadata.documents,
 							})
 							// Refresh to pull latest metadata
-							await refreshActiveThread(
-								createdThread.threadId,
-								session.user.hasuraJwt,
-							)
+							await refreshActiveThread({ threadId: createdThread.threadId })
 						} catch (metadataError) {
 							console.warn('Failed to update thread metadata:', metadataError)
 						}
@@ -660,16 +645,14 @@ This is a new document. Add your content here.
 					console.error('Failed to create thread for document save:', error)
 					setIsSaving(false)
 					return
+				} finally {
+					setIsSaving(false)
 				}
-			}
-
-			if (!threadSlug) {
-				setIsSaving(false)
 				return
 			}
 
 			// Upload document content to bucket (server handles official versioning + checksum)
-			const { document } = await uploadWorkspaceDocumentToBucket({
+			const { document, existed } = await uploadWorkspaceDocumentToBucket({
 				threadSlug,
 				organization: activeOrganization as string,
 				department: activeDepartment as string,
@@ -678,6 +661,13 @@ This is a new document. Add your content here.
 				content,
 				type,
 			})
+
+			if (existed) {
+				customSonner({
+					type: 'info',
+					text: 'This version already exists and has been restored.',
+				})
+			}
 
 			// Store raw locally (IndexedDB) as data URL
 			const base64 = await new Promise<string>((resolve, reject) => {
@@ -717,17 +707,12 @@ This is a new document. Add your content here.
 			}
 
 			if (document?.versions?.length) {
-				setVersions(
-					document.versions.map((v: ThreadDocVersion) => ({
-						version: v.version,
-						updatedAt: v.updatedAt,
-						checksum: v.checksum,
-						url: v.url,
-					})),
-				)
+				setVersions(document.versions)
 			}
 
-			customSonner({ type: 'success', text: `${type} document saved.` })
+			if (!existed) {
+				customSonner({ type: 'success', text: `${type} document saved.` })
+			}
 		} catch (e) {
 			console.error('Save failed', e)
 			customSonner({ type: 'error', text: 'Failed to save document.' })
@@ -741,34 +726,78 @@ This is a new document. Add your content here.
 		async (versionNumber: number) => {
 			if (!projectName || !documentName || !activeThread?.slug) return
 			try {
+				const versionToRollback = versions.find(
+					(v) => v.version === versionNumber,
+				)
+				if (!versionToRollback || !versionToRollback.url) {
+					customSonner({ type: 'error', text: 'Version content not found.' })
+					return
+				}
+
+				// Fetch the content of the version to rollback to
+				const response = await fetch(versionToRollback.url)
+				if (!response.ok) {
+					customSonner({
+						type: 'error',
+						text: 'Failed to fetch version content.',
+					})
+					return
+				}
+				const newContent = await response.text()
+
+				// Update local state
+				setFullMarkdown(newContent)
+				setSections(parseMarkdownSections(newContent))
+				if (projectName && documentName) {
+					setDocumentContent(projectName, documentName, newContent)
+				}
+				if (viewMode === 'sections') {
+					setActiveSection(null)
+					setEditableContent('')
+				}
+
 				const updated = versions.map((v) => v)
+
 				await updateThreadDocumentsMetadata({
 					threadSlug: activeThread.slug,
 					documents: [
 						{
 							id: `${projectName}:${documentName}`,
+							url: versionToRollback.url,
+							content: versionToRollback.content,
+							expires: new Date(
+								Date.now() + 7 * 24 * 60 * 60 * 1000,
+							).toISOString(),
+							threadSlug: activeThread.slug,
 							organization: activeOrganization as string,
 							department: activeDepartment as string,
 							project: projectName,
 							name: documentName,
 							type: documentType as 'text' | 'image' | 'spreadsheet',
 							currentVersion: versionNumber,
-							versions: updated.map((u) => ({
-								version: u.version,
-								updatedAt: u.updatedAt,
-								checksum: u.checksum,
-								url: u.url,
-								content: '',
-								size: 0,
-							})),
-						},
+							versions: updated,
+						} as WorkspaceDocumentMetadata,
 					],
+				})
+				customSonner({
+					type: 'success',
+					text: `Rolled back to version ${versionNumber}.`,
 				})
 			} catch (e) {
 				console.error('Rollback failed', e)
+				customSonner({ type: 'error', text: 'Rollback failed.' })
 			}
 		},
-		[projectName, documentName, activeThread?.slug, versions, documentType],
+		[
+			projectName,
+			documentName,
+			activeThread?.slug,
+			versions,
+			documentType,
+			customSonner,
+			setDocumentContent,
+			viewMode,
+		],
 	)
 
 	// Load versions from thread metadata when opening History
@@ -777,7 +806,7 @@ This is a new document. Add your content here.
 			try {
 				const meta = (activeThread as unknown as { metadata?: unknown })
 					?.metadata
-				let threadDocuments: ThreadDocMeta[] = []
+				let threadDocuments: WorkspaceDocumentMetadata[] = []
 				if (
 					meta &&
 					typeof meta === 'object' &&
@@ -794,14 +823,7 @@ This is a new document. Add your content here.
 						d?.id === documentName,
 				)
 				if (metaDoc?.versions?.length) {
-					setVersions(
-						metaDoc.versions.map((v) => ({
-							version: v.version,
-							updatedAt: v.updatedAt,
-							checksum: v.checksum,
-							url: v.url,
-						})),
-					)
+					setVersions(metaDoc.versions)
 				} else {
 					setVersions([])
 				}

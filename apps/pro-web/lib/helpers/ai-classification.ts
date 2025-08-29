@@ -10,7 +10,7 @@ import type {
 	ChatbotMetadataClassification,
 	ChatbotMetadataExamples,
 	ExampleMetadata,
-} from '@/types/types'
+} from '@/types'
 import type { Message } from 'ai'
 
 export async function aiExampleClassification({

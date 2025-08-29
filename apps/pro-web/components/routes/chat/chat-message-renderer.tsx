@@ -3,8 +3,8 @@ import { ChatMessage } from '@/components/routes/chat/chat-message'
 import { ReasoningChatMessage } from '@/components/routes/chat/reasoning/reasoning-chat-message'
 import { ImageMessageComponent } from '@/components/shared/image-message'
 import { hasReasoning } from '@/lib/helpers/ai-helpers'
-import { isImageMessage } from '@/types/types'
-import type { SendMessageFromResponseMessageData } from '@/types/types'
+import { isImageMessage } from '@/types'
+import type { SendMessageFromResponseMessageData } from '@/types'
 
 type MessageRendererProps = {
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>

@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/tooltip'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useSonner } from '@/lib/hooks/useSonner'
-import type { Chat, ServerActionResult } from '@/types/types'
+import type { Chat, ServerActionResult } from '@/types'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 

@@ -17,7 +17,7 @@ import { useSonner } from '@/lib/hooks/useSonner'
 import { createStructuredMarkdown } from '@/lib/markdown-utils'
 import { getCanonicalDomain, urlBuilders } from '@/lib/url'
 import { cn, getRouteType } from '@/lib/utils'
-import type { SendMessageFromResponseMessageData } from '@/types/types'
+import type { SendMessageFromResponseMessageData } from '@/types'
 import type { Message as AiMessage } from 'ai'
 import { AnimatePresence, motion } from 'framer-motion'
 import { FileTextIcon } from 'lucide-react'
@@ -302,6 +302,8 @@ function ThreadPopUpCardHeader({
 		setDocumentContent,
 		isWorkspaceActive,
 		toggleWorkspace,
+		// NEW: use workspace documents so we can detect thread-linked docs
+		documentList,
 	} = useWorkspace()
 	const { customSonner } = useSonner()
 	const pathname = usePathname()
@@ -318,24 +320,35 @@ function ThreadPopUpCardHeader({
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
-		const threadId = activeThread?.threadId as string | undefined
-		const hasDocsArray = Array.isArray(
-			(activeThread as unknown as { metadata?: { documents?: unknown } })
-				?.metadata?.documents,
-		)
-		if (
-			isOpenPopup &&
-			threadId &&
-			!hasDocsArray &&
-			attemptedDocsRefreshRef.current !== threadId
-		) {
-			attemptedDocsRefreshRef.current = threadId
-			// Try to refresh with JWT when available to fetch personal metadata
-			refreshActiveThread(threadId, session?.user?.hasuraJwt).catch(() => {
-				// Silently ignore; UI will fall back to workspace docs
-			})
-		}
-	}, [isOpenPopup, activeThread, session?.user?.hasuraJwt])
+		if (!isOpenPopup) return
+
+		// Prefer slug from any document explicitly linked to a thread
+		const docWithThreadSlug = Array.isArray(documentList)
+			? // biome-ignore lint/suspicious/noExplicitAny: we only need threadSlug presence
+				(documentList as any[]).find(
+					(d) => typeof d?.threadSlug === 'string' && d.threadSlug,
+				)
+			: undefined
+		const threadSlugFromDoc = docWithThreadSlug?.threadSlug as
+			| string
+			| undefined
+		const candidateSlug = threadSlugFromDoc || activeThread?.slug
+		const candidateId = activeThread?.threadId
+		// Build a stable key for "attempt once"
+		const refreshKey = candidateSlug || candidateId
+
+		if (!refreshKey) return
+		if (attemptedDocsRefreshRef.current === refreshKey) return
+
+		attemptedDocsRefreshRef.current = refreshKey
+		// Try by slug first (more specific linkage), then fall back to id
+		refreshActiveThread({
+			threadSlug: candidateSlug,
+			threadId: candidateId,
+		}).catch(() => {
+			// Silently ignore; UI will fall back to current state
+		})
+	}, [isOpenPopup, activeThread, session?.user?.hasuraJwt, documentList])
 
 	// Check if we have at least one assistant message and this is the first one
 	const hasFirstAssistantMessage =

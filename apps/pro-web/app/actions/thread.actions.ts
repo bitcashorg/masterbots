@@ -1,7 +1,12 @@
 'use server'
 
+import { computeChecksum } from '@/lib/checksum'
 import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
-import type { ThreadMetadata as AttachmentThreadMetadata } from '@/lib/hooks/use-indexed-db'
+import type {
+	ThreadMetadata,
+	WorkspaceDocumentMetadata,
+	WorkspaceDocumentVersion,
+} from '@/types/thread.types'
 import { Storage } from '@google-cloud/storage'
 import { eq, inArray, isNotNull, sql } from 'drizzle-orm'
 import { uniqBy } from 'lodash'
@@ -64,7 +69,7 @@ export async function getAllUserThreadMetadata() {
 	if (results.length === 0) return null
 
 	const metadata = results.flatMap(
-		(result) => (result.metadata as AttachmentThreadMetadata).attachments,
+		(result) => (result.metadata as ThreadMetadata).attachments,
 	)
 
 	return metadata
@@ -98,7 +103,7 @@ export async function getMissingUserThreadMetadata(
 	if (results.rows.length === 0) return null
 
 	const metadata = results.rows.flatMap(
-		(result) => (result.metadata as AttachmentThreadMetadata).attachments,
+		(result) => (result.metadata as ThreadMetadata).attachments,
 	)
 
 	return metadata
@@ -106,7 +111,7 @@ export async function getMissingUserThreadMetadata(
 
 export async function updateThreadMetadata(
 	messagesIds: string[],
-	metadata: AttachmentThreadMetadata,
+	metadata: ThreadMetadata,
 ) {
 	// First, select the threadIds that need to be updated
 	const threadsToUpdate = await db
@@ -131,7 +136,9 @@ export async function updateThreadMetadata(
 		(t) => [t.threadId as string, t.messageId] as const,
 	)
 
-	const attachments: AttachmentThreadMetadata = {}
+	const attachments: {
+		[key: string]: FileAttachment[]
+	} = {}
 
 	let result: (typeof thread.$inferSelect)[] = []
 
@@ -139,9 +146,9 @@ export async function updateThreadMetadata(
 	let currentThread: Partial<typeof thread.$inferSelect>[] | null = null
 
 	for (const [threadId, messageId] of threadsDataIds) {
-		let relatedThreadAttachments = metadata.attachments.filter(
-			(att: FileAttachment) => att.messageIds.includes(messageId),
-		)
+		let relatedThreadAttachments = (
+			metadata.attachments as FileAttachment[]
+		).filter((att: FileAttachment) => att.messageIds.includes(messageId))
 
 		const isSameThread = previousThreadId === threadId
 
@@ -155,8 +162,7 @@ export async function updateThreadMetadata(
 					.limit(1)
 
 		const existingAttachments = currentThread?.length
-			? (currentThread[0]?.metadata as AttachmentThreadMetadata)?.attachments ||
-				[]
+			? (currentThread[0]?.metadata as ThreadMetadata)?.attachments || []
 			: []
 
 		if (isSameThread) {
@@ -285,30 +291,6 @@ export async function getThreadBySlug(slug: string) {
 	return results[0] || null
 }
 
-export interface WorkspaceDocumentVersion {
-	version: number
-	content: string
-	checksum: string
-	size: number
-	url: string
-	updatedAt: string
-}
-export interface WorkspaceDocumentMetadata {
-	id: string
-	organization: string
-	department: string
-	project: string
-	name: string
-	type: 'text' | 'image' | 'spreadsheet'
-	currentVersion: number
-	versions: WorkspaceDocumentVersion[]
-}
-
-export interface ThreadMetadataFull {
-	attachments?: FileAttachment[]
-	documents?: WorkspaceDocumentMetadata[]
-}
-
 export async function uploadWorkspaceDocumentToBucket({
 	threadSlug,
 	organization,
@@ -330,21 +312,55 @@ export async function uploadWorkspaceDocumentToBucket({
 	const existingThread = await getThreadBySlug(threadSlug)
 	if (!existingThread) throw new Error('Thread not found for slug')
 	const existingDocs: WorkspaceDocumentMetadata[] =
-		(existingThread.metadata as ThreadMetadataFull | null)?.documents || []
+		(existingThread.metadata as ThreadMetadata | null)?.documents || []
 	const existing = existingDocs.find(
 		(d) => d.project === project && d.name === name && d.type === type,
 	)
-	const version = existing ? existing.currentVersion + 1 : 1
+
+	const checksum = computeChecksum(content)
+
+	// Check if a version with this checksum already exists
+	if (existing?.versions) {
+		const versionWithChecksum = existing.versions.find(
+			(v) => v.checksum === checksum,
+		)
+		if (versionWithChecksum) {
+			// If it's already the current version, do nothing.
+			if (existing.currentVersion === versionWithChecksum.version) {
+				return {
+					document: existing,
+					documents: existingDocs,
+					existed: true,
+				}
+			}
+			// Otherwise, make this version current.
+			const updatedDoc = {
+				...existing,
+				currentVersion: versionWithChecksum.version,
+			}
+			const updatedDocs = existingDocs.map((d) =>
+				d.id === updatedDoc.id ? updatedDoc : d,
+			)
+			await db
+				.update(thread)
+				.set({
+					metadata: {
+						...((existingThread.metadata as ThreadMetadata) || {}),
+						documents: updatedDocs,
+						attachments:
+							(existingThread.metadata as ThreadMetadata)?.attachments || [],
+					},
+				})
+				.where(eq(thread.threadId, existingThread.threadId))
+
+			return { document: updatedDoc, documents: updatedDocs, existed: true }
+		}
+	}
+
+	const version = existing ? (existing.currentVersion || 0) + 1 : 1
 	const id = existing?.id || nanoid()
 	const buffer = Buffer.from(content, 'utf8')
 	const size = buffer.byteLength
-	// simple checksum
-	let hash = 0
-	for (let i = 0; i < content.length; i++) {
-		hash = (hash << 5) - hash + content.charCodeAt(i)
-		hash |= 0
-	}
-	const checksum = hash.toString()
 	const {
 		storageBucketName,
 		storageClientEmail,
@@ -371,6 +387,9 @@ export async function uploadWorkspaceDocumentToBucket({
 			contentType: 'text/markdown',
 			metadata: {
 				id,
+				threadSlug,
+				organization,
+				department,
 				project,
 				docName: name,
 				version: String(version),
@@ -379,7 +398,7 @@ export async function uploadWorkspaceDocumentToBucket({
 		},
 		resumable: false,
 	})
-	const expires = Date.now() + 1000 * 60 * 60 * 24 * 7
+	const expires = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7).toISOString()
 	const [signedUrl] = await fileUpload.getSignedUrl({
 		version: 'v4',
 		action: 'read',
@@ -400,7 +419,7 @@ export async function uploadWorkspaceDocumentToBucket({
 				? {
 						...d,
 						currentVersion: version,
-						versions: [...d.versions, newVersion],
+						versions: [...(d.versions || []), newVersion],
 					}
 				: d,
 		)
@@ -409,6 +428,9 @@ export async function uploadWorkspaceDocumentToBucket({
 			...existingDocs,
 			{
 				id,
+				url: signedUrl,
+				content,
+				expires,
 				organization,
 				department,
 				project,
@@ -416,17 +438,19 @@ export async function uploadWorkspaceDocumentToBucket({
 				type,
 				currentVersion: version,
 				versions: [newVersion],
-			},
+				threadSlug,
+				size,
+			} as WorkspaceDocumentMetadata,
 		]
 	}
 	await db
 		.update(thread)
 		.set({
 			metadata: {
-				...((existingThread.metadata as ThreadMetadataFull) || {}),
+				...((existingThread.metadata as ThreadMetadata) || {}),
 				documents: updatedDocs,
 				attachments:
-					(existingThread.metadata as ThreadMetadataFull)?.attachments || [],
+					(existingThread.metadata as ThreadMetadata)?.attachments || [],
 			},
 		})
 		.where(eq(thread.threadId, existingThread.threadId))
@@ -434,6 +458,7 @@ export async function uploadWorkspaceDocumentToBucket({
 	return {
 		document: updatedDocs.find((d) => d.id === id),
 		documents: updatedDocs,
+		existed: false,
 	}
 }
 
@@ -450,10 +475,10 @@ export async function updateThreadDocumentsMetadata({
 		.update(thread)
 		.set({
 			metadata: {
-				...((existingThread.metadata as ThreadMetadataFull) || {}),
+				...((existingThread.metadata as ThreadMetadata) || {}),
 				documents,
 				attachments:
-					(existingThread.metadata as ThreadMetadataFull)?.attachments || [],
+					(existingThread.metadata as ThreadMetadata)?.attachments || [],
 			},
 		})
 		.where(eq(thread.threadId, existingThread.threadId))
@@ -473,7 +498,7 @@ export async function getAllUserThreadDocumentsMetadata() {
 	if (results.length === 0) return null
 
 	const documents = results.flatMap((result) => {
-		const meta = result.metadata as ThreadMetadataFull | null
+		const meta = result.metadata as ThreadMetadata | null
 		return meta?.documents || []
 	})
 

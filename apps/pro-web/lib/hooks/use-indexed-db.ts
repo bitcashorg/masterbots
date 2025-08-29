@@ -1,5 +1,4 @@
 import {
-	type WorkspaceDocumentMetadata,
 	getAllUserThreadMetadata,
 	getUserThreadsMetadata,
 	updateThreadMetadata,
@@ -7,6 +6,7 @@ import {
 import { uploadAttachment } from '@/lib/api/attachments'
 import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
 import { prepareThreadAttachmentCheck } from '@/lib/threads'
+import type { ThreadMetadata } from '@/types/thread.types'
 import { isEqual, uniqBy } from 'lodash'
 import { appConfig } from 'mb-env'
 import { fetchJson } from 'mb-lib'
@@ -133,7 +133,8 @@ export function useIndexedDB({
 				let newAttachments: FileAttachment[] = attachments
 				// let newDocuments: WorkspaceDocumentMetadata[] =
 				// 	[] as WorkspaceDocumentMetadata[]
-				const currentUserMetadata = await getAllUserThreadMetadata()
+				const currentUserMetadata =
+					(await getAllUserThreadMetadata()) as FileAttachment[]
 				const newAttachmentCheck = prepareThreadAttachmentCheck(newAttachments)
 				// const newDocumentCheck = prepareThreadDocumentCheck(newDocuments)
 				const currentAttachmentCheck =
@@ -508,4 +509,3 @@ export function useIndexedDB({
 }
 
 export type IndexedDBItem = FileAttachment | Record<string, unknown>
-export type ThreadMetadata = Record<string, FileAttachment[]>
