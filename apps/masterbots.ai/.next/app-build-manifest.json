@@ -1,0 +1,69 @@
+{
+  "pages": {
+    "/global-error": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/global-error.js"
+    ],
+    "/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/layout.css",
+      "static/chunks/app/layout.js"
+    ],
+    "/error": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/error.js"
+    ],
+    "/(browse)/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(browse)/layout.js"
+    ],
+    "/(browse)/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/(browse)/page.css",
+      "static/chunks/app/(browse)/page.js"
+    ],
+    "/u/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/u/layout.js"
+    ],
+    "/u/[userSlug]/s/pref/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/u/[userSlug]/s/pref/page.js"
+    ],
+    "/api/auth/[...nextauth]/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/auth/[...nextauth]/route.js"
+    ],
+    "/manifest.webmanifest/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/manifest.webmanifest/route.js"
+    ],
+    "/(browse)/[category]/[domain]/[chatbot]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/(browse)/[category]/[domain]/[chatbot]/page.css",
+      "static/chunks/app/(browse)/[category]/[domain]/[chatbot]/page.js"
+    ],
+    "/(browse)/[category]/[domain]/[chatbot]/[threadSlug]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/(browse)/[category]/[domain]/[chatbot]/[threadSlug]/page.css",
+      "static/chunks/app/(browse)/[category]/[domain]/[chatbot]/[threadSlug]/page.js"
+    ],
+    "/(browse)/[category]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/(browse)/[category]/page.css",
+      "static/chunks/app/(browse)/[category]/page.js"
+    ]
+  }
+}
