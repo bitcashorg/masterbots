@@ -1,0 +1,15 @@
+{
+  "c": [
+    "app/layout",
+    "app/(browse)/layout",
+    "app/(browse)/page",
+    "app/u/layout",
+    "app/u/[userSlug]/s/pref/page",
+    "app/(browse)/[category]/[domain]/[chatbot]/page",
+    "app/(browse)/[category]/[domain]/[chatbot]/[threadSlug]/page",
+    "app/(browse)/[category]/page",
+    "webpack"
+  ],
+  "r": [],
+  "m": []
+}
