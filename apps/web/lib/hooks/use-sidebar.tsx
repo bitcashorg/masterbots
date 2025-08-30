@@ -321,7 +321,6 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 		setTab(cate)
 	}
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const filteredCategories = React.useMemo(() => {
 		const categoriesChatbots = categories?.categoriesChatbots || []
 
