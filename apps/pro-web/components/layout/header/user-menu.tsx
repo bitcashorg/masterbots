@@ -1,7 +1,6 @@
 'use client'
 
 import { ThemeToggle } from '@/components/shared/theme-toggle'
-import { buttonVariants } from '@/components/ui/button'
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -13,6 +12,7 @@ import {
 import { urlBuilders } from '@/lib/url'
 import { cn } from '@/lib/utils'
 import { getUserInfoFromBrowse } from '@/services/hasura'
+import { buttonVariants } from '@masterbots/mb-ui'
 import {
 	ChevronRightIcon,
 	CircleUserRound,

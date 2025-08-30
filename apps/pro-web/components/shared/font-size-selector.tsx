@@ -1,13 +1,13 @@
 'use client'
 
+import { useAccessibility } from '@/lib/hooks/use-accessibility'
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from '@/components/ui/select'
-import { useAccessibility } from '@/lib/hooks/use-accessibility'
+} from '@masterbots/mb-ui'
 import { LetterText } from 'lucide-react'
 
 export function FontSizeSelector() {

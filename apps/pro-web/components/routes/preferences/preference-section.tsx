@@ -4,6 +4,16 @@ import {
 	AccordionItem,
 	AccordionTrigger,
 } from '@/components/ui/accordion'
+import { IconSpinner } from '@/components/ui/icons'
+import { Switch } from '@/components/ui/switch'
+import { useSonner } from '@/lib/hooks/useSonner'
+import { cn } from '@/lib/utils'
+import {
+	deleteUserMessagesAndThreads,
+	updatePreferences,
+	updateUserDeletionRequest,
+} from '@/services/hasura'
+import type { PreferenceSectionProps } from '@/types/types'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -13,20 +23,10 @@ import {
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { IconSpinner } from '@/components/ui/icons'
-import { Switch } from '@/components/ui/switch'
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
-import { useSonner } from '@/lib/hooks/useSonner'
-import { cn } from '@/lib/utils'
-import {
-	deleteUserMessagesAndThreads,
-	updatePreferences,
-	updateUserDeletionRequest,
-} from '@/services/hasura'
-import type { PreferenceSectionProps } from '@/types/types'
+} from '@masterbots/mb-ui'
+import { Button } from '@masterbots/mb-ui'
+import { Card, CardContent } from '@masterbots/mb-ui'
+import { ToggleGroup, ToggleGroupItem } from '@masterbots/mb-ui'
 import { AArrowDown, AArrowUp, Plus } from 'lucide-react'
 import type { PreferenceSetInput } from 'mb-genql'
 import { signOut, useSession } from 'next-auth/react'

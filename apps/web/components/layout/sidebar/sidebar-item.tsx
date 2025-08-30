@@ -1,15 +1,11 @@
 'use client'
 
-import { buttonVariants } from '@/components/ui/button'
 import { IconMessage, IconUsers } from '@/components/ui/icons'
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from '@/components/ui/tooltip'
 import { useLocalStorage } from '@/lib/hooks/use-local-storage'
 import { cn } from '@/lib/utils'
 import type { Chat } from '@/types/types'
+import { buttonVariants } from '@masterbots/mb-ui'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@masterbots/mb-ui'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'

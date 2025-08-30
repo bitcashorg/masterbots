@@ -4,7 +4,6 @@ import {
 	updateThreadDocumentsMetadata,
 	uploadWorkspaceDocumentToBucket,
 } from '@/app/actions/thread.actions'
-import { Button } from '@/components/ui/button'
 import { computeChecksum } from '@/lib/checksum'
 import { type IndexedDBItem, useIndexedDB } from '@/lib/hooks/use-indexed-db'
 import { useThread } from '@/lib/hooks/use-thread'
@@ -26,6 +25,7 @@ import {
 	upsertDocumentDraft,
 } from '@/lib/workspace-state'
 import { createThread } from '@/services/hasura/hasura.service'
+import { Button } from '@masterbots/mb-ui'
 import { FileIcon, Image, PlusIcon, Table } from 'lucide-react'
 import type { Chatbot } from 'mb-genql'
 import { nanoid } from 'nanoid'

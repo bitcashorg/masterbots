@@ -1,14 +1,14 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+import { Button } from '@masterbots/mb-ui'
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from '@/components/ui/select'
-import { cn } from '@/lib/utils'
+} from '@masterbots/mb-ui'
 
 interface WorkspaceOrganizationSelectProps {
 	value: string | null

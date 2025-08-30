@@ -1,12 +1,8 @@
 'use client'
 
-import {
-	CommandGroup,
-	CommandItem,
-	CommandSeparator,
-} from '@/components/ui/command'
 import { type ModelData, formatModelName, getModelIcon } from '@/lib/models'
 import { cn } from '@/lib/utils'
+import { CommandGroup, CommandItem, CommandSeparator } from '@masterbots/mb-ui'
 import { CheckIcon } from '@radix-ui/react-icons'
 import { appConfig } from 'mb-env'
 

@@ -7,13 +7,6 @@ import { FeatureToggle } from '@/components/shared/feature-toggle'
 import { ImageGenerationToggle } from '@/components/shared/feature-toggle-image'
 import { ImageGenerator } from '@/components/shared/image-generator'
 import { LoadingIndicator } from '@/components/shared/loading-indicator'
-import { Button } from '@/components/ui/button'
-import {
-	Dialog,
-	DialogContent,
-	DialogHeader,
-	DialogTitle,
-} from '@/components/ui/dialog'
 import { IconShare, IconStop } from '@/components/ui/icons'
 import { useContinueGeneration } from '@/lib/hooks/use-continue-generation'
 import { useDeepThinking } from '@/lib/hooks/use-deep-thinking'
@@ -25,6 +18,13 @@ import { logErrorToSentry } from '@/lib/sentry'
 import { cn } from '@/lib/utils'
 import { getUserBySlug } from '@/services/hasura'
 import type { ExampleQuestion } from '@/types/types'
+import { Button } from '@masterbots/mb-ui'
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+} from '@masterbots/mb-ui'
 import type { Message as AiMessage } from 'ai'
 import type { UseChatHelpers } from 'ai/react'
 import {

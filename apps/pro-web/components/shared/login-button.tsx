@@ -1,8 +1,8 @@
 'use client'
 
-import { Button, type ButtonProps } from '@/components/ui/button'
 import { IconGoogle } from '@/components/ui/icons'
 import { cn } from '@/lib/utils'
+import { Button, type ButtonProps } from '@masterbots/mb-ui'
 import { signIn } from 'next-auth/react'
 import * as React from 'react'
 // import { IconGitHub, IconSpinner } from '@/components/ui/icons'

@@ -1,8 +1,8 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
 import { IconSidebar } from '@/components/ui/icons'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { Button } from '@masterbots/mb-ui'
 import { usePathname } from 'next/navigation'
 import * as React from 'react'
 import { usePrevious } from 'react-use'

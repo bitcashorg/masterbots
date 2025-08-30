@@ -2,7 +2,6 @@
 
 //* ChatMessageActions component provides a copy-to-clipboard action for chat messages, with feedback on successful copy.
 
-import { Button } from '@/components/ui/button'
 import { IconCheck, IconCopy } from '@/components/ui/icons'
 import { useCopyToClipboard } from '@/lib/hooks/use-copy-to-clipboard'
 import { useMBChat } from '@/lib/hooks/use-mb-chat'
@@ -10,6 +9,7 @@ import { useWorkspace } from '@/lib/hooks/use-workspace'
 import { useSonner } from '@/lib/hooks/useSonner'
 import { createStructuredMarkdown } from '@/lib/markdown-utils'
 import { cn } from '@/lib/utils'
+import { Button } from '@masterbots/mb-ui'
 import type { Message as AiMessage } from 'ai'
 import { motion } from 'framer-motion'
 import { FileCheckIcon, FilePlusIcon } from 'lucide-react'

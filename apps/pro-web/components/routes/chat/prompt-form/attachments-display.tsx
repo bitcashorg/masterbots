@@ -1,12 +1,12 @@
 import { AttachmentDialog } from '@/components/routes/chat/attachment-dialog'
-import { Button } from '@/components/ui/button'
+import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
+import { cn } from '@/lib/utils'
 import {
+	Button,
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
-} from '@/components/ui/popover'
-import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
-import { cn } from '@/lib/utils'
+} from '@masterbots/mb-ui'
 import { AnimatePresence, type MotionProps, motion } from 'framer-motion'
 import { FileIcon, FileTextIcon, XIcon } from 'lucide-react'
 import Image from 'next/image'

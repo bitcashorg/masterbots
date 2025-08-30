@@ -1,12 +1,16 @@
 'use client'
 
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
 import { useImageGeneration } from '@/lib/hooks/use-image-generation'
 import { useImageToggle } from '@/lib/hooks/use-image-toggler'
 import { cn } from '@/lib/utils'
 import type { OpenAIImageModel } from '@/types/types'
+import {
+	Alert,
+	AlertDescription,
+	AlertTitle,
+	Button,
+	Progress,
+} from '@masterbots/mb-ui'
 import { Textarea } from '@masterbots/mb-ui'
 import { AlertCircle, ArrowUp, Camera } from 'lucide-react'
 import { useState } from 'react'

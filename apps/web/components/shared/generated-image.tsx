@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button'
+import { Button } from '@masterbots/mb-ui'
 import { Download, Loader2 } from 'lucide-react'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'

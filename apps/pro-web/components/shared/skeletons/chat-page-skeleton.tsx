@@ -1,6 +1,6 @@
 import { ThreadItemSkeleton } from '@/components/shared/skeletons/browse-skeletons'
-import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
+import { Skeleton } from '@masterbots/mb-ui'
 import { ChatChatbotDetailsSkeleton } from './chat-chatbot-details-skeleton'
 
 export function SidebarSkeleton() {

@@ -10,14 +10,6 @@ import { WorkspaceContent } from '@/components/routes/workspace/workspace-conten
 import { ButtonScrollToBottom } from '@/components/shared/button-scroll-to-bottom'
 import { FeatureToggle } from '@/components/shared/feature-toggle'
 import { LoadingIndicator } from '@/components/shared/loading-indicator'
-import { Button } from '@/components/ui/button'
-import {
-	Dialog,
-	DialogContent,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from '@/components/ui/dialog'
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -42,6 +34,14 @@ import { logErrorToSentry } from '@/lib/sentry'
 import { cn } from '@/lib/utils'
 import { createThread } from '@/services/hasura'
 import { type UseChatHelpers, UseChatOptions, useChat } from '@ai-sdk/react'
+import { Button } from '@masterbots/mb-ui'
+import {
+	Dialog,
+	DialogContent,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from '@masterbots/mb-ui'
 import {
 	Select,
 	SelectContent,

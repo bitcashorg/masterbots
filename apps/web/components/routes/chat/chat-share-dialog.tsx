@@ -2,7 +2,11 @@
 
 //* ChatShareDialog provides a dialog to share a chat link, allowing users to copy the link to the clipboard.
 
-import { Button } from '@/components/ui/button'
+import { IconSpinner } from '@/components/ui/icons'
+import { useCopyToClipboard } from '@/lib/hooks/use-copy-to-clipboard'
+import { useSonner } from '@/lib/hooks/useSonner'
+import type { Chat } from '@/types/types'
+import { Button } from '@masterbots/mb-ui'
 import {
 	Dialog,
 	DialogContent,
@@ -10,11 +14,7 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-} from '@/components/ui/dialog'
-import { IconSpinner } from '@/components/ui/icons'
-import { useCopyToClipboard } from '@/lib/hooks/use-copy-to-clipboard'
-import { useSonner } from '@/lib/hooks/useSonner'
-import type { Chat } from '@/types/types'
+} from '@masterbots/mb-ui'
 import type { DialogProps } from '@radix-ui/react-dialog'
 import * as React from 'react'
 

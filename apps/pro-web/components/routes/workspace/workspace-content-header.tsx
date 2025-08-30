@@ -1,8 +1,8 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useWorkspace } from '@/lib/hooks/use-workspace'
+import { Button } from '@masterbots/mb-ui'
 import { HistoryIcon, SaveIcon } from 'lucide-react'
 import * as React from 'react'
 

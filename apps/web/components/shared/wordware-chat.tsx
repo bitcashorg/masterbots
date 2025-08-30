@@ -14,14 +14,14 @@
  */
 
 import { getPromptDetails, runWordWarePrompt } from '@/app/actions'
-import { Button } from '@/components/ui/button'
+import { Button } from '@masterbots/mb-ui'
 import {
 	Card,
 	CardContent,
 	CardFooter,
 	CardHeader,
 	CardTitle,
-} from '@/components/ui/card'
+} from '@masterbots/mb-ui'
 import { Textarea } from '@masterbots/mb-ui'
 import { Input, Label } from '@masterbots/mb-ui'
 import type React from 'react'

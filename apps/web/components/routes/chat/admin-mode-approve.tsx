@@ -1,7 +1,7 @@
 //? Component for approving threads in admin mode
 
-import { Button } from '@/components/ui/button'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
+import { Button } from '@masterbots/mb-ui'
 import { ShieldCheck } from 'lucide-react'
 import { useState } from 'react'
 

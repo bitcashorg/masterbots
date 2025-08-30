@@ -2,8 +2,8 @@ import {
 	MainContentSkeleton,
 	SidebarSkeleton,
 } from '@/components/shared/skeletons/chat-page-skeleton'
-import { Skeleton } from '@/components/ui/skeleton'
 import { BrowseProvider } from '@/lib/hooks/use-browse'
+import { Skeleton } from '@masterbots/mb-ui'
 import dynamic from 'next/dynamic'
 
 const ResponsiveSidebar = dynamic(

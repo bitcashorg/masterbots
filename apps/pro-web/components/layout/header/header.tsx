@@ -13,18 +13,6 @@ import * as React from 'react'
 import { UserLogin } from '@/components/auth/user-login'
 import { SidebarToggle } from '@/components/layout/sidebar/sidebar-toggle'
 import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
-import { Button } from '@/components/ui/button'
-import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
@@ -36,6 +24,18 @@ import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useWorkspace } from '@/lib/hooks/use-workspace'
 import { getCanonicalDomain } from '@/lib/url'
 import { cn, getRouteColor, getRouteType } from '@/lib/utils'
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+	Button,
+} from '@masterbots/mb-ui'
 import { Input } from '@masterbots/mb-ui'
 import { Label } from '@masterbots/mb-ui'
 import { appConfig } from 'mb-env'

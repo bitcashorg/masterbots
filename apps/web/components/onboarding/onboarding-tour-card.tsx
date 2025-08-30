@@ -1,13 +1,13 @@
 'use client'
 
+import { cn } from '@/lib/utils'
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from '@/components/ui/card'
-import { cn } from '@/lib/utils'
+} from '@masterbots/mb-ui'
 import { useTheme } from 'next-themes'
 import { usePathname } from 'next/navigation'
 

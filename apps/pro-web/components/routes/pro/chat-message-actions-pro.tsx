@@ -1,9 +1,9 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
 import { IconCheck, IconCopy } from '@/components/ui/icons'
 import { useCopyToClipboard } from '@/lib/hooks/use-copy-to-clipboard'
 import { cn } from '@/lib/utils'
+import { Button } from '@masterbots/mb-ui'
 import type { Message } from 'ai'
 import { FileTextIcon } from 'lucide-react'
 

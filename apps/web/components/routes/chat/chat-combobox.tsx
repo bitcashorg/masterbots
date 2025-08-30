@@ -2,26 +2,22 @@
 
 import { AIModels } from '@/app/api/chat/models/models'
 import { ModelGroup } from '@/components/routes/chat/chat-model-group'
-import { Button, buttonVariants } from '@/components/ui/button'
-import {
-	Command,
-	CommandEmpty,
-	CommandGroup,
-	CommandItem,
-	CommandList,
-} from '@/components/ui/command'
 import { IconOpenAI } from '@/components/ui/icons'
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from '@/components/ui/popover'
 import { useDeepThinking } from '@/lib/hooks/use-deep-thinking'
 import { useModel } from '@/lib/hooks/use-model'
 import { usePowerUp } from '@/lib/hooks/use-power-up'
 import { getModelIcon, groupModels } from '@/lib/models'
 import { cn } from '@/lib/utils'
 import { getUserBySlug } from '@/services/hasura'
+import { Button, buttonVariants } from '@masterbots/mb-ui'
+import {
+	Command,
+	CommandEmpty,
+	CommandGroup,
+	CommandItem,
+	CommandList,
+} from '@masterbots/mb-ui'
+import { Popover, PopoverContent, PopoverTrigger } from '@masterbots/mb-ui'
 import { CheckIcon } from '@radix-ui/react-icons'
 import { Loader2 } from 'lucide-react'
 import { appConfig } from 'mb-env'

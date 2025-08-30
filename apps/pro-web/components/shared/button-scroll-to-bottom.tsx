@@ -1,8 +1,8 @@
 'use client'
 
-import { Button, type ButtonProps } from '@/components/ui/button'
 import { IconArrowDown } from '@/components/ui/icons'
 import { cn } from '@/lib/utils'
+import { Button, type ButtonProps } from '@masterbots/mb-ui'
 import { omit } from 'lodash'
 
 export function ButtonScrollToBottom({

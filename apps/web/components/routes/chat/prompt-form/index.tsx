@@ -34,13 +34,6 @@ import {
 	AccordionItem,
 	AccordionTrigger,
 } from '@/components/ui/accordion'
-import { Button, buttonVariants } from '@/components/ui/button'
-import {
-	Command,
-	CommandGroup,
-	CommandItem,
-	CommandList,
-} from '@/components/ui/command'
 import { IconArrowElbow } from '@/components/ui/icons'
 import {
 	type FileAttachment,
@@ -52,6 +45,13 @@ import { useModel } from '@/lib/hooks/use-model'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { cn, nanoid } from '@/lib/utils'
+import { Button, buttonVariants } from '@masterbots/mb-ui'
+import {
+	Command,
+	CommandGroup,
+	CommandItem,
+	CommandList,
+} from '@masterbots/mb-ui'
 import { Input } from '@masterbots/mb-ui'
 import { Popover, PopoverContent, PopoverTrigger } from '@masterbots/mb-ui'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@masterbots/mb-ui'

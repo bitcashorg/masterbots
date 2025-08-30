@@ -1,4 +1,7 @@
-import { Button, buttonVariants } from '@/components/ui/button'
+import { useAttachmentDialog } from '@/lib/hooks/use-attachment-dialog'
+import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
+import { cn } from '@/lib/utils'
+import { Button, buttonVariants } from '@masterbots/mb-ui'
 import {
 	Dialog,
 	DialogClose,
@@ -7,11 +10,8 @@ import {
 	DialogFooter,
 	DialogTitle,
 	DialogTrigger,
-} from '@/components/ui/dialog'
-import { Skeleton } from '@/components/ui/skeleton'
-import { useAttachmentDialog } from '@/lib/hooks/use-attachment-dialog'
-import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
-import { cn } from '@/lib/utils'
+} from '@masterbots/mb-ui'
+import { Skeleton } from '@masterbots/mb-ui'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
 	EditIcon,

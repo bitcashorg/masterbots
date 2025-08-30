@@ -1,13 +1,9 @@
 'use client'
 
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from '@/components/ui/tooltip'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { urlBuilders } from '@/lib/url'
 import { getRouteType } from '@/lib/utils'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@masterbots/mb-ui'
 import type { Thread } from 'mb-genql'
 import Image from 'next/image'
 import Link from 'next/link'

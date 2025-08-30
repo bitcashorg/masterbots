@@ -1,10 +1,10 @@
 'use client'
 
-import { Card, CardContent } from '@/components/ui/card'
 import { useCategorySelections } from '@/lib/hooks/use-category-selections'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { cn, getRouteType } from '@/lib/utils'
 import type { CategoryCardProps, OnboardingSectionProps } from '@/types/types'
+import { Card, CardContent } from '@masterbots/mb-ui'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 

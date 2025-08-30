@@ -1,6 +1,9 @@
 import { AttachmentDialog } from '@/components/routes/chat/attachment-dialog'
-import { Button } from '@/components/ui/button'
-import { Card, CardDescription, CardTitle } from '@/components/ui/card'
+import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
+import { useThread } from '@/lib/hooks/use-thread'
+import { cn } from '@/lib/utils'
+import { Button } from '@masterbots/mb-ui'
+import { Card, CardDescription, CardTitle } from '@masterbots/mb-ui'
 import {
 	Dialog,
 	DialogClose,
@@ -10,15 +13,8 @@ import {
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
-} from '@/components/ui/dialog'
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from '@/components/ui/tooltip'
-import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
-import { useThread } from '@/lib/hooks/use-thread'
-import { cn } from '@/lib/utils'
+} from '@masterbots/mb-ui'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@masterbots/mb-ui'
 import { AnimatePresence, type MotionProps, motion } from 'framer-motion'
 import {
 	FileIcon,

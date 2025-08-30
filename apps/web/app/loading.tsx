@@ -4,7 +4,7 @@ import {
 	MainContentSkeleton,
 	SidebarSkeleton,
 } from '@/components/shared/skeletons/chat-page-skeleton'
-import { Skeleton } from '@/components/ui/skeleton'
+import { Skeleton } from '@masterbots/mb-ui'
 
 export default function Loading() {
 	return (

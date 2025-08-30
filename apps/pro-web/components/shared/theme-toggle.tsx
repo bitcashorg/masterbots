@@ -3,9 +3,9 @@
 import { useTheme } from 'next-themes'
 import * as React from 'react'
 
-import { Button } from '@/components/ui/button'
 import { IconMoon, IconSun } from '@/components/ui/icons'
 import { cn } from '@/lib/utils'
+import { Button } from '@masterbots/mb-ui'
 
 export function ThemeToggle({
 	className,

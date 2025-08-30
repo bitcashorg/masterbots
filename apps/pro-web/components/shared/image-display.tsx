@@ -1,9 +1,9 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
 import { imageHelpers } from '@/lib/helpers/ai-image'
 import { cn } from '@/lib/utils'
 import type { ImageDisplayProps } from '@/types/types'
+import { Button } from '@masterbots/mb-ui'
 import { Label } from '@masterbots/mb-ui'
 import {
 	Tooltip,

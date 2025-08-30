@@ -2,11 +2,6 @@ import { AttachmentCards } from '@/components/routes/chat/chat-list/attachment-c
 import { MessageRenderer } from '@/components/routes/chat/chat-message-renderer'
 import { SharedAccordion } from '@/components/shared/shared-accordion'
 import { ShortMessage } from '@/components/shared/short-message'
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from '@/components/ui/tooltip'
 import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
@@ -15,6 +10,7 @@ import type { MessagePair } from '@/lib/threads'
 import { parsePath } from '@/lib/url'
 import { cn, getRouteType } from '@/lib/utils'
 import type { SendMessageFromResponseMessageData } from '@/types/types'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@masterbots/mb-ui'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useParams, usePathname } from 'next/navigation'
 import { Fragment, useCallback, useEffect, useState } from 'react'

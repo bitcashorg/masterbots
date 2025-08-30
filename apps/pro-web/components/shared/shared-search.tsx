@@ -8,12 +8,12 @@
  * and thread filtering capabilities.
  */
 
-import { Button } from '@/components/ui/button'
 import { IconClose } from '@/components/ui/icons'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { cn } from '@/lib/utils'
 import { getCategory } from '@/services/hasura'
 import type { ThreadState } from '@/types/types'
+import { Button } from '@masterbots/mb-ui'
 import { Input } from '@masterbots/mb-ui'
 import { debounce } from 'lodash'
 import { Search } from 'lucide-react'

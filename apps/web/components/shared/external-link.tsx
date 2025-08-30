@@ -1,5 +1,5 @@
-import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { buttonVariants } from '@masterbots/mb-ui'
 import { ExternalLink as ExternalLinkIcon } from 'lucide-react'
 
 export function ExternalLink({

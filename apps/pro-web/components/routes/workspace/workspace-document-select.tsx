@@ -1,13 +1,13 @@
 'use client'
 
+import { cn } from '@/lib/utils'
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from '@/components/ui/select'
-import { cn } from '@/lib/utils'
+} from '@masterbots/mb-ui'
 import React from 'react'
 
 interface WorkspaceDocumentSelectProps {

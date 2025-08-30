@@ -1,8 +1,8 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
 import type { MarkdownSection } from '@/lib/markdown-utils'
 import { cn } from '@/lib/utils'
+import { Button } from '@masterbots/mb-ui'
 import {
 	CheckIcon,
 	ChevronDown,

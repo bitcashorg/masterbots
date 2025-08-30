@@ -1,4 +1,4 @@
-@import "mb-ui/styles.css";
+@import "@masterbots/mb-ui/styles.css";
 
 @tailwind base;
 @tailwind components;

@@ -1,11 +1,7 @@
-import { CommandItem } from '@/components/ui/command'
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from '@/components/ui/tooltip'
 import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
 import type { IndexedDBItem } from '@/lib/hooks/use-indexed-db'
+import { CommandItem } from '@masterbots/mb-ui'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@masterbots/mb-ui'
 import { FileIcon, FileTextIcon } from 'lucide-react'
 import { appConfig } from 'mb-env'
 import Image from 'next/image'

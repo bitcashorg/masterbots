@@ -6,8 +6,8 @@ import {
 	AccordionItem,
 	AccordionTrigger,
 } from '@/components/ui/accordion'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
+import { Button } from '@masterbots/mb-ui'
+import { Card } from '@masterbots/mb-ui'
 import { Textarea } from '@masterbots/mb-ui'
 import { Label } from '@masterbots/mb-ui'
 import {

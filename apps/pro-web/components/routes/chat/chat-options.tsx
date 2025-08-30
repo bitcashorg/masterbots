@@ -1,15 +1,4 @@
 import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import { Button, buttonVariants } from '@/components/ui/button'
-import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
@@ -26,6 +15,17 @@ import type { MessagePair } from '@/lib/threads'
 import { getCanonicalDomain, urlBuilders } from '@/lib/url'
 import { cn } from '@/lib/utils'
 import { deleteMessages, getThread } from '@/services/hasura'
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from '@masterbots/mb-ui'
+import { Button, buttonVariants } from '@masterbots/mb-ui'
 import { Eye, EyeOff, FileTextIcon, MoreVertical, Trash } from 'lucide-react'
 import type { Thread } from 'mb-genql'
 import { toSlug } from 'mb-lib'

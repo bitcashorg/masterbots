@@ -1,13 +1,9 @@
 import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from '@/components/ui/tooltip'
-import {
 	calculatePasswordStrength,
 	getPasswordStrengthColor,
 	getPasswordStrengthLabel,
 } from '@/lib/password'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@masterbots/mb-ui'
 import { InfoIcon } from 'lucide-react'
 
 interface PasswordStrengthMeterProps {

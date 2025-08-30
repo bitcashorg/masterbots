@@ -1,8 +1,8 @@
 'use client'
 
 import { generateShortLink } from '@/app/actions'
-import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { Button } from '@masterbots/mb-ui'
 import { AnimatePresence } from 'framer-motion'
 import { LucideCheck, LucideLoader2, LucideX } from 'lucide-react'
 import { useState } from 'react'

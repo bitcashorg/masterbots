@@ -1,9 +1,9 @@
 'use client'
 
 import { ChatPanelSkeleton } from '@/components/shared/skeletons/chat-panel-skeleton'
-import { Skeleton } from '@/components/ui/skeleton'
 import { useThread } from '@/lib/hooks/use-thread'
 import { cn, getRouteType } from '@/lib/utils'
+import { Skeleton } from '@masterbots/mb-ui'
 import { usePathname } from 'next/navigation'
 
 export function ThreadPopupContentSkeleton({

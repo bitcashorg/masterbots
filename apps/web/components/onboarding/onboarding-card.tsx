@@ -1,8 +1,8 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
 import { IconClose } from '@/components/ui/icons'
 import { cn } from '@/lib/utils'
+import { Button } from '@masterbots/mb-ui'
 import type { CardComponentProps } from 'nextstepjs'
 import React from 'react'
 

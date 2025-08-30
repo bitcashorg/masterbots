@@ -5,6 +5,8 @@ import {
 	getUserCurrentSubscription,
 } from '@/app/actions/subscriptions.actions'
 import Subscription from '@/components/routes/subscription/subscription'
+import { IconArrowRight, IconCreditCard, IconHelp } from '@/components/ui/icons'
+import { usePayment } from '@/lib/hooks/use-payment'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -15,10 +17,8 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 	AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
-import { Button } from '@/components/ui/button'
-import { IconArrowRight, IconCreditCard, IconHelp } from '@/components/ui/icons'
-import { usePayment } from '@/lib/hooks/use-payment'
+} from '@masterbots/mb-ui'
+import { Button } from '@masterbots/mb-ui'
 import { type MotionProps, MotionStyle, motion } from 'framer-motion'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'

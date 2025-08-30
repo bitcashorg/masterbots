@@ -23,12 +23,8 @@
  */
 
 import { generateShortLink } from '@/app/actions'
-import { Button, type ButtonProps } from '@/components/ui/button'
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from '@/components/ui/tooltip'
+import { Button, type ButtonProps } from '@masterbots/mb-ui'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@masterbots/mb-ui'
 import { AnimatePresence } from 'framer-motion'
 import { LucideCheck, LucideLoader2, LucideX, Share2 } from 'lucide-react'
 import { useState } from 'react'

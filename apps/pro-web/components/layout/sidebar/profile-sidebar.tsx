@@ -1,9 +1,9 @@
 'use client'
 
 import { ThemeToggle } from '@/components/shared/theme-toggle'
-import { Button, buttonVariants } from '@/components/ui/button'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { cn } from '@/lib/utils'
+import { Button, buttonVariants } from '@masterbots/mb-ui'
 import { Sheet, SheetContent, SheetTrigger } from '@masterbots/mb-ui'
 import {
 	ChevronLeftIcon,

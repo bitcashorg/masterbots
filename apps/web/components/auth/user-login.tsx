@@ -2,8 +2,7 @@
 
 import { UserMenu } from '@/components/layout/header/user-menu'
 import { ProfileSidebar } from '@/components/layout/sidebar/profile-sidebar'
-import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
+import { Button, Skeleton } from '@masterbots/mb-ui'
 import { isTokenExpired } from 'mb-lib'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'

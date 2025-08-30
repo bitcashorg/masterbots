@@ -1,8 +1,8 @@
 //? Component for toggling admin mode on and off
 
 'use client'
-import { Button } from '@/components/ui/button'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
+import { Button } from '@masterbots/mb-ui'
 import { ShieldCheck, ShieldX } from 'lucide-react'
 
 export function AdminModeToggle() {

@@ -1,8 +1,8 @@
 'use client'
 
-import { buttonVariants } from '@/components/ui/button'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { cn, getRouteType } from '@/lib/utils'
+import { buttonVariants } from '@masterbots/mb-ui'
 import { Tooltip } from '@masterbots/mb-ui'
 import { TooltipContent, TooltipTrigger } from '@radix-ui/react-tooltip'
 import type { Thread } from 'mb-genql'

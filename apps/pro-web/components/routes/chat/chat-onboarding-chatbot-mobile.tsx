@@ -1,5 +1,5 @@
-import { Card, CardHeader } from '@/components/ui/card'
 import { getRouteType } from '@/lib/utils'
+import { Card, CardHeader } from '@masterbots/mb-ui'
 import { PanelLeft } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 

@@ -1,8 +1,8 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
 import { useSonner } from '@/lib/hooks/useSonner'
 import { validateEmail } from '@/lib/utils'
+import { Button } from '@masterbots/mb-ui'
 import { Input } from '@masterbots/mb-ui'
 import { Label } from '@masterbots/mb-ui'
 import type React from 'react'

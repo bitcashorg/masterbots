@@ -1,11 +1,11 @@
 import { LoadingState } from '@/components/shared/loading-state'
+import { usePayment } from '@/lib/hooks/use-payment'
 import {
 	Dialog,
 	DialogContent,
 	DialogHeader,
 	DialogTitle,
-} from '@/components/ui/dialog'
-import { usePayment } from '@/lib/hooks/use-payment'
+} from '@masterbots/mb-ui'
 import { motion } from 'framer-motion'
 import type React from 'react'
 import { useWizard } from './hook/useWizard'

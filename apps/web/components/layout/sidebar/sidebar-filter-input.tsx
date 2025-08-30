@@ -1,10 +1,10 @@
 'use client'
 
 import { DashboardOnboarding } from '@/components/onboarding/dashboard-onboarding'
-import { Button } from '@/components/ui/button'
 import { IconClose, IconDashboard, IconFilter } from '@/components/ui/icons'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { cn } from '@/lib/utils'
+import { Button } from '@masterbots/mb-ui'
 import { Input } from '@masterbots/mb-ui'
 import { usePathname } from 'next/navigation'
 import type * as React from 'react'

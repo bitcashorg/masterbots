@@ -1,7 +1,7 @@
 'use client'
 
-import { Skeleton } from '@/components/ui/skeleton'
 import { useWorkspace } from '@/lib/hooks/use-workspace'
+import { Skeleton } from '@masterbots/mb-ui'
 import * as React from 'react'
 
 interface WorkspaceContentWrapperProps {

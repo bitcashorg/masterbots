@@ -1,5 +1,5 @@
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
+import { Card, CardContent, CardFooter, CardHeader } from '@masterbots/mb-ui'
+import { Skeleton } from '@masterbots/mb-ui'
 
 export function ChatChatbotDetailsSkeleton() {
 	// Background image class

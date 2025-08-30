@@ -1,9 +1,4 @@
-import {
-	Card,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card'
+import { Card, CardDescription, CardHeader, CardTitle } from '@masterbots/mb-ui'
 import { Filter, MessageSquareXIcon, SearchX } from 'lucide-react'
 import { NoResultsSkeleton } from './skeletons/no-results-skeleton'
 

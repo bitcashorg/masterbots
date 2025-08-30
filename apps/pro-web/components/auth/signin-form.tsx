@@ -1,8 +1,8 @@
 'use client'
 
 import { LoginButton } from '@/components/shared/login-button'
-import { Button } from '@/components/ui/button'
 import { getUserByEmail } from '@/services/hasura'
+import { Button } from '@masterbots/mb-ui'
 import { Input } from '@masterbots/mb-ui'
 import { Label } from '@masterbots/mb-ui'
 import { Eye, EyeOff } from 'lucide-react'

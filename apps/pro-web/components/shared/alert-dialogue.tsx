@@ -7,7 +7,7 @@ import {
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+} from '@masterbots/mb-ui'
 
 import { IconSpinner } from '@/components/ui/icons'
 

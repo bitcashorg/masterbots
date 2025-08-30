@@ -14,11 +14,11 @@
  * - Integration with Custom Hooks: Uses `useBrowse and useThreadSearch` to manage the searching.
  */
 
-import { Button } from '@/components/ui/button'
 import { IconClose } from '@/components/ui/icons'
 import { useBrowse } from '@/lib/hooks/use-browse'
 import { useThreadSearch } from '@/lib/hooks/use-thread-search'
 import { cn } from '@/lib/utils'
+import { Button } from '@masterbots/mb-ui'
 import { Input } from '@masterbots/mb-ui'
 import { Search } from 'lucide-react'
 
