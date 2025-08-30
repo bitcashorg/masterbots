@@ -1,6 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { IconClose } from '@/components/ui/icons'
 import { cn } from '@/lib/utils'
 import type { CardComponentProps } from 'nextstepjs'
@@ -41,11 +42,12 @@ export function OnboardingCard({
 	className,
 }: OnboardingCardProps) {
 	return (
-		<div
+		<Card
 			className={cn(
 				'fixed z-[9999] w-80 max-w-sm',
 				'transition-all duration-300 ease-in-out',
 				'animate-in fade-in-0 zoom-in-95',
+				'overflow-hidden border-2 shadow-lg backdrop-blur-sm bg-white/95 dark:bg-[#09090B]/95',
 				className,
 			)}
 			style={{
@@ -169,7 +171,7 @@ export function OnboardingCard({
 						: '',
 				)}
 			/>
-		</div>
+		</Card>
 	)
 }
 

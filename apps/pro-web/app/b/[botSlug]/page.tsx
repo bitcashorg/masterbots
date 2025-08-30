@@ -4,7 +4,7 @@ import { PAGE_SIZE } from '@/lib/constants/hasura'
 import { generateMetadataFromSEO } from '@/lib/metadata'
 import { getCanonicalDomain, urlBuilders } from '@/lib/url'
 import { getBrowseThreads, getChatbot } from '@/services/hasura'
-import type { PageProps } from '@/types/types'
+import type { PageProps } from '@/types'
 import type { Metadata } from 'next'
 
 export default async function BotThreadsPage(props: PageProps) {

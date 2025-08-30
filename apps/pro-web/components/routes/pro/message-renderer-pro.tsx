@@ -2,7 +2,7 @@
 import { ReasoningChatMessage } from '@/components/routes/chat/reasoning/reasoning-chat-message'
 import { ChatMessagePro } from '@/components/routes/pro/chat-message-pro'
 import { hasReasoning } from '@/lib/helpers/ai-helpers'
-import type { SendMessageFromResponseMessageData } from '@/types/types'
+import type { SendMessageFromResponseMessageData } from '@/types'
 
 type MessageRendererProProps = {
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>

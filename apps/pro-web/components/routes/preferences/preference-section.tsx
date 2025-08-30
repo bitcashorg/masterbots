@@ -26,7 +26,7 @@ import {
 	updatePreferences,
 	updateUserDeletionRequest,
 } from '@/services/hasura'
-import type { PreferenceSectionProps } from '@/types/types'
+import type { PreferenceSectionProps } from '@/types'
 import { AArrowDown, AArrowUp, Plus } from 'lucide-react'
 import type { PreferenceSetInput } from 'mb-genql'
 import { signOut, useSession } from 'next-auth/react'

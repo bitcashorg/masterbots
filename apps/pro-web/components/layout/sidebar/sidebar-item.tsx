@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/tooltip'
 import { useLocalStorage } from '@/lib/hooks/use-local-storage'
 import { cn } from '@/lib/utils'
-import type { Chat } from '@/types/types'
+import type { Chat } from '@/types'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'

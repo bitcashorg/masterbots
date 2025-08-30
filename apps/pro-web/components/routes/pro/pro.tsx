@@ -8,13 +8,15 @@ import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { useWorkspace } from '@/lib/hooks/use-workspace'
-import type { ChatProps } from '@/types/types'
+import type { ChatProps } from '@/types'
+import { AnimatePresence } from 'framer-motion'
 import type { Chatbot } from 'mb-genql'
 import { useParams, usePathname } from 'next/navigation'
 import React, { useEffect } from 'react'
 
 export interface ProComponentProps extends ChatProps {
 	isPro?: boolean
+	showChatPanel?: boolean
 }
 
 export function Pro({
@@ -25,6 +27,7 @@ export function Pro({
 	scrollToBottomOfPopup,
 	isAtBottom: isAtBottomOfPopup,
 	isPro = true,
+	showChatPanel = true,
 }: ProComponentProps) {
 	const {
 		activeThread,
@@ -158,42 +161,44 @@ export function Pro({
 	}
 
 	return (
-		<>
-			<ChatPanelPro
-				className={`${activeThread || activeChatbot ? '' : 'hidden'} ${chatPanelClassName}`}
-				scrollToBottom={
-					isOpenPopup && isPopup && scrollToBottomOfPopup
-						? scrollToBottomOfPopup
-						: scrollToBottom
-				}
-				id={params.threadId || isNewChat ? threadId : activeThread?.threadId}
-				isLoading={isLoading}
-				stop={stop}
-				append={
-					isContinuousThread
-						? appendAsContinuousThread
-						: appendWithMbContextPrompts
-				}
-				reload={reload}
-				messages={allMessages}
-				input={input}
-				setInput={setInput}
-				chatbot={chatbot}
-				placeholder={
-					chatbot
-						? chatSearchMessage(isNewChat, isContinuousThread, allMessages)
-						: ''
-				}
-				showReload={!isNewChat}
-				isAtBottom={
-					params.threadId
-						? isNearBottom
-						: isPopup
-							? Boolean(isAtBottomOfPopup)
-							: isAtBottomOfSection
-				}
-				onConvertToDocument={handleConvertToDocument}
-			/>
-		</>
+		<AnimatePresence>
+			{!showChatPanel && !activeThread ? null : (
+				<ChatPanelPro
+					className={`${activeThread || activeChatbot ? '' : 'hidden'} ${chatPanelClassName}`}
+					scrollToBottom={
+						isOpenPopup && isPopup && scrollToBottomOfPopup
+							? scrollToBottomOfPopup
+							: scrollToBottom
+					}
+					id={params.threadId || isNewChat ? threadId : activeThread?.threadId}
+					isLoading={isLoading}
+					stop={stop}
+					append={
+						isContinuousThread
+							? appendAsContinuousThread
+							: appendWithMbContextPrompts
+					}
+					reload={reload}
+					messages={allMessages}
+					input={input}
+					setInput={setInput}
+					chatbot={chatbot}
+					placeholder={
+						chatbot
+							? chatSearchMessage(isNewChat, isContinuousThread, allMessages)
+							: ''
+					}
+					showReload={!isNewChat}
+					isAtBottom={
+						params.threadId
+							? isNearBottom
+							: isPopup
+								? Boolean(isAtBottomOfPopup)
+								: isAtBottomOfSection
+					}
+					onConvertToDocument={handleConvertToDocument}
+				/>
+			)}
+		</AnimatePresence>
 	)
 }

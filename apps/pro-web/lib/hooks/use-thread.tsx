@@ -8,7 +8,7 @@ import {
 	getUserBySlug,
 	refreshThreadAfterMetadataUpdate,
 } from '@/services/hasura'
-import type { AiToolCall, ChatLoadingState } from '@/types/types'
+import type { AiToolCall, ChatLoadingState } from '@/types'
 import type { Chatbot, Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
 import * as React from 'react'
@@ -35,10 +35,10 @@ interface ThreadContext {
 	setIsNewResponse: React.Dispatch<React.SetStateAction<boolean>>
 	getRandomChatbot: () => void
 	setShouldRefreshThreads: React.Dispatch<React.SetStateAction<boolean>>
-	refreshActiveThread: (
-		threadId: string,
-		jwt?: string,
-	) => Promise<Thread | null>
+	refreshActiveThread: (params: {
+		threadId?: string
+		threadSlug?: string
+	}) => Promise<Thread | null>
 }
 
 const ThreadContext = React.createContext<ThreadContext | undefined>(undefined)
@@ -207,12 +207,23 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
 		setState({ webSearch: !state || !webSearch })
 	}
 
-	const refreshActiveThread = async (threadId: string, jwt?: string) => {
+	const refreshActiveThread = async (params: {
+		threadId?: string
+		threadSlug?: string
+	}) => {
 		try {
-			const result = await refreshThreadAfterMetadataUpdate({ threadId, jwt })
+			if (!params.threadId && !params.threadSlug) {
+				console.error('Missing thread identifier (threadId or threadSlug)')
+				return null
+			}
+
+			const result = await refreshThreadAfterMetadataUpdate({
+				threadId: params.threadId,
+				threadSlug: params.threadSlug,
+				jwt: session?.user.hasuraJwt,
+			})
 
 			if (result.success && result.thread) {
-				// Update the activeThread state with the refreshed data
 				setActiveThread(result.thread)
 				return result.thread
 			}

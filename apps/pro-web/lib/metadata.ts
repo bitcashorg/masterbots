@@ -1,6 +1,6 @@
 import { urlBuilders } from '@/lib/url'
 import { getThread } from '@/services/hasura'
-import type { PageProps } from '@/types/types'
+import type { PageProps } from '@/types'
 import type { Thread } from 'mb-genql'
 import type { Metadata } from 'next'
 import { headers } from 'next/headers'

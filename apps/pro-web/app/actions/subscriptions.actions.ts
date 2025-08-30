@@ -5,7 +5,7 @@ import {
 	type PlanList,
 	type Subscription,
 	initialStateSubscription,
-} from '@/types/types'
+} from '@/types'
 
 export async function checkIfCustomerHasActiveSub(email: string) {
 	const response = await fetch('/api/payment/subscription', {

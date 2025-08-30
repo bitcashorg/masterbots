@@ -1,9 +1,10 @@
 import { authOptions } from '@/auth'
+import { Pro } from '@/components/routes/pro/pro'
 import Subscription from '@/components/routes/subscription/subscription'
 import ThreadPanel from '@/components/routes/thread/thread-panel'
 import { generateMetadataFromSEO } from '@/lib/metadata'
 import { getThreads } from '@/services/hasura'
-import type { PageProps } from '@/types/types'
+import type { PageProps } from '@/types'
 import { isTokenExpired } from 'mb-lib'
 import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
@@ -27,6 +28,7 @@ export default async function IndexPage() {
 	return (
 		<>
 			<ThreadPanel threads={threads} count={count} />
+			<Pro showChatPanel={false} />
 			<Subscription />
 		</>
 	)

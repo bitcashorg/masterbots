@@ -33,6 +33,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { createWorkspaceMetaPrompt } from '@/lib/constants/prompts'
 import { useContinueGeneration } from '@/lib/hooks/use-continue-generation'
 import { useDeepThinking } from '@/lib/hooks/use-deep-thinking'
 import { type IndexedDBItem, useIndexedDB } from '@/lib/hooks/use-indexed-db'
@@ -49,6 +50,7 @@ import {
 import { logErrorToSentry } from '@/lib/sentry'
 import { cn } from '@/lib/utils'
 import { createThread } from '@/services/hasura'
+import type { WorkspaceDocumentMetadata } from '@/types/thread.types'
 import { type UseChatHelpers, UseChatOptions, useChat } from '@ai-sdk/react'
 import type { Message as AiMessage, ChatRequestOptions } from 'ai'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -97,6 +99,11 @@ export interface ChatPanelProProps
 	setTargetDocument?: (document: string | null) => void
 }
 
+const hiddenAnimationClasses =
+	'p-2 gap-0 w-auto relative overflow-hidden [&:hover_span]:opacity-100 [&:hover_span]:w-auto [&:hover_span]:duration-300 [&:hover_svg]:mr-2 [&:hover_span]:transition-all'
+const hiddenAnimationItemClasses =
+	'transition-all w-[0px] opacity-0 whitespace-nowrap duration-300'
+
 export function ChatPanelPro({
 	title,
 	id,
@@ -119,14 +126,8 @@ export function ChatPanelPro({
 	targetDocument: externalTargetDocument,
 	setTargetDocument: externalSetTargetDocument,
 }: ChatPanelProProps) {
-	const {
-		isOpenPopup,
-		loadingState,
-		webSearch,
-		setWebSearch,
-		refreshActiveThread,
-		activeThread,
-	} = useThread()
+	const { isOpenPopup, loadingState, webSearch, activeThread, setWebSearch } =
+		useThread()
 	const { data: session } = useSession()
 	const { isPowerUp, togglePowerUp } = usePowerUp()
 	const { isDeepThinking, toggleDeepThinking } = useDeepThinking()
@@ -181,30 +182,30 @@ export function ChatPanelPro({
 
 	// Use workspace chat hook for workspace-specific functionality
 	const {
-		input: workspaceInput,
-		append: workspaceAppend,
-		messages: workspaceMessages,
 		workspaceProcessingState,
-		setInput: setWorkspaceInput,
 		activeWorkspaceSection,
+		input: workspaceInput,
+		messages: workspaceMessages,
 		cursorPosition: workspaceCursorPosition,
+		append: workspaceAppend,
+		setInput: setWorkspaceInput,
 		handleWorkspaceEdit: workspaceHandleEdit,
 		handleDocumentUpdate: workspaceHandleDocumentUpdate,
 	} = useWorkspaceChat()
 	const {
 		isWorkspaceActive,
-		toggleWorkspace,
 		activeOrganization,
 		activeDepartment,
 		activeProject,
 		activeDocument,
-		setActiveDocument,
 		departmentList,
 		projectList,
 		documentList,
 		documentContent,
-		setDocumentContent,
 		activeDocumentType,
+		toggleWorkspace,
+		setActiveDocument,
+		setDocumentContent,
 		setActiveDocumentType,
 	} = useWorkspace()
 
@@ -233,133 +234,12 @@ export function ChatPanelPro({
 		setActiveDocumentType(v)
 
 	// Sync selection dropdowns to respect null/None
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		if (activeDocument === undefined) {
 			setActiveDocument(null)
 		}
-	}, [activeDocument, setActiveDocument])
-
-	// IndexedDB for local document raw storage (reuse attachment DB)
-	const { addItem: addIndexedItem, updateItem: updateIndexedItem } =
-		useIndexedDB({})
-
-	const handleSaveDocument = async () => {
-		try {
-			if (!activeProject || !activeDocument) return
-			// Determine type when All is selected
-			const docType: 'text' | 'image' | 'spreadsheet' =
-				activeDocumentType === 'all' ? 'text' : activeDocumentType
-			// Resolve current content
-			const key = `${activeProject}:${activeDocument}`
-			const content = documentContent?.[key] || ''
-			if (!content.trim()) return
-
-			// Create new thread if one doesn't exist - Fixed thread creation for workspace mode
-			let threadSlug = activeThread?.slug
-			if (!threadSlug && session?.user?.hasuraJwt && chatbot) {
-				const newThreadId = nanoid(12)
-				const newThreadSlug = `${chatbot.name.toLowerCase().replace(/\s+/g, '-')}-${newThreadId}`
-
-				try {
-					// Include workspace metadata in thread creation
-					const threadMetadata = {
-						documents:
-							activeProject && activeDocument
-								? [
-										{
-											id: activeDocument, // Use document name as ID for now
-											project: activeProject,
-											name: activeDocument,
-											type: docType as 'text' | 'image' | 'spreadsheet',
-											currentVersion: 1,
-											versions: [],
-										},
-									]
-								: [],
-						organization: activeOrganization,
-						department: activeDepartment,
-						isWorkspaceThread: isWorkspaceActive,
-					}
-
-					const createdThread = await createThread({
-						threadId: newThreadId,
-						chatbotId: chatbot.chatbotId,
-						slug: newThreadSlug,
-						jwt: session.user.hasuraJwt,
-						userId: session.user.id,
-						model: 'OPENAI',
-						isPublic: false,
-					})
-
-					if (createdThread?.threadId) {
-						threadSlug = createdThread.slug || newThreadSlug
-						// Update the thread with workspace metadata after creation
-						try {
-							await updateThreadDocumentsMetadata({
-								threadSlug,
-								documents: threadMetadata.documents,
-							})
-							// Refresh the active thread to include the new metadata
-							refreshActiveThread(
-								createdThread.threadId,
-								session.user.hasuraJwt,
-							)
-						} catch (metadataError) {
-							console.warn(
-								'Failed to update thread metadata, continuing with document save:',
-								metadataError,
-							)
-						}
-					}
-				} catch (error) {
-					console.error('Failed to create thread for document save:', error)
-					return
-				}
-			}
-
-			if (!threadSlug) return
-
-			const { document } = await uploadWorkspaceDocumentToBucket({
-				threadSlug,
-				project: activeProject,
-				name: activeDocument,
-				content,
-				type: docType,
-			})
-			// Store raw locally in IndexedDB similar to attachments
-			const id = document?.id || nanoid(12)
-			// Convert content to base64 data URL (browser compatible)
-			const base64 = await new Promise<string>((resolve, reject) => {
-				try {
-					const blob = new Blob([content], { type: 'text/markdown' })
-					const reader = new FileReader()
-					reader.onloadend = () => resolve(reader.result as string)
-					reader.onerror = reject
-					reader.readAsDataURL(blob)
-				} catch (err) {
-					reject(err)
-				}
-			})
-			const item = {
-				id,
-				name: activeDocument,
-				project: activeProject,
-				type: docType,
-				url: base64,
-				content: base64,
-				size: new Blob([content]).size,
-				messageIds: [],
-				expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-			} as unknown as IndexedDBItem
-			try {
-				updateIndexedItem(id, item)
-			} catch {
-				addIndexedItem(item)
-			}
-		} catch (e) {
-			console.error('Failed to save document', e)
-		}
-	}
+	}, [activeDocument])
 
 	// Use departmentList as departmentsByOrg since they contain the same data
 	const departmentsByOrg = departmentList
@@ -440,10 +320,6 @@ export function ChatPanelPro({
 	const isPreProcessing = Boolean(
 		loadingState?.match(/processing|digesting|polishing/),
 	)
-	const hiddenAnimationClasses =
-		'p-2 gap-0 w-auto relative overflow-hidden [&:hover_span]:opacity-100 [&:hover_span]:w-auto [&:hover_span]:duration-300 [&:hover_svg]:mr-2 [&:hover_span]:transition-all'
-	const hiddenAnimationItemClasses =
-		'transition-all w-[0px] opacity-0 whitespace-nowrap duration-300'
 
 	const prepareMessageOptions = useCallback(
 		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
@@ -476,128 +352,6 @@ export function ChatPanelPro({
 		return 'Processing...'
 	}
 
-	// Function to create meta prompt with document context and chatbot expertise
-	const createDocumentMetaPrompt = (
-		userPrompt: string,
-		documentContent: string,
-		activeSection: string | null,
-	) => {
-		console.log('📝 Creating meta prompt with:', {
-			userPromptLength: userPrompt.length,
-			documentContentLength: documentContent.length,
-			activeSection,
-			hasDocumentContent: !!documentContent,
-		})
-
-		const sections = parseMarkdownSections(documentContent)
-		const sectionsContext = sections
-			.map(
-				(section) =>
-					`## ${section.title} (Level ${section.level})\n${section.content}\n`,
-			)
-			.join('\n')
-
-		const focusedSection = activeSection
-			? sections.find((s) => s.id === activeSection)
-			: null
-
-		console.log('📝 Meta prompt details:', {
-			totalSections: sections.length,
-			focusedSectionTitle: focusedSection?.title,
-			sectionsContextLength: sectionsContext.length,
-		})
-
-		// Add chatbot expertise if available
-		let chatbotExpertise = ''
-		if (chatbot?.prompts && chatbot.prompts.length > 0) {
-			const expertisePrompts = chatbot.prompts
-				.filter((p) => p.prompt.type === 'prompt')
-				.map((p) => `<expertise>\n${p.prompt.content}\n</expertise>`)
-				.join('\n\n')
-
-			const instructionPrompts = chatbot.prompts
-				.filter((p) => p.prompt.type === 'instruction')
-				.map((p) => `<instructions>\n${p.prompt.content}\n</instructions>`)
-				.join('\n\n')
-
-			chatbotExpertise = `\n\nCHATBOT EXPERTISE:\n${expertisePrompts}\n\n${instructionPrompts}\n`
-		}
-
-		// Create focused or general instructions based on active section
-		let taskInstructions = ''
-		let outputFormat = ''
-
-		if (!focusedSection) {
-			console.error('NO FOCUSED SECTION FOUND!')
-			return ''
-		}
-
-		// Section-specific editing mode
-		taskInstructions = `
-EDITING MODE: SECTION UPDATE
-You are editing a specific section of a larger document. The user has selected the section "${focusedSection.title}" for editing.
-
-FULL DOCUMENT STRUCTURE:
-${sectionsContext}
-
-CURRENT SECTION BEING EDITED:
-## ${focusedSection.title} (Level ${focusedSection.level})
-${focusedSection.content}
-
-USER REQUEST: ${userPrompt}
-
-IMPORTANT: You should ONLY return the updated content for the "${focusedSection.title}" section. Do NOT include the entire document or other sections in your response.`
-
-		outputFormat = `
-<output_format>
-Return ONLY the updated content for the "${focusedSection.title}" section. Your response should be the new content that will replace the existing section content.
-
-ACCEPTABLE FORMATS:
-1. Plain text content (will be inserted as-is into the section).
-2. Markdown content with subsections (H3, H4, etc.) that belong under "${focusedSection.title}".
-
-DO NOT INCLUDE:
-- The section heading itself (## ${focusedSection.title}).
-- Other sections from the document.
-- Complete document restructure.
-- Content that belongs to other sections.
-</output_format>`
-		// 			// Full document mode
-		// 			taskInstructions = `
-		// EDITING MODE: FULL DOCUMENT
-		// You are working with the entire document. The user has not selected a specific section.
-
-		// FULL DOCUMENT:
-		// ${sectionsContext}
-
-		// USER REQUEST: ${userPrompt}`
-
-		// 			outputFormat = `
-		// <output_format>
-		// Since no specific section is selected, you can:
-		// 1. Add new sections to the document
-		// 2. Provide content that spans multiple sections
-		// 3. Suggest document-wide improvements
-
-		// Format your response as complete markdown with appropriate headings.
-		// </output_format>`
-
-		return `You are an expert document editor and content creator working with specialized chatbot expertise.${chatbotExpertise}
-
-${taskInstructions}
-
-${outputFormat}
-
-INSTRUCTIONS:
-1. Apply your specialized expertise to the document editing task
-2. Analyze the user's request in the context of the provided document
-3. Maintain the document's style and tone while applying your expertise
-4. Focus on providing valuable, actionable content improvements
-5. Ensure your response integrates well with the existing document structure
-
-Please provide your response now:`
-	}
-
 	const chatId = useMemo(() => {
 		return id || `chat-panel-${nanoid(16)}`
 	}, [id])
@@ -620,106 +374,23 @@ Please provide your response now:`
 				console.error('No active project found')
 				return
 			}
-			// ISSUE 1 FIX: Workspace mode should create/link thread properly
-			console.log(
-				'🏢 Workspace mode: AI assist requested for document:',
-				activeDocument,
-				'with query:',
-				value,
-			)
+
 			// Get current document content for meta prompt
 			const documentKey = `${activeProject}:${activeDocument}`
 			const currentContent = documentContent?.[documentKey] || ''
 			// Create meta prompt with document context
-			const metaPrompt = createDocumentMetaPrompt(
-				value,
-				currentContent,
-				activeWorkspaceSection,
-			)
+			const metaPrompt = createWorkspaceMetaPrompt({
+				userPrompt: value,
+				taskType: 'edit',
+				projectName: activeProject as string,
+				documentName: activeDocument as string,
+				documentType,
+				sections: parseMarkdownSections(currentContent),
+				sectionTitle: activeWorkspaceSection as string,
+			})
 
 			// Then process workspace edit
 			await workspaceHandleEdit(value, metaPrompt, workspaceCursorPosition)
-
-			// Optionally update thread documents metadata after successful edit.
-			// Trigger idea: add a CTA button in ChatPanelPro or reuse the Save CTA in WorkspaceContentHeader to set this to true.
-			const shouldUpdateMetadata = false
-			// Guard: only if we have an active thread and valid project/document.
-			if (
-				shouldUpdateMetadata &&
-				activeThread?.slug &&
-				activeProject &&
-				activeDocument
-			) {
-				// Compute next version number from existing thread metadata (if any)
-				const meta = (activeThread as unknown as { metadata?: unknown })
-					?.metadata
-				let nextVersion = 1
-				try {
-					if (
-						meta &&
-						typeof meta === 'object' &&
-						Array.isArray((meta as { documents?: unknown }).documents)
-					) {
-						type ThreadDocVersion = {
-							version: number
-							updatedAt: string
-							checksum: string
-							url: string
-						}
-						type ThreadDocMeta = {
-							id: string
-							name?: string
-							project?: string
-							type?: string
-							currentVersion?: number
-							versions?: ThreadDocVersion[]
-						}
-						const docsUnknown = (meta as { documents?: unknown })
-							.documents as unknown[]
-						const threadDocs = docsUnknown.filter(Boolean) as ThreadDocMeta[]
-						const docId = `${activeProject}:${activeDocument}`
-						const metaDoc = threadDocs.find(
-							(d) =>
-								d.id === docId ||
-								d.name === activeDocument ||
-								d.id === activeDocument,
-						)
-						if (metaDoc?.versions?.length) {
-							const byPointer = metaDoc.currentVersion
-							const lastVersion = byPointer
-								? Number(byPointer)
-								: Math.max(
-										...metaDoc.versions.map((v) => Number(v.version) || 0),
-									)
-							nextVersion = Number.isFinite(lastVersion) ? lastVersion + 1 : 1
-						}
-					}
-				} catch (e) {
-					console.warn('Failed to compute next version; defaulting to 1', e)
-					nextVersion = 1
-				}
-
-				// NOTE: This call is optional; keep behind a CTA. Example triggers:
-				// - ChatPanelPro: add a "Save version" button to call this block.
-				// - WorkspaceContentHeader: Save CTA already performs official save and updates metadata.
-				try {
-					await updateThreadDocumentsMetadata({
-						threadSlug: activeThread.slug,
-						documents: [
-							{
-								id: `${activeProject}:${activeDocument}`,
-								project: activeProject,
-								name: activeDocument,
-								type: 'text',
-								currentVersion: nextVersion,
-								versions: [],
-							},
-						],
-					})
-				} catch (e) {
-					console.warn('Optional metadata update failed (non-blocking):', e)
-				}
-			}
 		} else if (workspaceAppend) {
 			// In chat mode, use normal workspaceAppend behavior
 			console.log('💬 Chat mode: using normal workspaceAppend')
@@ -737,20 +408,30 @@ Please provide your response now:`
 	}
 
 	return (
-		<div className="z-50 sticky inset-x-0 bottom-2 w-full max-w-[1032px] mx-auto space-y-2">
+		<motion.div
+			className="z-50 sticky inset-x-0 bottom-2 w-full max-w-[1032px] mx-auto space-y-2"
+			initial={{ opacity: 0, y: 64 }}
+			animate={{ opacity: 1, y: 0 }}
+			exit={{ opacity: 0, y: 64 }}
+			transition={{ duration: 0.35, ease: 'easeInOut' }}
+		>
 			{/* Workspace Section (conditionally shown) */}
 			<AnimatePresence>
 				{isWorkspaceActive && !activeThread && (
-					<div
+					<motion.div
 						className={cn(
 							'size-full px-4 md:px-10',
 							'lg:max-w-[calc(100%-250px)] xl:max-w-[calc(100%-300px)] lg:left-[250px] xl:left-[300px]',
 							'flex justify-center items-end fixed bottom-0 pb-[192px] pt-[10%] left-0',
 							'h-[calc(100vh-4rem)] backdrop-blur-sm ease-in-out duration-500 z-20',
 							'transition-all',
-							isWorkspaceActive ? 'animate-fade-in' : 'animate-fade-out',
 							className,
 						)}
+						initial={{ opacity: 0 }}
+						animate={{ opacity: 1 }}
+						exit={{ opacity: 0 }}
+						transition={{ duration: 0.35, ease: 'easeInOut' }}
+						key="backdrop-workspace-content-chat-panel-pro"
 					>
 						<motion.div
 							className={cn(
@@ -769,7 +450,7 @@ Please provide your response now:`
 								chatbot={chatbot}
 							/>
 						</motion.div>
-					</div>
+					</motion.div>
 				)}
 			</AnimatePresence>
 			<div
@@ -1046,6 +727,6 @@ Please provide your response now:`
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
-		</div>
+		</motion.div>
 	)
 }
