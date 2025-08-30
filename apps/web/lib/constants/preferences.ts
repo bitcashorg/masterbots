@@ -49,11 +49,12 @@ export const preferences = [
 					icon: Save,
 				},
 			},
-			// {
-			// 	title: 'Preferred Language',
-			// 	description: 'Receive emails about new products, features, and more.',
-			// 	type: 'switch',
-			// },
+			{
+				title: 'Preferred Language',
+				description:
+					'Choose your language of preference in the thread conversations and content',
+				type: 'translation',
+			},
 			{
 				title: 'Masterbots Theme',
 				description: 'Change the default theme for the Masterbots site.',
