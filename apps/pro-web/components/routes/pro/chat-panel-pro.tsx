@@ -234,11 +234,12 @@ export function ChatPanelPro({
 		setActiveDocumentType(v)
 
 	// Sync selection dropdowns to respect null/None
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		if (activeDocument === undefined) {
 			setActiveDocument(null)
 		}
-	}, [activeDocument, setActiveDocument])
+	}, [activeDocument])
 
 	// Use departmentList as departmentsByOrg since they contain the same data
 	const departmentsByOrg = departmentList

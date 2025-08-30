@@ -5,8 +5,8 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import type { ThreadWorkspaceDocument } from '@/lib/hooks/use-thread-documents'
 import { cn } from '@/lib/utils'
+import type { WorkspaceDocumentMetadata } from '@/types/thread.types'
 import {
 	ChevronDown,
 	FileSpreadsheetIcon,
@@ -40,12 +40,16 @@ export function Crumb({
 				<button
 					type="button"
 					className={cn(
-						'inline-flex items-center gap-1 px-2 py-1 text-sm rounded-md border bg-background/60 backdrop-blur hover:bg-accent transition',
+						'max-w-[132px] inline-flex items-center gap-1 px-2 py-1 text-sm rounded-md border-transparent bg-background/60 backdrop-blur hover:bg-accent hover:text-accent-foreground transition',
 						disabled && 'opacity-50 cursor-not-allowed',
 					)}
 				>
-					<span className="font-medium truncate max-w-[140px]">
-						{value || label}
+					<span
+						className={cn('font-medium truncate max-w-[132px]', {
+							'opacity-50': !value,
+						})}
+					>
+						{value || `select ${label.toLowerCase()}`}
 					</span>
 					<ChevronDown className="h-3.5 w-3.5 opacity-70" />
 				</button>
@@ -63,7 +67,10 @@ export function Crumb({
 					<DropdownMenuItem
 						key={opt}
 						onClick={() => onSelect(opt)}
-						className={cn('text-sm', value === opt && 'font-semibold')}
+						className={cn(
+							'text-sm cursor-pointer',
+							value === opt && 'font-semibold',
+						)}
 					>
 						{opt}
 					</DropdownMenuItem>
@@ -71,7 +78,7 @@ export function Crumb({
 				<DropdownMenuSeparator />
 				<DropdownMenuItem
 					onClick={() => onNewItem(addType)}
-					className="text-xs text-primary"
+					className="text-xs text-primary cursor-pointer"
 				>
 					+ New {label}
 				</DropdownMenuItem>
@@ -97,15 +104,18 @@ export function DocumentTypeCrumb({
 				<button
 					type="button"
 					className={cn(
-						'inline-flex items-center gap-1 px-2 py-1 text-sm rounded-md border bg-background/60 backdrop-blur hover:bg-accent transition',
+						'max-w-[132px] inline-flex items-center gap-1 px-2 py-1 text-sm rounded-md border-transparent bg-background/60 backdrop-blur hover:bg-accent hover:text-accent-foreground transition',
 						!activeProject && 'opacity-50 cursor-not-allowed',
 					)}
 				>
-					<span className="font-medium truncate max-w-[140px]">
+					<span
+						className={cn('font-medium truncate max-w-full', {
+							'opacity-50 max-w-[56px]': activeDocumentType === 'all',
+						})}
+					>
 						{activeDocumentType === 'all'
-							? 'All Types'
-							: activeDocumentType.charAt(0).toUpperCase() +
-								activeDocumentType.slice(1)}
+							? 'all documents'
+							: activeDocumentType}
 					</span>
 					<ChevronDown className="h-3.5 w-3.5 opacity-70" />
 				</button>
@@ -114,7 +124,7 @@ export function DocumentTypeCrumb({
 				<DropdownMenuItem
 					onClick={() => updateActiveDocumentTypeItem('all')}
 					className={cn(
-						'text-sm',
+						'text-sm cursor-pointer',
 						activeDocumentType === 'all' ? 'font-semibold' : '',
 					)}
 				>
@@ -127,7 +137,7 @@ export function DocumentTypeCrumb({
 				<DropdownMenuItem
 					onClick={() => updateActiveDocumentTypeItem('text')}
 					className={cn(
-						'text-sm gap-2 flex',
+						'text-sm gap-2 flex cursor-pointer',
 						activeDocumentType === 'text' ? 'font-semibold' : '',
 					)}
 				>
@@ -138,7 +148,7 @@ export function DocumentTypeCrumb({
 				<DropdownMenuItem
 					onClick={() => updateActiveDocumentTypeItem('image')}
 					className={cn(
-						'text-sm gap-2 flex',
+						'text-sm gap-2 flex cursor-pointer',
 						activeDocumentType === 'image' ? 'font-semibold' : '',
 					)}
 				>
@@ -149,7 +159,7 @@ export function DocumentTypeCrumb({
 				<DropdownMenuItem
 					onClick={() => updateActiveDocumentTypeItem('spreadsheet')}
 					className={cn(
-						'text-sm gap-2 flex',
+						'text-sm gap-2 flex cursor-pointer',
 						activeDocumentType === 'spreadsheet' ? 'font-semibold' : '',
 					)}
 				>
@@ -168,16 +178,20 @@ export function DocumentCrumb({
 	userDocuments,
 	activeThread,
 	documentOptions,
-	onDocumentSelect,
 	threadDocsByName,
+	onNewItem,
+	onDocumentSelect,
 }: {
 	activeProject: string
 	activeDocument: string
-	userDocuments: ThreadWorkspaceDocument[]
+	userDocuments: WorkspaceDocumentMetadata[]
 	activeThread: Thread | null
 	documentOptions: string[]
-	onDocumentSelect: (doc: string) => void
 	threadDocsByName: Map<string, { type?: 'text' | 'image' | 'spreadsheet' }>
+	onNewItem: (
+		type: 'organization' | 'department' | 'project' | 'document',
+	) => void
+	onDocumentSelect: (doc: string) => void
 }) {
 	return (
 		<DropdownMenu>
@@ -191,7 +205,7 @@ export function DocumentCrumb({
 				<button
 					type="button"
 					className={cn(
-						'inline-flex items-center gap-1 px-2 py-1 text-sm rounded-md border bg-background/60 backdrop-blur hover:bg-accent transition',
+						'max-w-[132px] inline-flex items-center gap-1 px-2 py-1 text-sm rounded-md border-transparent bg-background/60 backdrop-blur hover:bg-accent hover:text-accent-foreground transition',
 						!activeProject &&
 							!(
 								userDocuments?.length ||
@@ -200,8 +214,12 @@ export function DocumentCrumb({
 							'opacity-50 cursor-not-allowed',
 					)}
 				>
-					<span className="font-medium truncate max-w-[180px]">
-						{activeDocument || 'Doc'}
+					<span
+						className={cn('font-medium truncate max-w-[180px]', {
+							'opacity-50': !activeDocument,
+						})}
+					>
+						{activeDocument || 'select a document'}
 					</span>
 					<ChevronDown className="h-3.5 w-3.5 opacity-70" />
 				</button>
@@ -220,7 +238,7 @@ export function DocumentCrumb({
 						key={opt}
 						onClick={() => onDocumentSelect(opt)}
 						className={cn(
-							'text-sm flex items-center gap-2',
+							'text-sm flex items-center gap-2 cursor-pointer',
 							activeDocument === opt && 'font-semibold',
 						)}
 					>
@@ -245,6 +263,13 @@ export function DocumentCrumb({
 						<span className="truncate">{opt}</span>
 					</DropdownMenuItem>
 				))}
+				<DropdownMenuSeparator />
+				<DropdownMenuItem
+					onClick={() => onNewItem('document')}
+					className="text-xs text-primary cursor-pointer"
+				>
+					+ New document
+				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>
 	)

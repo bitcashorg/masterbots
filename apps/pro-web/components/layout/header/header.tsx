@@ -362,12 +362,13 @@ export function Header() {
 
 	const onDocumentSelect = async (name: string) => {
 		if (!activeProject) return
+		if (name === 'None' && isWorkspaceActive) toggleWorkspace()
 
 		const doc = userDocuments.find(
 			(d) => d.name === name && d.project === activeProject,
 		)
 
-		setActiveDocument(name)
+		setActiveDocument(name === 'None' ? null : name)
 
 		if (!doc || (!doc.threadSlug && isOpenPopup)) {
 			// This is a local draft document (not in userDocuments).
@@ -375,7 +376,7 @@ export function Header() {
 			setActiveThread(null)
 			setIsOpenPopup(false)
 
-			if (!isWorkspaceActive) toggleWorkspace()
+			if (!isWorkspaceActive && name !== 'None') toggleWorkspace()
 
 			return
 		}
@@ -389,6 +390,15 @@ export function Header() {
 			setIsOpenPopup(true)
 
 			if (!isWorkspaceActive) toggleWorkspace()
+		}
+
+		if (
+			doc.threadSlug === activeThread?.slug &&
+			isWorkspaceActive &&
+			name === 'None'
+		) {
+			// We close the workspace mode, we keep the conversation open
+			toggleWorkspace()
 		}
 	}
 
@@ -440,11 +450,11 @@ export function Header() {
 	}
 
 	// Handle document creation from dialog
-	const handleCreateDocument = () => {
+	const handleCreateDocument = (templateId?: string) => {
 		if (!documentName.trim() || !activeProject) return
 
 		// Add the document
-		addDocument(activeProject, documentName.trim(), docType)
+		addDocument(activeProject, documentName.trim(), docType, templateId)
 		setActiveDocument(documentName.trim())
 
 		// Close dialog and reset state
@@ -501,14 +511,14 @@ export function Header() {
 					/>
 				</div>
 				{/* Workspace Breadcrumbs */}
-				<div className="hidden md:flex items-center gap-1 ml-2.5 pr-4 border-r mr-4">
+				<div className="hidden w-full md:flex items-center gap-0.5 ml-2.5 pr-4 border-r mr-4">
 					<Crumb
 						label="Org"
 						value={activeOrganization}
 						options={organizationList || []}
 						onSelect={(v) => {
 							if (v === activeOrganization) return
-							setActiveOrganization(v)
+							setActiveOrganization(v === 'None' ? null : v)
 							setActiveDepartment(null)
 							setActiveProject(null)
 							setActiveDocument(null)
@@ -525,7 +535,7 @@ export function Header() {
 						options={deptOptions}
 						onSelect={(v) => {
 							if (v === activeDepartment) return
-							setActiveDepartment(v)
+							setActiveDepartment(v === 'None' ? null : v)
 							setActiveProject(null)
 							setActiveDocument(null)
 							if (isOpenPopup) setIsOpenPopup(false)
@@ -542,7 +552,7 @@ export function Header() {
 						options={projectOptions}
 						onSelect={(v) => {
 							if (v === activeProject) return
-							setActiveProject(v)
+							setActiveProject(v === 'None' ? null : v)
 							setActiveDocument(null)
 							if (isOpenPopup) setIsOpenPopup(false)
 							setActiveThread(null)
@@ -576,8 +586,9 @@ export function Header() {
 						])}
 						activeThread={activeThread}
 						documentOptions={documentOptions}
-						onDocumentSelect={onDocumentSelect}
 						threadDocsByName={threadDocsByName}
+						onNewItem={handleAddEntity}
+						onDocumentSelect={onDocumentSelect}
 					/>
 				</div>
 			</div>
@@ -592,7 +603,7 @@ export function Header() {
 			{/* Document Creation Dialog */}
 			<DocumentCreateAlert
 				isDocumentDialogOpen={isDocumentDialogOpen}
-				documentType={documentType as 'text' | 'image' | 'spreadsheet'}
+				documentType={documentType === 'all' ? 'text' : documentType}
 				activeProject={activeProject as string}
 				documentName={documentName}
 				setDocumentName={setDocumentName}
