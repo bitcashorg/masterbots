@@ -4,7 +4,7 @@ import type {
 	ChatbotMetadataHeaders,
 	ExampleMetadata,
 	ReturnFetchChatbotMetadata,
-} from '@/types/types'
+} from '@/types'
 import { validateMbEnv } from 'mb-env'
 import {
 	type Category,
@@ -1104,14 +1104,24 @@ export async function updateThreadVisibility({
  */
 export async function refreshThreadAfterMetadataUpdate({
 	threadId,
+	threadSlug,
 	jwt,
 }: {
-	threadId: string
+	threadId?: string
+	threadSlug?: string
 	jwt?: string
 }): Promise<{ success: boolean; thread?: Thread; error?: string }> {
 	try {
+		if (!threadId && !threadSlug) {
+			return {
+				success: false,
+				error: 'Missing thread identifier (threadId or threadSlug)',
+			}
+		}
+
 		const updatedThread = await getThread({
 			threadId,
+			threadSlug,
 			jwt,
 			isPersonal: true,
 		})

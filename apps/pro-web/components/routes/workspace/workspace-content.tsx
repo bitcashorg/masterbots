@@ -1,11 +1,14 @@
-'use client'
-
 import {
 	updateThreadDocumentsMetadata,
 	uploadWorkspaceDocumentToBucket,
 } from '@/app/actions/thread.actions'
 import { Button } from '@/components/ui/button'
 import { computeChecksum } from '@/lib/checksum'
+import {
+	type WorkspaceTaskType,
+	createWorkspaceMetaPrompt,
+} from '@/lib/constants/prompts'
+import { getUserIndexedDBKeys } from '@/lib/hooks/use-chat-attachments'
 import { type IndexedDBItem, useIndexedDB } from '@/lib/hooks/use-indexed-db'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useWorkspace } from '@/lib/hooks/use-workspace'
@@ -26,6 +29,10 @@ import {
 	upsertDocumentDraft,
 } from '@/lib/workspace-state'
 import { createThread } from '@/services/hasura/hasura.service'
+import type {
+	WorkspaceDocumentMetadata,
+	WorkspaceDocumentVersion,
+} from '@/types/thread.types'
 import { FileIcon, Image, PlusIcon, Table } from 'lucide-react'
 import type { Chatbot } from 'mb-genql'
 import { nanoid } from 'nanoid'
@@ -35,34 +42,18 @@ import { WorkspaceContentHeader } from './workspace-content-header'
 import { WorkspaceContentWrapper } from './workspace-content-wrapper'
 import { WorkspaceTextEditor } from './workspace-text-editor'
 
-// Lightweight types for thread metadata documents
-type ThreadDocVersion = {
-	version: number
-	updatedAt: string
-	checksum: string
-	url: string
-}
-type ThreadDocMeta = {
-	id: string
-	name?: string
-	project?: string
-	type?: 'text' | 'image' | 'spreadsheet'
-	currentVersion?: number
-	versions?: ThreadDocVersion[]
-}
-
-function isThreadDocVersion(v: unknown): v is ThreadDocVersion {
+function isThreadDocVersion(v: unknown): v is WorkspaceDocumentVersion {
 	return (
 		!!v &&
-		typeof (v as ThreadDocVersion).version === 'number' &&
-		typeof (v as ThreadDocVersion).updatedAt === 'string' &&
-		typeof (v as ThreadDocVersion).checksum === 'string' &&
-		typeof (v as ThreadDocVersion).url === 'string'
+		typeof (v as WorkspaceDocumentVersion).version === 'number' &&
+		typeof (v as WorkspaceDocumentVersion).updatedAt === 'string' &&
+		typeof (v as WorkspaceDocumentVersion).checksum === 'string' &&
+		typeof (v as WorkspaceDocumentVersion).url === 'string'
 	)
 }
 
-function isThreadDocMeta(d: unknown): d is ThreadDocMeta {
-	const doc = d as ThreadDocMeta
+function isThreadDocMeta(d: unknown): d is WorkspaceDocumentMetadata {
+	const doc = d as WorkspaceDocumentMetadata
 	const versionsOk =
 		!doc.versions ||
 		(Array.isArray(doc.versions) && doc.versions.every(isThreadDocVersion))
@@ -128,8 +119,13 @@ function WorkspaceContentInternal({
 	} = useWorkspaceChat()
 	const { activeThread, refreshActiveThread } = useThread()
 	const { data: session } = useSession()
+	// Use the same per-user DB naming as readers (attachments/documents) so saved docs are discoverable
+	const dbKeys = React.useMemo(
+		() => getUserIndexedDBKeys(session?.user?.id),
+		[session?.user?.id],
+	)
 	const { addItem: addIndexedItem, updateItem: updateIndexedItem } =
-		useIndexedDB({})
+		useIndexedDB(dbKeys)
 	const { customSonner } = useSonner()
 
 	// Shared checksum now imported from '@/lib/checksum'
@@ -218,12 +214,7 @@ This is a new document. Add your content here.
 	const [isSaving, setIsSaving] = React.useState(false)
 	const [showVersions, setShowVersions] = React.useState(false)
 	const [versions, setVersions] = React.useState<
-		Array<{
-			version: number
-			updatedAt: string
-			checksum: string
-			url: string
-		}>
+		Array<WorkspaceDocumentVersion>
 	>([])
 
 	// Refs
@@ -420,127 +411,46 @@ This is a new document. Add your content here.
 		[],
 	)
 
-	// Create meta prompt function
-	const createWorkspaceMetaPrompt = React.useCallback(
-		(
-			userPrompt: string,
-			sectionTitle: string,
-			taskType: 'expand' | 'rewrite',
-		) => {
-			const sectionsContext = sections
-				.map(
-					(section) =>
-						`## ${section.title} (Level ${section.level})\n${section.content}\n`,
-				)
-				.join('\n')
-
-			const focusedSection = sections.find((s) => s.title === sectionTitle)
-
-			if (!focusedSection) return ''
-
-			let chatbotExpertise = ''
-			if (chatbot?.prompts && chatbot.prompts.length > 0) {
-				const expertisePrompts = chatbot.prompts
-					.filter((p) => p.prompt.type === 'prompt')
-					.map((p) => `<expertise>\n${p.prompt.content}\n</expertise>`)
-					.join('\n\n')
-
-				const instructionPrompts = chatbot.prompts
-					.filter((p) => p.prompt.type === 'instruction')
-					.map((p) => `<instructions>\n${p.prompt.content}\n</instructions>`)
-					.join('\n\n')
-
-				chatbotExpertise = `\n\nCHATBOT EXPERTISE:\n${expertisePrompts}\n\n${instructionPrompts}\n`
-			}
-
-			const taskAction = taskType === 'expand' ? 'expand' : 'rewrite'
-			const taskDescription =
-				taskType === 'expand'
-					? "with detailed, relevant content that fits the document's context and purpose"
-					: "to improve clarity, coherence, and alignment with the document's overall purpose and structure"
-
-			const taskInstructions = `
-EDITING MODE: SECTION ${taskType.toUpperCase()}
-You are ${taskType === 'expand' ? 'expanding' : 'rewriting'} a specific section of a larger document. The user has requested to ${taskAction} the section "${focusedSection.title}".
-
-WORKSPACE CONTEXT:
-- Project: ${projectName || 'Untitled Project'}
-- Document: ${documentName || 'Untitled Document'}
-- Document Type: ${documentType}
-- Active Section: ${sectionTitle}
-- Total Sections: ${sections.length}
-
-CURRENT SECTION BEING EDITED:
-## ${focusedSection.title} (Level ${focusedSection.level})
-${focusedSection.content}
-
-USER REQUEST: ${userPrompt}
-
-TASK: ${taskAction.charAt(0).toUpperCase() + taskAction.slice(1)} the "${focusedSection.title}" section ${taskDescription}.`
-
-			const outputFormat = `
-<output_format>
-Return ONLY the ${taskType === 'expand' ? 'expanded' : 'rewritten'} content for the "${focusedSection.title}" section. Your response should be the new content that will replace the existing section content.
-
-ACCEPTABLE FORMATS:
-1. Plain text content (will be inserted as-is into the section).
-2. Markdown content with subsections (H3, H4, etc.) that belong under "${focusedSection.title}".
-
-DO NOT INCLUDE:
-- The section heading itself (## ${focusedSection.title}).
-- Other sections from the document.
-- Complete document restructure.
-- Content that belongs to other sections.
-</output_format>`
-
-			return `You are an expert document editor and content creator working with specialized chatbot expertise.${chatbotExpertise}
-
-${taskInstructions}
-
-${outputFormat}
-
-INSTRUCTIONS:
-1. Apply your specialized expertise to the document editing task
-2. Analyze the user's request in the context of the provided document
-3. Maintain the document's style and tone while applying your expertise
-4. Focus on providing valuable, actionable content improvements
-5. Ensure your response integrates well with the existing document structure
-
-Please provide your response now:`
-		},
-		[chatbot, projectName, documentName, documentType, sections],
-	)
-
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const handleExpandSection = React.useCallback(
 		async (sectionTitle: string) => {
 			const prompt = `Proceed to expand ${sectionTitle} section`
-			const metaPrompt = createWorkspaceMetaPrompt(
-				prompt,
+			const metaPrompt = createWorkspaceMetaPrompt({
+				userPrompt: prompt,
+				taskType: 'expand',
+				projectName,
+				documentName,
+				documentType,
+				sections,
 				sectionTitle,
-				'expand',
-			)
+			})
 
 			if (!metaPrompt) return
 
 			await handleWorkspaceEdit(prompt, metaPrompt, cursorPosition)
 		},
-		[createWorkspaceMetaPrompt, handleWorkspaceEdit, cursorPosition],
+		[handleWorkspaceEdit, cursorPosition],
 	)
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const handleRewriteSection = React.useCallback(
 		async (sectionTitle: string) => {
 			const prompt = `Rewrite ${sectionTitle} section`
-			const metaPrompt = createWorkspaceMetaPrompt(
-				prompt,
+			const metaPrompt = createWorkspaceMetaPrompt({
+				userPrompt: prompt,
+				taskType: 'rewrite',
+				projectName,
+				documentName,
+				documentType,
+				sections,
 				sectionTitle,
-				'rewrite',
-			)
+			})
 
 			if (!metaPrompt) return
 
 			await handleWorkspaceEdit(prompt, metaPrompt, cursorPosition)
 		},
-		[createWorkspaceMetaPrompt, handleWorkspaceEdit, cursorPosition],
+		[handleWorkspaceEdit, cursorPosition],
 	)
 
 	// Unified save function (create thread if needed, verify checksum, versioning, upload, cache)
@@ -620,9 +530,7 @@ Please provide your response now:`
 			}
 
 			// Prepare checksum and compare with latest version (if any)
-			const docId = `${projectName}:${documentName}`
-			const currentChecksum = computeChecksum(content)
-			let threadDocuments: ThreadDocMeta[] = []
+			let threadDocuments: WorkspaceDocumentMetadata[] = []
 			const meta = (activeThread as unknown as { metadata?: unknown })?.metadata
 			if (
 				meta &&
@@ -632,20 +540,23 @@ Please provide your response now:`
 				const docs = (meta as { documents?: unknown }).documents as unknown[]
 				threadDocuments = docs.filter(isThreadDocMeta)
 			}
+
 			const metaDoc = threadDocuments.find(
-				(d) =>
-					d?.id === docId || d?.name === documentName || d?.id === documentName,
+				(d) => d.name === documentName && d.project === projectName,
 			)
+			const docId = metaDoc?.id || nanoid()
+			const currentChecksum = computeChecksum(content)
+
 			let latestChecksum: string | null = null
 			if (metaDoc?.versions?.length) {
 				// Prefer currentVersion pointer, fallback to latest by updatedAt
 				const byVersion = metaDoc.versions.find(
-					(v: ThreadDocVersion) => v.version === metaDoc.currentVersion,
+					(v: WorkspaceDocumentVersion) => v.version === metaDoc.currentVersion,
 				)
 				const latest = byVersion
 					? byVersion
 					: [...metaDoc.versions].sort(
-							(a: ThreadDocVersion, b: ThreadDocVersion) =>
+							(a: WorkspaceDocumentVersion, b: WorkspaceDocumentVersion) =>
 								new Date(b.updatedAt).getTime() -
 								new Date(a.updatedAt).getTime(),
 						)[0]
@@ -659,7 +570,6 @@ Please provide your response now:`
 
 			setIsSaving(true)
 
-			// 2) Resolve or create thread; official versions go to thread metadata and bucket
 			let threadSlug = activeThread?.slug
 			if (!threadSlug) {
 				// Need session and chatbot to create a thread
@@ -683,12 +593,21 @@ Please provide your response now:`
 						documents: [
 							{
 								id: docId,
+								url: '',
+								content: '',
+								size: 0,
+								threadSlug: newThreadSlug,
+								organization: activeOrganization as string,
+								department: activeDepartment as string,
 								project: projectName,
 								name: documentName,
 								type,
 								currentVersion: 1,
 								versions: [],
-							},
+								expires: new Date(
+									Date.now() + 7 * 24 * 60 * 60 * 1000,
+								).toISOString(),
+							} as WorkspaceDocumentMetadata,
 						],
 						organization: activeOrganization,
 						department: activeDepartment,
@@ -713,10 +632,7 @@ Please provide your response now:`
 								documents: threadMetadata.documents,
 							})
 							// Refresh to pull latest metadata
-							await refreshActiveThread(
-								createdThread.threadId,
-								session.user.hasuraJwt,
-							)
+							await refreshActiveThread({ threadId: createdThread.threadId })
 						} catch (metadataError) {
 							console.warn('Failed to update thread metadata:', metadataError)
 						}
@@ -729,22 +645,29 @@ Please provide your response now:`
 					console.error('Failed to create thread for document save:', error)
 					setIsSaving(false)
 					return
+				} finally {
+					setIsSaving(false)
 				}
-			}
-
-			if (!threadSlug) {
-				setIsSaving(false)
 				return
 			}
 
 			// Upload document content to bucket (server handles official versioning + checksum)
-			const { document } = await uploadWorkspaceDocumentToBucket({
+			const { document, existed } = await uploadWorkspaceDocumentToBucket({
 				threadSlug,
+				organization: activeOrganization as string,
+				department: activeDepartment as string,
 				project: projectName,
 				name: documentName,
 				content,
 				type,
 			})
+
+			if (existed) {
+				customSonner({
+					type: 'info',
+					text: 'This version already exists and has been restored.',
+				})
+			}
 
 			// Store raw locally (IndexedDB) as data URL
 			const base64 = await new Promise<string>((resolve, reject) => {
@@ -760,9 +683,12 @@ Please provide your response now:`
 			})
 
 			const id = document?.id || docId
+			const documentVersion = document?.currentVersion || 1
 			const item = {
 				id,
 				name: documentName,
+				organization: activeOrganization,
+				department: activeDepartment,
 				project: projectName,
 				type,
 				url: base64,
@@ -770,6 +696,8 @@ Please provide your response now:`
 				size: new Blob([content]).size,
 				messageIds: [],
 				expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+				threadSlug,
+				version: documentVersion,
 			} as unknown as IndexedDBItem
 
 			try {
@@ -779,17 +707,12 @@ Please provide your response now:`
 			}
 
 			if (document?.versions?.length) {
-				setVersions(
-					document.versions.map((v: ThreadDocVersion) => ({
-						version: v.version,
-						updatedAt: v.updatedAt,
-						checksum: v.checksum,
-						url: v.url,
-					})),
-				)
+				setVersions(document.versions)
 			}
 
-			customSonner({ type: 'success', text: `${type} document saved.` })
+			if (!existed) {
+				customSonner({ type: 'success', text: `${type} document saved.` })
+			}
 		} catch (e) {
 			console.error('Save failed', e)
 			customSonner({ type: 'error', text: 'Failed to save document.' })
@@ -798,36 +721,83 @@ Please provide your response now:`
 		}
 	}
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const handleRollback = React.useCallback(
 		async (versionNumber: number) => {
 			if (!projectName || !documentName || !activeThread?.slug) return
 			try {
+				const versionToRollback = versions.find(
+					(v) => v.version === versionNumber,
+				)
+				if (!versionToRollback || !versionToRollback.url) {
+					customSonner({ type: 'error', text: 'Version content not found.' })
+					return
+				}
+
+				// Fetch the content of the version to rollback to
+				const response = await fetch(versionToRollback.url)
+				if (!response.ok) {
+					customSonner({
+						type: 'error',
+						text: 'Failed to fetch version content.',
+					})
+					return
+				}
+				const newContent = await response.text()
+
+				// Update local state
+				setFullMarkdown(newContent)
+				setSections(parseMarkdownSections(newContent))
+				if (projectName && documentName) {
+					setDocumentContent(projectName, documentName, newContent)
+				}
+				if (viewMode === 'sections') {
+					setActiveSection(null)
+					setEditableContent('')
+				}
+
 				const updated = versions.map((v) => v)
+
 				await updateThreadDocumentsMetadata({
 					threadSlug: activeThread.slug,
 					documents: [
 						{
 							id: `${projectName}:${documentName}`,
+							url: versionToRollback.url,
+							content: versionToRollback.content,
+							expires: new Date(
+								Date.now() + 7 * 24 * 60 * 60 * 1000,
+							).toISOString(),
+							threadSlug: activeThread.slug,
+							organization: activeOrganization as string,
+							department: activeDepartment as string,
 							project: projectName,
 							name: documentName,
 							type: documentType as 'text' | 'image' | 'spreadsheet',
 							currentVersion: versionNumber,
-							versions: updated.map((u) => ({
-								version: u.version,
-								updatedAt: u.updatedAt,
-								checksum: u.checksum,
-								url: u.url,
-								contentKey: '',
-								size: 0,
-							})),
-						},
+							versions: updated,
+						} as WorkspaceDocumentMetadata,
 					],
+				})
+				customSonner({
+					type: 'success',
+					text: `Rolled back to version ${versionNumber}.`,
 				})
 			} catch (e) {
 				console.error('Rollback failed', e)
+				customSonner({ type: 'error', text: 'Rollback failed.' })
 			}
 		},
-		[projectName, documentName, activeThread?.slug, versions, documentType],
+		[
+			projectName,
+			documentName,
+			activeThread?.slug,
+			versions,
+			documentType,
+			customSonner,
+			setDocumentContent,
+			viewMode,
+		],
 	)
 
 	// Load versions from thread metadata when opening History
@@ -836,7 +806,7 @@ Please provide your response now:`
 			try {
 				const meta = (activeThread as unknown as { metadata?: unknown })
 					?.metadata
-				let threadDocuments: ThreadDocMeta[] = []
+				let threadDocuments: WorkspaceDocumentMetadata[] = []
 				if (
 					meta &&
 					typeof meta === 'object' &&
@@ -853,14 +823,7 @@ Please provide your response now:`
 						d?.id === documentName,
 				)
 				if (metaDoc?.versions?.length) {
-					setVersions(
-						metaDoc.versions.map((v) => ({
-							version: v.version,
-							updatedAt: v.updatedAt,
-							checksum: v.checksum,
-							url: v.url,
-						})),
-					)
+					setVersions(metaDoc.versions)
 				} else {
 					setVersions([])
 				}

@@ -6,7 +6,7 @@ import type {
 	ImageTiming,
 	OpenAIImageModel,
 	UseImageGenerationReturn,
-} from '@/types/types'
+} from '@/types'
 import { nanoid } from 'nanoid'
 import { useCallback, useState } from 'react'
 import { useMBChat } from './use-mb-chat'

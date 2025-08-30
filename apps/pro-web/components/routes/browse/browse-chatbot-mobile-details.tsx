@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { memoizedMarkdownComponents } from '@/lib/memoized-markdown-components'
 import { cn, isFollowed, numberShortener } from '@/lib/utils'
-import type { BrowseChatbotLayoutProps } from '@/types/types'
+import type { BrowseChatbotLayoutProps } from '@/types'
 import {
 	Bot,
 	ChevronLeft,

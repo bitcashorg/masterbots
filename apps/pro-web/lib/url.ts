@@ -15,7 +15,7 @@ import type {
 	TopicThreadListUrlParams,
 	UserChatbotThreadListUrlParams,
 	UserTopicThreadListUrlParams,
-} from '@/types/url'
+} from '@/types/url.types'
 import { appConfig } from 'mb-env'
 import { toSlug } from 'mb-lib'
 import { wordsToRemove } from 'mb-lib/src/constants/slug-seo-words'

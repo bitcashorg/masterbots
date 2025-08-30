@@ -7,7 +7,7 @@ import {
 import { cleanPrompt } from '@/lib/helpers/ai-helpers'
 import { memoizedMarkdownComponents } from '@/lib/memoized-markdown-components'
 import { cn, getRouteType } from '@/lib/utils'
-import type { ChatMessageProps, WebSearchResult } from '@/types/types'
+import type { ChatMessageProps, WebSearchResult } from '@/types'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import rehypeMathJax from 'rehype-mathjax'

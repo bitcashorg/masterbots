@@ -1,7 +1,7 @@
 'use client'
 
 import { SidebarItem } from '@/components/layout/sidebar/sidebar-item'
-import type { Chat } from '@/types/types'
+import type { Chat } from '@/types'
 import { AnimatePresence, motion } from 'framer-motion'
 
 interface SidebarItemsProps {

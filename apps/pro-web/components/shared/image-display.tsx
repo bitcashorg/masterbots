@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/tooltip'
 import { imageHelpers } from '@/lib/helpers/ai-image'
 import { cn } from '@/lib/utils'
-import type { ImageDisplayProps } from '@/types/types'
+import type { ImageDisplayProps } from '@/types'
 import { AlertCircle, Download, Share } from 'lucide-react'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
