@@ -45,6 +45,7 @@ import { signOut, useSession } from 'next-auth/react'
 import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
 import { useAsyncFn } from 'react-use'
+import GoogleTranslate from './google-translation'
 import { PreferenceItemTitle } from './preference-item'
 
 export function PreferenceSection({ title, items }: PreferenceSectionProps) {
@@ -535,6 +536,7 @@ export function PreferenceSection({ title, items }: PreferenceSectionProps) {
 												}
 											/>
 										)}
+										{item.type === 'translation' && <GoogleTranslate />}
 										{item.type === 'dropdown' && (
 											<div className="w-[140px]">
 												<Select
