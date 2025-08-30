@@ -1,5 +1,5 @@
 import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
-import type { ThreadMetadata } from '@/lib/hooks/use-indexed-db'
+import type { ThreadMetadata } from '@/types/thread.types'
 import { Storage } from '@google-cloud/storage'
 import { eq, isNotNull, sql } from 'drizzle-orm'
 import { db, thread } from 'mb-drizzle'
