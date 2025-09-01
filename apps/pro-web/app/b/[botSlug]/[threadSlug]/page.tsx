@@ -5,7 +5,7 @@ import {
 	getChatbot,
 	getThread,
 } from '@/services/hasura'
-import type { PageProps } from '@/types/types'
+import type { PageProps } from '@/types'
 import type { Metadata } from 'next'
 
 import { BotProfileThreadSection } from '@/components/routes/bot/bot-profile-thread-section'

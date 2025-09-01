@@ -1,7 +1,7 @@
 import { Hero } from '@/components/layout/profile/hero'
 import { UserProfileSidebar } from '@/components/layout/profile/profile-page-sidebar'
 import { getUserBySlug } from '@/services/hasura'
-import type { PageProps } from '@/types/types'
+import type { PageProps } from '@/types'
 import type { User } from 'mb-genql'
 import { getServerSession } from 'next-auth'
 import NextTopLoader from 'nextjs-toploader'

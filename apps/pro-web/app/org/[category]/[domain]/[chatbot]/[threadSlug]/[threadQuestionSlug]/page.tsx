@@ -2,7 +2,7 @@ import BrowseList from '@/components/routes/browse/browse-list'
 import { BrowseSearchInput } from '@/components/routes/browse/browse-search-input'
 import { PAGE_SIZE } from '@/lib/constants/hasura'
 import { getBrowseThreads, getCategories } from '@/services/hasura'
-import type { PageProps } from '@/types/types'
+import type { PageProps } from '@/types'
 import { toSlug } from 'mb-lib'
 
 export { generateMbMetadata as generateMetadata } from '@/lib/metadata'

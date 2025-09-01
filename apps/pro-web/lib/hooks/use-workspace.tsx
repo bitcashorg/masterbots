@@ -1,10 +1,19 @@
 'use client'
 
 import type { WorkspaceStatePayload } from '@/app/api/workspace/state/route'
+import { workspaceDocTemplates } from '@/lib/constants/workspace-templates'
 import { useSession } from 'next-auth/react'
-import * as React from 'react'
+import type * as React from 'react'
+import {
+	createContext,
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react'
 
-interface WorkspaceContextType {
+export interface WorkspaceContextType {
 	isWorkspaceActive: boolean
 	toggleWorkspace: () => void
 	activeOrganization: string | null
@@ -39,59 +48,64 @@ interface WorkspaceContextType {
 		project: string,
 		name: string,
 		type?: 'text' | 'image' | 'spreadsheet',
+		templateContent?: string,
 	) => void
+	templates: Record<
+		'text' | 'image' | 'spreadsheet',
+		Record<
+			string,
+			{ name: string; content: (name: string, project: string) => string }
+		>
+	>
 }
 
-const WorkspaceContext = React.createContext<WorkspaceContextType | undefined>(
+const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
 	undefined,
 )
 
 export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
-	const [isWorkspaceActive, setIsWorkspaceActive] = React.useState(false)
-	const [activeOrganization, setActiveOrganization] = React.useState<
-		string | null
-	>(null)
-	const [activeDepartment, setActiveDepartment] = React.useState<string | null>(
+	const [isWorkspaceActive, setIsWorkspaceActive] = useState(false)
+	const [activeOrganization, setActiveOrganization] = useState<string | null>(
 		null,
 	)
-	const [activeProject, setActiveProject] = React.useState<string | null>(null)
-	const [activeDocument, setActiveDocument] = React.useState<string | null>(
-		null,
-	)
-	const [activeDocumentType, setActiveDocumentType] = React.useState<
+	const [activeDepartment, setActiveDepartment] = useState<string | null>(null)
+	const [activeProject, setActiveProject] = useState<string | null>(null)
+	const [activeDocument, setActiveDocument] = useState<string | null>(null)
+	const [activeDocumentType, setActiveDocumentType] = useState<
 		'all' | 'text' | 'image' | 'spreadsheet'
 	>('all')
-	const [organizationList, setOrganizationList] = React.useState<string[]>([])
-	const [departmentsByOrg, setDepartmentsByOrg] = React.useState<
+	const [organizationList, setOrganizationList] = useState<string[]>([])
+	const [departmentsByOrg, setDepartmentsByOrg] = useState<
 		Record<string, string[]>
 	>({})
-	const [projectsByDept, setProjectsByDept] = React.useState<
+	const [projectsByDept, setProjectsByDept] = useState<
 		Record<string, Record<string, string[]>>
 	>({})
 	// Document maps (type segregated)
-	const [textDocuments, setTextDocuments] = React.useState<
+	const [textDocuments, setTextDocuments] = useState<Record<string, string[]>>(
+		{},
+	)
+	const [imageDocuments, setImageDocuments] = useState<
 		Record<string, string[]>
 	>({})
-	const [imageDocuments, setImageDocuments] = React.useState<
-		Record<string, string[]>
-	>({})
-	const [spreadsheetDocuments, setSpreadsheetDocuments] = React.useState<
+	const [spreadsheetDocuments, setSpreadsheetDocuments] = useState<
 		Record<string, string[]>
 	>({})
 	const { data: session } = useSession()
+	const templates = useMemo(() => workspaceDocTemplates, [])
 	// Derived projectList (flatten) recomputed on changes
-	const projectList = React.useMemo(() => {
+	const projectList = useMemo(() => {
 		return Object.values(projectsByDept).flatMap((deptMap) =>
 			Object.values(deptMap).flat(),
 		)
 	}, [projectsByDept])
-	const documentList: Record<string, string[]> = React.useMemo(
+	const documentList: Record<string, string[]> = useMemo(
 		() => ({ ...textDocuments, ...imageDocuments, ...spreadsheetDocuments }),
 		[textDocuments, imageDocuments, spreadsheetDocuments],
 	)
 
 	// Dynamic add helpers
-	const addOrganization = React.useCallback((name: string) => {
+	const addOrganization = useCallback((name: string) => {
 		if (!name) return
 		setOrganizationList((prev) =>
 			prev.includes(name) ? prev : [...prev, name].sort(),
@@ -100,7 +114,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 		setProjectsByDept((prev) => (prev[name] ? prev : { ...prev, [name]: {} }))
 	}, [])
 
-	const addDepartment = React.useCallback((org: string, name: string) => {
+	const addDepartment = useCallback((org: string, name: string) => {
 		if (!org || !name) return
 		setDepartmentsByOrg((prev) => {
 			const existing = prev[org] || []
@@ -113,32 +127,30 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 		})
 	}, [])
 
-	const addProject = React.useCallback(
-		(org: string, dept: string, name: string) => {
-			if (!org || !dept || !name) return
-			setProjectsByDept((prev) => {
-				const orgMap = prev[org] || {}
-				const existing = orgMap[dept] || []
-				if (existing.includes(name)) return prev
-				return {
-					...prev,
-					[org]: { ...orgMap, [dept]: [...existing, name].sort() },
-				}
-			})
-			// initialize empty document arrays
-			setTextDocuments((prev) => (prev[name] ? prev : { ...prev, [name]: [] }))
-			setImageDocuments((prev) => (prev[name] ? prev : { ...prev, [name]: [] }))
-			setSpreadsheetDocuments((prev) =>
-				prev[name] ? prev : { ...prev, [name]: [] },
-			)
-		},
-		[],
-	)
+	const addProject = useCallback((org: string, dept: string, name: string) => {
+		if (!org || !dept || !name) return
+		setProjectsByDept((prev) => {
+			const orgMap = prev[org] || {}
+			const existing = orgMap[dept] || []
+			if (existing.includes(name)) return prev
+			return {
+				...prev,
+				[org]: { ...orgMap, [dept]: [...existing, name].sort() },
+			}
+		})
+		// initialize empty document arrays
+		setTextDocuments((prev) => (prev[name] ? prev : { ...prev, [name]: [] }))
+		setImageDocuments((prev) => (prev[name] ? prev : { ...prev, [name]: [] }))
+		setSpreadsheetDocuments((prev) =>
+			prev[name] ? prev : { ...prev, [name]: [] },
+		)
+	}, [])
 
 	const addDocument = (
 		project: string,
 		name: string,
 		type: 'text' | 'image' | 'spreadsheet' = 'text',
+		templateId?: string,
 	) => {
 		if (!project || !name) return
 		const updater = <T extends Record<string, string[]>>(
@@ -156,127 +168,39 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 
 		// Initialize document with type-appropriate content
 		const documentKey = `${project}:${name}`
-		let initialContent = ''
-
-		switch (type) {
-			case 'text':
-				initialContent = `# ${name}
-This is a new text document for ${project}.
-
-## Overview
-Document overview and purpose.
-
-## Details
-Detailed content goes here.
-
-## Conclusion
-Summary and next steps.
-`
-				break
-			case 'image':
-				initialContent = `# ${name}
-Visual assets and images for ${project}.
-
-## Image Collection
-Collection of images related to this document.
-
-## Design Assets
-Brand and design materials.
-
-## Reference Materials
-Reference images and inspiration.
-`
-				break
-			case 'spreadsheet':
-				initialContent = `# ${name}
-Data and analysis for ${project}.
-
-## Data Overview
-Summary of data sources and structure.
-
-## Key Metrics
-Important measurements and KPIs.
-
-## Analysis
-Data analysis and insights.
-`
-				break
-		}
+		const selectedTemplate = templateId ? templates[type]?.[templateId] : null
+		const initialContent = selectedTemplate
+			? selectedTemplate.content(name, project)
+			: templates[type].blank.content(name, project)
 
 		// Set the initial content
 		setDocumentContentState((prev) => ({
 			...prev,
 			[documentKey]: initialContent,
 		}))
-		if (!isWorkspaceActive) {
-			setIsWorkspaceActive(true)
-		}
+		setIsWorkspaceActive(true)
 	}
 
 	// Initial document content with sample content for different types
-	const [documentContent, setDocumentContentState] = React.useState<
+	const [documentContent, setDocumentContentState] = useState<
 		Record<string, string>
 	>(() => {
+		if (!activeProject || !activeDocument) return {}
+
 		// Initialize with some sample content for demonstration
-		const initialContent: Record<string, string> = {}
+		const documentType: keyof typeof templates =
+			activeDocumentType === 'all' ? 'text' : activeDocumentType
 
-		// Add sample text document content
-		initialContent['Project 1A:Proposal'] = `# Project Proposal
-This document outlines the project proposal with key objectives and deliverables.
-
-## Executive Summary
-Brief overview of the project goals and expected outcomes.
-
-## Scope of Work
-Detailed description of tasks and responsibilities.
-
-## Timeline
-Project milestones and delivery schedule.
-
-## Budget
-Cost breakdown and resource allocation.
-`
-
-		// Add sample image document content
-		initialContent['Campaign A:Assets'] = `# Visual Assets Collection
-This document manages visual assets for the Campaign A project.
-
-## Brand Assets
-Logo variations, brand colors, and typography guidelines.
-
-## Marketing Materials
-Banner designs, social media graphics, and promotional materials.
-
-## Product Images
-High-resolution product photos and lifestyle shots.
-
-## Design Variations
-Different design concepts and A/B testing materials.
-`
-
-		// Add sample spreadsheet document content
-		initialContent['Budget 2024:Financial Projections'] =
-			`# Financial Projections 2024
-This document contains financial data and projections for 2024.
-
-## Revenue Forecasting
-Monthly and quarterly revenue projections based on market analysis.
-
-## Expense Tracking
-Detailed breakdown of operational costs and budget allocations.
-
-## Performance Metrics
-Key performance indicators and financial health metrics.
-
-## Risk Analysis
-Financial risk assessment and mitigation strategies.
-`
-
-		return initialContent
+		return {
+			[activeProject]: templates[documentType].blank.content(
+				activeDocument,
+				activeProject,
+			),
+		}
 	})
 
 	// Function to set document content
-	const setDocumentContent = React.useCallback(
+	const setDocumentContent = useCallback(
 		(project: string, document: string, content: string) => {
 			// Skip if any required params are missing
 			if (!project || !document || content === undefined) {
@@ -325,7 +249,7 @@ Financial risk assessment and mitigation strategies.
 		[isWorkspaceActive, activeProject, activeDocument],
 	)
 
-	const toggleWorkspace = React.useCallback(() => {
+	const toggleWorkspace = useCallback(() => {
 		// Log the action before making the change
 		console.log('Workspace: toggling workspace state')
 		setIsWorkspaceActive((prev) => {
@@ -336,7 +260,7 @@ Financial risk assessment and mitigation strategies.
 	}, [])
 
 	// Memoize organization departments to prevent unnecessary recalculations
-	const orgDepts = React.useMemo(() => {
+	const orgDepts = useMemo(() => {
 		if (!activeOrganization || !departmentsByOrg) return null
 		return (
 			departmentsByOrg[activeOrganization as keyof typeof departmentsByOrg] ||
@@ -345,7 +269,7 @@ Financial risk assessment and mitigation strategies.
 	}, [activeOrganization, departmentsByOrg])
 
 	// When organization changes, set department if needed
-	React.useEffect(() => {
+	useEffect(() => {
 		// Skip if no organization selected or departments not loaded
 		if (!activeOrganization || !orgDepts) {
 			console.log('Organization or departments not available, skipping effect')
@@ -379,7 +303,7 @@ Financial risk assessment and mitigation strategies.
 	}, [activeOrganization, orgDepts, activeDepartment])
 
 	// Memoize department projects to prevent unnecessary recalculations
-	const deptProjects = React.useMemo(() => {
+	const deptProjects = useMemo(() => {
 		if (!activeOrganization || !activeDepartment || !projectsByDept) return null
 		const orgProjects =
 			projectsByDept[activeOrganization as keyof typeof projectsByDept]
@@ -391,7 +315,7 @@ Financial risk assessment and mitigation strategies.
 	}, [activeOrganization, activeDepartment, projectsByDept])
 
 	// When department changes, set default project only if current project is invalid
-	React.useEffect(() => {
+	useEffect(() => {
 		// Skip if any required data is missing
 		if (!activeDepartment || !activeOrganization || !deptProjects) {
 			console.log('Department change effect: Missing required data')
@@ -429,7 +353,7 @@ Financial risk assessment and mitigation strategies.
 
 	// Memoize project documents to prevent unnecessary recalculations (respect type filter)
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-	const projectDocs = React.useMemo(() => {
+	const projectDocs = useMemo(() => {
 		if (!activeProject) return null
 		if (activeDocumentType === 'all') return documentList[activeProject] || null
 		const source =
@@ -450,7 +374,7 @@ Financial risk assessment and mitigation strategies.
 	])
 
 	// When project changes, set default document only if current document is invalid
-	React.useEffect(() => {
+	useEffect(() => {
 		// Use requestAnimationFrame to throttle updates and avoid cascading effects
 		const frameId = requestAnimationFrame(() => {
 			// Skip if no project selected or docs not loaded
@@ -478,7 +402,7 @@ Financial risk assessment and mitigation strategies.
 			if (!isCurrentDocValid) {
 				const defaultDoc = projectDocs[0]
 				// Avoid unnecessary state update if document is already set to default
-				if (activeDocument !== defaultDoc) {
+				if (activeDocument && activeDocument !== defaultDoc) {
 					console.log('Setting default document for new project:', defaultDoc)
 					setActiveDocument(defaultDoc)
 				}
@@ -506,15 +430,13 @@ Financial risk assessment and mitigation strategies.
 
 	// Persistence constants
 	const PERSIST_KEY = 'mb.workspace.v1'
-	const [hydrated, setHydrated] = React.useState(false)
-	const [lastSyncedChecksum, setLastSyncedChecksum] = React.useState<
-		string | null
-	>(null)
-	const [lastUpdatedAt, setLastUpdatedAt] = React.useState<number>(() =>
-		Date.now(),
+	const [hydrated, setHydrated] = useState(false)
+	const [lastSyncedChecksum, setLastSyncedChecksum] = useState<string | null>(
+		null,
 	)
+	const [lastUpdatedAt, setLastUpdatedAt] = useState<number>(() => Date.now())
 
-	const computeChecksum = React.useCallback((obj: unknown) => {
+	const computeChecksum = useCallback((obj: unknown) => {
 		try {
 			const json = JSON.stringify(obj)
 			let hash = 0
@@ -547,7 +469,7 @@ Financial risk assessment and mitigation strategies.
 
 	// Hydrate from localStorage on mount
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-	React.useEffect(() => {
+	useEffect(() => {
 		try {
 			const raw =
 				typeof window !== 'undefined' ? localStorage.getItem(PERSIST_KEY) : null
@@ -578,7 +500,7 @@ Financial risk assessment and mitigation strategies.
 
 	// Persist when key structures change (debounced via requestAnimationFrame batch)
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-	React.useEffect(() => {
+	useEffect(() => {
 		if (!hydrated) return
 		let frame: number | null = null
 		const save = () => {
@@ -633,6 +555,7 @@ Financial risk assessment and mitigation strategies.
 		<WorkspaceContext.Provider
 			value={{
 				projectList,
+				templates,
 				documentList,
 				activeProject,
 				textDocuments,
@@ -657,7 +580,7 @@ Financial risk assessment and mitigation strategies.
 }
 
 export function useWorkspace() {
-	const context = React.useContext(WorkspaceContext)
+	const context = useContext(WorkspaceContext)
 	if (!context) {
 		throw new Error('useWorkspace must be used within a WorkspaceProvider')
 	}

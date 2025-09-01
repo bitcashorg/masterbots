@@ -7,7 +7,7 @@ import {
 import { cleanPrompt, extractReasoningContent } from '@/lib/helpers/ai-helpers'
 import { memoizedMarkdownComponents } from '@/lib/memoized-markdown-components'
 import { cn } from '@/lib/utils'
-import type { ChatMessageProps } from '@/types/types'
+import type { ChatMessageProps } from '@/types'
 import { ChevronsDownUp } from 'lucide-react'
 import { useState } from 'react'
 

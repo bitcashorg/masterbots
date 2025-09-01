@@ -16,7 +16,7 @@ import type {
 	ChatMessageProps,
 	MessageWithExamples,
 	WebSearchResult,
-} from '@/types/types'
+} from '@/types'
 import { usePathname } from 'next/navigation'
 import { useMemo, useState } from 'react'
 

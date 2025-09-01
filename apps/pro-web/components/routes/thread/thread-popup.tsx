@@ -4,7 +4,9 @@ import { ChatList } from '@/components/routes/chat/chat-list'
 import { WorkspaceContent } from '@/components/routes/workspace/workspace-content'
 import { ExternalLink } from '@/components/shared/external-link'
 import { ChatPanelSkeleton } from '@/components/shared/skeletons/chat-panel-skeleton'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { IconClose } from '@/components/ui/icons'
+import { Skeleton } from '@/components/ui/skeleton'
 import { cleanPrompt } from '@/lib/helpers/ai-helpers'
 import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
@@ -15,16 +17,15 @@ import { useSonner } from '@/lib/hooks/useSonner'
 import { createStructuredMarkdown } from '@/lib/markdown-utils'
 import { getCanonicalDomain, urlBuilders } from '@/lib/url'
 import { cn, getRouteType } from '@/lib/utils'
-import type { SendMessageFromResponseMessageData } from '@/types/types'
-import { Button, buttonVariants } from '@masterbots/mb-ui'
-import { Skeleton } from '@masterbots/mb-ui'
+import type { SendMessageFromResponseMessageData } from '@/types'
 import type { Message as AiMessage } from 'ai'
 import { AnimatePresence, motion } from 'framer-motion'
 import { FileTextIcon } from 'lucide-react'
 import type { Message } from 'mb-genql'
+import { useSession } from 'next-auth/react'
 import dynamic from 'next/dynamic'
 import { useParams, usePathname } from 'next/navigation'
-import { useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 
 const Chat = dynamic(
 	() => import('@/components/routes/chat/chat').then((mod) => mod.Chat),
@@ -176,7 +177,7 @@ export function ThreadPopup({ className }: { className?: string }) {
 						: 'lg:max-w-[calc(100%-250px)] xl:max-w-[calc(100%-300px)] lg:left-[250px] xl:left-[300px]',
 					'flex justify-center items-end fixed bottom-0 pb-[192px] pt-[10%] left-0',
 					'h-[calc(100vh-4rem)] backdrop-blur-sm ease-in-out duration-500 z-40',
-					'transition-all',
+					'transition-all origin-bottom',
 					isOpenPopup ? 'animate-fade-in' : 'animate-fade-out',
 					className,
 				)}
@@ -208,7 +209,7 @@ export function ThreadPopup({ className }: { className?: string }) {
 							className,
 						)}
 					>
-						<AnimatePresence mode="wait">
+						<AnimatePresence>
 							{/* Workspace Section (conditionally shown) */}
 							{isWorkspaceActive && activeThread && (
 								<motion.div
@@ -290,6 +291,7 @@ function ThreadPopUpCardHeader({
 		setIsOpenPopup,
 		setActiveThread,
 		setShouldRefreshThreads,
+		refreshActiveThread,
 	} = useThread()
 	const { navigateTo } = useSidebar()
 	const {
@@ -300,6 +302,8 @@ function ThreadPopUpCardHeader({
 		setDocumentContent,
 		isWorkspaceActive,
 		toggleWorkspace,
+		// NEW: use workspace documents so we can detect thread-linked docs
+		documentList,
 	} = useWorkspace()
 	const { customSonner } = useSonner()
 	const pathname = usePathname()
@@ -308,6 +312,43 @@ function ThreadPopUpCardHeader({
 	const isProfile = getRouteType(pathname) === 'profile'
 	const isBot = getRouteType(pathname) === 'bot'
 	const isPro = getRouteType(pathname) === 'pro'
+
+	// Ensure we have up-to-date thread documents metadata when the popup opens
+	// Attempt exactly once per threadId to avoid repeated fetches
+	const { data: session } = useSession()
+	const attemptedDocsRefreshRef = useRef<string | null>(null)
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	useEffect(() => {
+		if (!isOpenPopup) return
+
+		// Prefer slug from any document explicitly linked to a thread
+		const docWithThreadSlug = Array.isArray(documentList)
+			? // biome-ignore lint/suspicious/noExplicitAny: we only need threadSlug presence
+				(documentList as any[]).find(
+					(d) => typeof d?.threadSlug === 'string' && d.threadSlug,
+				)
+			: undefined
+		const threadSlugFromDoc = docWithThreadSlug?.threadSlug as
+			| string
+			| undefined
+		const candidateSlug = threadSlugFromDoc || activeThread?.slug
+		const candidateId = activeThread?.threadId
+		// Build a stable key for "attempt once"
+		const refreshKey = candidateSlug || candidateId
+
+		if (!refreshKey) return
+		if (attemptedDocsRefreshRef.current === refreshKey) return
+
+		attemptedDocsRefreshRef.current = refreshKey
+		// Try by slug first (more specific linkage), then fall back to id
+		refreshActiveThread({
+			threadSlug: candidateSlug,
+			threadId: candidateId,
+		}).catch(() => {
+			// Silently ignore; UI will fall back to current state
+		})
+	}, [isOpenPopup, activeThread, session?.user?.hasuraJwt, documentList])
 
 	// Check if we have at least one assistant message and this is the first one
 	const hasFirstAssistantMessage =

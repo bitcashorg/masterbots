@@ -48,3 +48,48 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = 'Button'
 
 export { buttonVariants }
+
+interface ButtonScrollToBottomProps extends ButtonProps {
+	scrollToBottom: () => void
+	isAtBottom?: boolean
+	textClassName?: string
+}
+
+export function ButtonScrollToBottom({
+	scrollToBottom,
+	isAtBottom,
+	className,
+	textClassName,
+	...props
+}: ButtonScrollToBottomProps) {
+	return (
+		<Button
+			variant="outline"
+			size="icon"
+			className={cn(
+				'absolute right-4 top-1 z-10 bg-background transition-opacity duration-300 sm:right-8 md:top-2',
+				isAtBottom ? 'opacity-0' : 'opacity-100',
+				className,
+			)}
+			onClick={scrollToBottom}
+			{...props}
+		>
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				width="16"
+				height="16"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				strokeWidth="2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				aria-hidden="true"
+			>
+				<title>Arrow Down</title>
+				<path d="m6 9 6 6 6-6" />
+			</svg>
+			<span className={cn('sr-only', textClassName)}>Scroll to bottom</span>
+		</Button>
+	)
+}

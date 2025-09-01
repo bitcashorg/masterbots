@@ -1,8 +1,6 @@
-import { DashboardOnboarding } from '@/components/onboarding/dashboard-onboarding'
-
-import FooterCT from '@/components/layout/footer/footer-ct'
 import { Providers } from '@/components/layout/providers'
 import { ResponsiveSidebar } from '@/components/layout/sidebar/sidebar-responsive'
+import { DashboardOnboarding } from '@/components/onboarding/dashboard-onboarding'
 import { ChatLayoutSection } from '@/components/routes/chat/chat-layout-section'
 import { BrowseProvider } from '@/lib/hooks/use-browse'
 import { appConfig } from 'mb-env'

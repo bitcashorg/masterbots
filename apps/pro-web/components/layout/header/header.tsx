@@ -1,44 +1,33 @@
 'use client'
 
-import {
-	ChevronDown,
-	FileSpreadsheetIcon,
-	FileTextIcon,
-	ImageIcon,
-} from 'lucide-react'
+import { getThreadBySlug } from '@/app/actions/thread.actions'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import * as React from 'react'
 
 import { UserLogin } from '@/components/auth/user-login'
-import { SidebarToggle } from '@/components/layout/sidebar/sidebar-toggle'
 import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+	Crumb,
+	DocumentCrumb,
+	DocumentTypeCrumb,
+} from '@/components/layout/header/crumb-header'
+import { DocumentCreateAlert } from '@/components/layout/header/crumb-nav-alert'
+import { SidebarToggle } from '@/components/layout/sidebar/sidebar-toggle'
+import { Button } from '@/components/ui/button'
 import { IconSeparator } from '@/components/ui/icons'
+import { getUserIndexedDBKeys } from '@/lib/hooks/use-chat-attachments'
+import { type IndexedDBItem, useIndexedDB } from '@/lib/hooks/use-indexed-db'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { useThread } from '@/lib/hooks/use-thread'
+import { useThreadDocuments } from '@/lib/hooks/use-thread-documents'
 import { useWorkspace } from '@/lib/hooks/use-workspace'
 import { getCanonicalDomain } from '@/lib/url'
 import { cn, getRouteColor, getRouteType } from '@/lib/utils'
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-	Button,
-} from '@masterbots/mb-ui'
-import { Input } from '@masterbots/mb-ui'
-import { Label } from '@masterbots/mb-ui'
-import { appConfig } from 'mb-env'
+
+import type { WorkspaceDocumentMetadata } from '@/types/thread.types'
+import { uniq } from 'lodash'
+import { nanoid } from 'nanoid'
+import { useSession } from 'next-auth/react'
 import { useTheme } from 'next-themes'
 import Image from 'next/image'
 import { useEffect, useMemo, useState } from 'react'
@@ -101,8 +90,10 @@ export function Header() {
 		activeDepartment,
 		activeProject,
 		activeDocument,
+		documentContent,
 		organizationList,
 		departmentList,
+		documentList,
 		projectsByDept,
 		textDocuments,
 		imageDocuments,
@@ -114,14 +105,55 @@ export function Header() {
 		setActiveDepartment,
 		setActiveProject,
 		setActiveDocument,
+		setDocumentContent,
 		toggleWorkspace,
 		addOrganization,
 		addDepartment,
 		addProject,
 		addDocument,
 	} = useWorkspace()
+	const {
+		isOpenPopup,
+		activeThread,
+		setIsOpenPopup,
+		setActiveThread,
+		refreshActiveThread,
+	} = useThread()
+	const { data: session } = useSession()
 	const router = useRouter()
 	const canonicalDomain = getCanonicalDomain(activeChatbot?.name || '')
+
+	// Access user-scoped IndexedDB for reading backfilled document payloads
+	const dbKeys = React.useMemo(
+		() => getUserIndexedDBKeys(session?.user?.id),
+		[session?.user?.id],
+	)
+	const { getItem, getAllItemsRaw } = useIndexedDB(dbKeys) as unknown as {
+		getItem: (id: IDBValidKey) => Promise<IndexedDBItem>
+		getAllItemsRaw: () => Promise<IndexedDBItem[]>
+	}
+
+	// Unified thread documents (from metadata + local IDB where applicable)
+	const { userDocuments } = useThreadDocuments()
+
+	// Ensure thread documents metadata is hydrated even if popup is closed
+	const attemptedDocsRefreshRef = React.useRef<string | null>(null)
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	useEffect(() => {
+		const threadId = activeThread?.threadId as string | undefined
+		const hasDocsArray = Array.isArray(
+			(activeThread as unknown as { metadata?: { documents?: unknown } })
+				?.metadata?.documents,
+		)
+		if (
+			threadId &&
+			!hasDocsArray &&
+			attemptedDocsRefreshRef.current !== threadId
+		) {
+			attemptedDocsRefreshRef.current = threadId
+			void refreshActiveThread({ threadId })
+		}
+	}, [activeThread, session?.user?.hasuraJwt])
 
 	// State for document creation dialog
 	const [isDocumentDialogOpen, setIsDocumentDialogOpen] = useState(false)
@@ -134,6 +166,9 @@ export function Header() {
 	const resetNavigation = (e: React.MouseEvent) => {
 		setActiveCategory(null)
 		setActiveChatbot(null)
+		// Ensure we leave any open thread context when navigating
+		if (isOpenPopup) setIsOpenPopup(false)
+		setActiveThread(null)
 	}
 
 	useEffect(() => {
@@ -164,11 +199,79 @@ export function Header() {
 		return projectsByDept[activeOrganization]?.[activeDepartment] || []
 	}, [activeOrganization, activeDepartment, projectsByDept])
 
-	// Build document options based on selected type; include a 'None' option to clear
-	const documentOptions = useMemo(() => {
-		if (!activeProject) return ['None']
-		let docs: string[] = []
+	// Build document options based on unified thread documents (if any) and workspace docs.
+	// Non-thread workspace docs will be treated as Drafts in UI.
+	const { documentOptions, threadDocsByName } = useMemo(() => {
+		// Helper to dedupe while preserving order
+		const dedupe = (arr: string[]) => Array.from(new Set(arr))
+		console.log('userDocuments', userDocuments)
+		// Prefer documents from unified hook; fall back to thread metadata when empty
+		const threadDocs = (
+			userDocuments?.length
+				? userDocuments
+				: (activeThread?.metadata
+						?.documents as Array<WorkspaceDocumentMetadata>) || []
+		) as Array<WorkspaceDocumentMetadata>
 
+		const byName = new Map<string, WorkspaceDocumentMetadata>()
+
+		if (threadDocs.length) {
+			// Filter by current type (unless 'all') and activeProject (if set)
+			const filtered = threadDocs.filter((d) => {
+				const nameOk = Boolean(d?.name)
+				const typeOk =
+					activeDocumentType === 'all' ||
+					!d?.type ||
+					d?.type === activeDocumentType
+				return nameOk && typeOk
+			})
+
+			for (const d of filtered) {
+				const name = (d.name || '') as string
+				if (!name) continue
+				if (!byName.has(name)) {
+					byName.set(name, {
+						...d,
+						name,
+					})
+				}
+			}
+
+			const names = dedupe(Array.from(byName.keys()))
+			// Also include workspace-local documents for the active project that are not in thread (Drafts)
+			let draftDocs: string[] = []
+			if (activeProject) {
+				switch (activeDocumentType) {
+					case 'all':
+						draftDocs = [
+							...(textDocuments[activeProject] || []),
+							...(imageDocuments[activeProject] || []),
+							...(spreadsheetDocuments[activeProject] || []),
+						]
+						break
+					case 'text':
+						draftDocs = textDocuments[activeProject] || []
+						break
+					case 'image':
+						draftDocs = imageDocuments[activeProject] || []
+						break
+					case 'spreadsheet':
+						draftDocs = spreadsheetDocuments[activeProject] || []
+						break
+				}
+			}
+			const draftOnly = draftDocs.filter((n) => !byName.has(n))
+			return {
+				documentOptions: ['None', ...names, ...dedupe(draftOnly)],
+				threadDocsByName: byName,
+			}
+		}
+
+		// Fallback to workspace-local documents for the active project
+		if (!activeProject)
+			return { documentOptions: ['None'], threadDocsByName: byName }
+
+		let docs: string[] = []
 		switch (activeDocumentType) {
 			case 'all':
 				docs = [
@@ -186,19 +289,119 @@ export function Header() {
 			case 'spreadsheet':
 				docs = spreadsheetDocuments[activeProject] || []
 				break
-			default:
-				docs = []
-				break
 		}
-
-		return ['None', ...docs]
+		return {
+			documentOptions: ['None', ...dedupe(docs)],
+			threadDocsByName: byName,
+		}
 	}, [
+		userDocuments,
+		activeThread?.metadata?.documents,
 		activeProject,
 		activeDocumentType,
 		textDocuments,
 		imageDocuments,
 		spreadsheetDocuments,
 	])
+
+	// Decode a data URL or fetch a remote URL to plain text
+	const resolveContentToText = async (value: string): Promise<string> => {
+		try {
+			if (value?.startsWith('data:')) {
+				const base64 = value.split(',')[1] || ''
+				try {
+					return decodeURIComponent(escape(atob(base64)))
+				} catch {
+					return atob(base64)
+				}
+			}
+			const res = await fetch(value)
+			if (!res.ok) return ''
+			return await res.text()
+		} catch {
+			return ''
+		}
+	}
+
+	// Ensure the selected doc exists in workspace server cache by hydrating from local IDB or remote URL
+	const ensureWorkspaceCacheForDoc = async (doc: WorkspaceDocumentMetadata) => {
+		const project = doc.project || activeProject
+		if (!project) return
+
+		const key = `${project}:${doc.name}`
+		// If content is already in the cache, we're done.
+		if (documentContent?.[key]) return
+
+		let text = ''
+		let payload: IndexedDBItem | null = null
+
+		if (doc.id) {
+			try {
+				payload = await getItem(doc.id)
+			} catch {
+				/* not found */
+			}
+		}
+		const urlOrData = (payload?.url || payload?.content) as string | undefined
+		if (urlOrData) {
+			text = await resolveContentToText(urlOrData)
+		} else if (doc.versions?.length) {
+			const latestVersion = [...doc.versions].sort(
+				(a, b) => (b.version || 0) - (a.version || 0),
+			)[0]
+			if (latestVersion?.url) {
+				text = await resolveContentToText(latestVersion.url)
+			}
+		}
+
+		// 3. If we found content, update the server cache.
+		if (text) {
+			setDocumentContent(project, doc.name, text)
+		}
+	}
+
+	const onDocumentSelect = async (name: string) => {
+		if (!activeProject) return
+		if (name === 'None' && isWorkspaceActive) toggleWorkspace()
+
+		const doc = userDocuments.find(
+			(d) => d.name === name && d.project === activeProject,
+		)
+
+		setActiveDocument(name === 'None' ? null : name)
+
+		if (!doc || (!doc.threadSlug && isOpenPopup)) {
+			// This is a local draft document (not in userDocuments).
+			// Its content should already be in the workspace context.
+			setActiveThread(null)
+			setIsOpenPopup(false)
+
+			if (!isWorkspaceActive && name !== 'None') toggleWorkspace()
+
+			return
+		}
+
+		// This is an existing document, possibly from a thread.
+		await ensureWorkspaceCacheForDoc(doc)
+
+		if (doc.threadSlug && doc.threadSlug !== activeThread?.slug) {
+			await refreshActiveThread({ threadSlug: doc.threadSlug })
+
+			setIsOpenPopup(true)
+
+			if (!isWorkspaceActive) toggleWorkspace()
+		}
+
+		if (
+			doc.threadSlug === activeThread?.slug &&
+			isWorkspaceActive &&
+			name === 'None'
+		) {
+			// We close the workspace mode, we keep the conversation open
+			toggleWorkspace()
+		}
+	}
+
 	const docType: 'text' | 'image' | 'spreadsheet' =
 		documentType === 'all' ? 'text' : documentType
 
@@ -247,11 +450,11 @@ export function Header() {
 	}
 
 	// Handle document creation from dialog
-	const handleCreateDocument = () => {
+	const handleCreateDocument = (templateId?: string) => {
 		if (!documentName.trim() || !activeProject) return
 
 		// Add the document
-		addDocument(activeProject, documentName.trim(), docType)
+		addDocument(activeProject, documentName.trim(), docType, templateId)
 		setActiveDocument(documentName.trim())
 
 		// Close dialog and reset state
@@ -260,67 +463,6 @@ export function Header() {
 
 		// Redirect to the pro workspace mode with the new document
 		// router.push('/')
-	}
-
-	const Crumb = ({
-		label,
-		value,
-		options,
-		onSelect,
-		addType,
-		disabled,
-	}: {
-		label: string
-		value: string | null
-		options: string[]
-		onSelect: (v: string) => void
-		addType: 'organization' | 'department' | 'project' | 'document'
-		disabled?: boolean
-	}) => {
-		return (
-			<DropdownMenu>
-				<DropdownMenuTrigger asChild disabled={disabled}>
-					<button
-						type="button"
-						className={cn(
-							'inline-flex items-center gap-1 px-2 py-1 text-sm rounded-md border bg-background/60 backdrop-blur hover:bg-accent transition',
-							disabled && 'opacity-50 cursor-not-allowed',
-						)}
-					>
-						<span className="font-medium truncate max-w-[140px]">
-							{value || label}
-						</span>
-						<ChevronDown className="h-3.5 w-3.5 opacity-70" />
-					</button>
-				</DropdownMenuTrigger>
-				<DropdownMenuContent
-					align="start"
-					className="max-h-72 overflow-y-auto min-w-[200px]"
-				>
-					{options.length === 0 && (
-						<div className="px-2 py-1.5 text-xs text-muted-foreground">
-							No {label.toLowerCase()}s
-						</div>
-					)}
-					{options.map((opt) => (
-						<DropdownMenuItem
-							key={opt}
-							onClick={() => onSelect(opt)}
-							className={cn('text-sm', value === opt && 'font-semibold')}
-						>
-							{opt}
-						</DropdownMenuItem>
-					))}
-					<DropdownMenuSeparator />
-					<DropdownMenuItem
-						onClick={() => handleAddEntity(addType)}
-						className="text-xs text-primary"
-					>
-						+ New {label}
-					</DropdownMenuItem>
-				</DropdownMenuContent>
-			</DropdownMenu>
-		)
 	}
 
 	return (
@@ -369,19 +511,22 @@ export function Header() {
 					/>
 				</div>
 				{/* Workspace Breadcrumbs */}
-				<div className="hidden md:flex items-center gap-1 ml-2.5 pr-4 border-r mr-4">
+				<div className="hidden w-full md:flex items-center gap-0.5 ml-2.5 pr-4 border-r mr-4">
 					<Crumb
 						label="Org"
 						value={activeOrganization}
 						options={organizationList || []}
 						onSelect={(v) => {
 							if (v === activeOrganization) return
-							setActiveOrganization(v)
+							setActiveOrganization(v === 'None' ? null : v)
 							setActiveDepartment(null)
 							setActiveProject(null)
 							setActiveDocument(null)
+							if (isOpenPopup) setIsOpenPopup(false)
+							setActiveThread(null)
 						}}
 						addType="organization"
+						onNewItem={handleAddEntity}
 					/>
 					<span className="text-xs opacity-50">/</span>
 					<Crumb
@@ -390,12 +535,15 @@ export function Header() {
 						options={deptOptions}
 						onSelect={(v) => {
 							if (v === activeDepartment) return
-							setActiveDepartment(v)
+							setActiveDepartment(v === 'None' ? null : v)
 							setActiveProject(null)
 							setActiveDocument(null)
+							if (isOpenPopup) setIsOpenPopup(false)
+							setActiveThread(null)
 						}}
 						addType="department"
 						disabled={!activeOrganization}
+						onNewItem={handleAddEntity}
 					/>
 					<span className="text-xs opacity-50">/</span>
 					<Crumb
@@ -404,113 +552,43 @@ export function Header() {
 						options={projectOptions}
 						onSelect={(v) => {
 							if (v === activeProject) return
-							setActiveProject(v)
+							setActiveProject(v === 'None' ? null : v)
 							setActiveDocument(null)
+							if (isOpenPopup) setIsOpenPopup(false)
+							setActiveThread(null)
 						}}
 						addType="project"
 						disabled={!activeDepartment}
+						onNewItem={handleAddEntity}
 					/>
 					<span className="text-xs opacity-50">/</span>
 					{/* New: Document Type crumb */}
-					<DropdownMenu>
-						<DropdownMenuTrigger asChild disabled={!activeProject}>
-							<button
-								type="button"
-								className={cn(
-									'inline-flex items-center gap-1 px-2 py-1 text-sm rounded-md border bg-background/60 backdrop-blur hover:bg-accent transition',
-									!activeProject && 'opacity-50 cursor-not-allowed',
-								)}
-							>
-								<span className="font-medium truncate max-w-[140px]">
-									{activeDocumentType === 'all'
-										? 'All Types'
-										: activeDocumentType.charAt(0).toUpperCase() +
-											activeDocumentType.slice(1)}
-								</span>
-								<ChevronDown className="h-3.5 w-3.5 opacity-70" />
-							</button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align="start" className="min-w-[220px]">
-							<DropdownMenuItem
-								onClick={() => {
-									setActiveDocumentType('all')
-									setActiveDocument(null)
-								}}
-								className={cn(
-									'text-sm',
-									activeDocumentType === 'all' ? 'font-semibold' : '',
-								)}
-							>
-								{/* Left icon for All */}
-								<span className="mr-2 inline-flex h-4 w-4 items-center justify-center">
-									*
-								</span>
-								All
-							</DropdownMenuItem>
-							<DropdownMenuItem
-								onClick={() => {
-									setActiveDocumentType('text')
-									setActiveDocument(null)
-								}}
-								className={cn(
-									'text-sm gap-2 flex',
-									activeDocumentType === 'text' ? 'font-semibold' : '',
-								)}
-							>
-								{/* Left icon for Text */}
-								<FileTextIcon className="size-4" />
-								Text
-							</DropdownMenuItem>
-							<DropdownMenuItem
-								onClick={() => {
-									setActiveDocumentType('image')
-									setActiveDocument(null)
-								}}
-								className={cn(
-									'text-sm gap-2 flex',
-									activeDocumentType === 'image' ? 'font-semibold' : '',
-								)}
-							>
-								{/* Left icon for Image */}
-								<ImageIcon className="size-4" />
-								Image
-							</DropdownMenuItem>
-							<DropdownMenuItem
-								onClick={() => {
-									setActiveDocumentType('spreadsheet')
-									setActiveDocument(null)
-								}}
-								className={cn(
-									'text-sm gap-2 flex',
-									activeDocumentType === 'spreadsheet' ? 'font-semibold' : '',
-								)}
-							>
-								{/* Left icon for Spreadsheet */}
-								<FileSpreadsheetIcon className="size-4" />
-								Spreadsheet
-							</DropdownMenuItem>
-						</DropdownMenuContent>
-					</DropdownMenu>
+
+					<DocumentTypeCrumb
+						activeProject={activeProject as string}
+						activeDocumentType={activeDocumentType as string}
+						updateActiveDocumentTypeItem={setActiveDocumentType}
+					/>
+
 					<span className="text-xs opacity-50">/</span>
-					<Crumb
-						label="Doc"
-						value={activeDocument}
-						options={documentOptions}
-						onSelect={(v) => {
-							if (v === 'None') {
-								setActiveDocument(null)
-								setDocumentName('')
-								toggleWorkspace()
-								return
-							}
-							setActiveDocument(v)
-							setDocumentName(v)
-							if (!isWorkspaceActive) {
-								toggleWorkspace()
-							}
-						}}
-						addType="document"
-						disabled={!activeProject}
+
+					{/* Custom Doc dropdown with icons and Draft labels */}
+					<DocumentCrumb
+						activeProject={activeProject as string}
+						activeDocument={activeDocument as string}
+						userDocuments={uniq([
+							...userDocuments,
+							...Object.values(documentList)
+								.flat()
+								.map(
+									(name) => ({ name }) as unknown as WorkspaceDocumentMetadata,
+								),
+						])}
+						activeThread={activeThread}
+						documentOptions={documentOptions}
+						threadDocsByName={threadDocsByName}
+						onNewItem={handleAddEntity}
+						onDocumentSelect={onDocumentSelect}
 					/>
 				</div>
 			</div>
@@ -523,103 +601,34 @@ export function Header() {
 			</div>
 
 			{/* Document Creation Dialog */}
-			<AlertDialog
-				open={isDocumentDialogOpen}
-				onOpenChange={setIsDocumentDialogOpen}
-			>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>Create New Document</AlertDialogTitle>
-						<AlertDialogDescription>
-							Create a new document in the "{activeProject}" project. You'll be
-							redirected to the workspace mode after creation.
-						</AlertDialogDescription>
-					</AlertDialogHeader>
-					<div className="grid gap-4 py-4">
-						<div className="grid grid-cols-4 items-center gap-4">
-							<Label htmlFor="document-name" className="text-right">
-								Name
-							</Label>
-							<Input
-								id="document-name"
-								value={documentName}
-								onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-									setDocumentName(e.target.value)
-								}
-								className="col-span-3"
-								placeholder="Enter document name"
-								autoFocus
-							/>
-						</div>
-						<div className="grid grid-cols-4 items-center gap-4">
-							<Label htmlFor="document-type" className="text-right">
-								Type
-							</Label>
-							<div className="col-span-3">
-								<DropdownMenu>
-									<DropdownMenuTrigger asChild>
-										<Button
-											variant="outline"
-											className="w-full justify-between"
-										>
-											<span className="capitalize flex items-center gap-2">
-												{documentType === 'text' && (
-													<FileTextIcon className="w-4 h-4" />
-												)}
-												{documentType === 'image' && (
-													<ImageIcon className="w-4 h-4" />
-												)}
-												{documentType === 'spreadsheet' && (
-													<FileSpreadsheetIcon className="w-4 h-4" />
-												)}
-												{documentType}
-											</span>
-											<ChevronDown className="h-4 w-4 opacity-50" />
-										</Button>
-									</DropdownMenuTrigger>
-									<DropdownMenuContent>
-										<DropdownMenuItem
-											onClick={() => {
-												setDocumentType('text')
-											}}
-										>
-											<FileTextIcon className="w-4 h-4 mr-2" />
-											Text
-										</DropdownMenuItem>
-										<DropdownMenuItem
-											onClick={() => {
-												setDocumentType('image')
-											}}
-										>
-											<ImageIcon className="w-4 h-4 mr-2" />
-											Image
-										</DropdownMenuItem>
-										<DropdownMenuItem
-											onClick={() => {
-												setDocumentType('spreadsheet')
-											}}
-										>
-											<FileSpreadsheetIcon className="w-4 h-4 mr-2" />
-											Spreadsheet
-										</DropdownMenuItem>
-									</DropdownMenuContent>
-								</DropdownMenu>
-							</div>
-						</div>
-					</div>
-					<AlertDialogFooter>
-						<AlertDialogCancel onClick={() => setDocumentName('')}>
-							Cancel
-						</AlertDialogCancel>
-						<AlertDialogAction
-							onClick={handleCreateDocument}
-							disabled={!documentName.trim()}
-						>
-							Create Document
-						</AlertDialogAction>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
+			<DocumentCreateAlert
+				isDocumentDialogOpen={isDocumentDialogOpen}
+				documentType={documentType === 'all' ? 'text' : documentType}
+				activeProject={activeProject as string}
+				documentName={documentName}
+				setDocumentName={setDocumentName}
+				setDocumentType={setDocumentType}
+				handleCreateDocument={handleCreateDocument}
+				setIsDocumentDialogOpen={setIsDocumentDialogOpen}
+			/>
 		</header>
+	)
+}
+
+// Narrow unknown IndexedDB records that represent workspace documents
+function isWorkspaceDocItem(it: unknown): it is {
+	id?: string
+	project?: string
+	name?: string
+	type?: 'text' | 'image' | 'spreadsheet'
+	url?: string
+	content?: string
+} {
+	if (!it || typeof it !== 'object') return false
+	const o = it as Record<string, unknown>
+	return (
+		typeof o.project === 'string' &&
+		typeof o.name === 'string' &&
+		(o.type === 'text' || o.type === 'image' || o.type === 'spreadsheet')
 	)
 }
