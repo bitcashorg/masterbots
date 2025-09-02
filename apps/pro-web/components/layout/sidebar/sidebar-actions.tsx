@@ -1,15 +1,9 @@
 'use client'
 
 import { ChatShareDialog } from '@/components/routes/chat/chat-share-dialog'
-import {
-	IconCheck,
-	IconShare,
-	IconSpinner,
-	IconTrash,
-} from '@/components/ui/icons'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useSonner } from '@/lib/hooks/useSonner'
-import type { Chat, ServerActionResult } from '@/types/types'
+import type { Chat, ServerActionResult } from '@/types'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -22,6 +16,12 @@ import {
 } from '@masterbots/mb-ui'
 import { Button } from '@masterbots/mb-ui'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@masterbots/mb-ui'
+import {
+	IconCheck,
+	IconShare,
+	IconSpinner,
+	IconTrash,
+} from '@masterbots/mb-ui/icons'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 

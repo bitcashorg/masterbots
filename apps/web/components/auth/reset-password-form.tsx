@@ -1,8 +1,8 @@
 'use client'
 
-import { PasswordStrengthMeter } from '@/components/shared/password-strength-meter'
 import { useSonner } from '@/lib/hooks/useSonner'
 import { isPasswordStrong } from '@/lib/password'
+import { PasswordStrengthMeter } from '@masterbots/mb-ui'
 import { Button } from '@masterbots/mb-ui'
 import { Input } from '@masterbots/mb-ui'
 import { Label } from '@masterbots/mb-ui'

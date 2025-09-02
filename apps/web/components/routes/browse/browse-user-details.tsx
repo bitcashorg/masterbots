@@ -17,8 +17,8 @@
  * - Image Handling: Displays the user's profile picture with a fallback for missing images.
  */
 
-import { Separator } from '@/components/ui/separator'
 import { getBrowseThreads } from '@/services/hasura'
+import { Separator } from '@masterbots/mb-ui'
 import type { User } from 'mb-genql'
 import Image from 'next/image'
 import Link from 'next/link'

@@ -3,12 +3,12 @@
 import { AdminModeApprove } from '@/components/routes/chat/admin-mode-approve'
 import { ChatOptions } from '@/components/routes/chat/chat-options'
 import { ProfileAvatar } from '@/components/routes/thread/profile-avatar'
-import { ChatbotAvatar } from '@/components/shared/chatbot-avatar'
-import { SharedAccordion } from '@/components/shared/shared-accordion'
 import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { cn, getRouteType } from '@/lib/utils'
+import { ChatbotAvatar } from '@masterbots/mb-ui'
+import { SharedAccordion } from '@masterbots/mb-ui'
 import {
 	Skeleton,
 	Tooltip,

@@ -1,17 +1,17 @@
 'use client'
 
-import { ThreadPopupSkeleton } from '@/components/shared/skeletons/thread-popup-skeleton'
+import { useProfile } from '@/lib/hooks/use-profile'
+import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { useThread } from '@/lib/hooks/use-thread'
+import { cn } from '@/lib/utils'
+import { ThreadPopupSkeleton } from '@masterbots/mb-ui'
 import {
 	Breadcrumb,
 	BreadcrumbItem,
 	BreadcrumbLink,
 	BreadcrumbList,
 	BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb'
-import { useProfile } from '@/lib/hooks/use-profile'
-import { useSidebar } from '@/lib/hooks/use-sidebar'
-import { useThread } from '@/lib/hooks/use-thread'
-import { cn } from '@/lib/utils'
+} from '@masterbots/mb-ui'
 import { DotIcon } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import { useParams, usePathname } from 'next/navigation'

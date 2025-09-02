@@ -22,8 +22,8 @@
  * - intentid: The payment intent ID used to fetch payment details
  */
 import { fetchPayment } from '@/app/actions/subscriptions.actions'
-import { IconCreditCard, IconHelp } from '@/components/ui/icons'
 import { getDate } from '@/lib/utils'
+import { IconCreditCard, IconHelp } from '@masterbots/mb-ui/icons'
 import Link from 'next/link'
 import type React from 'react'
 import { useAsync } from 'react-use'

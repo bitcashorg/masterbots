@@ -1,9 +1,9 @@
 'use client'
 
 import { Sidebar } from '@/components/layout/sidebar/sidebar'
-import { IconSidebar } from '@/components/ui/icons'
 import { Button } from '@masterbots/mb-ui'
 import { Sheet, SheetContent, SheetTrigger } from '@masterbots/mb-ui'
+import { IconSidebar } from '@masterbots/mb-ui/icons'
 
 interface SidebarMobileProps {
 	children: React.ReactNode

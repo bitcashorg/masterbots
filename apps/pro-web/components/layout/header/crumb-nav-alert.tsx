@@ -1,3 +1,5 @@
+import { WorkspaceContextType, useWorkspace } from '@/lib/hooks/use-workspace'
+import { cn } from '@/lib/utils'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -7,31 +9,24 @@ import {
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import { Button } from '@/components/ui/button'
-import {
-	Card,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card'
+} from '@masterbots/mb-ui'
+import { Button } from '@masterbots/mb-ui'
+import { Card, CardDescription, CardHeader, CardTitle } from '@masterbots/mb-ui'
 import {
 	Carousel,
 	CarouselContent,
 	CarouselItem,
 	CarouselNext,
 	CarouselPrevious,
-} from '@/components/ui/carousel'
+} from '@masterbots/mb-ui'
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { WorkspaceContextType, useWorkspace } from '@/lib/hooks/use-workspace'
-import { cn } from '@/lib/utils'
+} from '@masterbots/mb-ui'
+import { Input } from '@masterbots/mb-ui'
+import { Label } from '@masterbots/mb-ui'
 import {
 	ChevronDown,
 	FileSpreadsheetIcon,

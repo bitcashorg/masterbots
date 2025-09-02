@@ -5,7 +5,7 @@ import {
 	AccordionContent,
 	AccordionItem,
 	AccordionTrigger,
-} from '@/components/ui/accordion'
+} from '@masterbots/mb-ui'
 import { Button } from '@masterbots/mb-ui'
 import { Card } from '@masterbots/mb-ui'
 import { Textarea } from '@masterbots/mb-ui'

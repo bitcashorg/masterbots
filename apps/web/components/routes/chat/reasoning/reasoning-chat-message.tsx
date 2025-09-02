@@ -1,5 +1,4 @@
 import { ChatMessageActions } from '@/components/routes/chat/chat-message-actions'
-import { MemoizedReactMarkdown } from '@/components/shared/markdown'
 import {
 	cleanClickableText,
 	extractFollowUpContext,
@@ -7,7 +6,8 @@ import {
 import { cleanPrompt, extractReasoningContent } from '@/lib/helpers/ai-helpers'
 import { memoizedMarkdownComponents } from '@/lib/memoized-markdown-components'
 import { cn } from '@/lib/utils'
-import type { ChatMessageProps } from '@/types/types'
+import type { ChatMessageProps } from '@/types'
+import { MemoizedReactMarkdown } from '@masterbots/mb-ui'
 import { ChevronsDownUp } from 'lucide-react'
 import { useState } from 'react'
 

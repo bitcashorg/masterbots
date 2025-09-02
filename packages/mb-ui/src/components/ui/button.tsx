@@ -1,42 +1,64 @@
+import { Slot } from '@radix-ui/react-slot'
 import { type VariantProps, cva } from 'class-variance-authority'
 import * as React from 'react'
-import { cn } from '../../lib/utils'
+
+import { cn } from '@/lib/utils'
 
 const buttonVariants = cva(
-	'inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+	'inline-flex items-center justify-center text-sm font-medium shadow ring-offset-background transition-colors backdrop-blur-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-50 gap-2.5',
 	{
 		variants: {
 			variant: {
-				default: 'bg-primary text-primary-foreground hover:opacity-90',
-				secondary: 'bg-secondary text-secondary-foreground hover:opacity-90',
-				ghost: 'bg-transparent hover:bg-accent hover:text-accent-foreground',
+				default:
+					'bg-primary text-primary-foreground shadow-md hover:bg-primary/80',
 				destructive:
-					'bg-destructive text-destructive-foreground hover:opacity-90',
+					'bg-destructive text-destructive-foreground hover:bg-destructive/80',
 				outline:
-					'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
+					'border border-input hover:bg-muted hover:text-muted-foreground',
+				secondary:
+					'bg-secondary text-secondary-foreground hover:bg-secondary/70',
+				ghost: 'shadow-none hover:bg-muted hover:text-muted-foreground',
+				link: 'text-primary underline-offset-4 shadow-none hover:underline',
+				icon: 'flex size-8 shrink-0 select-none items-center justify-center border shadow cursor-pointer',
+				sideBarProfile:
+					'bg-transparent border-0 shadow-none justify-start hover:bg-muted hover:text-muted-foreground',
+				powerUp: 'border border-input',
+				deepThinking: 'border border-input',
 			},
 			size: {
+				default: 'h-8 px-4 py-2',
 				sm: 'h-8 px-3',
-				md: 'h-9 px-4',
-				lg: 'h-10 px-6',
-				icon: 'h-10 w-10',
+				lg: 'h-11 px-8',
+				xl: 'h-12 px-10',
+				icon: 'size-8 p-0',
+				sideBarProfile: 'size-full',
+			},
+			radius: {
+				default: 'rounded-md',
+				lg: 'rounded-lg',
+				full: 'rounded-full',
+				none: 'rounded-none',
 			},
 		},
 		defaultVariants: {
 			variant: 'default',
-			size: 'md',
+			size: 'default',
+			radius: 'default',
 		},
 	},
 )
 
 export interface ButtonProps
 	extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-		VariantProps<typeof buttonVariants> {}
+		VariantProps<typeof buttonVariants> {
+	asChild?: boolean
+}
 
-export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-	({ className, variant, size, ...props }, ref) => {
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+	({ className, variant, size, asChild = false, ...props }, ref) => {
+		const Comp = asChild ? Slot : 'button'
 		return (
-			<button
+			<Comp
 				className={cn(buttonVariants({ variant, size, className }))}
 				ref={ref}
 				{...props}
@@ -44,52 +66,6 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 		)
 	},
 )
-
 Button.displayName = 'Button'
 
-export { buttonVariants }
-
-interface ButtonScrollToBottomProps extends ButtonProps {
-	scrollToBottom: () => void
-	isAtBottom?: boolean
-	textClassName?: string
-}
-
-export function ButtonScrollToBottom({
-	scrollToBottom,
-	isAtBottom,
-	className,
-	textClassName,
-	...props
-}: ButtonScrollToBottomProps) {
-	return (
-		<Button
-			variant="outline"
-			size="icon"
-			className={cn(
-				'absolute right-4 top-1 z-10 bg-background transition-opacity duration-300 sm:right-8 md:top-2',
-				isAtBottom ? 'opacity-0' : 'opacity-100',
-				className,
-			)}
-			onClick={scrollToBottom}
-			{...props}
-		>
-			<svg
-				xmlns="http://www.w3.org/2000/svg"
-				width="16"
-				height="16"
-				viewBox="0 0 24 24"
-				fill="none"
-				stroke="currentColor"
-				strokeWidth="2"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-				aria-hidden="true"
-			>
-				<title>Arrow Down</title>
-				<path d="m6 9 6 6 6-6" />
-			</svg>
-			<span className={cn('sr-only', textClassName)}>Scroll to bottom</span>
-		</Button>
-	)
-}
+export { Button, buttonVariants }

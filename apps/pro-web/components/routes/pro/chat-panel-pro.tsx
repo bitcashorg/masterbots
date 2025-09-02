@@ -7,32 +7,6 @@ import {
 import { ChatShareDialog } from '@/components/routes/chat/chat-share-dialog'
 import { PromptForm } from '@/components/routes/chat/prompt-form'
 import { WorkspaceContent } from '@/components/routes/workspace/workspace-content'
-import { ButtonScrollToBottom } from '@/components/shared/button-scroll-to-bottom'
-import { FeatureToggle } from '@/components/shared/feature-toggle'
-import { LoadingIndicator } from '@/components/shared/loading-indicator'
-import { Button } from '@/components/ui/button'
-import {
-	Dialog,
-	DialogContent,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from '@/components/ui/dialog'
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { IconShare, IconStop } from '@/components/ui/icons'
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
 import { createWorkspaceMetaPrompt } from '@/lib/constants/prompts'
 import { useContinueGeneration } from '@/lib/hooks/use-continue-generation'
 import { useDeepThinking } from '@/lib/hooks/use-deep-thinking'
@@ -52,6 +26,32 @@ import { cn } from '@/lib/utils'
 import { createThread } from '@/services/hasura'
 import type { WorkspaceDocumentMetadata } from '@/types/thread.types'
 import { type UseChatHelpers, UseChatOptions, useChat } from '@ai-sdk/react'
+import { ButtonScrollToBottom } from '@masterbots/mb-ui'
+import { FeatureToggle } from '@masterbots/mb-ui'
+import { LoadingIndicator } from '@masterbots/mb-ui'
+import { Button } from '@masterbots/mb-ui'
+import {
+	Dialog,
+	DialogContent,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from '@masterbots/mb-ui'
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from '@masterbots/mb-ui'
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@masterbots/mb-ui'
+import { Textarea } from '@masterbots/mb-ui'
+import { IconShare, IconStop } from '@masterbots/mb-ui/icons'
 import type { Message as AiMessage, ChatRequestOptions } from 'ai'
 import { AnimatePresence, motion } from 'framer-motion'
 import {

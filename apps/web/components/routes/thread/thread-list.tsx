@@ -22,11 +22,11 @@
  */
 
 import ThreadComponent from '@/components/routes/thread/thread-component'
-import { ThreadItemSkeleton } from '@/components/shared/skeletons/browse-skeletons'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useSonner } from '@/lib/hooks/useSonner'
 import { getOpeningActiveThreadHelper } from '@/lib/threads'
+import { ThreadItemSkeleton } from '@masterbots/mb-ui'
 import type { Thread } from 'mb-genql'
 import { useEffect, useState } from 'react'
 import { useAsyncFn } from 'react-use'

@@ -27,11 +27,11 @@
  */
 
 import { StripeElement } from '@/components/routes/subscription/stripe-element'
-import { IconCreditCard, IconHelp } from '@/components/ui/icons'
-import type { WizardStepProps } from '@/components/ui/wizard'
-import { usePayment } from '@/lib/hooks/use-payment'
 import { getCurrentOrTargetDate } from '@/lib/utils'
+import type { WizardStepProps } from '@masterbots/mb-ui'
+import { IconCreditCard, IconHelp } from '@masterbots/mb-ui/icons'
 import { useElements, useStripe } from '@stripe/react-stripe-js'
+import { usePayment } from 'mb-lib'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'

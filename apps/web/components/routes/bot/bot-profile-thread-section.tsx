@@ -2,8 +2,8 @@
 
 import BrowseChatbotDetails from '@/components/routes/browse/browse-chatbot-details'
 import UserThreadPanel from '@/components/routes/thread/user-thread-panel'
-import { OnboardingChatbotCard } from '@/components/shared/onboarding-chatbot-card'
 import { useThread } from '@/lib/hooks/use-thread'
+import { OnboardingChatbotCard } from '@masterbots/mb-ui'
 import type { Chatbot, Thread } from 'mb-genql'
 
 export function BotProfileThreadSection({

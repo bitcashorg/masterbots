@@ -3,26 +3,31 @@
 	"version": "0.0.2",
 	"private": true,
 	"type": "module",
-	"main": "dist/src/index.js",
-	"module": "dist/src/index.js",
-	"types": "dist/src/index.d.ts",
-	"files": ["dist", "src", "tailwind.preset.ts"],
+	"main": "src/index.ts",
+	"module": "src/index.ts",
+	"types": "src/index.d.ts",
+	"files": ["src", "tailwind.preset.ts"],
 	"exports": {
 		".": {
-			"types": "./dist/src/index.d.ts",
-			"import": "./dist/src/index.js",
-			"require": "./dist/src/index.js"
+			"types": "./src/index.d.ts",
+			"import": "./src/index.ts",
+			"require": "./src/index.ts"
 		},
 		"./tailwind-preset": {
 			"import": "./tailwind.preset.ts",
 			"require": "./tailwind.preset.ts"
+		},
+		"./icons": {
+			"import": "./src/components/ui/icons.tsx",
+			"require": "./src/components/ui/icons.tsx"
 		},
 		"./styles.css": "./src/styles.css"
 	},
 	"peerDependencies": {
 		"react": "*",
 		"react-dom": "*",
-		"tailwindcss": "*"
+		"tailwindcss": "*",
+		"mb-lib": "workspace:*"
 	},
 	"devDependencies": {
 		"typescript": "*"

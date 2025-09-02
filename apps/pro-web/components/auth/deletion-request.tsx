@@ -4,10 +4,10 @@ import { useSonner } from '@/lib/hooks/useSonner'
 import { updateUserDeletionRequest } from '@/services/hasura'
 import { Button } from '@masterbots/mb-ui'
 import { Dialog, DialogContent } from '@masterbots/mb-ui'
+import { IconSpinner } from '@masterbots/mb-ui/icons'
 import { signOut, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import React from 'react'
-import { IconSpinner } from '../ui/icons'
 
 export function DeletionRequest({
 	deletionDate,

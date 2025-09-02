@@ -1,7 +1,6 @@
 'use client'
 
 import type { MessagePairsData } from '@/components/routes/chat/chat-list/message-pairs'
-import { ThreadPopupContentSkeleton } from '@/components/shared/skeletons/thread-popup-skeleton'
 import {
 	type FileAttachment,
 	useFileAttachments,
@@ -10,7 +9,8 @@ import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
 import { useThread } from '@/lib/hooks/use-thread'
 import type { MessagePair } from '@/lib/threads'
 import { cn, createMessagePairs } from '@/lib/utils'
-import type { SendMessageFromResponseMessageData } from '@/types/types'
+import type { SendMessageFromResponseMessageData } from '@/types'
+import { ThreadPopupContentSkeleton } from '@masterbots/mb-ui'
 import type { Message } from 'ai'
 import { isEqual } from 'lodash'
 import type { Chatbot } from 'mb-genql'

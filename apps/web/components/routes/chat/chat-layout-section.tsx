@@ -3,10 +3,10 @@
 //* ChatLayoutSection component renders a chat layout with conditional popup and responsive styling.
 
 import { ThreadPopup } from '@/components/routes/thread/thread-popup'
-import { CategoryDashboard } from '@/components/shared/category-dashboard'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { cn, getRouteType } from '@/lib/utils'
+import { CategoryDashboard } from '@masterbots/mb-ui'
 import { usePathname } from 'next/navigation'
 import type * as React from 'react'
 

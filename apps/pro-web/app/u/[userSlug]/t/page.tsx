@@ -1,6 +1,5 @@
 import { authOptions } from '@/auth'
 import { UserThreadList } from '@/components/routes/profile/user-thread-list'
-import { ErrorComponent } from '@/components/shared/error'
 import { generateMetadataFromSEO } from '@/lib/metadata'
 import {
 	getBrowseThreads,
@@ -9,6 +8,7 @@ import {
 	getUserInfoFromBrowse,
 } from '@/services/hasura'
 import type { PageProps } from '@/types'
+import { ErrorComponent } from '@masterbots/mb-ui'
 import type { Thread, User } from 'mb-genql'
 import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'

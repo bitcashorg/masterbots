@@ -2,11 +2,11 @@
 
 //* ChatMessageActions component provides a copy-to-clipboard action for chat messages, with feedback on successful copy.
 
-import { IconCheck, IconCopy } from '@/components/ui/icons'
-import { useCopyToClipboard } from '@/lib/hooks/use-copy-to-clipboard'
 import { cn } from '@/lib/utils'
 import { Button } from '@masterbots/mb-ui'
+import { IconCheck, IconCopy } from '@masterbots/mb-ui/icons'
 import type { Message } from 'ai'
+import { useCopyToClipboard } from 'mb-lib'
 
 interface ChatMessageActionsProps extends React.ComponentProps<'div'> {
 	message: Message

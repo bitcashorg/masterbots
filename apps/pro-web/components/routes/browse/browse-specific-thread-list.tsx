@@ -20,10 +20,10 @@
  */
 
 import BrowseListItem from '@/components/routes/browse/browse-list-item'
-import { NoResults } from '@/components/shared/no-results-card'
 import { useBrowse } from '@/lib/hooks/use-browse'
 import { searchThreadContent } from '@/lib/search'
 import { getBrowseThreads } from '@/services/hasura'
+import { NoResults } from '@masterbots/mb-ui'
 import { debounce } from 'lodash'
 import type { Thread } from 'mb-genql'
 import React, { useEffect } from 'react'

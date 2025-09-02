@@ -1,6 +1,9 @@
 'use client'
 
-import { ThemeToggle } from '@/components/shared/theme-toggle'
+import { urlBuilders } from '@/lib/url'
+import { cn } from '@/lib/utils'
+import { getUserInfoFromBrowse } from '@/services/hasura'
+import { ThemeToggle } from '@masterbots/mb-ui'
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -8,10 +11,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { urlBuilders } from '@/lib/url'
-import { cn } from '@/lib/utils'
-import { getUserInfoFromBrowse } from '@/services/hasura'
+} from '@masterbots/mb-ui'
 import { buttonVariants } from '@masterbots/mb-ui'
 import {
 	ChevronRightIcon,

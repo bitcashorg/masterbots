@@ -1,5 +1,6 @@
 'use client'
 
+import { getMessages } from '@/services/hasura'
 // Inspired by Chatbot-UI and modified to fit the needs of this project
 // @see https://github.com/mckaywrigley/chatbot-ui/blob/main/components/Chat/ChatcleanMessage.tsx
 /**
@@ -13,8 +14,7 @@
  * - threadId: The ID of the thread to fetch messages for.
  * - user: Optional user object associated with the messages.
  */
-import { ThreadBlogMarkDown } from '@/components/shared/thread-blog-markdown'
-import { getMessages } from '@/services/hasura'
+import { ThreadBlogMarkDown } from '@masterbots/mb-ui'
 import { format } from 'date-fns'
 import type { Message, User } from 'mb-genql'
 // import Image from 'next/image'

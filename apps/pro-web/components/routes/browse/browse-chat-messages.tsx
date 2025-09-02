@@ -15,10 +15,10 @@
 
 import BrowseChatbotDetails from '@/components/routes/browse/browse-chatbot-details'
 import { BrowseThreadBlog } from '@/components/routes/browse/browse-thread-blog'
-import { ExternalLink } from '@/components/shared/external-link'
 import { urlBuilders } from '@/lib/url'
 import { cn } from '@/lib/utils'
 import { getMessages } from '@/services/hasura'
+import { ExternalLink } from '@masterbots/mb-ui'
 import { buttonVariants } from '@masterbots/mb-ui'
 import type * as AI from 'ai'
 import { ChevronLeft } from 'lucide-react'

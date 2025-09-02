@@ -23,10 +23,10 @@
  * @returns {JSX.Element} The rendered chat message component.
  */
 
-import { MemoizedReactMarkdown } from '@/components/shared/markdown'
 import { cleanPrompt } from '@/lib/helpers/ai-helpers'
 import { memoizedMarkdownComponents } from '@/lib/memoized-markdown-components'
 import { cn } from '@/lib/utils'
+import { MemoizedReactMarkdown } from '@masterbots/mb-ui'
 import type { Message } from 'ai'
 import type { Chatbot } from 'mb-genql'
 

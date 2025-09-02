@@ -1,6 +1,4 @@
 import { ChatMessageActions } from '@/components/routes/chat/chat-message-actions'
-import { GeneratedImage } from '@/components/shared/generated-image'
-import { MemoizedReactMarkdown } from '@/components/shared/markdown'
 import {
 	cleanClickableText,
 	extractFollowUpContext,
@@ -16,7 +14,9 @@ import type {
 	ChatMessageProps,
 	MessageWithExamples,
 	WebSearchResult,
-} from '@/types/types'
+} from '@/types'
+import { GeneratedImage } from '@masterbots/mb-ui'
+import { MemoizedReactMarkdown } from '@masterbots/mb-ui'
 import { usePathname } from 'next/navigation'
 import { useMemo, useState } from 'react'
 

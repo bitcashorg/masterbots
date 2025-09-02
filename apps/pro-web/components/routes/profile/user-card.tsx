@@ -1,5 +1,3 @@
-import { ChatChatbotDetailsSkeleton } from '@/components/shared/skeletons/chat-chatbot-details-skeleton'
-import { Separator } from '@/components/ui/separator'
 import { userPersonalityPrompt } from '@/lib/constants/prompts'
 import { useUploadImagesCloudinary } from '@/lib/hooks/use-cloudinary-upload'
 import { useModel } from '@/lib/hooks/use-model'
@@ -13,6 +11,8 @@ import {
 } from '@/lib/utils'
 import { userFollowOrUnfollow } from '@/services/hasura/hasura.service'
 import { type Message, useChat } from '@ai-sdk/react'
+import { ChatChatbotDetailsSkeleton } from '@masterbots/mb-ui'
+import { Separator } from '@masterbots/mb-ui'
 import { Button } from '@masterbots/mb-ui'
 import {
 	BadgeCheck,

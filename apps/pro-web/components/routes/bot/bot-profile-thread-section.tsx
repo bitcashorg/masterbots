@@ -5,8 +5,8 @@ import { BrowseSearchInput } from '@/components/routes/browse/browse-search-inpu
 import { OnboardingMobileView } from '@/components/routes/chat/chat-onboarding-chatbot-mobile'
 import { SelectedBotMobileView } from '@/components/routes/chat/chat-selected-chatbot-mobile'
 import UserThreadPanel from '@/components/routes/thread/user-thread-panel'
-import { OnboardingChatbotCard } from '@/components/shared/onboarding-chatbot-card'
 import { useThread } from '@/lib/hooks/use-thread'
+import { OnboardingChatbotCard } from '@masterbots/mb-ui'
 import type { Chatbot, Thread } from 'mb-genql'
 
 export function BotProfileThreadSection({

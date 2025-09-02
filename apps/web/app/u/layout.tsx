@@ -1,7 +1,7 @@
 import { ProfileLayoutContent } from '@/components/layout/profile/layout'
 import { BrowseProvider } from '@/lib/hooks/use-browse'
 import { getUserBySlug } from '@/services/hasura'
-import type { PageProps } from '@/types/types'
+import type { PageProps } from '@/types'
 import type { User } from 'mb-genql'
 import { getServerSession } from 'next-auth'
 

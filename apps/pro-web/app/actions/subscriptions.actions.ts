@@ -1,4 +1,3 @@
-import { parseWordwareResponse } from '@/components/shared/wordware-chat'
 import { plans as fallbackPlans } from '@/lib/utils'
 import {
 	type Card,
@@ -6,6 +5,7 @@ import {
 	type Subscription,
 	initialStateSubscription,
 } from '@/types'
+import { parseWordwareResponse } from '@masterbots/mb-ui'
 
 export async function checkIfCustomerHasActiveSub(email: string) {
 	const response = await fetch('/api/payment/subscription', {

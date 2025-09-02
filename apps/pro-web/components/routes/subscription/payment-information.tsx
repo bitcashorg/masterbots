@@ -21,10 +21,10 @@
  */
 
 import { StripeElement } from '@/components/routes/subscription/stripe-element'
-import type { WizardStepProps } from '@/components/ui/wizard'
-import { usePayment } from '@/lib/hooks/use-payment'
 import { cn } from '@/lib/utils'
+import type { WizardStepProps } from '@masterbots/mb-ui'
 import { PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js'
+import { usePayment } from 'mb-lib'
 import type { User } from 'next-auth'
 import { useSession } from 'next-auth/react'
 import type React from 'react'

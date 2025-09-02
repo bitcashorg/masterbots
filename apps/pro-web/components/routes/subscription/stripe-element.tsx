@@ -1,3 +1,5 @@
+import { Elements } from '@stripe/react-stripe-js'
+import { loadStripe } from '@stripe/stripe-js'
 /**
  * StripeElement Component
  *
@@ -17,9 +19,7 @@
  * Props:
  * - children: React nodes to be rendered within the Stripe Elements context
  */
-import { usePayment } from '@/lib/hooks/use-payment'
-import { Elements } from '@stripe/react-stripe-js'
-import { loadStripe } from '@stripe/stripe-js'
+import { usePayment } from 'mb-lib'
 import type React from 'react'
 import { useEffect, useState } from 'react'
 

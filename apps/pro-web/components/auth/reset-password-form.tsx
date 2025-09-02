@@ -1,11 +1,9 @@
 'use client'
 
-import { PasswordStrengthMeter } from '@/components/shared/password-strength-meter'
 import { useSonner } from '@/lib/hooks/useSonner'
 import { isPasswordStrong } from '@/lib/password'
-import { Button } from '@masterbots/mb-ui'
-import { Input } from '@masterbots/mb-ui'
-import { Label } from '@masterbots/mb-ui'
+import { PasswordStrengthMeter } from '@masterbots/mb-ui'
+import { Button, Input, Label } from '@masterbots/mb-ui'
 import { Eye, EyeOff } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import type React from 'react'

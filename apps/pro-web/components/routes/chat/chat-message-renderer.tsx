@@ -1,10 +1,10 @@
 /* eslint-disable no-unused-vars */
 import { ChatMessage } from '@/components/routes/chat/chat-message'
 import { ReasoningChatMessage } from '@/components/routes/chat/reasoning/reasoning-chat-message'
-import { ImageMessageComponent } from '@/components/shared/image-message'
 import { hasReasoning } from '@/lib/helpers/ai-helpers'
 import { isImageMessage } from '@/types'
 import type { SendMessageFromResponseMessageData } from '@/types'
+import { ImageMessageComponent } from '@masterbots/mb-ui'
 
 type MessageRendererProps = {
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>

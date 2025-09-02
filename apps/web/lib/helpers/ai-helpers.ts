@@ -9,8 +9,8 @@ import {
 	toolSchema,
 } from '@/lib/helpers/ai-schemas'
 import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
-import type { AiClientType, CleanPromptResult } from '@/types/types'
-import type { MessageWithExamples, StoredImagePart } from '@/types/types'
+import type { AiClientType, CleanPromptResult } from '@/types'
+import type { MessageWithExamples, StoredImagePart } from '@/types'
 import type { StreamEntry } from '@/types/wordware-flows.types'
 import type Anthropic from '@anthropic-ai/sdk'
 import {

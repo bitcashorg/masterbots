@@ -1,8 +1,8 @@
 'use client'
 
-import { ThemeToggle } from '@/components/shared/theme-toggle'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { cn } from '@/lib/utils'
+import { ThemeToggle } from '@masterbots/mb-ui'
 import { Button, buttonVariants } from '@masterbots/mb-ui'
 import { Sheet, SheetContent, SheetTrigger } from '@masterbots/mb-ui'
 import {

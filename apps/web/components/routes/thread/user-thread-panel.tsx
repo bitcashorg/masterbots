@@ -29,9 +29,6 @@
 
 import ChatChatbotDetails from '@/components/routes/chat/chat-chatbot-details'
 import ThreadList from '@/components/routes/thread/thread-list'
-import { GlobalSearchInput } from '@/components/shared/global-search-input'
-import { NoResults } from '@/components/shared/no-results-card'
-import { ThreadSearchInput } from '@/components/shared/shared-search'
 import { botNames } from '@/lib/constants/bots-names'
 import { PAGE_SIZE } from '@/lib/constants/hasura'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
@@ -47,6 +44,9 @@ import {
 	getThreads,
 } from '@/services/hasura'
 import type { GetBrowseThreadsParams } from '@/services/hasura/hasura.service.type'
+import { GlobalSearchInput } from '@masterbots/mb-ui'
+import { NoResults } from '@masterbots/mb-ui'
+import { ThreadSearchInput } from '@masterbots/mb-ui'
 import { Skeleton } from '@masterbots/mb-ui'
 import { debounce, uniqBy } from 'lodash'
 import type { Thread, User } from 'mb-genql'

@@ -1,5 +1,5 @@
 import { cn, getRouteType, isFollowed, numberShortener } from '@/lib/utils'
-import type { ChatbotDetailsProps } from '@/types/types'
+import type { ChatbotDetailsProps } from '@/types'
 import { Button } from '@masterbots/mb-ui'
 import { Card, CardContent, CardFooter, CardHeader } from '@masterbots/mb-ui'
 import { Bot, BotMessageSquareIcon, Users } from 'lucide-react'

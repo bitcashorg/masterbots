@@ -1,6 +1,6 @@
-import { CodeBlock } from '@/components/ui/codeblock'
 import { getTextFromChildren } from '@/lib/chat-clickable-text'
 import { cn } from '@/lib/utils'
+import { CodeBlock } from '@masterbots/mb-ui'
 import React from 'react'
 import type { Components } from 'react-markdown'
 

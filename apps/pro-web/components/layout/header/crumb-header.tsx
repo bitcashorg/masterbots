@@ -1,12 +1,12 @@
+import { cn } from '@/lib/utils'
+import type { WorkspaceDocumentMetadata } from '@/types/thread.types'
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { cn } from '@/lib/utils'
-import type { WorkspaceDocumentMetadata } from '@/types/thread.types'
+} from '@masterbots/mb-ui'
 import {
 	ChevronDown,
 	FileSpreadsheetIcon,

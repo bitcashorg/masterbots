@@ -7,7 +7,7 @@ import {
 import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
 import { useThread } from '@/lib/hooks/use-thread'
 import type { MessagePair } from '@/lib/threads'
-import type { SendMessageFromResponseMessageData } from '@/types/types'
+import type { SendMessageFromResponseMessageData } from '@/types'
 import { Separator } from '@radix-ui/react-dropdown-menu'
 import type { Chatbot } from 'mb-genql'
 import { Fragment, useMemo } from 'react'

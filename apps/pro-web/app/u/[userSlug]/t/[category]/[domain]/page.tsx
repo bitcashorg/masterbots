@@ -1,6 +1,6 @@
 import { authOptions } from '@/auth'
-import { ErrorComponent } from '@/components/shared/error'
 import { getCategories, getUserBySlug } from '@/services/hasura'
+import { ErrorComponent } from '@masterbots/mb-ui'
 import type { Thread } from 'mb-genql'
 import { toSlug } from 'mb-lib'
 import { getServerSession } from 'next-auth'

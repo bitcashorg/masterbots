@@ -1,6 +1,6 @@
 //* Component for rendering a chatbot interface
 
-import { ChatPanelSkeleton } from '@/components/shared/skeletons/chat-panel-skeleton'
+import { ChatPanelSkeleton } from '@masterbots/mb-ui'
 import type { Chatbot } from 'mb-genql'
 import dynamic from 'next/dynamic'
 

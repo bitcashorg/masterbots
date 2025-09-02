@@ -1,8 +1,5 @@
-import {
-	MainContentSkeleton,
-	SidebarSkeleton,
-} from '@/components/shared/skeletons/chat-page-skeleton'
 import { BrowseProvider } from '@/lib/hooks/use-browse'
+import { MainContentSkeleton, SidebarSkeleton } from '@masterbots/mb-ui'
 import { Skeleton } from '@masterbots/mb-ui'
 import dynamic from 'next/dynamic'
 

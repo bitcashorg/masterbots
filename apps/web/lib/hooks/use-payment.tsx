@@ -1,6 +1,6 @@
 'use client'
 
-import type { StripePlan } from '@/types/types'
+import type { StripePlan } from '@/types'
 import React, { createContext, useState } from 'react'
 
 type CardProps =

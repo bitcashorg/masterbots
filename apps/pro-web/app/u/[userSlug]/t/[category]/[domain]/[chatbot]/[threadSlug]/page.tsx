@@ -1,6 +1,4 @@
 import { UserThreadList } from '@/components/routes/profile/user-thread-list'
-// import { BrowseThreadBlog } from '@/components/routes/browse/browse-thread-blog'
-import { ErrorComponent } from '@/components/shared/error'
 import { botNames } from '@/lib/constants/bots-names'
 import { PAGE_SM_SIZE } from '@/lib/constants/hasura'
 import { generateMbMetadata } from '@/lib/metadata'
@@ -12,6 +10,8 @@ import {
 	getThreads,
 	getUserBySlug,
 } from '@/services/hasura'
+// import { BrowseThreadBlog } from '@/components/routes/browse/browse-thread-blog'
+import { ErrorComponent } from '@masterbots/mb-ui'
 import type { Thread, User } from 'mb-genql'
 import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'

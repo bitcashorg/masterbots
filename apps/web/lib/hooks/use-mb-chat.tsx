@@ -44,7 +44,7 @@ import type {
 	ChatbotMetadataClassification,
 	ChatbotMetadataExamples,
 	SendMessageFromResponseMessageData,
-} from '@/types/types'
+} from '@/types'
 import { type UseChatOptions, useChat } from '@ai-sdk/react'
 import type * as OpenAi from 'ai'
 import type {

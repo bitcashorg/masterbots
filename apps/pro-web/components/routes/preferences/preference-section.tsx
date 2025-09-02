@@ -1,11 +1,3 @@
-import {
-	Accordion,
-	AccordionContent,
-	AccordionItem,
-	AccordionTrigger,
-} from '@/components/ui/accordion'
-import { IconSpinner } from '@/components/ui/icons'
-import { Switch } from '@/components/ui/switch'
 import { useSonner } from '@/lib/hooks/useSonner'
 import { cn } from '@/lib/utils'
 import {
@@ -13,7 +5,14 @@ import {
 	updatePreferences,
 	updateUserDeletionRequest,
 } from '@/services/hasura'
-import type { PreferenceSectionProps } from '@/types/types'
+import type { PreferenceSectionProps } from '@/types'
+import {
+	Accordion,
+	AccordionContent,
+	AccordionItem,
+	AccordionTrigger,
+} from '@masterbots/mb-ui'
+import { Switch } from '@masterbots/mb-ui'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -27,6 +26,7 @@ import {
 import { Button } from '@masterbots/mb-ui'
 import { Card, CardContent } from '@masterbots/mb-ui'
 import { ToggleGroup, ToggleGroupItem } from '@masterbots/mb-ui'
+import { IconSpinner } from '@masterbots/mb-ui/icons'
 import { AArrowDown, AArrowUp, Plus } from 'lucide-react'
 import type { PreferenceSetInput } from 'mb-genql'
 import { signOut, useSession } from 'next-auth/react'

@@ -1,9 +1,9 @@
 //* ChatHistory component displays a link to start a new chat and the user's chat history in a sidebar.
 
 import { SidebarList } from '@/components/layout/sidebar/sidebar-list'
-import { IconPlus } from '@/components/ui/icons'
 import { cn } from '@/lib/utils'
 import { buttonVariants } from '@masterbots/mb-ui'
+import { IconPlus } from '@masterbots/mb-ui/icons'
 import Link from 'next/link'
 import * as React from 'react'
 

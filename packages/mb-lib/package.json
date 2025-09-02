@@ -4,12 +4,23 @@
 	"version": "0.0.0",
 	"main": "./src/index.ts",
 	"types": "./src/index.ts",
+	"exports": {
+		".": {
+			"import": "./src/index.ts",
+			"require": "./src/index.ts"
+		},
+		"./animations": {
+			"import": "./src/animations/index.ts",
+			"require": "./src/animations/index.ts"
+		}
+	},
 	"license": "MIT",
 	"scripts": {},
 	"dependencies": {
 		"jose": "^5.1.3",
 		"lodash": "^4.17.21",
-		"mb-types": "workspace:*"
+		"mb-types": "workspace:*",
+		"@masterbots/mb-ui": "workspace:*"
 	},
 	"devDependencies": {
 		"@types/jsonwebtoken": "^9.0.5",

@@ -1,11 +1,3 @@
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { IconSpinner } from '@/components/ui/icons'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { useWorkspace } from '@/lib/hooks/use-workspace'
@@ -15,6 +7,13 @@ import type { MessagePair } from '@/lib/threads'
 import { getCanonicalDomain, urlBuilders } from '@/lib/url'
 import { cn } from '@/lib/utils'
 import { deleteMessages, getThread } from '@/services/hasura'
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from '@masterbots/mb-ui'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -26,6 +25,7 @@ import {
 	AlertDialogTitle,
 } from '@masterbots/mb-ui'
 import { Button, buttonVariants } from '@masterbots/mb-ui'
+import { IconSpinner } from '@masterbots/mb-ui/icons'
 import { Eye, EyeOff, FileTextIcon, MoreVertical, Trash } from 'lucide-react'
 import type { Thread } from 'mb-genql'
 import { toSlug } from 'mb-lib'

@@ -1,7 +1,7 @@
 import { authOptions } from '@/auth'
-import { WordwareChat } from '@/components/shared/wordware-chat'
 import { generateMetadataFromSEO } from '@/lib/metadata'
 import type { PageProps } from '@/types'
+import { WordwareChat } from '@masterbots/mb-ui'
 import { isTokenExpired } from 'mb-lib'
 import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'

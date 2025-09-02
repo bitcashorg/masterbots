@@ -5,10 +5,14 @@ import {
 	getUserCurrentSubscription,
 } from '@/app/actions/subscriptions.actions'
 import Subscription from '@/components/routes/subscription/subscription'
-import { IconArrowRight, IconCreditCard, IconHelp } from '@/components/ui/icons'
-import { usePayment } from '@/lib/hooks/use-payment'
 import { Button } from '@masterbots/mb-ui'
+import {
+	IconArrowRight,
+	IconCreditCard,
+	IconHelp,
+} from '@masterbots/mb-ui/icons'
 import { type MotionProps, MotionStyle, motion } from 'framer-motion'
+import { usePayment } from 'mb-lib'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useState } from 'react'

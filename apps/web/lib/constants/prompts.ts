@@ -3,7 +3,7 @@
 
 import { getAllUserMessagesAsStringArray } from '@/lib/threads'
 import { nanoid } from '@/lib/utils'
-import type { ChatbotMetadata, ChatbotMetadataExamples } from '@/types/types'
+import type { ChatbotMetadata, ChatbotMetadataExamples } from '@/types'
 import type { Message } from 'ai'
 import { uniq, uniqBy } from 'lodash'
 import { appConfig } from 'mb-env'

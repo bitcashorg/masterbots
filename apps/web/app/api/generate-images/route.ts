@@ -1,4 +1,4 @@
-import type { GenerateImageRequest } from '@/types/types'
+import type { GenerateImageRequest } from '@/types'
 import { openai } from '@ai-sdk/openai'
 import { experimental_generateImage as generateImage } from 'ai'
 import { type NextRequest, NextResponse } from 'next/server'

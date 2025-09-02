@@ -554,28 +554,6 @@ export interface ImageMessageProps {
 	className?: string
 }
 
-export interface ImageToggleContextType {
-	/**
-	 * Whether image generation mode is enabled
-	 */
-	isImageGeneration: boolean
-
-	/**
-	 * Toggle image generation mode
-	 */
-	toggleImageGeneration: () => void
-
-	/**
-	 * Enable image generation mode
-	 */
-	enableImageGeneration: () => void
-
-	/**
-	 * Disable image generation mode
-	 */
-	disableImageGeneration: () => void
-}
-
 export interface UseImageGenerationReturn {
 	/**
 	 * The generated image data

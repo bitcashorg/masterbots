@@ -1,6 +1,5 @@
 import { BrowseThreadBlog } from '@/components/routes/browse/browse-thread-blog'
 import { UserThreadList } from '@/components/routes/profile/user-thread-list'
-import { ErrorComponent } from '@/components/shared/error'
 import { botNames } from '@/lib/constants/bots-names'
 import { generateMbMetadata } from '@/lib/metadata'
 import { getCanonicalDomain, urlBuilders } from '@/lib/url'
@@ -11,6 +10,7 @@ import {
 	getThreads,
 	getUserBySlug,
 } from '@/services/hasura'
+import { ErrorComponent } from '@masterbots/mb-ui'
 import type { User } from 'mb-genql'
 import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'

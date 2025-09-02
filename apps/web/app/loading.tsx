@@ -1,9 +1,6 @@
 'use client'
 
-import {
-	MainContentSkeleton,
-	SidebarSkeleton,
-} from '@/components/shared/skeletons/chat-page-skeleton'
+import { MainContentSkeleton, SidebarSkeleton } from '@masterbots/mb-ui'
 import { Skeleton } from '@masterbots/mb-ui'
 
 export default function Loading() {

@@ -1,10 +1,10 @@
 'use client'
 
-import { IconClose, IconFilter } from '@/components/ui/icons'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { cn } from '@/lib/utils'
 import { Button } from '@masterbots/mb-ui'
 import { Input } from '@masterbots/mb-ui'
+import { IconClose, IconFilter } from '@masterbots/mb-ui/icons'
 import { usePathname } from 'next/navigation'
 import type * as React from 'react'
 

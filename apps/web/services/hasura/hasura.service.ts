@@ -4,7 +4,7 @@ import type {
 	ChatbotMetadataHeaders,
 	ExampleMetadata,
 	ReturnFetchChatbotMetadata,
-} from '@/types/types'
+} from '@/types'
 import { validateMbEnv } from 'mb-env'
 import {
 	type Category,

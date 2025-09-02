@@ -1,0 +1,5 @@
+export { default as ErrorAnim } from './failed-red-1.json'
+export { default as LoadingAnim } from './loading-blue.json'
+export { default as SuccessAnim } from './success-green.json'
+export { default as LoadingErrorAnim } from './loading-error.json'
+export { default as LoadingErrorAltAnim } from './loading-error-2.json'

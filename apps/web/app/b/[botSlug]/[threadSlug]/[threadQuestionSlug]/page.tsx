@@ -1,6 +1,5 @@
 import { BotProfileThreadSection } from '@/components/routes/bot/bot-profile-thread-section'
 import { BrowseThread } from '@/components/routes/browse/browse-thread'
-import { ErrorComponent } from '@/components/shared/error'
 import { botNames } from '@/lib/constants/bots-names'
 import { PAGE_SIZE } from '@/lib/constants/hasura'
 import { generateMbMetadata } from '@/lib/metadata'
@@ -11,7 +10,8 @@ import {
 	getChatbot,
 	getThread,
 } from '@/services/hasura'
-import type { PageProps } from '@/types/types'
+import type { PageProps } from '@/types'
+import { ErrorComponent } from '@masterbots/mb-ui'
 import type { Metadata } from 'next'
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {

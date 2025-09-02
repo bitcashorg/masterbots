@@ -5,7 +5,7 @@ import {
 	IconLlama,
 	IconOpenAI,
 	IconWordware,
-} from '@/components/ui/icons'
+} from '@masterbots/mb-ui/icons'
 import type { ReactNode } from 'react'
 
 export interface ModelData {

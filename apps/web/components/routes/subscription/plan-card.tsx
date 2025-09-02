@@ -22,7 +22,7 @@ import { cn } from '@/lib/utils'
  * - plan: The plan object containing details such as price, description, and features
  * - isPurchased: Indicates whether the plan is purchased (default: false)
  */
-import type { PlanCardProps } from '@/types/types'
+import type { PlanCardProps } from '@/types'
 
 export default function PlanCard({
 	selectedPlan,

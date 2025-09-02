@@ -19,10 +19,10 @@
  * - close: Function to close the success dialog
  */
 
-import type { WizardStepProps } from '@/components/ui/wizard'
 import SuccessAnim from '@/lib/animations/success-green.json'
-import { usePayment } from '@/lib/hooks/use-payment'
+import type { WizardStepProps } from '@masterbots/mb-ui'
 import Lottie from 'lottie-react'
+import { usePayment } from 'mb-lib'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 

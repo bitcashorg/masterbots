@@ -2,7 +2,6 @@ import {
 	updateThreadDocumentsMetadata,
 	uploadWorkspaceDocumentToBucket,
 } from '@/app/actions/thread.actions'
-import { Button } from '@/components/ui/button'
 import { computeChecksum } from '@/lib/checksum'
 import {
 	type WorkspaceTaskType,
@@ -33,6 +32,7 @@ import type {
 	WorkspaceDocumentMetadata,
 	WorkspaceDocumentVersion,
 } from '@/types/thread.types'
+import { Button } from '@masterbots/mb-ui'
 import { FileIcon, Image, PlusIcon, Table } from 'lucide-react'
 import type { Chatbot } from 'mb-genql'
 import { nanoid } from 'nanoid'

@@ -2,7 +2,6 @@
 
 import { AIModels } from '@/app/api/chat/models/models'
 import { ModelGroup } from '@/components/routes/chat/chat-model-group'
-import { IconOpenAI } from '@/components/ui/icons'
 import { useDeepThinking } from '@/lib/hooks/use-deep-thinking'
 import { useModel } from '@/lib/hooks/use-model'
 import { usePowerUp } from '@/lib/hooks/use-power-up'
@@ -18,6 +17,7 @@ import {
 	CommandList,
 } from '@masterbots/mb-ui'
 import { Popover, PopoverContent, PopoverTrigger } from '@masterbots/mb-ui'
+import { IconOpenAI } from '@masterbots/mb-ui/icons'
 import { CheckIcon } from '@radix-ui/react-icons'
 import { Loader2 } from 'lucide-react'
 import { appConfig } from 'mb-env'

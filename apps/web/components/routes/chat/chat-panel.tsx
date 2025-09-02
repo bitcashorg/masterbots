@@ -2,22 +2,20 @@
 
 import { ChatShareDialog } from '@/components/routes/chat/chat-share-dialog'
 import { PromptForm } from '@/components/routes/chat/prompt-form'
-import { ButtonScrollToBottom } from '@/components/shared/button-scroll-to-bottom'
-import { FeatureToggle } from '@/components/shared/feature-toggle'
-import { ImageGenerationToggle } from '@/components/shared/feature-toggle-image'
-import { ImageGenerator } from '@/components/shared/image-generator'
-import { LoadingIndicator } from '@/components/shared/loading-indicator'
-import { IconShare, IconStop } from '@/components/ui/icons'
 import { useContinueGeneration } from '@/lib/hooks/use-continue-generation'
 import { useDeepThinking } from '@/lib/hooks/use-deep-thinking'
-import { useImageToggle } from '@/lib/hooks/use-image-toggler'
 import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { usePowerUp } from '@/lib/hooks/use-power-up'
 import { useThread } from '@/lib/hooks/use-thread'
 import { logErrorToSentry } from '@/lib/sentry'
 import { cn } from '@/lib/utils'
 import { getUserBySlug } from '@/services/hasura'
-import type { ExampleQuestion } from '@/types/types'
+import type { ExampleQuestion } from '@/types'
+import { ButtonScrollToBottom } from '@masterbots/mb-ui'
+import { FeatureToggle } from '@masterbots/mb-ui'
+import { ImageGenerationToggle } from '@masterbots/mb-ui'
+import { ImageGenerator } from '@masterbots/mb-ui'
+import { LoadingIndicator } from '@masterbots/mb-ui'
 import { Button } from '@masterbots/mb-ui'
 import {
 	Dialog,
@@ -25,6 +23,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@masterbots/mb-ui'
+import { IconShare, IconStop } from '@masterbots/mb-ui/icons'
 import type { Message as AiMessage } from 'ai'
 import type { UseChatHelpers } from 'ai/react'
 import {
@@ -35,6 +34,7 @@ import {
 } from 'lucide-react'
 import { appConfig } from 'mb-env'
 import type { Chatbot } from 'mb-genql'
+import { useImageToggle } from 'mb-lib'
 import { useSession } from 'next-auth/react'
 import { useCallback, useState } from 'react'
 import { useAsync } from 'react-use'

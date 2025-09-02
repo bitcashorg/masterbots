@@ -29,13 +29,6 @@ import { ChatCombobox } from '@/components/routes/chat/chat-combobox'
 import { AttachmentsDisplay } from '@/components/routes/chat/prompt-form/attachments-display'
 import { UserAttachments } from '@/components/routes/chat/prompt-form/user-attachments'
 import {
-	Accordion,
-	AccordionContent,
-	AccordionItem,
-	AccordionTrigger,
-} from '@/components/ui/accordion'
-import { IconArrowElbow } from '@/components/ui/icons'
-import {
 	type FileAttachment,
 	useFileAttachments,
 } from '@/lib/hooks/use-chat-attachments'
@@ -45,6 +38,12 @@ import { useModel } from '@/lib/hooks/use-model'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { cn, nanoid } from '@/lib/utils'
+import {
+	Accordion,
+	AccordionContent,
+	AccordionItem,
+	AccordionTrigger,
+} from '@masterbots/mb-ui'
 import { Button, buttonVariants } from '@masterbots/mb-ui'
 import {
 	Command,
@@ -55,6 +54,7 @@ import {
 import { Input } from '@masterbots/mb-ui'
 import { Popover, PopoverContent, PopoverTrigger } from '@masterbots/mb-ui'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@masterbots/mb-ui'
+import { IconArrowElbow } from '@masterbots/mb-ui/icons'
 import type { Attachment, ChatRequestOptions } from 'ai'
 import type { UseChatHelpers } from 'ai/react'
 import { id } from 'date-fns/locale'

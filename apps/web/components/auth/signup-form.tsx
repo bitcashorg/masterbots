@@ -1,9 +1,9 @@
 /* eslint-disable react/no-unescaped-entities */
 'use client'
 
-import { PasswordStrengthMeter } from '@/components/shared/password-strength-meter'
 import { useSonner } from '@/lib/hooks/useSonner'
 import { isPasswordStrong, verifyPassword } from '@/lib/password'
+import { PasswordStrengthMeter } from '@masterbots/mb-ui'
 import { Button } from '@masterbots/mb-ui'
 import { Input, Label } from '@masterbots/mb-ui'
 import { Eye, EyeOff } from 'lucide-react'

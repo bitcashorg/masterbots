@@ -1,12 +1,12 @@
 import { authOptions } from '@/auth'
 import { UserThreadList } from '@/components/routes/profile/user-thread-list'
-import { ErrorComponent } from '@/components/shared/error'
 import {
 	getBrowseThreads,
 	getCategories,
 	getThreads,
 	getUserBySlug,
 } from '@/services/hasura'
+import { ErrorComponent } from '@masterbots/mb-ui'
 import type { Thread, User } from 'mb-genql'
 import { toSlug } from 'mb-lib'
 import { getServerSession } from 'next-auth'

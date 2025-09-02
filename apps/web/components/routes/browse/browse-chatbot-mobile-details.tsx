@@ -1,9 +1,9 @@
 'use client'
 
-import { MemoizedReactMarkdown } from '@/components/shared/markdown'
 import { memoizedMarkdownComponents } from '@/lib/memoized-markdown-components'
 import { cn, isFollowed, numberShortener } from '@/lib/utils'
-import type { BrowseChatbotLayoutProps } from '@/types/types'
+import type { BrowseChatbotLayoutProps } from '@/types'
+import { MemoizedReactMarkdown } from '@masterbots/mb-ui'
 import { Button } from '@masterbots/mb-ui'
 import { Card, CardContent, CardFooter, CardHeader } from '@masterbots/mb-ui'
 import {

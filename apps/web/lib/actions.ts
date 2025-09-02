@@ -1,4 +1,4 @@
-import type { PromptProps } from '@/types/types'
+import type { PromptProps } from '@/types'
 import type { Message } from 'ai'
 import { nanoid } from 'nanoid'
 

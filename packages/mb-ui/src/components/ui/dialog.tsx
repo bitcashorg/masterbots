@@ -3,7 +3,8 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import * as React from 'react'
 
-import { cn } from '../../lib/utils'
+import { cn } from '@/lib/utils'
+import { IconClose } from '../ui/icons'
 
 const Dialog = DialogPrimitive.Root
 
@@ -62,22 +63,8 @@ const DialogHeader = ({
 	>
 		{children}
 		<DialogPrimitive.Close className="absolute right-[3.5rem] md:right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+			<IconClose className="size-4" />
 			<span className="sr-only">Close</span>
-			<svg
-				className="size-4"
-				viewBox="0 0 24 24"
-				stroke="currentColor"
-				fill="none"
-				strokeWidth="2"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-				role="img"
-				aria-labelledby="dialog-close-title"
-			>
-				<title id="dialog-close-title">Close</title>
-				<line x1="18" y1="6" x2="6" y2="18" />
-				<line x1="6" y1="6" x2="18" y2="18" />
-			</svg>
 		</DialogPrimitive.Close>
 	</div>
 )

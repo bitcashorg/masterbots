@@ -1,5 +1,5 @@
 import { SidebarItems } from '@/components/layout/sidebar/sidebar-items'
-import { ThemeToggle } from '@/components/shared/theme-toggle'
+import { ThemeToggle } from '@masterbots/mb-ui'
 // @ts-ignore
 import { cache } from 'react'
 

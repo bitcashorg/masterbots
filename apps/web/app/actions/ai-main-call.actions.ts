@@ -24,7 +24,7 @@ import type {
 	CleanPromptResult,
 	JSONResponseStream,
 	StreamTextParams,
-} from '@/types/types'
+} from '@/types'
 import { createAnthropic } from '@ai-sdk/anthropic'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { createGroq } from '@ai-sdk/groq'

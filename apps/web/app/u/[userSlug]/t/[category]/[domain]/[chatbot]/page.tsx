@@ -1,6 +1,5 @@
 import { authOptions } from '@/auth'
 import { UserThreadList } from '@/components/routes/profile/user-thread-list'
-import { ErrorComponent } from '@/components/shared/error'
 import { botNames } from '@/lib/constants/bots-names'
 import { PAGE_SM_SIZE } from '@/lib/constants/hasura'
 import { generateMetadataFromSEO } from '@/lib/metadata'
@@ -11,7 +10,8 @@ import {
 	getThreads,
 	getUserBySlug,
 } from '@/services/hasura/hasura.service'
-import type { PageProps } from '@/types/types'
+import type { PageProps } from '@/types'
+import { ErrorComponent } from '@masterbots/mb-ui'
 import type { Thread, User } from 'mb-genql'
 import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'

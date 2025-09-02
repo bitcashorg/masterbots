@@ -3,7 +3,7 @@
 import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { getChatbots, getChatbotsCount, getUserBySlug } from '@/services/hasura'
-import type { AiToolCall, ChatLoadingState } from '@/types/types'
+import type { AiToolCall, ChatLoadingState } from '@/types'
 import type { Chatbot, Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
 import * as React from 'react'

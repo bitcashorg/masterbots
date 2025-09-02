@@ -1,11 +1,11 @@
 'use client'
 
-import { MemoizedReactMarkdown } from '@/components/shared/markdown'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { memoizedMarkdownComponents } from '@/lib/memoized-markdown-components'
 import { cn, getRouteType } from '@/lib/utils'
-import type { ChatbotDetailsProps } from '@/types/types'
+import type { ChatbotDetailsProps } from '@/types'
+import { MemoizedReactMarkdown } from '@masterbots/mb-ui'
 import { Card, CardContent, CardFooter, CardHeader } from '@masterbots/mb-ui'
 import { ArrowBigDown, ArrowBigLeft, Bot } from 'lucide-react'
 import Image from 'next/image'

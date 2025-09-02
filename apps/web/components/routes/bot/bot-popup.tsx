@@ -1,6 +1,6 @@
 'use client'
-import { ThreadPopupSkeleton } from '@/components/shared/skeletons/thread-popup-skeleton'
 import { useThread } from '@/lib/hooks/use-thread'
+import { ThreadPopupSkeleton } from '@masterbots/mb-ui'
 import dynamic from 'next/dynamic'
 
 const ThreadPopup = dynamic(

@@ -3,11 +3,11 @@
 import { UserMenu } from '@/components/layout/header/user-menu'
 import { ProfileSidebar } from '@/components/layout/sidebar/profile-sidebar'
 import { Button, Skeleton } from '@masterbots/mb-ui'
+import { ProfileSidebarSkeleton } from '@masterbots/mb-ui'
 import { isTokenExpired } from 'mb-lib'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { Suspense } from 'react'
-import { ProfileSidebarSkeleton } from '../shared/skeletons/profile-sidebar-skeleton'
 
 export function UserLogin() {
 	const { data: session, status } = useSession()

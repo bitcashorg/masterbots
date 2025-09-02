@@ -1,9 +1,9 @@
 'use client'
 
 import BrowseList from '@/components/routes/browse/browse-list'
-import { OnboardingSection } from '@/components/shared/onboarding-section'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
-import type { HomePageProps } from '@/types/types'
+import type { HomePageProps } from '@/types'
+import { OnboardingSection } from '@masterbots/mb-ui'
 import { useSession } from 'next-auth/react'
 import { useEffect, useState } from 'react'
 

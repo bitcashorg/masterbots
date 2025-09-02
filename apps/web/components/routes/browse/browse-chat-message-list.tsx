@@ -12,12 +12,12 @@ import {
 	type MessagePair,
 	convertMessage,
 } from '@/components/routes/browse/browse-chat-messages'
-import { ExternalLink } from '@/components/shared/external-link'
-import { SharedAccordion } from '@/components/shared/shared-accordion'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { getCanonicalDomain, urlBuilders } from '@/lib/url'
 import { cn, createMessagePairs, getRouteType } from '@/lib/utils'
+import { ExternalLink } from '@masterbots/mb-ui'
+import { SharedAccordion } from '@masterbots/mb-ui'
 import { buttonVariants } from '@masterbots/mb-ui'
 import type { Chatbot, Message, User } from 'mb-genql'
 import { useParams, usePathname } from 'next/navigation'

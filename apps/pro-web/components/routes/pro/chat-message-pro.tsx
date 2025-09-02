@@ -1,5 +1,4 @@
 import { ChatMessageActionsPro } from '@/components/routes/pro/chat-message-actions-pro'
-import { MemoizedReactMarkdown } from '@/components/shared/markdown'
 import {
 	cleanClickableText,
 	extractFollowUpContext,
@@ -8,6 +7,7 @@ import { cleanPrompt } from '@/lib/helpers/ai-helpers'
 import { memoizedMarkdownComponents } from '@/lib/memoized-markdown-components'
 import { cn, getRouteType } from '@/lib/utils'
 import type { ChatMessageProps, WebSearchResult } from '@/types'
+import { MemoizedReactMarkdown } from '@masterbots/mb-ui'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import rehypeMathJax from 'rehype-mathjax'

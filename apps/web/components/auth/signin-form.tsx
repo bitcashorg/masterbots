@@ -1,17 +1,17 @@
 'use client'
 
-import { LoginButton } from '@/components/shared/login-button'
 import { getUserByEmail } from '@/services/hasura'
+import { LoginButton } from '@masterbots/mb-ui'
 import { Button } from '@masterbots/mb-ui'
 import { Input } from '@masterbots/mb-ui'
 import { Label } from '@masterbots/mb-ui'
+import { IconSpinner } from '@masterbots/mb-ui/icons'
 import { Eye, EyeOff } from 'lucide-react'
 import { appConfig } from 'mb-env'
 import { signIn } from 'next-auth/react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { IconSpinner } from '../ui/icons'
 import { DeletionRequest } from './deletion-request'
 
 export default function SignInForm() {
