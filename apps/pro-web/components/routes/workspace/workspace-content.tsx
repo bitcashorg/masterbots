@@ -109,7 +109,7 @@ function WorkspaceContentInternal({
 		projectsByDept,
 		departmentList,
 	} = useWorkspace() as unknown as WorkspaceHookSlice
-	console.log('useWorkspace documentContent', documentContent)
+	// console.log('useWorkspace documentContent', documentContent)
 	// console.log('workspace context slice loaded')
 	const {
 		setCursorPosition: setGlobalCursorPosition,
@@ -335,71 +335,19 @@ This is a new document. Add your content here.
 			setEditableContent(section.content)
 			onActiveSectionChange?.(sectionId)
 		}
+
+		// Focus the section textarea and set default cursor position at start
+		requestAnimationFrame(() => {
+			if (sectionTextareaRef.current) {
+				sectionTextareaRef.current.focus()
+				sectionTextareaRef.current.setSelectionRange(0, 0)
+				setCursorPosition(0)
+				setGlobalCursorPosition(0)
+			}
+		})
 	}
 
-	const handleSaveSection = React.useCallback(() => {
-		if (activeSection) {
-			const updatedSections = sections.map((section) =>
-				section.id === activeSection
-					? { ...section, content: editableContent }
-					: section,
-			)
-			setSections(updatedSections)
-
-			const newMarkdown = combineMarkdownSections(updatedSections)
-			setFullMarkdown(newMarkdown)
-
-			if (projectName && documentName) {
-				setDocumentContent(projectName, documentName, newMarkdown)
-			}
-
-			customSonner({
-				type: 'success',
-				text: `${documentType} document saved successfully!`,
-			})
-		}
-	}, [
-		activeSection,
-		editableContent,
-		sections,
-		projectName,
-		documentName,
-		setDocumentContent,
-		documentType,
-		customSonner,
-	])
-
-	const debouncedSaveFullSource = React.useCallback(() => {
-		let timeoutId: NodeJS.Timeout
-		return (content: string) => {
-			clearTimeout(timeoutId)
-			timeoutId = setTimeout(() => {
-				if (projectName && documentName && content) {
-					setDocumentContent(projectName, documentName, content)
-				}
-			}, 500)
-		}
-	}, [projectName, documentName, setDocumentContent])
-
-	const handleViewSourceToggle = React.useCallback(
-		(fullView: boolean) => {
-			if (fullView && activeSection && editableContent.trim()) {
-				handleSaveSection()
-			} else if (!fullView && projectName && documentName) {
-				setDocumentContent(projectName, documentName, fullMarkdown)
-			}
-		},
-		[
-			activeSection,
-			editableContent,
-			handleSaveSection,
-			projectName,
-			documentName,
-			setDocumentContent,
-			fullMarkdown,
-		],
-	)
-
+	// Update a section title in place
 	const handleSectionUpdate = React.useCallback(
 		(sectionId: string, newTitle: string) => {
 			setSections((prevSections) =>
@@ -411,47 +359,101 @@ This is a new document. Add your content here.
 		[],
 	)
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-	const handleExpandSection = React.useCallback(
-		async (sectionTitle: string) => {
-			const prompt = `Proceed to expand ${sectionTitle} section`
-			const metaPrompt = createWorkspaceMetaPrompt({
-				userPrompt: prompt,
-				taskType: 'expand',
-				projectName,
-				documentName,
-				documentType,
-				sections,
-				sectionTitle,
-			})
+	// Debounced save for full source editing
 
-			if (!metaPrompt) return
+	const debouncedSaveFullSource = () => {
+		let timeoutId: NodeJS.Timeout
+		return (content: string) => {
+			clearTimeout(timeoutId)
+			timeoutId = setTimeout(() => {
+				if (projectName && documentName && content) {
+					setDocumentContent(projectName, documentName, content)
+				}
+			}, 500)
+		}
+	}
 
-			await handleWorkspaceEdit(prompt, metaPrompt, cursorPosition)
-		},
-		[handleWorkspaceEdit, cursorPosition],
-	)
+	// Toggle between Section Editor and Full Source, ensuring persistence
+	const handleViewSourceToggle = (fullView: boolean) => {
+		if (fullView && activeSection && editableContent.trim()) {
+			const updated = sections.map((s) =>
+				s.id === activeSection ? { ...s, content: editableContent } : s,
+			)
+			const newMarkdown = combineMarkdownSections(updated)
+			setSections(updated)
+			setFullMarkdown(newMarkdown)
+			if (projectName && documentName) {
+				setDocumentContent(projectName, documentName, newMarkdown)
+			}
+		} else if (!fullView && projectName && documentName) {
+			// Switching back to section view: ensure store has latest source
+			setDocumentContent(projectName, documentName, fullMarkdown)
+		}
+	}
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-	const handleRewriteSection = React.useCallback(
-		async (sectionTitle: string) => {
-			const prompt = `Rewrite ${sectionTitle} section`
-			const metaPrompt = createWorkspaceMetaPrompt({
-				userPrompt: prompt,
-				taskType: 'rewrite',
-				projectName,
-				documentName,
-				documentType,
-				sections,
-				sectionTitle,
-			})
+	const handleExpandSection = async (sectionTitle: string) => {
+		const sectionByTitle = sections.find((s) => s.title === sectionTitle)
+		if (sectionByTitle && sectionByTitle.id !== activeSection) {
+			setActiveSection(sectionByTitle.id)
+			onActiveSectionChange?.(sectionByTitle.id)
+			setEditableContent(sectionByTitle.content)
+		}
 
-			if (!metaPrompt) return
+		// Ensure cursor is set: prefer current selectionStart in section textarea, else 0
+		let effectiveCursor = cursorPosition
+		if (sectionTextareaRef.current) {
+			effectiveCursor = sectionTextareaRef.current.selectionStart || 0
+			setCursorPosition(effectiveCursor)
+			setGlobalCursorPosition(effectiveCursor)
+		}
 
-			await handleWorkspaceEdit(prompt, metaPrompt, cursorPosition)
-		},
-		[handleWorkspaceEdit, cursorPosition],
-	)
+		const prompt = `Proceed to expand ${sectionTitle} section`
+		const metaPrompt = createWorkspaceMetaPrompt({
+			userPrompt: prompt,
+			taskType: 'expand',
+			projectName,
+			documentName,
+			documentType,
+			sections,
+			sectionTitle,
+		})
+
+		if (!metaPrompt) return
+
+		await handleWorkspaceEdit(prompt, metaPrompt, effectiveCursor ?? 0)
+	}
+
+	const handleRewriteSection = async (sectionTitle: string) => {
+		const sectionByTitle = sections.find((s) => s.title === sectionTitle)
+		if (sectionByTitle && sectionByTitle.id !== activeSection) {
+			setActiveSection(sectionByTitle.id)
+			onActiveSectionChange?.(sectionByTitle.id)
+			setEditableContent(sectionByTitle.content)
+		}
+
+		// Ensure cursor is set: prefer current selectionStart in section textarea, else 0
+		let effectiveCursor = cursorPosition
+		if (sectionTextareaRef.current) {
+			effectiveCursor = sectionTextareaRef.current.selectionStart || 0
+			setCursorPosition(effectiveCursor)
+			setGlobalCursorPosition(effectiveCursor)
+		}
+
+		const prompt = `Rewrite ${sectionTitle} section`
+		const metaPrompt = createWorkspaceMetaPrompt({
+			userPrompt: prompt,
+			taskType: 'rewrite',
+			projectName,
+			documentName,
+			documentType,
+			sections,
+			sectionTitle,
+		})
+
+		if (!metaPrompt) return
+
+		await handleWorkspaceEdit(prompt, metaPrompt, effectiveCursor ?? 0)
+	}
 
 	// Unified save function (create thread if needed, verify checksum, versioning, upload, cache)
 	const handleSaveDocument = async () => {
@@ -801,6 +803,7 @@ This is a new document. Add your content here.
 	)
 
 	// Load versions from thread metadata when opening History
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const handleToggleVersions = React.useCallback(() => {
 		if (!showVersions) {
 			try {
@@ -832,7 +835,7 @@ This is a new document. Add your content here.
 			}
 		}
 		setShowVersions((v) => !v)
-	}, [showVersions, activeThread, projectName, documentName])
+	}, [showVersions, activeThread, projectName, documentName, getWorkspaceState])
 
 	return (
 		<div className="flex flex-col space-y-4 pb-4 px-4 size-full">

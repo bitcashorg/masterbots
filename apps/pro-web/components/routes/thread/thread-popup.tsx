@@ -572,7 +572,7 @@ function ThreadPopUpCardHeader({
 
 				<div className="flex items-center gap-4">
 					{/* Create Document button for first assistant message */}
-					{showCreateDocument && (
+					{/* {showCreateDocument && (
 						<Button
 							type="button"
 							variant="outline"
@@ -583,7 +583,7 @@ function ThreadPopUpCardHeader({
 							<FileTextIcon className="w-4 h-4" />
 							Create Document
 						</Button>
-					)}
+					)} */}
 					<Button
 						type="button"
 						variant="ghost"
