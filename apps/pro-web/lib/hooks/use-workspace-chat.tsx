@@ -43,15 +43,21 @@ interface WorkspaceChatContextType extends Partial<ReturnType<typeof useChat>> {
 	// Finish workspace chat request: updates the current active document
 	onFinishWorkspaceChatRequest: (message: Message) => void
 
-	// Cursor position tracking
-	cursorPosition: number
-	setCursorPosition: (position: number) => void
+	// Selection range tracking (replaces simple cursor position)
+	selectionRange: { start: number; end: number } | null
+	setSelectionRange: (range: { start: number; end: number } | null) => void
+
+	// Local UI update callback for section content
+	onSectionContentUpdate?: (sectionId: string, content: string) => void
+	setOnSectionContentUpdate: (
+		callback: ((sectionId: string, content: string) => void) | undefined,
+	) => void
 
 	// Main workspace edit function
 	handleWorkspaceEdit: (
 		userPrompt: string,
 		metaPrompt: string,
-		cursorPosition?: number,
+		selectionRange?: { start: number; end: number } | null,
 	) => Promise<void>
 
 	// Document update function
@@ -60,7 +66,7 @@ interface WorkspaceChatContextType extends Partial<ReturnType<typeof useChat>> {
 		activeSection: string | null,
 		currentContent: string,
 		documentKey: string,
-		cursorPosition?: number,
+		selectionRange?: { start: number; end: number } | null,
 	) => void
 }
 
@@ -88,6 +94,23 @@ export function WorkspaceChatProvider({
 		string | null
 	>(null)
 	const [cursorPosition, setCursorPosition] = React.useState<number>(0)
+	const [selectionRange, setSelectionRange] = React.useState<{
+		start: number
+		end: number
+	} | null>(null)
+
+	// Local UI update callback for section content
+	const [onSectionContentUpdate, setOnSectionContentUpdate] = React.useState<
+		((sectionId: string, content: string) => void) | undefined
+	>(undefined)
+
+	// Refs to preserve content structure during streaming updates
+	const preservedAfterSelectionRef = React.useRef<string>('')
+	const preservedBeforeSelectionRef = React.useRef<string>('')
+	const initialSelectionRangeRef = React.useRef<{
+		start: number
+		end: number
+	} | null>(null)
 
 	// Add logging for active workspace section changes
 	React.useEffect(() => {
@@ -127,7 +150,7 @@ export function WorkspaceChatProvider({
 				activeWorkspaceSection,
 				currentContent,
 				documentKey,
-				cursorPosition,
+				selectionRange,
 			)
 		}
 
@@ -145,13 +168,13 @@ export function WorkspaceChatProvider({
 		activeSection: string | null,
 		currentContent: string,
 		documentKey: string,
-		cursorPosition?: number,
+		selectionRange?: { start: number; end: number } | null,
 	) => {
 		console.log('📝 Processing document update:', {
 			responseLength: aiResponse.length,
 			activeSection,
 			documentKey,
-			cursorPosition,
+			selectionRange,
 		})
 
 		if (workspaceProcessingState !== 'updating') {
@@ -198,11 +221,106 @@ export function WorkspaceChatProvider({
 					// Remove any leading # characters that might indicate structure
 					.replace(/^#+\s*/, '')
 
-				// For section updates, we replace the content entirely
-				// This is because the AI was specifically asked to provide updated content for this section
+				// Handle text insertion/replacement within the section
+				let newSectionContent: string
+				const sectionContent = currentSection.content
+
+				if (selectionRange && selectionRange.start !== selectionRange.end) {
+					// We have a text selection (start ≠ end) - replace the selected text
+					// For section editing, selection range should be relative to section content
+					const validStart = Math.max(
+						0,
+						Math.min(selectionRange.start, sectionContent.length),
+					)
+
+					// On first call, preserve the content structure
+					if (
+						workspaceProcessingState === 'updating' &&
+						!preservedAfterSelectionRef.current
+					) {
+						const originalValidEnd = Math.max(
+							validStart,
+							Math.min(selectionRange.end, sectionContent.length),
+						)
+						preservedBeforeSelectionRef.current = sectionContent.substring(
+							0,
+							validStart,
+						)
+						preservedAfterSelectionRef.current =
+							sectionContent.substring(originalValidEnd)
+						initialSelectionRangeRef.current = {
+							start: validStart,
+							end: originalValidEnd,
+						}
+						console.log(
+							`📍 Preserving content structure: before="${preservedBeforeSelectionRef.current.substring(0, 50)}..." after="${preservedAfterSelectionRef.current.substring(0, 50)}..."`,
+						)
+					}
+
+					// For streaming updates, use preserved content structure
+					newSectionContent = `${preservedBeforeSelectionRef.current}${cleanedResponse}${preservedAfterSelectionRef.current}`
+					console.log(
+						`📍 Replacing selected text using preserved structure (start: ${validStart})`,
+					)
+				} else if (
+					selectionRange &&
+					selectionRange.start === selectionRange.end
+				) {
+					// We have only a cursor position (start === end)
+					// For section operations like expand/rewrite, we typically want to replace the entire section
+					// unless the cursor position indicates a specific insertion point
+					const cursorPosition = Math.max(
+						0,
+						Math.min(selectionRange.start, sectionContent.length),
+					)
+
+					// On first call, preserve the content structure for cursor-based operations
+					if (
+						workspaceProcessingState === 'updating' &&
+						!preservedAfterSelectionRef.current
+					) {
+						preservedBeforeSelectionRef.current = sectionContent.substring(
+							0,
+							cursorPosition,
+						)
+						preservedAfterSelectionRef.current =
+							sectionContent.substring(cursorPosition)
+						initialSelectionRangeRef.current = {
+							start: cursorPosition,
+							end: cursorPosition,
+						}
+					}
+
+					// If cursor is at the beginning (0) or we're doing expand/rewrite operations,
+					// replace the entire section content
+					if (cursorPosition === 0 || sectionContent.trim() === '') {
+						newSectionContent = cleanedResponse
+						console.log(
+							'📍 Replacing entire section content (cursor at start or empty section)',
+						)
+					} else if (cursorPosition === sectionContent.length) {
+						// Cursor at end - append content, but use preserved structure for consistency
+						newSectionContent = `${preservedBeforeSelectionRef.current}\n\n${cleanedResponse}${preservedAfterSelectionRef.current}`
+						console.log('📍 Appending to end of section (cursor at end)')
+					} else {
+						// Cursor in middle - insert at position using preserved structure
+						newSectionContent = `${preservedBeforeSelectionRef.current}\n${cleanedResponse}\n${preservedAfterSelectionRef.current}`
+						console.log(
+							`📍 Inserting at cursor position ${cursorPosition} within section`,
+						)
+					}
+				} else {
+					// No selection range - replace entire section content (expand/rewrite behavior)
+					newSectionContent = cleanedResponse
+					console.log(
+						'📍 No selection range, replacing entire section content (expand/rewrite mode)',
+					)
+				}
+
+				// Update the section with new content
 				updatedSections[sectionIndex] = {
 					...currentSection,
-					content: cleanedResponse.trim(),
+					content: newSectionContent,
 				}
 
 				// Reconstruct the document with the updated section
@@ -210,26 +328,106 @@ export function WorkspaceChatProvider({
 
 				console.log(`✅ Section "${currentSection.title}" updated successfully`)
 
-				let newContentMarkdown = newMarkdown
-
-				if (cursorPosition !== undefined && cursorPosition >= 0) {
-					// Insert at cursor position in full document
-					const beforeCursor = currentContent.substring(0, cursorPosition)
-					const afterCursor = currentContent.substring(cursorPosition)
-					newContentMarkdown = `${beforeCursor}${aiResponse}${afterCursor}`
-				}
-
 				// Only update if we have the current project and document
 				if (activeProject && activeDocument) {
-					setDocumentContent(activeProject, activeDocument, newContentMarkdown)
+					setDocumentContent(activeProject, activeDocument, newMarkdown)
+				}
+
+				// Update local UI state for the active section
+				if (onSectionContentUpdate && activeSection) {
+					onSectionContentUpdate(activeSection, newSectionContent)
 				}
 			} else {
 				console.warn(`⚠️ Section with ID "${activeSection}" not found`)
-				// Section not found, append as new section
-				const newSection = aiResponse.trim()
-				const updatedContent = `${currentContent}${newSection}`
-				if (activeProject && activeDocument) {
-					setDocumentContent(activeProject, activeDocument, updatedContent)
+				// No active section - use full document mode with preserved content structure
+				if (selectionRange && selectionRange.start !== selectionRange.end) {
+					// Replace selected text in full document
+					const validStart = Math.max(
+						0,
+						Math.min(selectionRange.start, currentContent.length),
+					)
+
+					// On first call, preserve the content structure for full document
+					if (
+						workspaceProcessingState === 'updating' &&
+						!preservedAfterSelectionRef.current
+					) {
+						const originalValidEnd = Math.max(
+							validStart,
+							Math.min(selectionRange.end, currentContent.length),
+						)
+						preservedBeforeSelectionRef.current = currentContent.substring(
+							0,
+							validStart,
+						)
+						preservedAfterSelectionRef.current =
+							currentContent.substring(originalValidEnd)
+						initialSelectionRangeRef.current = {
+							start: validStart,
+							end: originalValidEnd,
+						}
+					}
+
+					const newContentMarkdown = `${preservedBeforeSelectionRef.current}${aiResponse.trim()}${preservedAfterSelectionRef.current}`
+					if (activeProject && activeDocument) {
+						setDocumentContent(
+							activeProject,
+							activeDocument,
+							newContentMarkdown,
+						)
+					}
+					console.log(
+						'📍 Replaced selected text using preserved structure in full document',
+					)
+				} else if (
+					selectionRange &&
+					selectionRange.start === selectionRange.end
+				) {
+					// Insert at cursor position in full document
+					const cursorPosition = Math.max(
+						0,
+						Math.min(selectionRange.start, currentContent.length),
+					)
+
+					// On first call, preserve the content structure
+					if (
+						workspaceProcessingState === 'updating' &&
+						!preservedAfterSelectionRef.current
+					) {
+						preservedBeforeSelectionRef.current = currentContent.substring(
+							0,
+							cursorPosition,
+						)
+						preservedAfterSelectionRef.current =
+							currentContent.substring(cursorPosition)
+						initialSelectionRangeRef.current = {
+							start: cursorPosition,
+							end: cursorPosition,
+						}
+					}
+
+					const newContentMarkdown = `${preservedBeforeSelectionRef.current}${aiResponse.trim()}${preservedAfterSelectionRef.current}`
+					if (activeProject && activeDocument) {
+						setDocumentContent(
+							activeProject,
+							activeDocument,
+							newContentMarkdown,
+						)
+					}
+					console.log(
+						'📍 Inserted at cursor position using preserved structure in full document',
+					)
+				} else {
+					// No selection range, append at end
+					const newContentMarkdown = `${currentContent}\n\n${aiResponse.trim()}`
+					if (activeProject && activeDocument) {
+						setDocumentContent(
+							activeProject,
+							activeDocument,
+							newContentMarkdown,
+						)
+					}
+					console.log('📍 Appended to end of document')
 				}
 			}
 
@@ -238,6 +436,10 @@ export function WorkspaceChatProvider({
 			console.error('❌ Error updating document:', error)
 		} finally {
 			setWorkspaceProcessingState('idle')
+			// Reset preserved content refs after operation is complete
+			preservedAfterSelectionRef.current = ''
+			preservedBeforeSelectionRef.current = ''
+			initialSelectionRangeRef.current = null
 		}
 	}
 
@@ -245,13 +447,14 @@ export function WorkspaceChatProvider({
 	const handleWorkspaceEdit = async (
 		userPrompt: string,
 		metaPrompt: string,
-		cursorPosition?: number,
+		selectionRange?: { start: number; end: number } | null,
 	) => {
 		console.log('🚀 handleWorkspaceEdit called with:', {
 			userPrompt,
 			metaPrompt: `${metaPrompt.substring(0, 100)}...`,
 			activeProject,
 			activeDocument,
+			selectionRange,
 		})
 
 		if (!activeProject || !activeDocument) {
@@ -261,6 +464,11 @@ export function WorkspaceChatProvider({
 
 		console.log('📝 Setting analyzing state...')
 		setWorkspaceProcessingState('analyzing')
+
+		// Reset preserved content refs for new operation
+		preservedAfterSelectionRef.current = ''
+		preservedBeforeSelectionRef.current = ''
+		initialSelectionRangeRef.current = null
 
 		try {
 			// Get current document content for context
@@ -272,11 +480,13 @@ export function WorkspaceChatProvider({
 				activeSection: activeWorkspaceSection,
 			})
 
-			// set the cursor position if provided
-			if (cursorPosition !== undefined && cursorPosition >= 0) {
-				setCursorPosition(cursorPosition)
+			// set the selection range if provided
+			if (selectionRange) {
+				setSelectionRange(selectionRange)
+				setCursorPosition(selectionRange.start)
 			} else {
-				// Default to 0 if no cursor position is provided
+				// Default to cursor at 0 if no selection range is provided
+				setSelectionRange(null)
 				setCursorPosition(0)
 			}
 
@@ -360,17 +570,19 @@ export function WorkspaceChatProvider({
 			value={{
 				append,
 				setInput,
-				setCursorPosition,
+				selectionRange,
+				setSelectionRange,
 				handleWorkspaceEdit,
 				handleDocumentUpdate,
 				setActiveWorkspaceSection,
 				setWorkspaceProcessingState,
 				onFinishWorkspaceChatRequest,
+				onSectionContentUpdate,
+				setOnSectionContentUpdate,
 				input,
 				error,
 				messages,
 				isLoading,
-				cursorPosition,
 				workspaceProcessingState,
 				activeWorkspaceSection,
 			}}

@@ -117,10 +117,12 @@ function WorkspaceContentInternal({
 		messages,
 		isLoading,
 		onFinishWorkspaceChatRequest,
-		setCursorPosition: setGlobalCursorPosition,
+		selectionRange: globalSelectionRange,
+		setSelectionRange: setGlobalSelectionRange,
 		handleWorkspaceEdit,
 		workspaceProcessingState,
 		setActiveWorkspaceSection: onActiveSectionChange,
+		setOnSectionContentUpdate,
 	} = useWorkspaceChat()
 	const { activeThread, refreshActiveThread } = useThread()
 	const { data: session } = useSession()
@@ -150,13 +152,14 @@ function WorkspaceContentInternal({
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		if (!newAssistantMessage) return
-		const frame = requestAnimationFrame(() =>
+		let frame = null
+		frame = requestAnimationFrame(() =>
 			onFinishWorkspaceChatRequest(newAssistantMessage),
 		)
 		// setFullMarkdown(newAssistantMessage.content)
 
 		return () => {
-			cancelAnimationFrame(frame)
+			if (frame) cancelAnimationFrame(frame)
 		}
 	}, [newAssistantMessage])
 
@@ -225,6 +228,37 @@ This is a new document. Add your content here.
 		}
 	}, [])
 
+	// Set up callback for updating local editable content when AI updates sections
+	React.useEffect(() => {
+		const updateSectionContent = (sectionId: string, content: string) => {
+			if (sectionId === activeSection) {
+				console.log(
+					`📝 Updating local editableContent for section: ${sectionId}`,
+				)
+				setEditableContent(content)
+			}
+
+			// Also update the sections state to keep it in sync
+			setSections((prevSections) => {
+				const updatedSections = prevSections.map((section) =>
+					section.id === sectionId ? { ...section, content } : section,
+				)
+
+				// Update fullMarkdown to reflect the changes
+				const newFullMarkdown = combineMarkdownSections(updatedSections)
+				setFullMarkdown(newFullMarkdown)
+
+				return updatedSections
+			})
+		}
+
+		setOnSectionContentUpdate(updateSectionContent)
+
+		return () => {
+			setOnSectionContentUpdate(undefined)
+		}
+	}, [activeSection, setOnSectionContentUpdate])
+
 	// Helper functions
 	const markUserTyping = React.useCallback(() => {
 		isUserTypingRef.current = true
@@ -236,14 +270,25 @@ This is a new document. Add your content here.
 		}, 1000)
 	}, [])
 
-	const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-		markUserTyping()
-		setEditableContent(e.target.value)
-		const position = e.target.selectionStart || 0
-		setCursorPosition(position)
-		setGlobalCursorPosition(position)
-	}
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	const handleContentChange = React.useCallback(
+		(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+			markUserTyping()
+			setEditableContent(e.target.value)
+			const position = e.target.selectionStart || 0
+			const end = e.target.selectionEnd || position
+			setCursorPosition(position)
+			setGlobalSelectionRange({ start: position, end })
+		},
+		[
+			markUserTyping,
+			setEditableContent,
+			setCursorPosition,
+			setGlobalSelectionRange,
+		],
+	)
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const handleCursorPositionChange = React.useCallback(
 		(
 			e:
@@ -252,10 +297,11 @@ This is a new document. Add your content here.
 		) => {
 			const target = e.target as HTMLTextAreaElement
 			const position = target.selectionStart || 0
+			const end = target.selectionEnd || position
 			setCursorPosition(position)
-			setGlobalCursorPosition(position)
+			setGlobalSelectionRange({ start: position, end })
 		},
-		[setGlobalCursorPosition],
+		[setCursorPosition, setGlobalSelectionRange],
 	)
 
 	const handleSectionClick = (sectionId: string) => {
@@ -272,7 +318,7 @@ This is a new document. Add your content here.
 				sectionTextareaRef.current.focus()
 				sectionTextareaRef.current.setSelectionRange(0, 0)
 				setCursorPosition(0)
-				setGlobalCursorPosition(0)
+				setGlobalSelectionRange({ start: 0, end: 0 })
 			}
 		})
 	}
@@ -329,13 +375,9 @@ This is a new document. Add your content here.
 			setEditableContent(sectionByTitle.content)
 		}
 
-		// Ensure cursor is set: prefer current selectionStart in section textarea, else 0
-		let effectiveCursor = cursorPosition
-		if (sectionTextareaRef.current) {
-			effectiveCursor = sectionTextareaRef.current.selectionStart || 0
-			setCursorPosition(effectiveCursor)
-			setGlobalCursorPosition(effectiveCursor)
-		}
+		// For expand operations, we want to replace the entire section content
+		// Pass null as selection range to signal full section replacement
+		const effectiveSelectionRange = null
 
 		const prompt = `Proceed to expand ${sectionTitle} section`
 		const metaPrompt = createWorkspaceMetaPrompt({
@@ -350,7 +392,7 @@ This is a new document. Add your content here.
 
 		if (!metaPrompt) return
 
-		await handleWorkspaceEdit(prompt, metaPrompt, effectiveCursor ?? 0)
+		await handleWorkspaceEdit(prompt, metaPrompt, effectiveSelectionRange)
 	}
 
 	const handleRewriteSection = async (sectionTitle: string) => {
@@ -361,13 +403,9 @@ This is a new document. Add your content here.
 			setEditableContent(sectionByTitle.content)
 		}
 
-		// Ensure cursor is set: prefer current selectionStart in section textarea, else 0
-		let effectiveCursor = cursorPosition
-		if (sectionTextareaRef.current) {
-			effectiveCursor = sectionTextareaRef.current.selectionStart || 0
-			setCursorPosition(effectiveCursor)
-			setGlobalCursorPosition(effectiveCursor)
-		}
+		// For rewrite operations, we want to replace the entire section content
+		// Pass null as selection range to signal full section replacement
+		const effectiveSelectionRange = null
 
 		const prompt = `Rewrite ${sectionTitle} section`
 		const metaPrompt = createWorkspaceMetaPrompt({
@@ -382,7 +420,7 @@ This is a new document. Add your content here.
 
 		if (!metaPrompt) return
 
-		await handleWorkspaceEdit(prompt, metaPrompt, effectiveCursor ?? 0)
+		await handleWorkspaceEdit(prompt, metaPrompt, effectiveSelectionRange)
 	}
 
 	// Unified save function (create thread if needed, verify checksum, versioning, upload, cache)
@@ -817,26 +855,26 @@ This is a new document. Add your content here.
 					</div>
 
 					<WorkspaceTextEditor
-						sections={sections}
-						setSections={setSections}
-						activeSection={activeSection}
-						setActiveSection={setActiveSection}
-						editableContent={editableContent}
-						setEditableContent={setEditableContent}
-						fullMarkdown={fullMarkdown}
-						setFullMarkdown={setFullMarkdown}
 						viewMode={viewMode}
-						sectionTextareaRef={sectionTextareaRef}
+						sections={sections}
+						fullMarkdown={fullMarkdown}
+						activeSection={activeSection}
+						editableContent={editableContent}
 						sourceTextareaRef={sourceTextareaRef}
-						handleContentChange={handleContentChange}
-						handleCursorPositionChange={handleCursorPositionChange}
-						handleSectionClick={handleSectionClick}
+						sectionTextareaRef={sectionTextareaRef}
+						setSections={setSections}
 						markUserTyping={markUserTyping}
+						setFullMarkdown={setFullMarkdown}
 						setCursorPosition={setCursorPosition}
-						debouncedSaveFullSource={debouncedSaveFullSource}
-						handleExpandSection={handleExpandSection}
-						handleRewriteSection={handleRewriteSection}
+						setActiveSection={setActiveSection}
+						handleSectionClick={handleSectionClick}
+						setEditableContent={setEditableContent}
 						handleSectionUpdate={handleSectionUpdate}
+						handleExpandSection={handleExpandSection}
+						handleContentChange={handleContentChange}
+						handleRewriteSection={handleRewriteSection}
+						debouncedSaveFullSource={debouncedSaveFullSource}
+						handleCursorPositionChange={handleCursorPositionChange}
 					/>
 				</div>
 			)}

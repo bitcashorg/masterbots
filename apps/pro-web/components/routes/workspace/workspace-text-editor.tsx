@@ -1,5 +1,6 @@
 'use client'
 
+import { MemoizedReactMarkdown } from '@/components/shared/markdown'
 import { Textarea } from '@/components/ui/textarea'
 import { useWorkspace } from '@/lib/hooks/use-workspace'
 import { useWorkspaceChat } from '@/lib/hooks/use-workspace-chat'
@@ -63,16 +64,16 @@ export function WorkspaceTextEditor({
 	handleRewriteSection,
 	handleSectionUpdate,
 }: WorkspaceTextEditorProps) {
-	const { setDocumentContent, activeProject, activeDocument } = useWorkspace()
-	const { setCursorPosition: setGlobalCursorPosition } = useWorkspaceChat()
+	const { setDocumentContent, activeProject } = useWorkspace()
+	const { setSelectionRange: setGlobalSelectionRange, isLoading } =
+		useWorkspaceChat()
 
-	// Local state to persist selection after blur (for chat prompt context)
-	const [isSectionFocused, setIsSectionFocused] = React.useState(false)
-	const [selectionRange, setSelectionRange] = React.useState<{
+	// Overlay state for persistent selection visualization
+	const [isFocused, setIsFocused] = React.useState(false)
+	const [persistedSelection, setPersistedSelection] = React.useState<{
 		start: number
 		end: number
 	} | null>(null)
-	const overlayRef = React.useRef<HTMLDivElement>(null)
 
 	// Build section tree for overview mode
 	const sectionTree = React.useMemo(
@@ -81,78 +82,44 @@ export function WorkspaceTextEditor({
 	)
 
 	// Auto-focus section textarea when active section changes
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	React.useEffect(() => {
+		console.log('🔄 Section effect triggered:', { activeSection })
 		if (!activeSection) return
 		const el = sectionTextareaRef?.current
 		if (!el) return
-		// Focus the textarea
+		// Focus the textarea and set cursor at start
 		el.focus()
-		// Preserve user selection if any; otherwise set default caret at start
-		const hasSelection = el.selectionStart !== el.selectionEnd
-		if (!hasSelection) {
-			el.setSelectionRange(0, 0)
-			setCursorPosition(0)
-			setGlobalCursorPosition(0)
-		} else {
-			// Sync current selection start to cursor positions
-			const pos = el.selectionStart || 0
-			setCursorPosition(pos)
-			setGlobalCursorPosition(pos)
-		}
+		el.setSelectionRange(0, 0)
+		setGlobalSelectionRange({ start: 0, end: 0 })
+		// Clear persisted selection when switching sections
+		setPersistedSelection(null)
+	}, [activeSection, setGlobalSelectionRange])
 
-		// Reset persisted selection when switching sections
-		setSelectionRange(null)
-	}, [activeSection, sectionTextareaRef])
+	// Simplified overlay renderer for persisted selection
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	const renderSelectionOverlay = React.useCallback(() => {
+		if (isFocused || !persistedSelection || isLoading) return null
 
-	// Helpers to mirror selection highlight when blurred
-	const clampRange = React.useCallback(
-		(text: string, start: number, end: number) => {
-			const s = Math.max(0, Math.min(start ?? 0, text.length))
-			const e = Math.max(s, Math.min(end ?? s, text.length))
-			return { s, e }
-		},
-		[],
-	)
-
-	const renderOverlayContent = React.useCallback(() => {
 		const text = editableContent || ''
-		const hasPersisted = !!selectionRange
-		if (!hasPersisted) return null
-		const { s, e } = clampRange(
-			text,
-			selectionRange!.start,
-			selectionRange!.end,
-		)
-		const before = text.slice(0, s)
-		const selected = text.slice(s, e)
-		const after = text.slice(e)
-		const hasSelection = s !== e
-		return (
-			<span className="whitespace-pre-wrap">
-				{before}
-				{hasSelection ? (
-					<span className="bg-accent text-accent-foreground rounded-[2px] py-[2.5px] px-0.5">
-						{selected}
-					</span>
-				) : (
-					// Caret indicator at cursor position when no selection
-					<span
-						className="inline-block align-text-bottom animate-pulse"
-						style={{
-							display: 'inline-block',
-							width: 1,
-							height: '1em',
-							background: 'hsl(var(--accent))',
-						}}
-					/>
-				)}
-				{after}
-			</span>
-		)
-	}, [editableContent, selectionRange, clampRange])
+		const { start, end } = persistedSelection
 
-	const overlayActive = !isSectionFocused && !!selectionRange
+		// Only show overlay for actual selections (start ≠ end)
+		if (start === end) return null
+
+		const before = text.slice(0, start)
+		const selected = text.slice(start, end)
+		const after = text.slice(end)
+
+		return (
+			<div className="absolute inset-0 text-sm font-mono whitespace-pre-wrap pointer-events-none z-10 p-3">
+				{before}
+				<span className="bg-accent text-accent-foreground rounded-[2px] py-[2.5px] px-0.5">
+					{selected}
+				</span>
+				{after}
+			</div>
+		)
+	}, [isFocused, persistedSelection, editableContent])
 
 	return (
 		<div className="space-y-4 h-full">
@@ -182,56 +149,57 @@ export function WorkspaceTextEditor({
 									{sections.find((s) => s.id === activeSection)?.title}
 								</h3>
 								<div className="relative size-full">
-									{/* Overlay to persist selection highlight when textarea is blurred */}
-									<div
-										ref={overlayRef}
-										aria-hidden
-										className={cn(
-											'absolute inset-0 p-3 font-mono text-sm whitespace-pre-wrap pointer-events-none rounded-md',
-											overlayActive ? '' : 'hidden',
-										)}
-									>
-										{renderOverlayContent()}
-									</div>
+									{isLoading ? (
+										<MemoizedReactMarkdown className="flex flex-col gap-1 size-full">
+											{editableContent}
+										</MemoizedReactMarkdown>
+									) : (
+										<>
+											{/* Simplified selection overlay */}
+											{renderSelectionOverlay()}
 
-									<textarea
-										ref={sectionTextareaRef}
-										value={editableContent}
-										onChange={handleContentChange}
-										onFocus={(e) => {
-											setIsSectionFocused(true)
-											handleCursorPositionChange(e)
-										}}
-										onBlur={(e) => {
-											const el = e.target as HTMLTextAreaElement
-											const start = el.selectionStart || 0
-											const end = el.selectionEnd || start
-											setSelectionRange({ start, end })
-											setIsSectionFocused(false)
-											// Persist cursor position globally as selection start
-											setCursorPosition(start)
-											setGlobalCursorPosition(start)
-										}}
-										onClick={handleCursorPositionChange}
-										onKeyUp={(e) => {
-											const position =
-												(e.target as HTMLTextAreaElement).selectionStart || 0
-											setCursorPosition(position)
-											setGlobalCursorPosition(position)
-										}}
-										onScroll={(e) => {
-											const target = e.target as HTMLTextAreaElement
-											if (overlayRef.current) {
-												overlayRef.current.scrollTop = target.scrollTop
-												overlayRef.current.scrollLeft = target.scrollLeft
-											}
-										}}
-										className={cn(
-											'size-full p-3 border rounded-md focus:outline-none focus:ring-2 resize-none font-mono text-sm selection:bg-accent selection:text-accent-foreground',
-											overlayActive &&
-												'text-transparent caret-transparent selection:bg-transparent',
-										)}
-									/>
+											<Textarea
+												ref={sectionTextareaRef}
+												value={editableContent}
+												onChange={handleContentChange}
+												onFocus={(e) => {
+													setIsFocused(true)
+													handleCursorPositionChange(e)
+												}}
+												onBlur={(e) => {
+													setIsFocused(false)
+													const el = e.target as HTMLTextAreaElement
+													const start = el.selectionStart || 0
+													const end = el.selectionEnd || start
+													// Persist selection for overlay
+													setPersistedSelection({ start, end })
+													// Update global selection range
+													setCursorPosition(start)
+													setGlobalSelectionRange({ start, end })
+												}}
+												onClick={handleCursorPositionChange}
+												onKeyUp={(e) => {
+													const position =
+														(e.target as HTMLTextAreaElement).selectionStart ||
+														0
+													const end =
+														(e.target as HTMLTextAreaElement).selectionEnd ||
+														position
+													setCursorPosition(position)
+													setGlobalSelectionRange({ start: position, end })
+												}}
+												className={cn(
+													'size-full p-3 border rounded-md focus:outline-none focus:ring-2 resize-none font-mono text-sm selection:bg-accent selection:text-accent-foreground',
+													!isFocused &&
+														persistedSelection &&
+														persistedSelection.start !==
+															persistedSelection.end &&
+														'text-transparent caret-transparent',
+												)}
+												disabled={isLoading}
+											/>
+										</>
+									)}
 								</div>
 							</div>
 						) : (
@@ -247,39 +215,50 @@ export function WorkspaceTextEditor({
 			{/* Source view */}
 			{viewMode === 'source' && (
 				<div className="h-[calc(100%-64px)] border rounded-lg p-4">
-					<Textarea
-						ref={sourceTextareaRef}
-						value={fullMarkdown}
-						onChange={(e) => {
-							markUserTyping()
-							const newValue = e.target.value
-							setFullMarkdown(newValue)
-							// When source is changed, update sections
-							setSections(parseMarkdownSections(newValue))
-							// Track cursor position
-							const position = e.target.selectionStart || 0
-							setCursorPosition(position)
-							setGlobalCursorPosition(position)
-							// Save changes with debounce
-							debouncedSaveFullSource()(newValue)
-						}}
-						onFocus={handleCursorPositionChange}
-						onClick={handleCursorPositionChange}
-						onKeyUp={(e) => {
-							const position =
-								(e.target as HTMLTextAreaElement).selectionStart || 0
-							setCursorPosition(position)
-							setGlobalCursorPosition(position)
-						}}
-						className="min-h-[400px] h-[94%] font-mono text-sm selection:bg-accent selection:text-accent-foreground"
-						placeholder="# Document Title..."
-					/>
-					<div className="mt-2 text-xs text-muted-foreground">
-						<p>
-							Edit the full markdown source. Changes will be applied when you
-							switch back to section view.
-						</p>
-					</div>
+					{isLoading ? (
+						<MemoizedReactMarkdown className="flex flex-col gap-1 size-full">
+							{fullMarkdown}
+						</MemoizedReactMarkdown>
+					) : (
+						<>
+							<Textarea
+								ref={sourceTextareaRef}
+								value={fullMarkdown}
+								onChange={(e) => {
+									markUserTyping()
+									const newValue = e.target.value
+									setFullMarkdown(newValue)
+									// When source is changed, update sections
+									setSections(parseMarkdownSections(newValue))
+									// Track cursor position
+									const position = e.target.selectionStart || 0
+									const end = e.target.selectionEnd || position
+									setCursorPosition(position)
+									setGlobalSelectionRange({ start: position, end })
+									// Save changes with debounce
+									debouncedSaveFullSource()(newValue)
+								}}
+								onFocus={handleCursorPositionChange}
+								onClick={handleCursorPositionChange}
+								onKeyUp={(e) => {
+									const position =
+										(e.target as HTMLTextAreaElement).selectionStart || 0
+									const end =
+										(e.target as HTMLTextAreaElement).selectionEnd || position
+									setCursorPosition(position)
+									setGlobalSelectionRange({ start: position, end })
+								}}
+								className="min-h-[400px] h-[94%] font-mono text-sm selection:bg-accent selection:text-accent-foreground"
+								placeholder="# Document Title..."
+							/>
+							<div className="mt-2 text-xs text-muted-foreground">
+								<p>
+									Edit the full markdown source. Changes will be applied when
+									you switch back to section view.
+								</p>
+							</div>
+						</>
+					)}
 				</div>
 			)}
 		</div>
