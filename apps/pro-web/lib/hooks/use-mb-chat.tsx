@@ -1015,9 +1015,13 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 							// activeThread?.thread?.messages.filter(
 							// 	(msg) => msg?.examples?.length,
 							// ) as Message[],
-							activeThread?.messages.filter(
-								(msg) => msg?.examples?.length,
-							) as Message[],
+							allMessages
+								.filter((msg) => msg?.examples)
+								.filter(
+									(msg) =>
+										// This is when we are in the activeThread and haven't close it [fallback]
+										msg?.parts?.filter((part) => part.type === 'file') || msg,
+								) as Message[],
 						),
 						{
 							id: `examples-${nanoid(10)}`,
