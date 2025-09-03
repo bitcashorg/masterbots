@@ -1,17 +1,18 @@
 'use client'
 
 import { MemoizedReactMarkdown } from '@/components/shared/markdown'
+import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { useWorkspace } from '@/lib/hooks/use-workspace'
 import { useWorkspaceChat } from '@/lib/hooks/use-workspace-chat'
 import {
 	type MarkdownSection,
-	combineMarkdownSections,
 	parseMarkdownSections,
 } from '@/lib/markdown-utils'
+import { memoizedMarkdownComponents } from '@/lib/memoized-markdown-components'
 import { buildSectionTree } from '@/lib/section-tree-utils'
 import { cn } from '@/lib/utils'
-import { FileText } from 'lucide-react'
+import { FileText, TextCursorInputIcon } from 'lucide-react'
 import * as React from 'react'
 import { WorkspaceSectionTree } from './workspace-section-tree'
 
@@ -23,7 +24,6 @@ interface WorkspaceTextEditorProps {
 	editableContent: string
 	setEditableContent: React.Dispatch<React.SetStateAction<string>>
 	fullMarkdown: string
-	setFullMarkdown: React.Dispatch<React.SetStateAction<string>>
 	viewMode: 'sections' | 'source'
 	sectionTextareaRef: React.RefObject<HTMLTextAreaElement | null>
 	sourceTextareaRef: React.RefObject<HTMLTextAreaElement | null>
@@ -50,7 +50,6 @@ export function WorkspaceTextEditor({
 	editableContent,
 	setEditableContent,
 	fullMarkdown,
-	setFullMarkdown,
 	viewMode,
 	sectionTextareaRef,
 	sourceTextareaRef,
@@ -74,12 +73,18 @@ export function WorkspaceTextEditor({
 		start: number
 		end: number
 	} | null>(null)
-
+	const [isPreview, setIsPreview] = React.useState(false)
 	// Build section tree for overview mode
 	const sectionTree = React.useMemo(
 		() => buildSectionTree(sections),
 		[sections],
 	)
+
+	// Local source state for responsive typing; sync from prop on external updates
+	const [sourceValue, setSourceValue] = React.useState(fullMarkdown)
+	React.useEffect(() => {
+		if (sourceValue !== fullMarkdown) setSourceValue(fullMarkdown)
+	}, [fullMarkdown, sourceValue])
 
 	// Auto-focus section textarea when active section changes
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
@@ -123,7 +128,7 @@ export function WorkspaceTextEditor({
 	}, [isFocused, persistedSelection, editableContent])
 
 	return (
-		<div className="space-y-4 h-full">
+		<div className="space-y-4 h-full max-h-max">
 			{/* Section editor view with enhanced tree UI */}
 			{viewMode === 'sections' && (
 				<div className="h-[calc(100%-64px)] grid grid-cols-12 gap-4">
@@ -146,12 +151,33 @@ export function WorkspaceTextEditor({
 					<div className="col-span-8 border rounded-lg p-4 h-full overflow-y-auto">
 						{activeSection ? (
 							<div className="space-y-4 h-[calc(100%-64px)]">
-								<h3 className="font-semibold">
-									{sections.find((s) => s.id === activeSection)?.title}
-								</h3>
+								<div className="flex items-center gap-4 justify-between w-full">
+									<h3 className="font-semibold">
+										{sections.find((s) => s.id === activeSection)?.title}
+									</h3>
+									<Button
+										variant="ghost"
+										onClick={() => setIsPreview((prev) => !prev)}
+									>
+										{isPreview ? (
+											<>
+												<TextCursorInputIcon className="size-4" />
+												edit
+											</>
+										) : (
+											<>
+												<FileText className="size-4" />
+												preview
+											</>
+										)}
+									</Button>
+								</div>
 								<div className="relative size-full">
-									{isLoading ? (
-										<MemoizedReactMarkdown className="flex flex-col gap-1 size-full">
+									{isPreview ? (
+										<MemoizedReactMarkdown
+											className="flex flex-col gap-1 size-full"
+											components={memoizedMarkdownComponents()}
+										>
 											{editableContent}
 										</MemoizedReactMarkdown>
 									) : (
@@ -217,18 +243,21 @@ export function WorkspaceTextEditor({
 			{viewMode === 'source' && (
 				<div className="h-[calc(100%-64px)] border rounded-lg p-4">
 					{isLoading ? (
-						<MemoizedReactMarkdown className="flex flex-col gap-1 size-full">
+						<MemoizedReactMarkdown
+							className="flex flex-col gap-1 size-full"
+							components={memoizedMarkdownComponents()}
+						>
 							{fullMarkdown}
 						</MemoizedReactMarkdown>
 					) : (
 						<>
 							<Textarea
 								ref={sourceTextareaRef}
-								value={fullMarkdown}
+								value={sourceValue}
 								onChange={(e) => {
 									markUserTyping()
 									const newValue = e.target.value
-									setFullMarkdown(newValue)
+									setSourceValue(newValue)
 									// When source is changed, update sections
 									setSections(parseMarkdownSections(newValue))
 									// Track cursor position

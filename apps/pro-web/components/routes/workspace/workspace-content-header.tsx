@@ -34,7 +34,7 @@ export function WorkspaceContentHeader({
 }: WorkspaceContentHeaderProps) {
 	return (
 		<>
-			<div className="absolute top-5 right-6 flex justify-end items-center">
+			<div className="absolute top-5 right-6 flex justify-end items-center z-50">
 				<div className="flex items-center gap-2">
 					{documentType === 'text' && activeSection && (
 						<Button
