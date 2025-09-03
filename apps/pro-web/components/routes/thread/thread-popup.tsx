@@ -112,12 +112,15 @@ export function ThreadPopup({ className }: { className?: string }) {
 		}
 
 		try {
+			const messageTitle = message.content?.match(/#\s.+\w/)?.[0]
 			// Create document title from user question (first 50 chars)
 			const docTitle =
-				(userMessage as AiMessage).content
-					.substring(0, 50)
-					.replace(/[^\w\s-]/g, '')
-					.trim() || 'New Document'
+				!activeThread?.metadata?.documents?.length || !messageTitle
+					? (userMessage as AiMessage).content
+							.substring(0, 50)
+							.replace(/[^\w\s-]/g, '')
+							.trim() || 'New Document'
+					: messageTitle.replace('# ', '')
 
 			// Generate structured markdown from assistant content
 			const structuredContent = createStructuredMarkdown(

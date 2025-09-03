@@ -1,5 +1,6 @@
 'use client'
 
+import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
 import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { useModel } from '@/lib/hooks/use-model'
 import { useSonner } from '@/lib/hooks/useSonner'
@@ -7,11 +8,23 @@ import {
 	combineMarkdownSections,
 	parseMarkdownSections,
 } from '@/lib/markdown-utils'
+import { getDocumentPreviousVersion } from '@/lib/workspace-state'
 import type { useChat } from '@ai-sdk/react'
-import type { ChatRequestOptions, Message, UIMessage } from 'ai'
+import type { Attachment, Message, UIMessage } from 'ai'
+import { debounce } from 'lodash'
 import { nanoid } from 'nanoid'
 import * as React from 'react'
 import { useWorkspace } from './use-workspace'
+
+// Helper to safely encode a string to Base64, handling Unicode characters
+function toBase64(str: string) {
+	return btoa(
+		new Uint8Array(new TextEncoder().encode(str)).reduce(
+			(data, byte) => data + String.fromCharCode(byte),
+			'',
+		),
+	)
+}
 
 interface WorkspaceChatContextType extends Partial<ReturnType<typeof useChat>> {
 	// Chat state
@@ -140,141 +153,138 @@ export function WorkspaceChatProvider({
 	// console.log('🔄 WorkspaceChatProvider messages:', messages)
 
 	// Document update function with improved dependency management
-	const handleDocumentUpdate = React.useCallback(
-		(
-			aiResponse: string,
-			activeSection: string | null,
-			currentContent: string,
-			documentKey: string,
-			cursorPosition?: number,
-		) => {
-			console.log('📝 Processing document update:', {
-				responseLength: aiResponse.length,
+	const handleDocumentUpdate = (
+		aiResponse: string,
+		activeSection: string | null,
+		currentContent: string,
+		documentKey: string,
+		cursorPosition?: number,
+	) => {
+		console.log('📝 Processing document update:', {
+			responseLength: aiResponse.length,
+			activeSection,
+			documentKey,
+			cursorPosition,
+		})
+
+		setWorkspaceProcessingState('updating')
+
+		try {
+			// Parse the current document into sections
+			const sections = parseMarkdownSections(currentContent)
+
+			console.log('📝 Section parsing results:', {
+				totalSections: sections.length,
+				sectionIds: sections.map((s) => s.id),
+				sectionTitles: sections.map((s) => s.title),
 				activeSection,
-				documentKey,
-				cursorPosition,
 			})
 
-			setWorkspaceProcessingState('updating')
+			// If there's an active section, update that specific section only
+			if (activeSection && sections.length > 0) {
+				const sectionIndex = sections.findIndex((s) => s.id === activeSection)
 
-			try {
-				// Parse the current document into sections
-				const sections = parseMarkdownSections(currentContent)
-
-				console.log('📝 Section parsing results:', {
-					totalSections: sections.length,
-					sectionIds: sections.map((s) => s.id),
-					sectionTitles: sections.map((s) => s.title),
+				console.log('📍 Section matching:', {
 					activeSection,
+					sectionIndex,
+					foundSection: sectionIndex !== -1 ? sections[sectionIndex] : null,
 				})
 
-				// If there's an active section, update that specific section only
-				if (activeSection && sections.length > 0) {
-					const sectionIndex = sections.findIndex((s) => s.id === activeSection)
+				if (sectionIndex !== -1) {
+					console.log(`📍 Updating section: ${sections[sectionIndex].title}`)
 
-					console.log('📍 Section matching:', {
-						activeSection,
-						sectionIndex,
-						foundSection: sectionIndex !== -1 ? sections[sectionIndex] : null,
-					})
+					// Update the specific section with AI response
+					const updatedSections = [...sections]
+					const currentSection = updatedSections[sectionIndex]
 
-					if (sectionIndex !== -1) {
-						console.log(`📍 Updating section: ${sections[sectionIndex].title}`)
+					// Clean the AI response - remove any heading that matches the section title
+					let cleanedResponse = aiResponse.trim()
 
-						// Update the specific section with AI response
-						const updatedSections = [...sections]
-						const currentSection = updatedSections[sectionIndex]
+					// Remove section heading if AI included it
+					const sectionTitleRegex = new RegExp(
+						`^#{1,6}\\s*${currentSection.title}\\s*\n?`,
+						'i',
+					)
+					cleanedResponse = cleanedResponse.replace(sectionTitleRegex, '')
 
-						// Clean the AI response - remove any heading that matches the section title
-						let cleanedResponse = aiResponse.trim()
+					// Remove any leading # characters that might indicate structure
+					cleanedResponse = cleanedResponse.replace(/^#+\s*/, '')
 
-						// Remove section heading if AI included it
-						const sectionTitleRegex = new RegExp(
-							`^#{1,6}\\s*${currentSection.title}\\s*\n?`,
-							'i',
-						)
-						cleanedResponse = cleanedResponse.replace(sectionTitleRegex, '')
+					// For section updates, we replace the content entirely
+					// This is because the AI was specifically asked to provide updated content for this section
+					updatedSections[sectionIndex] = {
+						...currentSection,
+						content: cleanedResponse.trim(),
+					}
 
-						// Remove any leading # characters that might indicate structure
-						cleanedResponse = cleanedResponse.replace(/^#+\s*/, '')
+					// Reconstruct the document with the updated section
+					const newMarkdown = combineMarkdownSections(updatedSections)
 
-						// For section updates, we replace the content entirely
-						// This is because the AI was specifically asked to provide updated content for this section
-						updatedSections[sectionIndex] = {
-							...currentSection,
-							content: cleanedResponse.trim(),
-						}
+					console.log(
+						`✅ Section "${currentSection.title}" updated successfully`,
+					)
 
-						// Reconstruct the document with the updated section
-						const newMarkdown = combineMarkdownSections(updatedSections)
+					// Only update if we have the current project and document
+					if (activeProject && activeDocument) {
+						setDocumentContent(activeProject, activeDocument, newMarkdown)
+					}
+				} else {
+					console.warn(`⚠️ Section with ID "${activeSection}" not found`)
+					// Section not found, append as new section
+					const newSection = `\n\n## AI Update\n\n${aiResponse}`
+					const updatedContent = `${currentContent}${newSection}`
+					if (activeProject && activeDocument) {
+						setDocumentContent(activeProject, activeDocument, updatedContent)
+					}
+				}
+			} else {
+				// No active section - handle as full document update or append
+				console.log(
+					'📄 No specific section selected, handling as document-level update',
+				)
 
-						console.log(
-							`✅ Section "${currentSection.title}" updated successfully`,
-						)
+				if (cursorPosition !== undefined && cursorPosition >= 0) {
+					// Insert at cursor position in full document
+					const beforeCursor = currentContent.substring(0, cursorPosition)
+					const afterCursor = currentContent.substring(cursorPosition)
+					const updatedContent = `${beforeCursor}${aiResponse}${afterCursor}`
+					if (activeProject && activeDocument) {
+						setDocumentContent(activeProject, activeDocument, updatedContent)
+					}
+				} else if (aiResponse.includes('#') && aiResponse.includes('\n')) {
+					// AI provided structured content with headings
+					// Check if this looks like a complete document or addition
+					const aiSections = parseMarkdownSections(aiResponse)
 
-						// Only update if we have the current project and document
+					if (aiSections.length > 0 && sections.length > 0) {
+						// Add new sections to existing document
+						const allSections = [...sections, ...aiSections]
+						const newMarkdown = combineMarkdownSections(allSections)
 						if (activeProject && activeDocument) {
 							setDocumentContent(activeProject, activeDocument, newMarkdown)
 						}
 					} else {
-						console.warn(`⚠️ Section with ID "${activeSection}" not found`)
-						// Section not found, append as new section
-						const newSection = `\n\n## AI Update\n\n${aiResponse}`
-						const updatedContent = `${currentContent}${newSection}`
+						// Use as new document content (fallback)
 						if (activeProject && activeDocument) {
-							setDocumentContent(activeProject, activeDocument, updatedContent)
+							setDocumentContent(activeProject, activeDocument, aiResponse)
 						}
 					}
 				} else {
-					// No active section - handle as full document update or append
-					console.log(
-						'📄 No specific section selected, handling as document-level update',
-					)
-
-					if (cursorPosition !== undefined && cursorPosition >= 0) {
-						// Insert at cursor position in full document
-						const beforeCursor = currentContent.substring(0, cursorPosition)
-						const afterCursor = currentContent.substring(cursorPosition)
-						const updatedContent = `${beforeCursor}${aiResponse}${afterCursor}`
-						if (activeProject && activeDocument) {
-							setDocumentContent(activeProject, activeDocument, updatedContent)
-						}
-					} else if (aiResponse.includes('#') && aiResponse.includes('\n')) {
-						// AI provided structured content with headings
-						// Check if this looks like a complete document or addition
-						const aiSections = parseMarkdownSections(aiResponse)
-
-						if (aiSections.length > 0 && sections.length > 0) {
-							// Add new sections to existing document
-							const allSections = [...sections, ...aiSections]
-							const newMarkdown = combineMarkdownSections(allSections)
-							if (activeProject && activeDocument) {
-								setDocumentContent(activeProject, activeDocument, newMarkdown)
-							}
-						} else {
-							// Use as new document content (fallback)
-							if (activeProject && activeDocument) {
-								setDocumentContent(activeProject, activeDocument, aiResponse)
-							}
-						}
-					} else {
-						// Plain text response - append to document
-						const updatedContent = `${currentContent}\n\n## AI Update\n\n${aiResponse}`
-						if (activeProject && activeDocument) {
-							setDocumentContent(activeProject, activeDocument, updatedContent)
-						}
+					// Plain text response - append to document
+					const updatedContent = `${currentContent}\n\n## AI Update\n\n${aiResponse}`
+					if (activeProject && activeDocument) {
+						setDocumentContent(activeProject, activeDocument, updatedContent)
 					}
 				}
-
-				console.log('✅ Document updated successfully')
-			} catch (error) {
-				console.error('❌ Error updating document:', error)
-			} finally {
-				setWorkspaceProcessingState('idle')
 			}
-		},
-		[activeProject, activeDocument, setDocumentContent],
-	)
+
+			console.log('✅ Document updated successfully')
+		} catch (error) {
+			console.error('❌ Error updating document:', error)
+		} finally {
+			setWorkspaceProcessingState('idle')
+		}
+	}
 
 	// Main workspace edit function
 	const handleWorkspaceEdit = async (
@@ -300,6 +310,7 @@ export function WorkspaceChatProvider({
 		try {
 			// Get current document content for context
 			const documentKey = `${activeProject}:${activeDocument}`
+			const currentContent = documentContent?.[documentKey] || ''
 
 			console.log('📄 Document context:', {
 				documentKey,
@@ -317,6 +328,42 @@ export function WorkspaceChatProvider({
 			// Set generating state before making API call
 			setWorkspaceProcessingState('generating')
 
+			// TODO: Add IndexedDB to get the documents from there if no workspace/state found
+			const previousVersionContent = await getDocumentPreviousVersion(
+				activeProject,
+				activeDocument,
+			)
+
+			const documentAttachments: FileAttachment[] = []
+
+			if (activeProject && activeDocument && currentContent) {
+				documentAttachments.push({
+					id: nanoid(),
+					name: `${activeDocument}.md`,
+					size: new Blob([currentContent]).size,
+					contentType: 'text/markdown',
+					content: `data:text/markdown;base64,${toBase64(currentContent)}`,
+					url: `data:text/markdown;base64,${toBase64(currentContent)}`,
+					messageIds: [],
+					expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7).toISOString(), // 7 days
+				})
+			}
+
+			if (previousVersionContent) {
+				documentAttachments.push({
+					id: nanoid(),
+					name: `${activeDocument} (previous-version).md`,
+					size: new Blob([previousVersionContent]).size,
+					contentType: 'text/markdown',
+					content: `data:text/markdown;base64,${toBase64(
+						previousVersionContent,
+					)}`,
+					url: `data:text/markdown;base64,${toBase64(previousVersionContent)}`,
+					messageIds: [],
+					expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7).toISOString(), // 7 days
+				})
+			}
+
 			console.log('📝 Setting up workspace context and sending user prompt:', {
 				systemPromptLength: metaPrompt.length,
 				userPromptLength: userPrompt.length,
@@ -325,28 +372,44 @@ export function WorkspaceChatProvider({
 
 			// First, set up the system context if it's not already set or has changed
 			setCurrentMetaPrompt(metaPrompt)
-			// Reset messages to include the new system prompt
-			setMessages([
-				...messages.filter((msg) => msg.role === 'system'),
-				{
-					id: `system-${nanoid()}-workspace`,
-					role: 'system',
-					content: metaPrompt,
-					createdAt: new Date(),
-				} as UIMessage,
-			])
-
 			// Now send the user prompt as a separate user message
-			await append({
-				id: nanoid(),
-				content: userPrompt,
-				role: 'user',
-				createdAt: new Date(),
-			}).then((response) => {
+			await append(
+				{
+					id: nanoid(),
+					content: userPrompt,
+					role: 'user',
+					createdAt: new Date(),
+				},
+				{
+					experimental_attachments: documentAttachments as Attachment[],
+				},
+				[
+					{
+						id: `system-${nanoid()}-workspace`,
+						role: 'system',
+						content: metaPrompt,
+						createdAt: new Date(),
+					} as UIMessage,
+				],
+			).then((response) => {
 				console.log('✅ User message sent successfully', response)
-				onFinishWorkspaceChatRequest(
+				console.log(
+					'✅ User message sent successfully ——> assistant message',
 					messages.filter((msg) => msg.role === 'assistant').pop() as UIMessage,
 				)
+				debounce(() => {
+					console.log(
+						'✅ User message sent successfully ——> assistant message [DEBOUNCE]',
+						messages
+							.filter((msg) => msg.role === 'assistant')
+							.pop() as UIMessage,
+					)
+					onFinishWorkspaceChatRequest(
+						messages
+							.filter((msg) => msg.role === 'assistant')
+							.pop() as UIMessage,
+					)
+				}, 1300)()
 			})
 
 			console.log('✅ Workspace edit request sent successfully')

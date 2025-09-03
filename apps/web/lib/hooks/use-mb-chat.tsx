@@ -985,12 +985,27 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 			if (activeThread?.thread?.messages) {
 				previousAiUserMessages = activeThread.thread.messages
-					.map((msg) => ({
-						id: msg.messageId,
-						role: msg.role as AiMessage['role'],
-						content: msg.content,
-						createdAt: msg.createdAt,
-					}))
+					.map(
+						(msg) =>
+							({
+								id: msg.messageId,
+								role: msg.role,
+								createdAt: msg.createdAt,
+								...(msg?.examples?.length
+									? {
+											parts: [
+												{
+													type: 'text',
+													text: msg.content,
+												},
+												...msg.examples,
+											],
+										}
+									: {
+											content: msg.content,
+										}),
+							}) as AiMessage,
+					)
 					.filter((msg) => msg.role === 'user')
 			}
 

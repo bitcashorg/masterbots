@@ -213,9 +213,7 @@ This is a new document. Add your content here.
 	const [cursorPosition, setCursorPosition] = React.useState<number>(0)
 	const [isSaving, setIsSaving] = React.useState(false)
 	const [showVersions, setShowVersions] = React.useState(false)
-	const [versions, setVersions] = React.useState<
-		Array<WorkspaceDocumentVersion>
-	>([])
+	const [versions, setVersions] = React.useState<WorkspaceDocumentVersion[]>([])
 
 	// Refs
 	const sectionTextareaRef = React.useRef<HTMLTextAreaElement>(null)
@@ -803,8 +801,7 @@ This is a new document. Add your content here.
 	)
 
 	// Load versions from thread metadata when opening History
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-	const handleToggleVersions = React.useCallback(() => {
+	const handleToggleVersions = () => {
 		if (!showVersions) {
 			try {
 				const meta = (activeThread as unknown as { metadata?: unknown })
@@ -835,7 +832,7 @@ This is a new document. Add your content here.
 			}
 		}
 		setShowVersions((v) => !v)
-	}, [showVersions, activeThread, projectName, documentName, getWorkspaceState])
+	}
 
 	return (
 		<div className="flex flex-col space-y-4 pb-4 px-4 size-full">
