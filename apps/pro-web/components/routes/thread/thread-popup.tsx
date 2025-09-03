@@ -228,7 +228,6 @@ export function ThreadPopup({ className }: { className?: string }) {
 									{/* Removed duplicate document type dropdown. Breadcrumb is source of truth. */}
 									<WorkspaceContent
 										key={`workspace-${activeProject}-${activeDocument}-${activeDocumentType}`}
-										isLoading={isLoading}
 										className="size-full overflow-auto scrollbar"
 										chatbot={activeThread?.chatbot}
 									/>
