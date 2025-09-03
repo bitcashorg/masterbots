@@ -8,6 +8,7 @@ import {
 	type WorkspaceTaskType,
 	createWorkspaceMetaPrompt,
 } from '@/lib/constants/prompts'
+import { workspaceDocTemplates } from '@/lib/constants/workspace-templates'
 import { getUserIndexedDBKeys } from '@/lib/hooks/use-chat-attachments'
 import { type IndexedDBItem, useIndexedDB } from '@/lib/hooks/use-indexed-db'
 import { useThread } from '@/lib/hooks/use-thread'
@@ -38,6 +39,7 @@ import type { Chatbot } from 'mb-genql'
 import { nanoid } from 'nanoid'
 import { useSession } from 'next-auth/react'
 import * as React from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { WorkspaceContentHeader } from './workspace-content-header'
 import { WorkspaceContentWrapper } from './workspace-content-wrapper'
 import { WorkspaceTextEditor } from './workspace-text-editor'
@@ -112,6 +114,9 @@ function WorkspaceContentInternal({
 	// console.log('useWorkspace documentContent', documentContent)
 	// console.log('workspace context slice loaded')
 	const {
+		messages,
+		isLoading,
+		onFinishWorkspaceChatRequest,
 		setCursorPosition: setGlobalCursorPosition,
 		handleWorkspaceEdit,
 		workspaceProcessingState,
@@ -120,73 +125,62 @@ function WorkspaceContentInternal({
 	const { activeThread, refreshActiveThread } = useThread()
 	const { data: session } = useSession()
 	// Use the same per-user DB naming as readers (attachments/documents) so saved docs are discoverable
-	const dbKeys = React.useMemo(
+	const dbKeys = useMemo(
 		() => getUserIndexedDBKeys(session?.user?.id),
 		[session?.user?.id],
 	)
 	const { addItem: addIndexedItem, updateItem: updateIndexedItem } =
 		useIndexedDB(dbKeys)
 	const { customSonner } = useSonner()
+	const newAssistantMessage = useMemo(() => {
+		const lastAssistantMessage = messages
+			?.filter((msg) => msg.role === 'assistant')
+			.pop()
+
+		return !activeThread?.messages.find(
+			(msg) =>
+				msg.messageId ===
+				// @ts-ignore
+				(lastAssistantMessage?.id || lastAssistantMessage?.messageId),
+		)
+			? lastAssistantMessage
+			: undefined
+	}, [messages, activeThread])
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	useEffect(() => {
+		if (!newAssistantMessage) return
+		const frame = requestAnimationFrame(() =>
+			onFinishWorkspaceChatRequest(newAssistantMessage),
+		)
+		// setFullMarkdown(newAssistantMessage.content)
+
+		return () => {
+			cancelAnimationFrame(frame)
+		}
+	}, [newAssistantMessage])
 
 	// Shared checksum now imported from '@/lib/checksum'
 
 	// Initial content for different document types
-	const initialContent = React.useMemo(() => {
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	const initialContent = useMemo(() => {
 		switch (documentType) {
 			case 'text':
-				return `# Introduction
-This is the introduction section of the document. It provides an overview of the project.
-
-## Background
-This section covers the background and context of the project, including relevant history and previous work.
-
-## Methodology
-The methodology section details the approach and techniques used in this project.
-
-## Results
-This section presents the findings and outcomes of the project work.
-
-## Conclusion
-The conclusion summarizes the key points and implications of the project.
-`
+				return workspaceDocTemplates.text.blank.content(
+					documentName,
+					projectName,
+				)
 			case 'image':
-				return `# Image Collection
-This document contains visual assets and image resources for the project.
-
-## Design Assets
-Visual design elements, logos, and branding materials.
-
-## Screenshots
-Application screenshots and user interface captures.
-
-## Diagrams
-Technical diagrams, flowcharts, and process illustrations.
-
-## Marketing Materials
-Promotional images, banners, and marketing visuals.
-
-## Reference Images
-Inspiration and reference materials for design work.
-`
+				return workspaceDocTemplates.image.blank.content(
+					documentName,
+					projectName,
+				)
 			case 'spreadsheet':
-				return `# Data Analysis
-This document contains structured data and analytical information.
-
-## Overview
-Summary of data sources, methodology, and key findings.
-
-## Data Sources
-Information about where the data was collected and how it was processed.
-
-## Key Metrics
-Important measurements and performance indicators.
-
-## Analysis Results
-Findings from data analysis, trends, and insights.
-
-## Recommendations
-Actionable recommendations based on the data analysis.
-`
+				return workspaceDocTemplates.spreadsheet.blank.content(
+					documentName,
+					projectName,
+				)
 			default:
 				return `# ${documentName || 'New Document'}
 This is a new document. Add your content here.
@@ -230,68 +224,6 @@ This is a new document. Add your content here.
 			}
 		}
 	}, [])
-
-	// Document change effect
-	React.useEffect(() => {
-		console.log('🔄 Document key change effect triggered:', {
-			oldKey: prevDocumentKeyRef.current,
-			newKey: documentKey,
-			hasSavedContent: !!savedContent,
-		})
-
-		if (documentKey !== prevDocumentKeyRef.current) {
-			setActiveSection(null)
-			setEditableContent('')
-			prevDocumentKeyRef.current = documentKey
-			onActiveSectionChange?.(null)
-
-			if (savedContent) {
-				setFullMarkdown(savedContent)
-				const parsedSections = parseMarkdownSections(savedContent)
-				setSections(parsedSections)
-			} else {
-				setFullMarkdown(initialContent)
-				const parsedSections = parseMarkdownSections(initialContent)
-				setSections(parsedSections)
-
-				if (projectName && documentName) {
-					setDocumentContent(projectName, documentName, initialContent)
-				}
-			}
-		}
-	}, [
-		documentKey,
-		savedContent,
-		initialContent,
-		projectName,
-		documentName,
-		setDocumentContent,
-		onActiveSectionChange,
-	])
-
-	// External content sync effect
-	React.useEffect(() => {
-		if (
-			savedContent &&
-			savedContent !== fullMarkdown &&
-			!isUserTypingRef.current
-		) {
-			React.startTransition(() => {
-				setFullMarkdown(savedContent)
-				setSections(parseMarkdownSections(savedContent))
-
-				if (activeSection) {
-					const updatedSections = parseMarkdownSections(savedContent)
-					const newActiveSection = updatedSections.find(
-						(s) => s.id === activeSection,
-					)
-					if (newActiveSection) {
-						setEditableContent(newActiveSection.content)
-					}
-				}
-			})
-		}
-	}, [savedContent, fullMarkdown, activeSection])
 
 	// Helper functions
 	const markUserTyping = React.useCallback(() => {
@@ -970,17 +902,15 @@ This is a new document. Add your content here.
 
 interface WorkspaceContentProps {
 	className?: string
-	isLoading?: boolean
 	chatbot?: Chatbot
 }
 
 export function WorkspaceContent({
 	className,
-	isLoading = false,
 	chatbot,
 }: WorkspaceContentProps) {
 	return (
-		<WorkspaceContentWrapper className={className} isLoading={isLoading}>
+		<WorkspaceContentWrapper className={className}>
 			{({ projectName, documentName, documentType }) => (
 				<WorkspaceContentInternal
 					projectName={projectName}
