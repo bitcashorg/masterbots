@@ -93,7 +93,6 @@ export function WorkspaceChatProvider({
 	const [activeWorkspaceSection, setActiveWorkspaceSection] = React.useState<
 		string | null
 	>(null)
-	const [cursorPosition, setCursorPosition] = React.useState<number>(0)
 	const [selectionRange, setSelectionRange] = React.useState<{
 		start: number
 		end: number
@@ -480,11 +479,9 @@ export function WorkspaceChatProvider({
 			// set the selection range if provided
 			if (selectionRange) {
 				setSelectionRange(selectionRange)
-				setCursorPosition(selectionRange.start)
 			} else {
 				// Default to cursor at 0 if no selection range is provided
 				setSelectionRange(null)
-				setCursorPosition(0)
 			}
 
 			// Set generating state before making API call
