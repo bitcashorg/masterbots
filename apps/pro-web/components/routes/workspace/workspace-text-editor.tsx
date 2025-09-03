@@ -35,7 +35,6 @@ interface WorkspaceTextEditorProps {
 	) => void
 	handleSectionClick: (sectionId: string) => void
 	markUserTyping: () => void
-	setCursorPosition: React.Dispatch<React.SetStateAction<number>>
 	debouncedSaveFullSource: () => (content: string) => void
 	handleExpandSection: (sectionTitle: string) => Promise<void>
 	handleRewriteSection: (sectionTitle: string) => Promise<void>
@@ -48,7 +47,6 @@ export function WorkspaceTextEditor({
 	activeSection,
 	setActiveSection,
 	editableContent,
-	setEditableContent,
 	fullMarkdown,
 	viewMode,
 	sectionTextareaRef,
@@ -57,22 +55,20 @@ export function WorkspaceTextEditor({
 	handleCursorPositionChange,
 	handleSectionClick,
 	markUserTyping,
-	setCursorPosition,
 	debouncedSaveFullSource,
 	handleExpandSection,
 	handleRewriteSection,
 	handleSectionUpdate,
 }: WorkspaceTextEditorProps) {
 	const { setDocumentContent, activeProject } = useWorkspace()
-	const { setSelectionRange: setGlobalSelectionRange, isLoading } =
-		useWorkspaceChat()
+	const {
+		setSelectionRange: setGlobalSelectionRange,
+		selectionRange: persistedSelection,
+		isLoading,
+	} = useWorkspaceChat()
 
 	// Overlay state for persistent selection visualization
 	const [isFocused, setIsFocused] = React.useState(false)
-	const [persistedSelection, setPersistedSelection] = React.useState<{
-		start: number
-		end: number
-	} | null>(null)
 	const [isPreview, setIsPreview] = React.useState(false)
 	// Build section tree for overview mode
 	const sectionTree = React.useMemo(
@@ -97,8 +93,6 @@ export function WorkspaceTextEditor({
 		el.focus()
 		el.setSelectionRange(0, 0)
 		setGlobalSelectionRange({ start: 0, end: 0 })
-		// Clear persisted selection when switching sections
-		setPersistedSelection(null)
 	}, [activeSection, setGlobalSelectionRange])
 
 	// Simplified overlay renderer for persisted selection
@@ -117,7 +111,7 @@ export function WorkspaceTextEditor({
 		const after = text.slice(end)
 
 		return (
-			<div className="absolute inset-0 text-sm font-mono whitespace-pre-wrap pointer-events-none z-10 p-3">
+			<div className="absolute inset-0 border text-sm border-transparent font-mono whitespace-pre-wrap pointer-events-none z-10 p-3">
 				{before}
 				<span className="bg-accent text-accent-foreground rounded-[2px] py-[2.5px] px-0.5">
 					{selected}
@@ -198,10 +192,7 @@ export function WorkspaceTextEditor({
 													const el = e.target as HTMLTextAreaElement
 													const start = el.selectionStart || 0
 													const end = el.selectionEnd || start
-													// Persist selection for overlay
-													setPersistedSelection({ start, end })
 													// Update global selection range
-													setCursorPosition(start)
 													setGlobalSelectionRange({ start, end })
 												}}
 												onClick={handleCursorPositionChange}
@@ -212,7 +203,6 @@ export function WorkspaceTextEditor({
 													const end =
 														(e.target as HTMLTextAreaElement).selectionEnd ||
 														position
-													setCursorPosition(position)
 													setGlobalSelectionRange({ start: position, end })
 												}}
 												className={cn(
@@ -263,7 +253,6 @@ export function WorkspaceTextEditor({
 									// Track cursor position
 									const position = e.target.selectionStart || 0
 									const end = e.target.selectionEnd || position
-									setCursorPosition(position)
 									setGlobalSelectionRange({ start: position, end })
 									// Save changes with debounce
 									debouncedSaveFullSource()(newValue)
@@ -275,7 +264,6 @@ export function WorkspaceTextEditor({
 										(e.target as HTMLTextAreaElement).selectionStart || 0
 									const end =
 										(e.target as HTMLTextAreaElement).selectionEnd || position
-									setCursorPosition(position)
 									setGlobalSelectionRange({ start: position, end })
 								}}
 								className="min-h-[400px] h-[94%] font-mono text-sm selection:bg-accent selection:text-accent-foreground"

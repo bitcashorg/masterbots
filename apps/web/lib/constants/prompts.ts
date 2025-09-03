@@ -8,6 +8,7 @@ import type { Message } from 'ai'
 import { uniq, uniqBy } from 'lodash'
 import { appConfig } from 'mb-env'
 import type { Chatbot, Message as MessageDB } from 'mb-genql'
+import { Parts } from 'openai/resources/uploads/parts.mjs'
 
 // * This function creates the prompt for the AI improvement process with the following question
 export function followingQuestionsImprovementPrompt(
@@ -130,6 +131,26 @@ This is the last question and last response made:
 </last_response>
 
 Now please answer the following question: ${userContent}`
+}
+
+export function followingImagesPrompt(
+	messagesWithImagePart: Array<MessageDB & { id?: string }>,
+): Message {
+	const images = uniqBy(
+		messagesWithImagePart.filter((msg) => msg?.messageId || msg?.id),
+		(msg) => msg?.messageId || msg?.id,
+	)
+
+	return {
+		id: `following-img-${nanoid()}`,
+		role: 'system', // Added 'role' property to match the 'Message' type... maybe handle as user
+		content:
+			'Here are a list of images that may be relevant for you to understand my chain of thoughts:',
+		parts: images.flatMap((msgImg) => {
+			const parts = msgImg.examples as Message['parts'] | undefined
+			return parts || []
+		}),
+	}
 }
 
 export function userPersonalityPrompt(

@@ -4,6 +4,7 @@ import { getChatbotMetadata } from '@/app/actions'
 import { formatSystemPrompts } from '@/lib/actions'
 import {
 	examplesPrompt,
+	followingImagesPrompt,
 	followingQuestionsPrompt,
 	setDefaultUserPreferencesPrompt,
 	setOutputInstructionPrompt,
@@ -1009,6 +1010,11 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					setOutputInstructionPrompt(userContentRef.current),
 					...[
 						...(workspacePrompts || []),
+						followingImagesPrompt(
+							activeThread?.thread?.messages.filter(
+								(msg) => msg?.examples?.length,
+							) as Message[],
+						),
 						{
 							id: `examples-${nanoid(10)}`,
 							role: 'system' as 'data' | 'system' | 'user' | 'assistant',
@@ -1036,19 +1042,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 								id: msg.messageId,
 								role: msg.role,
 								createdAt: msg.createdAt,
-								...(msg?.examples?.length
-									? {
-											parts: [
-												{
-													type: 'text',
-													text: msg.content,
-												},
-												...msg.examples,
-											],
-										}
-									: {
-											content: msg.content,
-										}),
+								content: msg.content,
 							}) as AiMessage,
 					)
 					.filter((msg) => msg.role === 'user')

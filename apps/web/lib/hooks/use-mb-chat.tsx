@@ -4,6 +4,7 @@ import { getChatbotMetadata } from '@/app/actions'
 import { formatSystemPrompts } from '@/lib/actions'
 import {
 	examplesPrompt,
+	followingImagesPrompt,
 	followingQuestionsPrompt,
 	setDefaultUserPreferencesPrompt,
 	setOutputInstructionPrompt,
@@ -970,6 +971,11 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						role: 'system' as 'data' | 'system' | 'user' | 'assistant',
 						content: examplesPrompt(chatbotMetadata),
 					},
+					followingImagesPrompt(
+						activeThread?.thread?.messages.filter(
+							(msg) => msg?.examples?.length,
+						) as Message[],
+					),
 				],
 				verifyDuplicateMessage,
 			)

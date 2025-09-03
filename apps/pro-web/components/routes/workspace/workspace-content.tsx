@@ -45,53 +45,6 @@ import { WorkspaceContentHeader } from './workspace-content-header'
 import { WorkspaceContentWrapper } from './workspace-content-wrapper'
 import { WorkspaceTextEditor } from './workspace-text-editor'
 
-function isThreadDocVersion(v: unknown): v is WorkspaceDocumentVersion {
-	return (
-		!!v &&
-		typeof (v as WorkspaceDocumentVersion).version === 'number' &&
-		typeof (v as WorkspaceDocumentVersion).updatedAt === 'string' &&
-		typeof (v as WorkspaceDocumentVersion).checksum === 'string' &&
-		typeof (v as WorkspaceDocumentVersion).url === 'string'
-	)
-}
-
-function isThreadDocMeta(d: unknown): d is WorkspaceDocumentMetadata {
-	const doc = d as WorkspaceDocumentMetadata
-	const versionsOk =
-		!doc.versions ||
-		(Array.isArray(doc.versions) && doc.versions.every(isThreadDocVersion))
-	return !!doc && typeof doc.id === 'string' && versionsOk
-}
-// Minimal typing for useWorkspace fields we rely on here
-type WorkspaceHookSlice = {
-	documentContent: Record<string, string>
-	setDocumentContent: (
-		project: string,
-		document: string,
-		content: string,
-	) => void
-	activeOrganization: string | null
-	activeDepartment: string | null
-	organizationList: string[]
-	projectList: string[]
-	documentList: Record<string, string[]>
-	textDocuments: Record<string, string[]>
-	imageDocuments: Record<string, string[]>
-	spreadsheetDocuments: Record<string, string[]>
-	projectsByDept: Record<string, Record<string, string[]>>
-	departmentList: Record<string, string[]>
-}
-
-// Workspace server cache payload (mirrors /api/workspace/state)
-// Workspace server cache types are imported from '@/lib/workspace-state'
-
-interface WorkspaceContentInternalProps {
-	projectName: string
-	documentName: string
-	documentType: 'text' | 'image' | 'spreadsheet'
-	chatbot?: Chatbot
-}
-
 function WorkspaceContentInternal({
 	projectName,
 	documentName,
@@ -271,6 +224,7 @@ This is a new document. Add your content here.
 	}, [activeSection, setOnSectionContentUpdate])
 
 	// When streaming ends, persist once and re-parse sections
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	React.useEffect(() => {
 		if (!isLoading && streamingActiveRef.current) {
 			try {
@@ -304,7 +258,6 @@ This is a new document. Add your content here.
 		documentName,
 		fullMarkdown,
 		editableContent,
-		setDocumentContent,
 	])
 
 	// Always keep sections and editableContent in sync with fullMarkdown when it changes
@@ -361,7 +314,6 @@ This is a new document. Add your content here.
 		[
 			markUserTyping,
 			setEditableContent,
-			setCursorPosition,
 			setGlobalSelectionRange,
 			activeSection,
 			projectName,
@@ -370,7 +322,6 @@ This is a new document. Add your content here.
 		],
 	)
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const handleCursorPositionChange = React.useCallback(
 		(
 			e:
@@ -380,10 +331,9 @@ This is a new document. Add your content here.
 			const target = e.target as HTMLTextAreaElement
 			const position = target.selectionStart || 0
 			const end = target.selectionEnd || position
-			setCursorPosition(position)
 			setGlobalSelectionRange({ start: position, end })
 		},
-		[setCursorPosition, setGlobalSelectionRange],
+		[setGlobalSelectionRange],
 	)
 
 	const handleSectionClick = (sectionId: string) => {
@@ -403,7 +353,6 @@ This is a new document. Add your content here.
 			if (sectionTextareaRef.current) {
 				sectionTextareaRef.current.focus()
 				sectionTextareaRef.current.setSelectionRange(0, 0)
-				setCursorPosition(0)
 				setGlobalSelectionRange({ start: 0, end: 0 })
 			}
 		})
@@ -946,7 +895,6 @@ This is a new document. Add your content here.
 						sectionTextareaRef={sectionTextareaRef}
 						setSections={setSections}
 						markUserTyping={markUserTyping}
-						setCursorPosition={setCursorPosition}
 						setActiveSection={setActiveSection}
 						handleSectionClick={handleSectionClick}
 						setEditableContent={setEditableContent}
@@ -1019,11 +967,6 @@ This is a new document. Add your content here.
 	)
 }
 
-interface WorkspaceContentProps {
-	className?: string
-	chatbot?: Chatbot
-}
-
 export function WorkspaceContent({
 	className,
 	chatbot,
@@ -1040,4 +983,57 @@ export function WorkspaceContent({
 			)}
 		</WorkspaceContentWrapper>
 	)
+}
+
+function isThreadDocVersion(v: unknown): v is WorkspaceDocumentVersion {
+	return (
+		!!v &&
+		typeof (v as WorkspaceDocumentVersion).version === 'number' &&
+		typeof (v as WorkspaceDocumentVersion).updatedAt === 'string' &&
+		typeof (v as WorkspaceDocumentVersion).checksum === 'string' &&
+		typeof (v as WorkspaceDocumentVersion).url === 'string'
+	)
+}
+
+function isThreadDocMeta(d: unknown): d is WorkspaceDocumentMetadata {
+	const doc = d as WorkspaceDocumentMetadata
+	const versionsOk =
+		!doc.versions ||
+		(Array.isArray(doc.versions) && doc.versions.every(isThreadDocVersion))
+	return !!doc && typeof doc.id === 'string' && versionsOk
+}
+
+interface WorkspaceContentProps {
+	className?: string
+	chatbot?: Chatbot
+}
+
+// Minimal typing for useWorkspace fields we rely on here
+type WorkspaceHookSlice = {
+	documentContent: Record<string, string>
+	setDocumentContent: (
+		project: string,
+		document: string,
+		content: string,
+	) => void
+	activeOrganization: string | null
+	activeDepartment: string | null
+	organizationList: string[]
+	projectList: string[]
+	documentList: Record<string, string[]>
+	textDocuments: Record<string, string[]>
+	imageDocuments: Record<string, string[]>
+	spreadsheetDocuments: Record<string, string[]>
+	projectsByDept: Record<string, Record<string, string[]>>
+	departmentList: Record<string, string[]>
+}
+
+// Workspace server cache payload (mirrors /api/workspace/state)
+// Workspace server cache types are imported from '@/lib/workspace-state'
+
+interface WorkspaceContentInternalProps {
+	projectName: string
+	documentName: string
+	documentType: 'text' | 'image' | 'spreadsheet'
+	chatbot?: Chatbot
 }
