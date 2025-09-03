@@ -82,6 +82,7 @@ export function WorkspaceTextEditor({
 	)
 
 	// Auto-focus section textarea when active section changes
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	React.useEffect(() => {
 		console.log('🔄 Section effect triggered:', { activeSection })
 		if (!activeSection) return

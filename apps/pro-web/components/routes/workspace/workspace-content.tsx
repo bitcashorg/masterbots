@@ -20,6 +20,7 @@ import {
 	combineMarkdownSections,
 	createStructuredMarkdown,
 	parseMarkdownSections,
+	replaceSectionContent,
 } from '@/lib/markdown-utils'
 import { buildSectionTree } from '@/lib/section-tree-utils'
 import { cn } from '@/lib/utils'
@@ -308,7 +309,11 @@ This is a new document. Add your content here.
 		const section = sections.find((s) => s.id === sectionId)
 		if (section) {
 			setActiveSection(sectionId)
-			setEditableContent(section.content)
+			// Always derive from fullMarkdown offsets to avoid drift
+			const freshSections = parseMarkdownSections(fullMarkdown)
+			const fresh = freshSections.find((s) => s.id === sectionId)
+			setSections(freshSections)
+			setEditableContent(fresh ? fresh.content : section.content)
 			onActiveSectionChange?.(sectionId)
 		}
 
@@ -326,10 +331,9 @@ This is a new document. Add your content here.
 	// Update a section title in place
 	const handleSectionUpdate = React.useCallback(
 		(sectionId: string, newTitle: string) => {
-			setSections((prevSections) =>
-				prevSections.map((section) =>
-					section.id === sectionId ? { ...section, title: newTitle } : section,
-				),
+			// Title changes will be persisted when switching views/saving by rebuilding markdown
+			setSections((prev) =>
+				prev.map((s) => (s.id === sectionId ? { ...s, title: newTitle } : s)),
 			)
 		},
 		[],
@@ -351,15 +355,21 @@ This is a new document. Add your content here.
 
 	// Toggle between Section Editor and Full Source, ensuring persistence
 	const handleViewSourceToggle = (fullView: boolean) => {
-		if (fullView && activeSection && editableContent.trim()) {
-			const updated = sections.map((s) =>
-				s.id === activeSection ? { ...s, content: editableContent } : s,
-			)
-			const newMarkdown = combineMarkdownSections(updated)
-			setSections(updated)
-			setFullMarkdown(newMarkdown)
-			if (projectName && documentName) {
-				setDocumentContent(projectName, documentName, newMarkdown)
+		if (fullView && activeSection) {
+			// Persist current section edits into fullMarkdown using offsets
+			const fresh = parseMarkdownSections(fullMarkdown)
+			const target = fresh.find((s) => s.id === activeSection)
+			if (target) {
+				const newMd = replaceSectionContent(
+					fullMarkdown,
+					target,
+					editableContent,
+				)
+				setFullMarkdown(newMd)
+				const updated = parseMarkdownSections(newMd)
+				setSections(updated)
+				if (projectName && documentName)
+					setDocumentContent(projectName, documentName, newMd)
 			}
 		} else if (!fullView && projectName && documentName) {
 			// Switching back to section view: ensure store has latest source
@@ -428,30 +438,24 @@ This is a new document. Add your content here.
 		try {
 			if (!projectName || !documentName) return
 
-			// Ensure latest section edits are merged into fullMarkdown
-			if (activeSection && editableContent.trim()) {
-				// Persist current section into full source before saving
-				const updatedSections = sections.map((section) =>
-					section.id === activeSection
-						? { ...section, content: editableContent }
-						: section,
-				)
-				const newMarkdown = combineMarkdownSections(updatedSections)
-				setSections(updatedSections)
-				setFullMarkdown(newMarkdown)
-				if (projectName && documentName) {
-					setDocumentContent(projectName, documentName, newMarkdown)
+			// Ensure latest section edits are merged into fullMarkdown via offsets
+			if (activeSection) {
+				const fresh = parseMarkdownSections(fullMarkdown)
+				const target = fresh.find((s) => s.id === activeSection)
+				if (target) {
+					const newMd = replaceSectionContent(
+						fullMarkdown,
+						target,
+						editableContent,
+					)
+					setFullMarkdown(newMd)
+					setSections(parseMarkdownSections(newMd))
+					if (projectName && documentName)
+						setDocumentContent(projectName, documentName, newMd)
 				}
 			}
 
-			const content =
-				activeSection && editableContent.trim()
-					? combineMarkdownSections(
-							sections.map((s) =>
-								s.id === activeSection ? { ...s, content: editableContent } : s,
-							),
-						)
-					: fullMarkdown
+			const content = fullMarkdown
 
 			if (!content?.trim()) return
 

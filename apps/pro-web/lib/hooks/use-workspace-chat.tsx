@@ -5,8 +5,8 @@ import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { useModel } from '@/lib/hooks/use-model'
 import { useSonner } from '@/lib/hooks/useSonner'
 import {
-	combineMarkdownSections,
 	parseMarkdownSections,
+	replaceSectionContent,
 } from '@/lib/markdown-utils'
 import { getDocumentPreviousVersion } from '@/lib/workspace-state'
 import type { useChat } from '@ai-sdk/react'
@@ -317,21 +317,18 @@ export function WorkspaceChatProvider({
 					)
 				}
 
-				// Update the section with new content
-				updatedSections[sectionIndex] = {
-					...currentSection,
-					content: newSectionContent,
-				}
-
-				// Reconstruct the document with the updated section
-				const newMarkdown = combineMarkdownSections(updatedSections)
+				// Replace within the full markdown using absolute offsets
+				const newMarkdown = replaceSectionContent(
+					currentContent,
+					currentSection,
+					newSectionContent,
+				)
 
 				console.log(`✅ Section "${currentSection.title}" updated successfully`)
 
-				// Only update if we have the current project and document
-				if (activeProject && activeDocument) {
+				// Persist updated markdown
+				if (activeProject && activeDocument)
 					setDocumentContent(activeProject, activeDocument, newMarkdown)
-				}
 
 				// Update local UI state for the active section
 				if (onSectionContentUpdate && activeSection) {
