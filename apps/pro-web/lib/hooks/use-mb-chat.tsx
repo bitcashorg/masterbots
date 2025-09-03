@@ -1011,7 +1011,11 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					...[
 						...(workspacePrompts || []),
 						followingImagesPrompt(
-							activeThread?.thread?.messages.filter(
+							// ? Previous chat images... should we? @andler
+							// activeThread?.thread?.messages.filter(
+							// 	(msg) => msg?.examples?.length,
+							// ) as Message[],
+							activeThread?.messages.filter(
 								(msg) => msg?.examples?.length,
 							) as Message[],
 						),

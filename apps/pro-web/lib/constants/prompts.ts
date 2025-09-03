@@ -137,7 +137,7 @@ export function followingImagesPrompt(
 	messagesWithImagePart: Array<MessageDB & { id?: string }>,
 ): Message {
 	const images = uniqBy(
-		messagesWithImagePart.filter((msg) => msg?.messageId || msg?.id),
+		messagesWithImagePart?.filter((msg) => msg?.messageId || msg?.id) || [],
 		(msg) => msg?.messageId || msg?.id,
 	)
 
