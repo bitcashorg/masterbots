@@ -385,7 +385,7 @@ export default function OgImage(props: OgImageProps) {
 								</span>
 							</div>
 						)}
-						<span
+						<div
 							style={{
 								color: '#fff',
 								fontSize: '18px',
@@ -406,7 +406,7 @@ export default function OgImage(props: OgImageProps) {
 							>
 								{category || 'technology'}
 							</div>
-						</span>
+						</div>
 					</div>
 				</div>
 
