@@ -4,6 +4,7 @@ import { getChatbotMetadata } from '@/app/actions'
 import { formatSystemPrompts } from '@/lib/actions'
 import {
 	examplesPrompt,
+	followingImagesPrompt,
 	followingQuestionsPrompt,
 	setDefaultUserPreferencesPrompt,
 	setOutputInstructionPrompt,
@@ -401,6 +402,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 									type: (activeDocumentType && activeDocumentType !== 'all'
 										? activeDocumentType
 										: 'text') as 'text' | 'image' | 'spreadsheet',
+									currentVersion: 1,
 								},
 							]
 						: []
@@ -801,6 +803,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 	const appendWithMbContextPrompts = async (
 		userMessage: AiMessage | CreateMessage,
 		chatRequestOptions?: ChatRequestOptions,
+		workspacePrompts?: AiMessage[],
 	): Promise<string | null | undefined> => {
 		if (formDisabled) {
 			console.info(
@@ -881,7 +884,11 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 		if (!isOpenPopup) {
 			setIsOpenPopup(true)
 		}
-		return await appendNewMessage(userMessage, chatRequestOptions)
+		return await appendNewMessage(
+			userMessage,
+			chatRequestOptions,
+			workspacePrompts,
+		)
 	}
 
 	const getMetadataLabels =
@@ -957,6 +964,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 	const appendNewMessage = async (
 		userMessage: AiMessage | CreateMessage,
 		chatMessagesOptions?: ChatRequestOptions,
+		workspacePrompts?: AiMessage[],
 	) => {
 		try {
 			const chatbotMetadata = await getMetadataLabels()
@@ -1000,11 +1008,27 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				[
 					...systemPrompts,
 					setOutputInstructionPrompt(userContentRef.current),
-					{
-						id: `examples-${nanoid(10)}`,
-						role: 'system' as 'data' | 'system' | 'user' | 'assistant',
-						content: examplesPrompt(chatbotMetadata),
-					},
+					...[
+						...(workspacePrompts || []),
+						{
+							id: `examples-${nanoid(10)}`,
+							role: 'system' as 'data' | 'system' | 'user' | 'assistant',
+							content: examplesPrompt(chatbotMetadata),
+						},
+						followingImagesPrompt(
+							// ? Previous chat images... should we? @andler
+							// activeThread?.thread?.messages.filter(
+							// 	(msg) => msg?.examples?.length,
+							// ) as Message[],
+							allMessages
+								.filter((msg) => msg?.examples)
+								.filter(
+									(msg) =>
+										// This is when we are in the activeThread and haven't close it [fallback]
+										msg?.parts?.filter((part) => part.type === 'file') || msg,
+								) as Message[],
+						),
+					],
 				],
 				verifyDuplicateMessage,
 			)
@@ -1020,12 +1044,15 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 			if (activeThread?.thread?.messages) {
 				previousAiUserMessages = activeThread.thread.messages
-					.map((msg) => ({
-						id: msg.messageId,
-						role: msg.role as AiMessage['role'],
-						content: msg.content,
-						createdAt: msg.createdAt,
-					}))
+					.map(
+						(msg) =>
+							({
+								id: msg.messageId,
+								role: msg.role,
+								createdAt: msg.createdAt,
+								content: msg.content,
+							}) as AiMessage,
+					)
 					.filter((msg) => msg.role === 'user')
 			}
 
@@ -1121,6 +1148,7 @@ export type MBChatHookActions = {
 	appendWithMbContextPrompts: (
 		userMessage: OpenAi.UIMessage | CreateMessage,
 		chatRequestOptions?: ChatRequestOptions,
+		workspacePrompts?: AiMessage[],
 	) => Promise<string | null | undefined>
 	appendAsContinuousThread: (
 		userMessage: OpenAi.UIMessage | CreateMessage,

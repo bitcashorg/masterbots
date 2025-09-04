@@ -45,7 +45,7 @@ export function AttachmentsDisplay({
 			)}
 
 			{attachments.length > 0 && (
-				<ul className="flex flex-nowrap gap-2 px-2 py-1 mb-2 scrollbar w-full">
+				<ul className="flex flex-nowrap gap-2 px-2 pb-1 mb-2 scrollbar w-full">
 					{attachments.map((attachment) => {
 						const { id, url, content, name, contentType } =
 							attachment as FileAttachment
@@ -64,23 +64,23 @@ export function AttachmentsDisplay({
 						return (
 							<motion.li
 								key={attachment.id}
-								className="flex flex-wrap gap-2 p-2"
+								className="flex flex-wrap gap-2"
 								{...cardSlideDownShowAnimationProps}
 							>
 								<Popover>
-									<PopoverTrigger className="flex items-center gap-2 bg-muted rounded-full h-10">
-										<div className="flex items-center justify-center relative rounded-full size-10 bg-zinc-200 dark:bg-zinc-800">
+									<PopoverTrigger className="flex items-center gap-2 bg-muted rounded-full h-8">
+										<div className="flex items-center justify-center relative rounded-full size-8 bg-zinc-200 dark:bg-zinc-800">
 											{attachment.contentType.includes('image') ? (
 												<Image
 													src={url}
-													width={40}
-													height={40}
+													width={32}
+													height={32}
 													alt={name}
 													loading="lazy"
 													className="size-10 rounded-full object-cover"
 												/>
 											) : (
-												<FileTextIcon className="size-5" />
+												<FileTextIcon className="size-4" />
 											)}
 										</div>
 										<div className="p-2 flex items-center gap-2">

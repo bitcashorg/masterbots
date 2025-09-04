@@ -465,6 +465,17 @@ export function Header() {
 		// router.push('/')
 	}
 
+	const userDocumentList = uniq([
+		...userDocuments,
+		...Object.values(documentList)
+			.flat()
+			.map((name) => ({ name }) as unknown as WorkspaceDocumentMetadata),
+	]).filter((document) =>
+		activeThread
+			? document.threadSlug === activeThread.slug || !document.versions
+			: true,
+	)
+
 	return (
 		<header className="sticky top-0 z-50 flex items-center justify-between w-full h-16 px-4 border-b shrink-0 bg-gradient-to-b from-background/10 via-background/50 to-background/80 backdrop-blur-xl">
 			<div className="flex items-center">
@@ -506,7 +517,7 @@ export function Header() {
 						onClick={resetNavigation}
 						text="Org"
 						className={cn({
-							'hidden sm:flex': routeType !== 'public',
+							'hidden sm:flex': routeType !== 'org',
 						})}
 					/>
 				</div>
@@ -576,14 +587,7 @@ export function Header() {
 					<DocumentCrumb
 						activeProject={activeProject as string}
 						activeDocument={activeDocument as string}
-						userDocuments={uniq([
-							...userDocuments,
-							...Object.values(documentList)
-								.flat()
-								.map(
-									(name) => ({ name }) as unknown as WorkspaceDocumentMetadata,
-								),
-						])}
+						userDocuments={userDocumentList}
 						activeThread={activeThread}
 						documentOptions={documentOptions}
 						threadDocsByName={threadDocsByName}

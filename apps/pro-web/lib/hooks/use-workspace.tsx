@@ -2,6 +2,7 @@
 
 import type { WorkspaceStatePayload } from '@/app/api/workspace/state/route'
 import { workspaceDocTemplates } from '@/lib/constants/workspace-templates'
+import { debounce } from 'lodash'
 import { useSession } from 'next-auth/react'
 import type * as React from 'react'
 import {
@@ -503,7 +504,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 	useEffect(() => {
 		if (!hydrated) return
 		let frame: number | null = null
-		const save = () => {
+		const save = debounce(() => {
 			try {
 				const payload: WorkspaceStatePayload = {
 					organisationsVersion: 1,
@@ -537,7 +538,8 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 			} catch (e) {
 				console.warn('Workspace persistence save failed', e)
 			}
-		}
+		}, 125)
+
 		frame = requestAnimationFrame(save)
 		return () => {
 			if (frame) cancelAnimationFrame(frame)

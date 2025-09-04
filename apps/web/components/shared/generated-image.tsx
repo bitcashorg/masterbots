@@ -25,7 +25,11 @@ export function GeneratedImage({
 		}
 	}, [base64])
 
-	if (!base64) return null
+	if (!base64) {
+		return (
+			<div className="relative w-full aspect-[4/3] bg-muted/30 animate-pulse rounded-xl" />
+		)
+	}
 
 	const imgSrc = base64.startsWith('data:')
 		? base64

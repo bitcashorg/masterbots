@@ -112,12 +112,15 @@ export function ThreadPopup({ className }: { className?: string }) {
 		}
 
 		try {
+			const messageTitle = message.content?.match(/#\s.+\w/)?.[0]
 			// Create document title from user question (first 50 chars)
 			const docTitle =
-				(userMessage as AiMessage).content
-					.substring(0, 50)
-					.replace(/[^\w\s-]/g, '')
-					.trim() || 'New Document'
+				!activeThread?.metadata?.documents?.length || !messageTitle
+					? (userMessage as AiMessage).content
+							.substring(0, 50)
+							.replace(/[^\w\s-]/g, '')
+							.trim() || 'New Document'
+					: messageTitle.replace('# ', '')
 
 			// Generate structured markdown from assistant content
 			const structuredContent = createStructuredMarkdown(
@@ -225,7 +228,6 @@ export function ThreadPopup({ className }: { className?: string }) {
 									{/* Removed duplicate document type dropdown. Breadcrumb is source of truth. */}
 									<WorkspaceContent
 										key={`workspace-${activeProject}-${activeDocument}-${activeDocumentType}`}
-										isLoading={isLoading}
 										className="size-full overflow-auto scrollbar"
 										chatbot={activeThread?.chatbot}
 									/>
@@ -572,7 +574,7 @@ function ThreadPopUpCardHeader({
 
 				<div className="flex items-center gap-4">
 					{/* Create Document button for first assistant message */}
-					{showCreateDocument && (
+					{/* {showCreateDocument && (
 						<Button
 							type="button"
 							variant="outline"
@@ -583,7 +585,7 @@ function ThreadPopUpCardHeader({
 							<FileTextIcon className="w-4 h-4" />
 							Create Document
 						</Button>
-					)}
+					)} */}
 					<Button
 						type="button"
 						variant="ghost"

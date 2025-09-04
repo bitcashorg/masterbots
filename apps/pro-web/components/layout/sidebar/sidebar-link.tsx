@@ -174,7 +174,7 @@ export function SidebarLink({
 		// For personal routes
 		return category.categoryId && isNewCategory
 			? urlBuilders.topicThreadListUrl({
-					type: isPro ? 'pro' : isPublic ? 'public' : 'personal',
+					type: isPro ? 'pro' : isPublic ? 'org' : 'personal',
 					category: category.name,
 				})
 			: fallbackUrl
