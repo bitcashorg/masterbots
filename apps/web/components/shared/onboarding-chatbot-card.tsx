@@ -39,7 +39,7 @@ export function OnboardingChatbotCard({
 			className="mt-10 hidden h-[calc(50vh-196px)] md:flex items-center justify-center -translate-y-8 relative"
 			data-route={routeType}
 		>
-			<Card className="w-full max-w-screen-lg mx-auto bg-white dark:bg-[#09090B] relative z-10 overflow-hidden rounded-2xl border-2 shadow-lg backdrop-blur-sm bg-white/95 dark:bg-[#09090B]/95 transition-all duration-300 ease-in-out hover:shadow-xl">
+			<Card className="w-full max-w-screen-lg mx-auto bg-white/95 dark:bg-[#09090B]/95 relative z-10 overflow-hidden rounded-2xl border-2 shadow-lg backdrop-blur-sm transition-all duration-300 ease-in-out hover:shadow-xl">
 				{/* Background image layer */}
 				<div
 					className={`absolute inset-0 bg-center bg-cover opacity-20 ${bgImage}`}
