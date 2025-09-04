@@ -186,7 +186,7 @@ export function ChatPanelPro({
 		activeWorkspaceSection,
 		input: workspaceInput,
 		messages: workspaceMessages,
-		cursorPosition: workspaceCursorPosition,
+		selectionRange,
 		append: workspaceAppend,
 		setInput: setWorkspaceInput,
 		handleWorkspaceEdit: workspaceHandleEdit,
@@ -390,7 +390,7 @@ export function ChatPanelPro({
 			})
 
 			// Then process workspace edit
-			await workspaceHandleEdit(value, metaPrompt, workspaceCursorPosition)
+			await workspaceHandleEdit(value, metaPrompt, selectionRange)
 		} else if (workspaceAppend) {
 			// In chat mode, use normal workspaceAppend behavior
 			console.log('💬 Chat mode: using normal workspaceAppend')
@@ -445,7 +445,6 @@ export function ChatPanelPro({
 						>
 							<WorkspaceContent
 								key={`workspace-${activeProject}-${activeDocument}-${activeDocumentType}`}
-								isLoading={isLoading}
 								className="size-full overflow-auto scrollbar"
 								chatbot={chatbot}
 							/>

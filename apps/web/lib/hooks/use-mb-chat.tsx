@@ -4,6 +4,7 @@ import { getChatbotMetadata } from '@/app/actions'
 import { formatSystemPrompts } from '@/lib/actions'
 import {
 	examplesPrompt,
+	followingImagesPrompt,
 	followingQuestionsPrompt,
 	setDefaultUserPreferencesPrompt,
 	setOutputInstructionPrompt,
@@ -970,6 +971,19 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						role: 'system' as 'data' | 'system' | 'user' | 'assistant',
 						content: examplesPrompt(chatbotMetadata),
 					},
+					followingImagesPrompt(
+						// ? Previous chat images... should we? @andler
+						// activeThread?.thread?.messages.filter(
+						// 	(msg) => msg?.examples?.length,
+						// ) as Message[],
+						allMessages
+							.filter((msg) => msg?.examples)
+							.filter(
+								(msg) =>
+									// This is when we are in the activeThread and haven't close it [fallback]
+									msg?.parts?.filter((part) => part.type === 'file') || msg,
+							) as Message[],
+					),
 				],
 				verifyDuplicateMessage,
 			)
@@ -985,12 +999,27 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 			if (activeThread?.thread?.messages) {
 				previousAiUserMessages = activeThread.thread.messages
-					.map((msg) => ({
-						id: msg.messageId,
-						role: msg.role as AiMessage['role'],
-						content: msg.content,
-						createdAt: msg.createdAt,
-					}))
+					.map(
+						(msg) =>
+							({
+								id: msg.messageId,
+								role: msg.role,
+								createdAt: msg.createdAt,
+								...(msg?.examples?.length
+									? {
+											parts: [
+												{
+													type: 'text',
+													text: msg.content,
+												},
+												...msg.examples,
+											],
+										}
+									: {
+											content: msg.content,
+										}),
+							}) as AiMessage,
+					)
 					.filter((msg) => msg.role === 'user')
 			}
 

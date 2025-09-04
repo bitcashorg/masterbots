@@ -7,6 +7,12 @@ export interface MarkdownSection {
 	title: string
 	content: string
 	level: number
+	/** Absolute index in the original markdown where the heading line starts */
+	headingStart: number
+	/** Absolute index right after the heading line (start of content) */
+	contentStart: number
+	/** Absolute index where this section's content ends (exclusive) */
+	contentEnd: number
 }
 
 /**
@@ -53,64 +59,74 @@ export function parseMarkdownSections(markdown: string): MarkdownSection[] {
 		return []
 	}
 
-	const lines = markdown.split('\n')
 	const sections: MarkdownSection[] = []
-	let currentSection: MarkdownSection | null = null
-	let currentContent: string[] = []
 	const usedIds = new Set<string>()
 
-	// Handle case with no headings by creating a default section
-	let hasHeadings = false
+	// Global regex to find all headings with their positions
+	const headingRegex = /^(#{1,6})\s+(.+)$/gm
+	const matches: Array<{
+		level: number
+		title: string
+		headingStart: number
+		headingText: string
+	}> = []
 
-	// Process each line
-	for (const [i, line] of lines.entries()) {
-		const headingMatch = line.match(/^(#{1,6})\s+(.+)$/)
-
-		if (headingMatch) {
-			hasHeadings = true
-
-			// If we have a current section, save it before starting a new one
-			if (currentSection) {
-				sections.push({
-					...currentSection,
-					content: currentContent.join('\n'),
-				})
-				currentContent = []
-			}
-
-			// Create new section with stable ID based on title
-			const title = headingMatch[2].trim()
-			const stableId = generateStableSectionId(title, usedIds)
-
-			currentSection = {
-				id: stableId,
-				title: title,
-				level: headingMatch[1].length,
-				content: '',
-			}
-		} else if (currentSection) {
-			// Add line to current section content
-			currentContent.push(line)
-		} else {
-			// Before first heading, collect content
-			currentContent.push(line)
-		}
+	let match: RegExpExecArray | null = headingRegex.exec(markdown)
+	while (match) {
+		const idx = typeof match.index === 'number' ? match.index : 0
+		matches.push({
+			level: match[1].length,
+			title: match[2].trim(),
+			headingStart: idx,
+			headingText: match[0],
+		})
+		match = headingRegex.exec(markdown)
 	}
 
-	// Add the last section
-	if (currentSection) {
-		sections.push({
-			...currentSection,
-			content: currentContent.join('\n'),
-		})
-	} else if (!hasHeadings && currentContent.length > 0) {
-		// No headings found, create a default section
+	// If no headings found, create a default single section spanning the whole document
+	if (matches.length === 0) {
 		const defaultId = generateStableSectionId('Document', usedIds)
 		sections.push({
 			id: defaultId,
 			title: 'Document',
 			level: 1,
-			content: currentContent.join('\n'),
+			content: markdown,
+			headingStart: 0,
+			contentStart: 0,
+			contentEnd: markdown.length,
+		})
+		return sections
+	}
+
+	// Helper: compute index of first character after this heading line (skip trailing CR/LF)
+	const afterHeading = (
+		startIndex: number,
+		headingTextLength: number,
+	): number => {
+		let idx = startIndex + headingTextLength
+		// Advance past optional \r and/or \n
+		if (markdown.charCodeAt(idx) === 13 /* \r */) idx++
+		if (markdown.charCodeAt(idx) === 10 /* \n */) idx++
+		return idx
+	}
+
+	for (let i = 0; i < matches.length; i++) {
+		const m = matches[i]
+		const next = matches[i + 1]
+		const contentStart = afterHeading(m.headingStart, m.headingText.length)
+		const contentEnd = next ? next.headingStart : markdown.length
+
+		const stableId = generateStableSectionId(m.title, usedIds)
+
+		const content = markdown.substring(contentStart, contentEnd)
+		sections.push({
+			id: stableId,
+			title: m.title,
+			level: m.level,
+			content,
+			headingStart: m.headingStart,
+			contentStart,
+			contentEnd,
 		})
 	}
 
@@ -131,6 +147,37 @@ export function combineMarkdownSections(sections: MarkdownSection[]): string {
 			return `${heading}\n${section.content}`
 		})
 		.join('\n\n')
+}
+
+/**
+ * Replace a section's content within the full markdown using absolute offsets
+ */
+export function replaceSectionContent(
+	fullMarkdown: string,
+	section: Pick<MarkdownSection, 'contentStart' | 'contentEnd'>,
+	newContent: string,
+): string {
+	const start = Math.max(0, Math.min(section.contentStart, fullMarkdown.length))
+	const end = Math.max(start, Math.min(section.contentEnd, fullMarkdown.length))
+	return fullMarkdown.slice(0, start) + newContent + fullMarkdown.slice(end)
+}
+
+/**
+ * Replace a section's heading title within the full markdown using offsets
+ */
+export function replaceSectionHeading(
+	fullMarkdown: string,
+	section: Pick<MarkdownSection, 'headingStart' | 'contentStart' | 'level'>,
+	newTitle: string,
+): string {
+	const start = Math.max(0, Math.min(section.headingStart, fullMarkdown.length))
+	const end = Math.max(
+		start,
+		Math.min(section.contentStart, fullMarkdown.length),
+	)
+	// Ensure heading ends with a single newline
+	const newHeading = `${'#'.repeat(section.level)} ${newTitle}\n`
+	return fullMarkdown.slice(0, start) + newHeading + fullMarkdown.slice(end)
 }
 
 /**
