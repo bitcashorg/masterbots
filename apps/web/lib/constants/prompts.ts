@@ -143,7 +143,7 @@ export function followingImagesPrompt(
 
 	return {
 		id: `following-img-${nanoid()}`,
-		role: 'user', // Added 'role' property to match the 'Message' type... maybe handle as user
+		role: 'system', // Added 'role' property to match the 'Message' type... maybe handle as user
 		content:
 			'Here are a list of images that may be relevant for you to understand my chain of thoughts:',
 		parts: [

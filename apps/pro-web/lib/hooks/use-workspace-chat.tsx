@@ -110,6 +110,12 @@ export function WorkspaceChatProvider({
 		start: number
 		end: number
 	} | null>(null)
+	// Preserve the original full document content for the current workspace edit operation.
+	// This ensures we always compute the padEnd ("after" portion) against the original snapshot
+	// and avoid duplication when streaming updates mutate the live document.
+	const operationOriginalContentRef = React.useRef<string>('')
+	// Track whether we've already initialized the streaming preservation window for this operation
+	const streamingInitializedRef = React.useRef<boolean>(false)
 
 	// Add logging for active workspace section changes
 	React.useEffect(() => {
@@ -181,6 +187,12 @@ export function WorkspaceChatProvider({
 		}
 
 		try {
+			// Use the original snapshot (captured at handleWorkspaceEdit start) only for FIRST streaming initialization.
+			// After that, we keep using currentContent for section parsing (structure may change) but DO NOT
+			// recalculate preserved before/after windows.
+			const originalSnapshot =
+				operationOriginalContentRef.current || currentContent
+
 			// Parse the current document into sections
 			const sections = parseMarkdownSections(currentContent)
 
@@ -231,12 +243,9 @@ export function WorkspaceChatProvider({
 						0,
 						Math.min(selectionRange.start, sectionContent.length),
 					)
-
-					// On first call, preserve the content structure
-					if (
-						workspaceProcessingState === 'updating' &&
-						!preservedAfterSelectionRef.current
-					) {
+					if (!streamingInitializedRef.current) {
+						// Compute end relative to ORIGINAL snapshot of the section content (before any mutations)
+						// so we don't drift when later chunks arrive.
 						const originalValidEnd = Math.max(
 							validStart,
 							Math.min(selectionRange.end, sectionContent.length),
@@ -251,12 +260,14 @@ export function WorkspaceChatProvider({
 							start: validStart,
 							end: originalValidEnd,
 						}
+						// Lock selection to start only for subsequent streaming chunks
+						setSelectionRange({ start: validStart, end: validStart })
+						streamingInitializedRef.current = true
 						console.log(
-							`📍 Preserving content structure: before="${preservedBeforeSelectionRef.current.substring(0, 50)}..." after="${preservedAfterSelectionRef.current.substring(0, 50)}..."`,
+							`📍 Initialized streaming window (section range ${validStart}-${originalValidEnd})`,
 						)
 					}
-
-					// For streaming updates, use preserved content structure
+					// For streaming updates (and first), use preserved structure
 					newSectionContent = `${preservedBeforeSelectionRef.current}${cleanedResponse}${preservedAfterSelectionRef.current}`
 					console.log(
 						`📍 Replacing selected text using preserved structure (start: ${validStart})`,
@@ -274,10 +285,7 @@ export function WorkspaceChatProvider({
 					)
 
 					// On first call, preserve the content structure for cursor-based operations
-					if (
-						workspaceProcessingState === 'updating' &&
-						!preservedAfterSelectionRef.current
-					) {
+					if (!streamingInitializedRef.current) {
 						preservedBeforeSelectionRef.current = sectionContent.substring(
 							0,
 							cursorPosition,
@@ -288,6 +296,11 @@ export function WorkspaceChatProvider({
 							start: cursorPosition,
 							end: cursorPosition,
 						}
+						setSelectionRange({ start: cursorPosition, end: cursorPosition })
+						streamingInitializedRef.current = true
+						console.log(
+							`📍 Initialized streaming window (cursor at ${cursorPosition})`,
+						)
 					}
 
 					// If cursor is at the beginning (0) or we're doing expand/rewrite operations,
@@ -340,30 +353,29 @@ export function WorkspaceChatProvider({
 					// Replace selected text in full document
 					const validStart = Math.max(
 						0,
-						Math.min(selectionRange.start, currentContent.length),
+						Math.min(selectionRange.start, originalSnapshot.length),
 					)
-
-					// On first call, preserve the content structure for full document
-					if (
-						workspaceProcessingState === 'updating' &&
-						!preservedAfterSelectionRef.current
-					) {
+					if (!streamingInitializedRef.current) {
 						const originalValidEnd = Math.max(
 							validStart,
-							Math.min(selectionRange.end, currentContent.length),
+							Math.min(selectionRange.end, originalSnapshot.length),
 						)
-						preservedBeforeSelectionRef.current = currentContent.substring(
+						preservedBeforeSelectionRef.current = originalSnapshot.substring(
 							0,
 							validStart,
 						)
 						preservedAfterSelectionRef.current =
-							currentContent.substring(originalValidEnd)
+							originalSnapshot.substring(originalValidEnd)
 						initialSelectionRangeRef.current = {
 							start: validStart,
 							end: originalValidEnd,
 						}
+						setSelectionRange({ start: validStart, end: validStart })
+						streamingInitializedRef.current = true
+						console.log(
+							`📍 Initialized streaming window (full doc range ${validStart}-${originalValidEnd})`,
+						)
 					}
-
 					const newContentMarkdown = `${preservedBeforeSelectionRef.current}${aiResponse.trim()}${preservedAfterSelectionRef.current}`
 					if (activeProject && activeDocument) {
 						setDocumentContent(
@@ -382,26 +394,25 @@ export function WorkspaceChatProvider({
 					// Insert at cursor position in full document
 					const cursorPosition = Math.max(
 						0,
-						Math.min(selectionRange.start, currentContent.length),
+						Math.min(selectionRange.start, originalSnapshot.length),
 					)
-
-					// On first call, preserve the content structure
-					if (
-						workspaceProcessingState === 'updating' &&
-						!preservedAfterSelectionRef.current
-					) {
-						preservedBeforeSelectionRef.current = currentContent.substring(
+					if (!streamingInitializedRef.current) {
+						preservedBeforeSelectionRef.current = originalSnapshot.substring(
 							0,
 							cursorPosition,
 						)
 						preservedAfterSelectionRef.current =
-							currentContent.substring(cursorPosition)
+							originalSnapshot.substring(cursorPosition)
 						initialSelectionRangeRef.current = {
 							start: cursorPosition,
 							end: cursorPosition,
 						}
+						setSelectionRange({ start: cursorPosition, end: cursorPosition })
+						streamingInitializedRef.current = true
+						console.log(
+							`📍 Initialized streaming window (full doc cursor ${cursorPosition})`,
+						)
 					}
-
 					const newContentMarkdown = `${preservedBeforeSelectionRef.current}${aiResponse.trim()}${preservedAfterSelectionRef.current}`
 					if (activeProject && activeDocument) {
 						setDocumentContent(
@@ -415,7 +426,15 @@ export function WorkspaceChatProvider({
 					)
 				} else {
 					// No selection range, append at end
-					const newContentMarkdown = `${currentContent}\n\n${aiResponse.trim()}`
+					if (!streamingInitializedRef.current) {
+						// For pure append, treat before as entire original and after as empty
+						preservedBeforeSelectionRef.current = originalSnapshot
+						preservedAfterSelectionRef.current = ''
+						initialSelectionRangeRef.current = null
+						streamingInitializedRef.current = true
+						console.log('📍 Initialized streaming window (append mode)')
+					}
+					const newContentMarkdown = `${preservedBeforeSelectionRef.current}\n\n${aiResponse.trim()}`
 					if (activeProject && activeDocument) {
 						setDocumentContent(
 							activeProject,
@@ -430,14 +449,26 @@ export function WorkspaceChatProvider({
 			console.log('✅ Document updated successfully')
 		} catch (error) {
 			console.error('❌ Error updating document:', error)
-		} finally {
+		}
+	}
+
+	// When the model finishes streaming (isLoading -> false) and we had an active streaming window,
+	// finalize and clean up once. This prevents premature cleanup between incremental updates.
+	React.useEffect(() => {
+		if (!isLoading && streamingInitializedRef.current) {
+			console.log('🧹 Streaming complete. Finalizing workspace update cleanup.')
+			// Mark idle
 			setWorkspaceProcessingState('idle')
-			// Reset preserved content refs after operation is complete
+			// Cleanup refs
 			preservedAfterSelectionRef.current = ''
 			preservedBeforeSelectionRef.current = ''
 			initialSelectionRangeRef.current = null
+			operationOriginalContentRef.current = ''
+			streamingInitializedRef.current = false
+			// Release selection so next edit can establish a new window
+			setSelectionRange(null)
 		}
-	}
+	}, [isLoading])
 
 	// Main workspace edit function
 	const handleWorkspaceEdit = async (
@@ -470,6 +501,9 @@ export function WorkspaceChatProvider({
 			// Get current document content for context
 			const documentKey = `${activeProject}:${activeDocument}`
 			const currentContent = documentContent?.[documentKey] || ''
+			// Capture snapshot for upcoming streaming operation
+			operationOriginalContentRef.current = currentContent
+			streamingInitializedRef.current = false
 
 			console.log('📄 Document context:', {
 				documentKey,
@@ -477,13 +511,8 @@ export function WorkspaceChatProvider({
 			})
 
 			// set the selection range if provided
-			if (selectionRange) {
-				setSelectionRange(selectionRange)
-			} else {
-				// Default to cursor at 0 if no selection range is provided
-				setSelectionRange(null)
-			}
-
+			// Default to cursor at 0 if no selection range is provided
+			setSelectionRange(selectionRange || null)
 			// Set generating state before making API call
 			setWorkspaceProcessingState('generating')
 

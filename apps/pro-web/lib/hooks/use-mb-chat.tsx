@@ -1010,6 +1010,11 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					setOutputInstructionPrompt(userContentRef.current),
 					...[
 						...(workspacePrompts || []),
+						{
+							id: `examples-${nanoid(10)}`,
+							role: 'system' as 'data' | 'system' | 'user' | 'assistant',
+							content: examplesPrompt(chatbotMetadata),
+						},
 						followingImagesPrompt(
 							// ? Previous chat images... should we? @andler
 							// activeThread?.thread?.messages.filter(
@@ -1023,11 +1028,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 										msg?.parts?.filter((part) => part.type === 'file') || msg,
 								) as Message[],
 						),
-						{
-							id: `examples-${nanoid(10)}`,
-							role: 'system' as 'data' | 'system' | 'user' | 'assistant',
-							content: examplesPrompt(chatbotMetadata),
-						},
 					],
 				],
 				verifyDuplicateMessage,
