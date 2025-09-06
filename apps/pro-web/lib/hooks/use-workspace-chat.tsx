@@ -53,6 +53,10 @@ interface WorkspaceChatContextType extends Partial<ReturnType<typeof useChat>> {
 		callback: ((sectionId: string, content: string) => void) | undefined,
 	) => void
 
+	// Callback for when streaming completes and sections need re-parsing
+	onStreamingComplete?: () => void
+	setOnStreamingComplete: (callback: (() => void) | undefined) => void
+
 	// Main workspace edit function
 	handleWorkspaceEdit: (
 		userPrompt: string,
@@ -101,6 +105,11 @@ export function WorkspaceChatProvider({
 	// Local UI update callback for section content
 	const [onSectionContentUpdate, setOnSectionContentUpdate] = React.useState<
 		((sectionId: string, content: string) => void) | undefined
+	>(undefined)
+
+	// Callback for when streaming completes and sections need re-parsing
+	const [onStreamingComplete, setOnStreamingComplete] = React.useState<
+		(() => void) | undefined
 	>(undefined)
 
 	// Refs to preserve content structure during streaming updates
@@ -193,8 +202,11 @@ export function WorkspaceChatProvider({
 			const originalSnapshot =
 				operationOriginalContentRef.current || currentContent
 
-			// Parse the current document into sections
-			const sections = parseMarkdownSections(currentContent)
+			// Only parse from currentContent if we haven't initialized streaming yet (first call).
+			const contentToParse = streamingInitializedRef.current
+				? originalSnapshot
+				: currentContent
+			const sections = parseMarkdownSections(contentToParse)
 
 			console.log('📝 Section parsing results:', {
 				totalSections: sections.length,
@@ -331,7 +343,7 @@ export function WorkspaceChatProvider({
 
 				// Replace within the full markdown using absolute offsets
 				const newMarkdown = replaceSectionContent(
-					currentContent,
+					originalSnapshot,
 					currentSection,
 					newSectionContent,
 				)
@@ -457,6 +469,10 @@ export function WorkspaceChatProvider({
 	React.useEffect(() => {
 		if (!isLoading && streamingInitializedRef.current) {
 			console.log('🧹 Streaming complete. Finalizing workspace update cleanup.')
+			// Notify UI that streaming is complete and sections need re-parsing
+			if (onStreamingComplete) {
+				onStreamingComplete()
+			}
 			// Mark idle
 			setWorkspaceProcessingState('idle')
 			// Cleanup refs
@@ -468,7 +484,7 @@ export function WorkspaceChatProvider({
 			// Release selection so next edit can establish a new window
 			setSelectionRange(null)
 		}
-	}, [isLoading])
+	}, [isLoading, onStreamingComplete])
 
 	// Main workspace edit function
 	const handleWorkspaceEdit = async (
@@ -602,6 +618,8 @@ export function WorkspaceChatProvider({
 				onFinishWorkspaceChatRequest,
 				onSectionContentUpdate,
 				setOnSectionContentUpdate,
+				onStreamingComplete,
+				setOnStreamingComplete,
 				input,
 				error,
 				messages,

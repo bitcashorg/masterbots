@@ -13,7 +13,7 @@ import { memoizedMarkdownComponents } from '@/lib/memoized-markdown-components'
 import { buildSectionTree } from '@/lib/section-tree-utils'
 import { cn } from '@/lib/utils'
 import { FileText, TextCursorInputIcon } from 'lucide-react'
-import * as React from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { WorkspaceSectionTree } from './workspace-section-tree'
 
 interface WorkspaceTextEditorProps {
@@ -68,23 +68,22 @@ export function WorkspaceTextEditor({
 	} = useWorkspaceChat()
 
 	// Overlay state for persistent selection visualization
-	const [isFocused, setIsFocused] = React.useState(false)
-	const [isPreview, setIsPreview] = React.useState(false)
+	const [isFocused, setIsFocused] = useState(false)
+	const [isPreview, setIsPreview] = useState(false)
 	// Build section tree for overview mode
-	const sectionTree = React.useMemo(
-		() => buildSectionTree(sections),
-		[sections],
-	)
+	const sectionTree = useMemo(() => buildSectionTree(sections), [sections])
 
 	// Local source state for responsive typing; sync from prop on external updates
-	const [sourceValue, setSourceValue] = React.useState(fullMarkdown)
-	React.useEffect(() => {
+	const [sourceValue, setSourceValue] = useState(fullMarkdown)
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	useEffect(() => {
 		if (sourceValue !== fullMarkdown) setSourceValue(fullMarkdown)
 	}, [fullMarkdown, sourceValue])
 
 	// Auto-focus section textarea when active section changes
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-	React.useEffect(() => {
+	useEffect(() => {
 		console.log('🔄 Section effect triggered:', { activeSection })
 		if (!activeSection) return
 		const el = sectionTextareaRef?.current
@@ -97,7 +96,7 @@ export function WorkspaceTextEditor({
 
 	// Simplified overlay renderer for persisted selection
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-	const renderSelectionOverlay = React.useCallback(() => {
+	const renderSelectionOverlay = useCallback(() => {
 		if (isFocused || !persistedSelection || isLoading) return null
 
 		const text = editableContent || ''
@@ -119,14 +118,14 @@ export function WorkspaceTextEditor({
 				{after}
 			</div>
 		)
-	}, [isFocused, persistedSelection, editableContent])
+	}, [isFocused, persistedSelection, editableContent, isLoading])
 
 	return (
 		<div className="space-y-4 h-full max-h-max">
-			{/* Section editor view with enhanced tree UI */}
+			{/* Section editor view with tree UI */}
 			{viewMode === 'sections' && (
-				<div className="h-[calc(100%-64px)] grid grid-cols-12 gap-4">
-					{/* Enhanced section navigation with tree structure */}
+				<div className="h-full max-h-[calc(100%-60px)] grid grid-cols-12 gap-4 overflow-hidden">
+					{/* section navigation with tree structure */}
 					<div className="col-span-4 border rounded-lg p-2 h-full overflow-y-auto scrollbar relative">
 						<h3 className="font-medium mb-2 p-2">Document Sections</h3>
 						<div className="space-y-1">
@@ -142,9 +141,14 @@ export function WorkspaceTextEditor({
 					</div>
 
 					{/* Content area */}
-					<div className="col-span-8 border rounded-lg p-4 h-full overflow-y-auto">
+					<div
+						className={cn(
+							'col-span-8 border rounded-lg p-4 h-full',
+							isPreview ? 'overflow-y-auto scrollbar' : '',
+						)}
+					>
 						{activeSection ? (
-							<div className="space-y-4 h-[calc(100%-64px)]">
+							<div className="flex flex-col space-y-4 size-full">
 								<div className="flex items-center gap-4 justify-between w-full">
 									<h3 className="font-semibold">
 										{sections.find((s) => s.id === activeSection)?.title}
@@ -206,7 +210,7 @@ export function WorkspaceTextEditor({
 													setGlobalSelectionRange({ start: position, end })
 												}}
 												className={cn(
-													'size-full p-3 border rounded-md focus:outline-none focus:ring-2 resize-none font-mono text-sm selection:bg-accent selection:text-accent-foreground',
+													'size-full p-3 border rounded-md focus:outline-none focus:ring-2 scrollbar resize-none font-mono text-sm selection:bg-accent selection:text-accent-foreground',
 													!isFocused &&
 														persistedSelection &&
 														persistedSelection.start !==
@@ -231,53 +235,80 @@ export function WorkspaceTextEditor({
 
 			{/* Source view */}
 			{viewMode === 'source' && (
-				<div className="h-[calc(100%-64px)] border rounded-lg p-4">
-					{isLoading ? (
-						<MemoizedReactMarkdown
-							className="flex flex-col gap-1 size-full"
-							components={memoizedMarkdownComponents()}
-						>
-							{fullMarkdown}
-						</MemoizedReactMarkdown>
-					) : (
-						<>
-							<Textarea
-								ref={sourceTextareaRef}
-								value={sourceValue}
-								onChange={(e) => {
-									markUserTyping()
-									const newValue = e.target.value
-									setSourceValue(newValue)
-									// When source is changed, update sections
-									setSections(parseMarkdownSections(newValue))
-									// Track cursor position
-									const position = e.target.selectionStart || 0
-									const end = e.target.selectionEnd || position
-									setGlobalSelectionRange({ start: position, end })
-									// Save changes with debounce
-									debouncedSaveFullSource()(newValue)
-								}}
-								onFocus={handleCursorPositionChange}
-								onClick={handleCursorPositionChange}
-								onKeyUp={(e) => {
-									const position =
-										(e.target as HTMLTextAreaElement).selectionStart || 0
-									const end =
-										(e.target as HTMLTextAreaElement).selectionEnd || position
-									setGlobalSelectionRange({ start: position, end })
-								}}
-								className="min-h-[400px] h-[94%] font-mono text-sm selection:bg-accent selection:text-accent-foreground"
-								placeholder="# Document Title..."
-							/>
-							<div className="mt-2 text-xs text-muted-foreground">
-								<p>
-									Edit the full markdown source. Changes will be applied when
-									you switch back to section view.
-								</p>
-							</div>
-						</>
-					)}
-				</div>
+				<>
+					<div
+						className={cn(
+							'flex flex-col gap-4 border rounded-lg p-4',
+							isLoading ? 'opacity-50 pointer-events-none' : '',
+							isPreview ? 'h-auto' : 'h-[calc(100%-64px)]',
+						)}
+					>
+						<div className="flex items-center gap-4 justify-end w-full">
+							<Button
+								variant="ghost"
+								onClick={() => setIsPreview((prev) => !prev)}
+							>
+								{isPreview ? (
+									<>
+										<TextCursorInputIcon className="size-4" />
+										edit
+									</>
+								) : (
+									<>
+										<FileText className="size-4" />
+										preview
+									</>
+								)}
+							</Button>
+						</div>
+						{isPreview ? (
+							<MemoizedReactMarkdown
+								className="flex flex-col gap-1 size-full pb-10"
+								components={memoizedMarkdownComponents()}
+							>
+								{fullMarkdown}
+							</MemoizedReactMarkdown>
+						) : (
+							<>
+								<Textarea
+									ref={sourceTextareaRef}
+									value={sourceValue}
+									onChange={(e) => {
+										markUserTyping()
+										const newValue = e.target.value
+										setSourceValue(newValue)
+										// When source is changed, update sections
+										setSections(parseMarkdownSections(newValue))
+										// Track cursor position
+										const position = e.target.selectionStart || 0
+										const end = e.target.selectionEnd || position
+										setGlobalSelectionRange({ start: position, end })
+										// Save changes with debounce
+										debouncedSaveFullSource()(newValue)
+									}}
+									onFocus={handleCursorPositionChange}
+									onClick={handleCursorPositionChange}
+									onKeyUp={(e) => {
+										const position =
+											(e.target as HTMLTextAreaElement).selectionStart || 0
+										const end =
+											(e.target as HTMLTextAreaElement).selectionEnd || position
+										setGlobalSelectionRange({ start: position, end })
+									}}
+									className="min-h-[400px] h-[94%] font-mono text-sm selection:bg-accent selection:text-accent-foreground scrollbar resize-none"
+									placeholder="# Document Title..."
+								/>
+								<div className="mt-2 text-xs text-muted-foreground">
+									<p>
+										Edit the full markdown source. Changes will be applied when
+										you switch back to section view.
+									</p>
+								</div>
+							</>
+						)}
+					</div>
+					{isPreview && <br />}
+				</>
 			)}
 		</div>
 	)

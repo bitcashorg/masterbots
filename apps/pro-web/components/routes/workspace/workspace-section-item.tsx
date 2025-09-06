@@ -104,7 +104,7 @@ export function WorkspaceSectionItem({
 					isActive
 						? 'bg-primary/10 text-primary font-medium'
 						: 'hover:bg-muted',
-					'border-l-2',
+					'border-l-2 rounded-l-sm',
 					isActive ? 'border-primary' : 'border-transparent',
 				)}
 				style={{ marginLeft: `${indentPx}px` }}

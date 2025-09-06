@@ -39,8 +39,8 @@ import { FileIcon, Image, PlusIcon, Table } from 'lucide-react'
 import type { Chatbot } from 'mb-genql'
 import { nanoid } from 'nanoid'
 import { useSession } from 'next-auth/react'
-import * as React from 'react'
-import { useCallback, useEffect, useMemo } from 'react'
+import type React from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { WorkspaceContentHeader } from './workspace-content-header'
 import { WorkspaceContentWrapper } from './workspace-content-wrapper'
 import { WorkspaceTextEditor } from './workspace-text-editor'
@@ -77,6 +77,7 @@ function WorkspaceContentInternal({
 		workspaceProcessingState,
 		setActiveWorkspaceSection: onActiveSectionChange,
 		setOnSectionContentUpdate,
+		setOnStreamingComplete,
 	} = useWorkspaceChat()
 	const { activeThread, refreshActiveThread } = useThread()
 	const { data: session } = useSession()
@@ -155,33 +156,31 @@ This is a new document. Add your content here.
 		() => savedContent ?? initialContent,
 		[savedContent, initialContent],
 	)
-	const [sections, setSections] = React.useState<MarkdownSection[]>(
+	const [sections, setSections] = useState<MarkdownSection[]>(
 		parseMarkdownSections(savedContent || initialContent),
 	)
-	const [activeSection, setActiveSection] = React.useState<string | null>(null)
-	const [editableContent, setEditableContent] = React.useState<string>('')
-	const [viewMode, setViewMode] = React.useState<'sections' | 'source'>(
-		'sections',
-	)
-	const [cursorPosition, setCursorPosition] = React.useState<number>(0)
-	const [isSaving, setIsSaving] = React.useState(false)
-	const [showVersions, setShowVersions] = React.useState(false)
-	const [versions, setVersions] = React.useState<WorkspaceDocumentVersion[]>([])
+	const [activeSection, setActiveSection] = useState<string | null>(null)
+	const [editableContent, setEditableContent] = useState<string>('')
+	const [viewMode, setViewMode] = useState<'sections' | 'source'>('sections')
+	const [cursorPosition, setCursorPosition] = useState<number>(0)
+	const [isSaving, setIsSaving] = useState(false)
+	const [showVersions, setShowVersions] = useState(false)
+	const [versions, setVersions] = useState<WorkspaceDocumentVersion[]>([])
 
 	// Refs
-	const sectionTextareaRef = React.useRef<HTMLTextAreaElement>(null)
-	const sourceTextareaRef = React.useRef<HTMLTextAreaElement>(null)
-	const isUserTypingRef = React.useRef<boolean>(false)
-	const userTypingTimeoutRef = React.useRef<NodeJS.Timeout | null>(null)
-	const sectionSaveTimeoutRef = React.useRef<NodeJS.Timeout | null>(null)
-	const prevDocumentKeyRef = React.useRef(documentKey)
+	const sectionTextareaRef = useRef<HTMLTextAreaElement>(null)
+	const sourceTextareaRef = useRef<HTMLTextAreaElement>(null)
+	const isUserTypingRef = useRef<boolean>(false)
+	const userTypingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+	const sectionSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+	const prevDocumentKeyRef = useRef(documentKey)
 	// Streaming control/throttle
-	const streamingActiveRef = React.useRef<boolean>(false)
-	const streamThrottleTimeoutRef = React.useRef<NodeJS.Timeout | null>(null)
-	const streamLastUpdateRef = React.useRef<number>(0)
+	const streamingActiveRef = useRef<boolean>(false)
+	const streamThrottleTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+	const streamLastUpdateRef = useRef<number>(0)
 
 	// Cleanup timeout on unmount
-	React.useEffect(() => {
+	useEffect(() => {
 		return () => {
 			if (userTypingTimeoutRef.current) {
 				clearTimeout(userTypingTimeoutRef.current)
@@ -190,7 +189,7 @@ This is a new document. Add your content here.
 	}, [])
 
 	// Set up callback for updating local editable content when AI updates sections (streaming)
-	React.useEffect(() => {
+	useEffect(() => {
 		const updateSectionContent = (sectionId: string, content: string) => {
 			// Mark stream active and throttle UI-only updates
 			streamingActiveRef.current = true
@@ -223,9 +222,30 @@ This is a new document. Add your content here.
 		return () => setOnSectionContentUpdate(undefined)
 	}, [activeSection, setOnSectionContentUpdate])
 
+	// Set up streaming complete callback to ensure final state consistency
+	useEffect(() => {
+		if (streamingActiveRef.current || workspaceProcessingState !== 'idle')
+			return
+		const handleStreamingComplete = () => {
+			console.log('🎯 Streaming complete - final state sync')
+			const documentKey = `${projectName}:${documentName}`
+			console.log(
+				'✅ Streaming complete - state synchronized via fullMarkdown effect',
+			)
+		}
+
+		setOnStreamingComplete(handleStreamingComplete)
+		return () => setOnStreamingComplete(undefined)
+	}, [
+		projectName,
+		documentName,
+		workspaceProcessingState,
+		setOnStreamingComplete,
+	])
+
 	// When streaming ends, persist once and re-parse sections
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-	React.useEffect(() => {
+	useEffect(() => {
 		if (!isLoading && streamingActiveRef.current) {
 			try {
 				if (activeSection && projectName && documentName) {
@@ -237,7 +257,6 @@ This is a new document. Add your content here.
 							target,
 							editableContent,
 						)
-						setSections(parseMarkdownSections(newMd))
 						setDocumentContent(projectName, documentName, newMd)
 					}
 				}
@@ -261,7 +280,7 @@ This is a new document. Add your content here.
 	])
 
 	// Always keep sections and editableContent in sync with fullMarkdown when it changes
-	React.useEffect(() => {
+	useEffect(() => {
 		const parsed = parseMarkdownSections(fullMarkdown)
 		setSections(parsed)
 		if (activeSection) {
@@ -270,8 +289,29 @@ This is a new document. Add your content here.
 		}
 	}, [fullMarkdown, activeSection])
 
+	// Auto-save fullMarkdown changes (with debouncing)
+	useEffect(() => {
+		if (!projectName || !documentName) return
+
+		const saveTimeout = setTimeout(() => {
+			if (fullMarkdown && fullMarkdown !== (savedContent ?? initialContent)) {
+				console.log('💾 Auto-saving document changes')
+				setDocumentContent(projectName, documentName, fullMarkdown)
+			}
+		}, 1000) // 1 second debounce
+
+		return () => clearTimeout(saveTimeout)
+	}, [
+		fullMarkdown,
+		projectName,
+		documentName,
+		savedContent,
+		initialContent,
+		setDocumentContent,
+	])
+
 	// Helper functions
-	const markUserTyping = React.useCallback(() => {
+	const markUserTyping = useCallback(() => {
 		isUserTypingRef.current = true
 		if (userTypingTimeoutRef.current) {
 			clearTimeout(userTypingTimeoutRef.current)
@@ -282,7 +322,7 @@ This is a new document. Add your content here.
 	}, [])
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-	const handleContentChange = React.useCallback(
+	const handleContentChange = useCallback(
 		(e: React.ChangeEvent<HTMLTextAreaElement>) => {
 			markUserTyping()
 			const value = e.target.value
@@ -298,7 +338,6 @@ This is a new document. Add your content here.
 				const target = freshSections.find((s) => s.id === activeSection)
 				if (target) {
 					const newMd = replaceSectionContent(fullMarkdown, target, value)
-					setSections(parseMarkdownSections(newMd))
 
 					// Debounce persisting to workspace store
 					if (sectionSaveTimeoutRef.current)
@@ -322,7 +361,7 @@ This is a new document. Add your content here.
 		],
 	)
 
-	const handleCursorPositionChange = React.useCallback(
+	const handleCursorPositionChange = useCallback(
 		(
 			e:
 				| React.FocusEvent<HTMLTextAreaElement>
@@ -340,11 +379,7 @@ This is a new document. Add your content here.
 		const section = sections.find((s) => s.id === sectionId)
 		if (section) {
 			setActiveSection(sectionId)
-			// Always derive from fullMarkdown offsets to avoid drift
-			const freshSections = parseMarkdownSections(fullMarkdown)
-			const fresh = freshSections.find((s) => s.id === sectionId)
-			setSections(freshSections)
-			setEditableContent(fresh ? fresh.content : section.content)
+			setEditableContent(section.content)
 			onActiveSectionChange?.(sectionId)
 		}
 
@@ -359,7 +394,7 @@ This is a new document. Add your content here.
 	}
 
 	// Update a section title in place
-	const handleSectionUpdate = React.useCallback(
+	const handleSectionUpdate = useCallback(
 		(sectionId: string, newTitle: string) => {
 			// Title changes will be persisted when switching views/saving by rebuilding markdown
 			setSections((prev) =>
@@ -395,8 +430,6 @@ This is a new document. Add your content here.
 					target,
 					editableContent,
 				)
-				const updated = parseMarkdownSections(newMd)
-				setSections(updated)
 				if (projectName && documentName)
 					setDocumentContent(projectName, documentName, newMd)
 			}
@@ -467,6 +500,9 @@ This is a new document. Add your content here.
 		try {
 			if (!projectName || !documentName) return
 
+			// Start with current fullMarkdown
+			let content = fullMarkdown
+
 			// Ensure latest section edits are merged into fullMarkdown via offsets
 			if (activeSection) {
 				const fresh = parseMarkdownSections(fullMarkdown)
@@ -477,20 +513,18 @@ This is a new document. Add your content here.
 						target,
 						editableContent,
 					)
-					setSections(parseMarkdownSections(newMd))
 					if (projectName && documentName)
 						setDocumentContent(projectName, documentName, newMd)
+					content = newMd
 				}
 			}
-
-			const content = fullMarkdown
 
 			if (!content?.trim()) return
 
 			// Determine type
 			const type: 'text' | 'image' | 'spreadsheet' = documentType || 'text'
 
-			// 1) Sync workspace server cache (drafts): load existing, update document content, post back
+			// Sync workspace server cache (drafts): load existing, update document content, post back
 			try {
 				const { data } = await getWorkspaceState()
 				// Build payload from server cache if present, otherwise from local workspace context
@@ -724,7 +758,7 @@ This is a new document. Add your content here.
 	}
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-	const handleRollback = React.useCallback(
+	const handleRollback = useCallback(
 		async (versionNumber: number) => {
 			if (!projectName || !documentName || !activeThread?.slug) return
 			try {
@@ -748,7 +782,6 @@ This is a new document. Add your content here.
 				const newContent = await response.text()
 
 				// Update local state and persist
-				setSections(parseMarkdownSections(newContent))
 				if (projectName && documentName) {
 					setDocumentContent(projectName, documentName, newContent)
 				}
