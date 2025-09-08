@@ -2,7 +2,7 @@
 
 import { DashboardOnboarding } from '@/components/onboarding/dashboard-onboarding'
 import { Button } from '@/components/ui/button'
-import { IconClose, IconFilter } from '@/components/ui/icons'
+import { IconClose, IconDashboard, IconFilter } from '@/components/ui/icons'
 import { Input } from '@/components/ui/input'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { cn } from '@/lib/utils'
@@ -37,6 +37,10 @@ export function FilterInput({ className, userId }: FilterInputProps) {
 
 	const handleFilterModeToggle = () => {
 		setIsFilterMode((prev) => !prev)
+	}
+
+	const handleDashboardToggle = () => {
+		setIsDashboardOpen((prev) => !prev)
 	}
 
 	return (

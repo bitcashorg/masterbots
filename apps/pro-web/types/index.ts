@@ -3,6 +3,7 @@ import type { WordWareFlowPaths } from '@/types/wordware-flows.types'
 import type { Message, streamText } from 'ai'
 import type { userRole } from 'mb-drizzle'
 import type {
+	Category,
 	Chatbot,
 	Example,
 	Message as MBMessage,
@@ -627,4 +628,27 @@ export interface ExampleQuestion {
 	id: string
 	prompt: string
 	category?: string
+}
+
+export interface CategoryDashboardProps {
+	isOpen: boolean
+	onClose: () => void
+	categories: Category[]
+}
+
+export interface CategoryCardProps {
+	category: Category
+	isSelected: boolean
+	onToggle: () => void
+	routeType: string
+}
+
+export interface HomePageProps {
+	initialThreads?: Thread[]
+	initialCount?: number
+}
+
+export interface OnboardingSectionProps {
+	isOpen: boolean
+	onClose: () => void
 }
