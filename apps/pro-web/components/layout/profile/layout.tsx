@@ -3,7 +3,6 @@
 import { Hero } from '@/components/layout/profile/hero'
 import { UserProfileSidebar } from '@/components/layout/profile/profile-page-sidebar'
 import { CategoryDashboard } from '@/components/shared/category-dashboard'
-import { BrowseProvider } from '@/lib/hooks/use-browse'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { cn, getRouteType } from '@/lib/utils'
 import type { User } from 'mb-genql'

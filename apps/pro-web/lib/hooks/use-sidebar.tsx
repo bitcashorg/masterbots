@@ -1,6 +1,5 @@
 'use client'
 
-import { useCategorySelections } from '@/lib/hooks/use-category-selections'
 import { urlBuilders } from '@/lib/url'
 import { getCategories, getUserBySlug } from '@/services/hasura'
 import type { Category, Chatbot } from 'mb-genql'
@@ -9,6 +8,7 @@ import { useSession } from 'next-auth/react'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 import * as React from 'react'
 import { useAsync } from 'react-use'
+import { useCategorySelections } from './use-category-selections'
 
 const LOCAL_STORAGE_KEY = 'sidebar'
 
@@ -26,12 +26,14 @@ interface SidebarContext {
 	filterValue: string
 	isFilterMode: boolean
 	isSidebarOpen: boolean
+	isDashboardOpen: boolean
 	selectedChats: string[]
 	activeChatbot: Chatbot | null
 	activeCategory: number | null
 	selectedChatbots: number[]
 	filteredCategories: Category[]
 	selectedCategories: number[]
+	allCategories: Category[]
 	expandedCategories: number[]
 	changeTab: (cate: 'general' | 'work') => void
 	navigateTo: <T extends keyof typeof urlBuilders>(
@@ -40,11 +42,14 @@ interface SidebarContext {
 	toggleSidebar: (toggle?: boolean) => void
 	setFilterValue: React.Dispatch<React.SetStateAction<string>>
 	setIsFilterMode: React.Dispatch<React.SetStateAction<boolean>>
+	setIsDashboardOpen: React.Dispatch<React.SetStateAction<boolean>>
 	setSelectedChats: React.Dispatch<React.SetStateAction<string[]>>
 	setActiveChatbot: React.Dispatch<React.SetStateAction<Chatbot | null>>
 	setActiveCategory: React.Dispatch<React.SetStateAction<number | null>>
 	setSelectedChatbots: React.Dispatch<React.SetStateAction<number[]>>
-	setCategories: React.Dispatch<React.SetStateAction<number[]>>
+	setSelectedCategories: (
+		categories: number[] | ((prev: number[]) => number[]),
+	) => void
 	setExpandedCategories: React.Dispatch<React.SetStateAction<number[]>>
 	toggleChatbotSelection: (chatbotId: number) => void
 }
@@ -157,16 +162,8 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 	const [activeCategory, setActiveCategory] = React.useState<number | null>(
 		null,
 	)
-
-	// Debug logging for state changes
-	React.useEffect(() => {
-		console.log('[useSidebar] Active states changed:', {
-			activeCategory,
-			activeChatbot: activeChatbot?.name || 'none',
-			pathname,
-		})
-	}, [activeCategory, activeChatbot, pathname])
 	const [isFilterMode, setIsFilterMode] = React.useState(false)
+	const [isDashboardOpen, setIsDashboardOpen] = React.useState(false)
 	const [filterValue, setFilterValue] = React.useState('')
 	const [selectedChats, setSelectedChats] = React.useState<string[]>([])
 	const [expandedCategories, setExpandedCategories] = React.useState<number[]>(
@@ -212,8 +209,8 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 		if (!pathname || !categories) return
 		const [
 			,
-			publicProTopicSlugOrBasePath, // c, pro or :category
-			personalProProfilesTopicSlugOrDomainSlug, // :category or :domain
+			publicTopicSlugOrBasePath, // c or :category
+			personalProfilesTopicSlugOrDomainSlug, // :category or :domain
 			domainSlugOrPublicChatbotSlug, // :domain or :chatbot
 			personalChatbotSlugProfileTopicOrThreadSlug, // :topic, :chatbot or :threadSlug
 			_personalProfilesThreadSlugProfileDomainOrPublicTheadQuestionSlug, // :threadSlug or :threadQuestionSlug
@@ -224,10 +221,12 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 
 		const category = categories?.categoriesChatbots.find(
 			(cat) =>
-				toSlug(cat.name) === personalProProfilesTopicSlugOrDomainSlug ||
-				toSlug(cat.name) === publicProTopicSlugOrBasePath,
+				cat?.name &&
+				(toSlug(cat.name) === personalChatbotSlugProfileTopicOrThreadSlug ||
+					toSlug(cat.name) === personalProfilesTopicSlugOrDomainSlug ||
+					toSlug(cat.name) === publicTopicSlugOrBasePath),
 		)
-		if (category) {
+		if (category?.categoryId) {
 			setActiveCategory(category.categoryId)
 			setExpandedCategories([category.categoryId])
 
@@ -236,24 +235,20 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 				personalChatbotSlugProfileTopicOrThreadSlug ||
 				profileChatbot
 			) {
-				const chatbot = category.chatbots.find(
+				const chatbot = category.chatbots?.find(
 					(c) =>
-						c.chatbot.name.toLowerCase() === profileChatbot ||
-						c.chatbot.name.toLowerCase() ===
-							personalChatbotSlugProfileTopicOrThreadSlug ||
-						c.chatbot.name.toLowerCase() === domainSlugOrPublicChatbotSlug,
+						c?.chatbot?.name &&
+						(c.chatbot.name.toLowerCase() === profileChatbot ||
+							c.chatbot.name.toLowerCase() ===
+								personalChatbotSlugProfileTopicOrThreadSlug ||
+							c.chatbot.name.toLowerCase() === domainSlugOrPublicChatbotSlug),
 				)
-				if (chatbot) {
-					console.log(
-						'[useSidebar] Setting active chatbot:',
-						chatbot.chatbot.name,
-					)
+				if (chatbot?.chatbot) {
 					setActiveChatbot(chatbot.chatbot)
 				} else {
 					setActiveChatbot(null)
 				}
 			} else {
-				console.log('[useSidebar] No chatbot in URL, clearing active chatbot')
 				setActiveChatbot(null)
 			}
 		}
@@ -266,7 +261,7 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 	 *
 	 * @param {number} chatbotId - The ID of the chatbot to toggle selection for.
 	 */
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+
 	const toggleChatbotSelection = React.useCallback(
 		(chatbotId: number) => {
 			setSelectedChatbots((prev) =>
@@ -275,7 +270,7 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 					: [...prev, chatbotId],
 			)
 			const categoriesChatbots = categories ? categories.categoriesChatbots : []
-			// setCategories((prev) =>
+			// setSelectedCategories((prev) =>
 			// 	categoriesChatbots
 			// 		.filter((category) =>
 			// 			category.chatbots.some(
@@ -307,7 +302,7 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 			// 			),
 			// )
 
-			setCategories((prevSelectedCategories) => {
+			setCategories((prevSelectedCategories: number[]) => {
 				const relatedCategories = categoriesChatbots.filter((category) =>
 					category.chatbots.some((chatbot) => chatbot.chatbotId === chatbotId),
 				)
@@ -319,13 +314,14 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 				return [...prevSelectedCategories, ...newCategoryIds]
 			})
 		},
-		[categories],
+		[categories, setCategories],
 	)
 
 	const changeTab = (cate: 'general' | 'work') => {
 		setTab(cate)
 	}
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const filteredCategories = React.useMemo(() => {
 		const categoriesChatbots = categories?.categoriesChatbots || []
 
@@ -380,6 +376,8 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 		return null
 	}
 
+	const allCategories = categories?.categoriesChatbots || []
+
 	return (
 		<SidebarContext.Provider
 			value={{
@@ -388,24 +386,27 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 				filterValue,
 				isFilterMode,
 				isSidebarOpen,
+				isDashboardOpen,
 				selectedChats,
 				activeChatbot,
 				activeCategory,
 				selectedChatbots,
 				filteredCategories,
 				selectedCategories,
+				allCategories,
 				expandedCategories,
 				changeTab,
 				navigateTo,
 				toggleSidebar,
 				setFilterValue,
 				setIsFilterMode,
+				setIsDashboardOpen,
 				setActiveChatbot,
 				setSelectedChats,
 				setActiveCategory,
 				setSelectedChatbots,
 				setExpandedCategories,
-				setCategories,
+				setSelectedCategories: setCategories,
 				toggleChatbotSelection,
 			}}
 		>
