@@ -35,6 +35,7 @@ import type {
 	WorkspaceDocumentMetadata,
 	WorkspaceDocumentVersion,
 } from '@/types/thread.types'
+import { debounce } from 'lodash'
 import { FileIcon, Image, PlusIcon, Table } from 'lucide-react'
 import type { Chatbot } from 'mb-genql'
 import { nanoid } from 'nanoid'
@@ -223,6 +224,7 @@ This is a new document. Add your content here.
 	}, [activeSection, setOnSectionContentUpdate])
 
 	// Set up streaming complete callback to ensure final state consistency
+	// biome-ignore lint/correctness/useExhaustiveDependencies: Every time we trigger a new document content and we reset the onStreamComplete callback, we check if the processing state is idle, so we can trigger a side-effect callback... currently not in use but in future it will...
 	useEffect(() => {
 		if (streamingActiveRef.current || workspaceProcessingState !== 'idle')
 			return
@@ -240,6 +242,7 @@ This is a new document. Add your content here.
 		projectName,
 		documentName,
 		workspaceProcessingState,
+		setDocumentContent,
 		setOnStreamingComplete,
 	])
 
@@ -405,18 +408,15 @@ This is a new document. Add your content here.
 	)
 
 	// Debounced save for full source editing
-
-	const debouncedSaveFullSource = () => {
-		let timeoutId: NodeJS.Timeout
-		return (content: string) => {
-			clearTimeout(timeoutId)
-			timeoutId = setTimeout(() => {
-				if (projectName && documentName && content) {
-					setDocumentContent(projectName, documentName, content)
-				}
-			}, 500)
-		}
-	}
+	// biome-ignore lint/correctness/useExhaustiveDependencies: debounces when hearing changes to sync them with the setDocumentContent on other effects
+	const debouncedSaveFullSource = useCallback(
+		debounce((content: string) => {
+			if (projectName && documentName && content) {
+				setDocumentContent(projectName, documentName, content)
+			}
+		}, 500),
+		[projectName, documentName, setDocumentContent],
+	)
 
 	// Toggle between Section Editor and Full Source, ensuring persistence
 	const handleViewSourceToggle = (fullView: boolean) => {

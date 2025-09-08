@@ -35,7 +35,7 @@ interface WorkspaceTextEditorProps {
 	) => void
 	handleSectionClick: (sectionId: string) => void
 	markUserTyping: () => void
-	debouncedSaveFullSource: () => (content: string) => void
+	debouncedSaveFullSource: (content: string) => void
 	handleExpandSection: (sectionTitle: string) => Promise<void>
 	handleRewriteSection: (sectionTitle: string) => Promise<void>
 	handleSectionUpdate: (sectionId: string, newTitle: string) => void
@@ -284,7 +284,7 @@ export function WorkspaceTextEditor({
 										const end = e.target.selectionEnd || position
 										setGlobalSelectionRange({ start: position, end })
 										// Save changes with debounce
-										debouncedSaveFullSource()(newValue)
+										debouncedSaveFullSource(newValue)
 									}}
 									onFocus={handleCursorPositionChange}
 									onClick={handleCursorPositionChange}
