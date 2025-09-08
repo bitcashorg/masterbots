@@ -85,6 +85,7 @@ Navigation became slow and the workspace grew expensive (large re-renders, frequ
 - [x] Use `useMemo` for `fullMarkdown` derived from `savedContent`.
 - [x] Throttle streaming UI updates and commit once at the end.
 - [x] Debounced saves for source view typing.
+- [x] Fix debouncedSaveFullSource to use stable function reference.
 
 ## References
 
