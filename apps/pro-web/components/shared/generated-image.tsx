@@ -25,7 +25,11 @@ export function GeneratedImage({
 		}
 	}, [base64])
 
-	if (!base64) return null
+	if (!base64) {
+		return (
+			<div className="relative w-full aspect-[4/3] bg-muted/30 animate-pulse rounded-xl" />
+		)
+	}
 
 	const imgSrc = base64.startsWith('data:')
 		? base64
@@ -67,7 +71,7 @@ export function GeneratedImage({
 
 				{isLoading && (
 					<div className="absolute inset-0 flex items-center justify-center bg-muted/40">
-						<Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+						<div className="w-12 h-12 bg-muted/50 animate-pulse rounded-full" />
 					</div>
 				)}
 

@@ -206,7 +206,7 @@ export function SharedAccordion({
 				urlType: 'threadUrl',
 				shallow: true,
 				navigationParams: {
-					type: isPro ? 'personal' : 'public',
+					type: isPro ? 'pro' : 'org',
 					category: fullThread?.chatbot?.categories[0]?.category?.name || 'AI',
 					domain: canonicalDomain,
 					chatbot: fullThread?.chatbot?.name || 'Masterbots',
@@ -343,6 +343,7 @@ export function SharedAccordion({
 			return newState
 		})
 	}
+
 	return (
 		<div
 			ref={accordionRef}
@@ -437,7 +438,7 @@ export function SharedAccordion({
 			</button>
 
 			{/* Accordion content */}
-			<AnimatePresence initial={false} mode="wait">
+			<AnimatePresence mode="wait">
 				{open && (
 					<motion.div
 						className={cn(

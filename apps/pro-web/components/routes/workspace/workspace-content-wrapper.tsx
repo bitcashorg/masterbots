@@ -2,11 +2,10 @@
 
 import { Skeleton } from '@/components/ui/skeleton'
 import { useWorkspace } from '@/lib/hooks/use-workspace'
-import * as React from 'react'
+import type * as React from 'react'
 
 interface WorkspaceContentWrapperProps {
 	className?: string
-	isLoading?: boolean
 	children: (props: {
 		projectName: string
 		documentName: string
@@ -16,7 +15,6 @@ interface WorkspaceContentWrapperProps {
 
 export function WorkspaceContentWrapper({
 	className,
-	isLoading = false,
 	children,
 }: WorkspaceContentWrapperProps) {
 	const {
@@ -29,31 +27,18 @@ export function WorkspaceContentWrapper({
 	const documentType =
 		activeDocumentType === 'all' ? 'text' : activeDocumentType
 
-	// Debug logging to track when wrapper re-renders
-	React.useEffect(() => {
-		console.log('🔄 WorkspaceContentWrapper re-rendered with:', {
-			projectName,
-			documentName,
-			documentType,
-			timestamp: Date.now(),
-		})
-	}, [projectName, documentName, documentType])
-
 	if (!projectName || !documentName) {
 		return (
 			<div className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground">
-				<p>Select a project and document to edit</p>
-			</div>
-		)
-	}
-
-	if (isLoading) {
-		return (
-			<div className="space-y-4 p-4">
-				<Skeleton className="h-8 w-1/3" />
-				<Skeleton className="h-4 w-full" />
-				<Skeleton className="h-4 w-full" />
-				<Skeleton className="h-4 w-2/3" />
+				<p>
+					{!projectName && !documentName
+						? 'Select a project and document to edit'
+						: null}
+					{!projectName ? 'Select a project to start editing' : null}
+					{!documentName
+						? 'Select or create a document to start editing'
+						: null}
+				</p>
 			</div>
 		)
 	}

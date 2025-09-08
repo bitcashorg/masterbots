@@ -8,6 +8,7 @@ import {
 	type WorkspaceTaskType,
 	createWorkspaceMetaPrompt,
 } from '@/lib/constants/prompts'
+import { workspaceDocTemplates } from '@/lib/constants/workspace-templates'
 import { getUserIndexedDBKeys } from '@/lib/hooks/use-chat-attachments'
 import { type IndexedDBItem, useIndexedDB } from '@/lib/hooks/use-indexed-db'
 import { useThread } from '@/lib/hooks/use-thread'
@@ -19,6 +20,7 @@ import {
 	combineMarkdownSections,
 	createStructuredMarkdown,
 	parseMarkdownSections,
+	replaceSectionContent,
 } from '@/lib/markdown-utils'
 import { buildSectionTree } from '@/lib/section-tree-utils'
 import { cn } from '@/lib/utils'
@@ -38,56 +40,10 @@ import type { Chatbot } from 'mb-genql'
 import { nanoid } from 'nanoid'
 import { useSession } from 'next-auth/react'
 import * as React from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { WorkspaceContentHeader } from './workspace-content-header'
 import { WorkspaceContentWrapper } from './workspace-content-wrapper'
 import { WorkspaceTextEditor } from './workspace-text-editor'
-
-function isThreadDocVersion(v: unknown): v is WorkspaceDocumentVersion {
-	return (
-		!!v &&
-		typeof (v as WorkspaceDocumentVersion).version === 'number' &&
-		typeof (v as WorkspaceDocumentVersion).updatedAt === 'string' &&
-		typeof (v as WorkspaceDocumentVersion).checksum === 'string' &&
-		typeof (v as WorkspaceDocumentVersion).url === 'string'
-	)
-}
-
-function isThreadDocMeta(d: unknown): d is WorkspaceDocumentMetadata {
-	const doc = d as WorkspaceDocumentMetadata
-	const versionsOk =
-		!doc.versions ||
-		(Array.isArray(doc.versions) && doc.versions.every(isThreadDocVersion))
-	return !!doc && typeof doc.id === 'string' && versionsOk
-}
-// Minimal typing for useWorkspace fields we rely on here
-type WorkspaceHookSlice = {
-	documentContent: Record<string, string>
-	setDocumentContent: (
-		project: string,
-		document: string,
-		content: string,
-	) => void
-	activeOrganization: string | null
-	activeDepartment: string | null
-	organizationList: string[]
-	projectList: string[]
-	documentList: Record<string, string[]>
-	textDocuments: Record<string, string[]>
-	imageDocuments: Record<string, string[]>
-	spreadsheetDocuments: Record<string, string[]>
-	projectsByDept: Record<string, Record<string, string[]>>
-	departmentList: Record<string, string[]>
-}
-
-// Workspace server cache payload (mirrors /api/workspace/state)
-// Workspace server cache types are imported from '@/lib/workspace-state'
-
-interface WorkspaceContentInternalProps {
-	projectName: string
-	documentName: string
-	documentType: 'text' | 'image' | 'spreadsheet'
-	chatbot?: Chatbot
-}
 
 function WorkspaceContentInternal({
 	projectName,
@@ -109,84 +65,79 @@ function WorkspaceContentInternal({
 		projectsByDept,
 		departmentList,
 	} = useWorkspace() as unknown as WorkspaceHookSlice
-	console.log('useWorkspace documentContent', documentContent)
+	// console.log('useWorkspace documentContent', documentContent)
 	// console.log('workspace context slice loaded')
 	const {
-		setCursorPosition: setGlobalCursorPosition,
+		messages,
+		isLoading,
+		onFinishWorkspaceChatRequest,
+		selectionRange: globalSelectionRange,
+		setSelectionRange: setGlobalSelectionRange,
 		handleWorkspaceEdit,
 		workspaceProcessingState,
 		setActiveWorkspaceSection: onActiveSectionChange,
+		setOnSectionContentUpdate,
 	} = useWorkspaceChat()
 	const { activeThread, refreshActiveThread } = useThread()
 	const { data: session } = useSession()
 	// Use the same per-user DB naming as readers (attachments/documents) so saved docs are discoverable
-	const dbKeys = React.useMemo(
+	const dbKeys = useMemo(
 		() => getUserIndexedDBKeys(session?.user?.id),
 		[session?.user?.id],
 	)
 	const { addItem: addIndexedItem, updateItem: updateIndexedItem } =
 		useIndexedDB(dbKeys)
 	const { customSonner } = useSonner()
+	const newAssistantMessage = useMemo(() => {
+		const lastAssistantMessage = messages
+			?.filter((msg) => msg.role === 'assistant')
+			.pop()
+
+		return !activeThread?.messages.find(
+			(msg) =>
+				msg.messageId ===
+				// @ts-ignore
+				(lastAssistantMessage?.id || lastAssistantMessage?.messageId),
+		)
+			? lastAssistantMessage
+			: undefined
+	}, [messages, activeThread])
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	useEffect(() => {
+		if (!newAssistantMessage) return
+		let frame = null
+		frame = requestAnimationFrame(() =>
+			onFinishWorkspaceChatRequest(newAssistantMessage),
+		)
+		// setFullMarkdown(newAssistantMessage.content)
+
+		return () => {
+			if (frame) cancelAnimationFrame(frame)
+		}
+	}, [newAssistantMessage])
 
 	// Shared checksum now imported from '@/lib/checksum'
 
 	// Initial content for different document types
-	const initialContent = React.useMemo(() => {
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	const initialContent = useMemo(() => {
 		switch (documentType) {
 			case 'text':
-				return `# Introduction
-This is the introduction section of the document. It provides an overview of the project.
-
-## Background
-This section covers the background and context of the project, including relevant history and previous work.
-
-## Methodology
-The methodology section details the approach and techniques used in this project.
-
-## Results
-This section presents the findings and outcomes of the project work.
-
-## Conclusion
-The conclusion summarizes the key points and implications of the project.
-`
+				return workspaceDocTemplates.text.blank.content(
+					documentName,
+					projectName,
+				)
 			case 'image':
-				return `# Image Collection
-This document contains visual assets and image resources for the project.
-
-## Design Assets
-Visual design elements, logos, and branding materials.
-
-## Screenshots
-Application screenshots and user interface captures.
-
-## Diagrams
-Technical diagrams, flowcharts, and process illustrations.
-
-## Marketing Materials
-Promotional images, banners, and marketing visuals.
-
-## Reference Images
-Inspiration and reference materials for design work.
-`
+				return workspaceDocTemplates.image.blank.content(
+					documentName,
+					projectName,
+				)
 			case 'spreadsheet':
-				return `# Data Analysis
-This document contains structured data and analytical information.
-
-## Overview
-Summary of data sources, methodology, and key findings.
-
-## Data Sources
-Information about where the data was collected and how it was processed.
-
-## Key Metrics
-Important measurements and performance indicators.
-
-## Analysis Results
-Findings from data analysis, trends, and insights.
-
-## Recommendations
-Actionable recommendations based on the data analysis.
-`
+				return workspaceDocTemplates.spreadsheet.blank.content(
+					documentName,
+					projectName,
+				)
 			default:
 				return `# ${documentName || 'New Document'}
 This is a new document. Add your content here.
@@ -199,8 +150,10 @@ This is a new document. Add your content here.
 	const savedContent = documentContent?.[documentKey]
 
 	// State management
-	const [fullMarkdown, setFullMarkdown] = React.useState<string>(
-		savedContent || initialContent,
+	// Derive fullMarkdown from savedContent (SSoT) so UI reacts to workspace/state updates
+	const fullMarkdown = useMemo(
+		() => savedContent ?? initialContent,
+		[savedContent, initialContent],
 	)
 	const [sections, setSections] = React.useState<MarkdownSection[]>(
 		parseMarkdownSections(savedContent || initialContent),
@@ -213,16 +166,19 @@ This is a new document. Add your content here.
 	const [cursorPosition, setCursorPosition] = React.useState<number>(0)
 	const [isSaving, setIsSaving] = React.useState(false)
 	const [showVersions, setShowVersions] = React.useState(false)
-	const [versions, setVersions] = React.useState<
-		Array<WorkspaceDocumentVersion>
-	>([])
+	const [versions, setVersions] = React.useState<WorkspaceDocumentVersion[]>([])
 
 	// Refs
 	const sectionTextareaRef = React.useRef<HTMLTextAreaElement>(null)
 	const sourceTextareaRef = React.useRef<HTMLTextAreaElement>(null)
 	const isUserTypingRef = React.useRef<boolean>(false)
 	const userTypingTimeoutRef = React.useRef<NodeJS.Timeout | null>(null)
+	const sectionSaveTimeoutRef = React.useRef<NodeJS.Timeout | null>(null)
 	const prevDocumentKeyRef = React.useRef(documentKey)
+	// Streaming control/throttle
+	const streamingActiveRef = React.useRef<boolean>(false)
+	const streamThrottleTimeoutRef = React.useRef<NodeJS.Timeout | null>(null)
+	const streamLastUpdateRef = React.useRef<number>(0)
 
 	// Cleanup timeout on unmount
 	React.useEffect(() => {
@@ -233,67 +189,86 @@ This is a new document. Add your content here.
 		}
 	}, [])
 
-	// Document change effect
+	// Set up callback for updating local editable content when AI updates sections (streaming)
 	React.useEffect(() => {
-		console.log('🔄 Document key change effect triggered:', {
-			oldKey: prevDocumentKeyRef.current,
-			newKey: documentKey,
-			hasSavedContent: !!savedContent,
-		})
-
-		if (documentKey !== prevDocumentKeyRef.current) {
-			setActiveSection(null)
-			setEditableContent('')
-			prevDocumentKeyRef.current = documentKey
-			onActiveSectionChange?.(null)
-
-			if (savedContent) {
-				setFullMarkdown(savedContent)
-				const parsedSections = parseMarkdownSections(savedContent)
-				setSections(parsedSections)
-			} else {
-				setFullMarkdown(initialContent)
-				const parsedSections = parseMarkdownSections(initialContent)
-				setSections(parsedSections)
-
-				if (projectName && documentName) {
-					setDocumentContent(projectName, documentName, initialContent)
+		const updateSectionContent = (sectionId: string, content: string) => {
+			// Mark stream active and throttle UI-only updates
+			streamingActiveRef.current = true
+			if (sectionId === activeSection) {
+				const now = Date.now()
+				const elapsed = now - streamLastUpdateRef.current
+				const pushUpdate = () => {
+					setEditableContent(content)
+					streamLastUpdateRef.current = Date.now()
 				}
+				// Throttle to ~20fps
+				if (elapsed >= 50) {
+					pushUpdate()
+				} else {
+					if (streamThrottleTimeoutRef.current)
+						clearTimeout(streamThrottleTimeoutRef.current)
+					streamThrottleTimeoutRef.current = setTimeout(
+						pushUpdate,
+						50 - elapsed,
+					)
+				}
+			}
+			// Keep sections content in sync for title/preview without re-parsing
+			setSections((prev) =>
+				prev.map((s) => (s.id === sectionId ? { ...s, content } : s)),
+			)
+		}
+
+		setOnSectionContentUpdate(updateSectionContent)
+		return () => setOnSectionContentUpdate(undefined)
+	}, [activeSection, setOnSectionContentUpdate])
+
+	// When streaming ends, persist once and re-parse sections
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	React.useEffect(() => {
+		if (!isLoading && streamingActiveRef.current) {
+			try {
+				if (activeSection && projectName && documentName) {
+					const freshSections = parseMarkdownSections(fullMarkdown)
+					const target = freshSections.find((s) => s.id === activeSection)
+					if (target) {
+						const newMd = replaceSectionContent(
+							fullMarkdown,
+							target,
+							editableContent,
+						)
+						setSections(parseMarkdownSections(newMd))
+						setDocumentContent(projectName, documentName, newMd)
+					}
+				}
+			} finally {
+				// Cleanup throttle state
+				streamingActiveRef.current = false
+				if (streamThrottleTimeoutRef.current) {
+					clearTimeout(streamThrottleTimeoutRef.current)
+					streamThrottleTimeoutRef.current = null
+				}
+				streamLastUpdateRef.current = 0
 			}
 		}
 	}, [
-		documentKey,
-		savedContent,
-		initialContent,
+		isLoading,
+		activeSection,
 		projectName,
 		documentName,
-		setDocumentContent,
-		onActiveSectionChange,
+		fullMarkdown,
+		editableContent,
 	])
 
-	// External content sync effect
+	// Always keep sections and editableContent in sync with fullMarkdown when it changes
 	React.useEffect(() => {
-		if (
-			savedContent &&
-			savedContent !== fullMarkdown &&
-			!isUserTypingRef.current
-		) {
-			React.startTransition(() => {
-				setFullMarkdown(savedContent)
-				setSections(parseMarkdownSections(savedContent))
-
-				if (activeSection) {
-					const updatedSections = parseMarkdownSections(savedContent)
-					const newActiveSection = updatedSections.find(
-						(s) => s.id === activeSection,
-					)
-					if (newActiveSection) {
-						setEditableContent(newActiveSection.content)
-					}
-				}
-			})
+		const parsed = parseMarkdownSections(fullMarkdown)
+		setSections(parsed)
+		if (activeSection) {
+			const s = parsed.find((sec) => sec.id === activeSection)
+			if (s) setEditableContent(s.content)
 		}
-	}, [savedContent, fullMarkdown, activeSection])
+	}, [fullMarkdown, activeSection])
 
 	// Helper functions
 	const markUserTyping = React.useCallback(() => {
@@ -306,13 +281,46 @@ This is a new document. Add your content here.
 		}, 1000)
 	}, [])
 
-	const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-		markUserTyping()
-		setEditableContent(e.target.value)
-		const position = e.target.selectionStart || 0
-		setCursorPosition(position)
-		setGlobalCursorPosition(position)
-	}
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	const handleContentChange = React.useCallback(
+		(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+			markUserTyping()
+			const value = e.target.value
+			setEditableContent(value)
+			const position = e.target.selectionStart || 0
+			const end = e.target.selectionEnd || position
+			setCursorPosition(position)
+			setGlobalSelectionRange({ start: position, end })
+
+			// Persist into full markdown using absolute offsets for the active section
+			if (activeSection) {
+				const freshSections = parseMarkdownSections(fullMarkdown)
+				const target = freshSections.find((s) => s.id === activeSection)
+				if (target) {
+					const newMd = replaceSectionContent(fullMarkdown, target, value)
+					setSections(parseMarkdownSections(newMd))
+
+					// Debounce persisting to workspace store
+					if (sectionSaveTimeoutRef.current)
+						clearTimeout(sectionSaveTimeoutRef.current)
+					sectionSaveTimeoutRef.current = setTimeout(() => {
+						if (projectName && documentName) {
+							setDocumentContent(projectName, documentName, newMd)
+						}
+					}, 400)
+				}
+			}
+		},
+		[
+			markUserTyping,
+			setEditableContent,
+			setGlobalSelectionRange,
+			activeSection,
+			projectName,
+			documentName,
+			setDocumentContent,
+		],
+	)
 
 	const handleCursorPositionChange = React.useCallback(
 		(
@@ -322,54 +330,48 @@ This is a new document. Add your content here.
 		) => {
 			const target = e.target as HTMLTextAreaElement
 			const position = target.selectionStart || 0
-			setCursorPosition(position)
-			setGlobalCursorPosition(position)
+			const end = target.selectionEnd || position
+			setGlobalSelectionRange({ start: position, end })
 		},
-		[setGlobalCursorPosition],
+		[setGlobalSelectionRange],
 	)
 
 	const handleSectionClick = (sectionId: string) => {
 		const section = sections.find((s) => s.id === sectionId)
 		if (section) {
 			setActiveSection(sectionId)
-			setEditableContent(section.content)
+			// Always derive from fullMarkdown offsets to avoid drift
+			const freshSections = parseMarkdownSections(fullMarkdown)
+			const fresh = freshSections.find((s) => s.id === sectionId)
+			setSections(freshSections)
+			setEditableContent(fresh ? fresh.content : section.content)
 			onActiveSectionChange?.(sectionId)
 		}
+
+		// Focus the section textarea and set default cursor position at start
+		requestAnimationFrame(() => {
+			if (sectionTextareaRef.current) {
+				sectionTextareaRef.current.focus()
+				sectionTextareaRef.current.setSelectionRange(0, 0)
+				setGlobalSelectionRange({ start: 0, end: 0 })
+			}
+		})
 	}
 
-	const handleSaveSection = React.useCallback(() => {
-		if (activeSection) {
-			const updatedSections = sections.map((section) =>
-				section.id === activeSection
-					? { ...section, content: editableContent }
-					: section,
+	// Update a section title in place
+	const handleSectionUpdate = React.useCallback(
+		(sectionId: string, newTitle: string) => {
+			// Title changes will be persisted when switching views/saving by rebuilding markdown
+			setSections((prev) =>
+				prev.map((s) => (s.id === sectionId ? { ...s, title: newTitle } : s)),
 			)
-			setSections(updatedSections)
+		},
+		[],
+	)
 
-			const newMarkdown = combineMarkdownSections(updatedSections)
-			setFullMarkdown(newMarkdown)
+	// Debounced save for full source editing
 
-			if (projectName && documentName) {
-				setDocumentContent(projectName, documentName, newMarkdown)
-			}
-
-			customSonner({
-				type: 'success',
-				text: `${documentType} document saved successfully!`,
-			})
-		}
-	}, [
-		activeSection,
-		editableContent,
-		sections,
-		projectName,
-		documentName,
-		setDocumentContent,
-		documentType,
-		customSonner,
-	])
-
-	const debouncedSaveFullSource = React.useCallback(() => {
+	const debouncedSaveFullSource = () => {
 		let timeoutId: NodeJS.Timeout
 		return (content: string) => {
 			clearTimeout(timeoutId)
@@ -379,109 +381,109 @@ This is a new document. Add your content here.
 				}
 			}, 500)
 		}
-	}, [projectName, documentName, setDocumentContent])
+	}
 
-	const handleViewSourceToggle = React.useCallback(
-		(fullView: boolean) => {
-			if (fullView && activeSection && editableContent.trim()) {
-				handleSaveSection()
-			} else if (!fullView && projectName && documentName) {
-				setDocumentContent(projectName, documentName, fullMarkdown)
+	// Toggle between Section Editor and Full Source, ensuring persistence
+	const handleViewSourceToggle = (fullView: boolean) => {
+		if (fullView && activeSection) {
+			// Persist current section edits into fullMarkdown using offsets
+			const fresh = parseMarkdownSections(fullMarkdown)
+			const target = fresh.find((s) => s.id === activeSection)
+			if (target) {
+				const newMd = replaceSectionContent(
+					fullMarkdown,
+					target,
+					editableContent,
+				)
+				const updated = parseMarkdownSections(newMd)
+				setSections(updated)
+				if (projectName && documentName)
+					setDocumentContent(projectName, documentName, newMd)
 			}
-		},
-		[
-			activeSection,
-			editableContent,
-			handleSaveSection,
+		} else if (!fullView && projectName && documentName) {
+			// Switching back to section view: ensure store has latest source
+			setDocumentContent(projectName, documentName, fullMarkdown)
+		}
+	}
+
+	const handleExpandSection = async (sectionTitle: string) => {
+		const sectionByTitle = sections.find((s) => s.title === sectionTitle)
+		if (sectionByTitle && sectionByTitle.id !== activeSection) {
+			setActiveSection(sectionByTitle.id)
+			onActiveSectionChange?.(sectionByTitle.id)
+			setEditableContent(sectionByTitle.content)
+		}
+
+		// For expand operations, we want to replace the entire section content
+		// Pass null as selection range to signal full section replacement
+		const effectiveSelectionRange = null
+
+		const prompt = `Proceed to expand ${sectionTitle} section`
+		const metaPrompt = createWorkspaceMetaPrompt({
+			userPrompt: prompt,
+			taskType: 'expand',
 			projectName,
 			documentName,
-			setDocumentContent,
-			fullMarkdown,
-		],
-	)
+			documentType,
+			sections,
+			sectionTitle,
+		})
 
-	const handleSectionUpdate = React.useCallback(
-		(sectionId: string, newTitle: string) => {
-			setSections((prevSections) =>
-				prevSections.map((section) =>
-					section.id === sectionId ? { ...section, title: newTitle } : section,
-				),
-			)
-		},
-		[],
-	)
+		if (!metaPrompt) return
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-	const handleExpandSection = React.useCallback(
-		async (sectionTitle: string) => {
-			const prompt = `Proceed to expand ${sectionTitle} section`
-			const metaPrompt = createWorkspaceMetaPrompt({
-				userPrompt: prompt,
-				taskType: 'expand',
-				projectName,
-				documentName,
-				documentType,
-				sections,
-				sectionTitle,
-			})
+		await handleWorkspaceEdit(prompt, metaPrompt, effectiveSelectionRange)
+	}
 
-			if (!metaPrompt) return
+	const handleRewriteSection = async (sectionTitle: string) => {
+		const sectionByTitle = sections.find((s) => s.title === sectionTitle)
+		if (sectionByTitle && sectionByTitle.id !== activeSection) {
+			setActiveSection(sectionByTitle.id)
+			onActiveSectionChange?.(sectionByTitle.id)
+			setEditableContent(sectionByTitle.content)
+		}
 
-			await handleWorkspaceEdit(prompt, metaPrompt, cursorPosition)
-		},
-		[handleWorkspaceEdit, cursorPosition],
-	)
+		// For rewrite operations, we want to replace the entire section content
+		// Pass null as selection range to signal full section replacement
+		const effectiveSelectionRange = null
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-	const handleRewriteSection = React.useCallback(
-		async (sectionTitle: string) => {
-			const prompt = `Rewrite ${sectionTitle} section`
-			const metaPrompt = createWorkspaceMetaPrompt({
-				userPrompt: prompt,
-				taskType: 'rewrite',
-				projectName,
-				documentName,
-				documentType,
-				sections,
-				sectionTitle,
-			})
+		const prompt = `Rewrite ${sectionTitle} section`
+		const metaPrompt = createWorkspaceMetaPrompt({
+			userPrompt: prompt,
+			taskType: 'rewrite',
+			projectName,
+			documentName,
+			documentType,
+			sections,
+			sectionTitle,
+		})
 
-			if (!metaPrompt) return
+		if (!metaPrompt) return
 
-			await handleWorkspaceEdit(prompt, metaPrompt, cursorPosition)
-		},
-		[handleWorkspaceEdit, cursorPosition],
-	)
+		await handleWorkspaceEdit(prompt, metaPrompt, effectiveSelectionRange)
+	}
 
 	// Unified save function (create thread if needed, verify checksum, versioning, upload, cache)
 	const handleSaveDocument = async () => {
 		try {
 			if (!projectName || !documentName) return
 
-			// Ensure latest section edits are merged into fullMarkdown
-			if (activeSection && editableContent.trim()) {
-				// Persist current section into full source before saving
-				const updatedSections = sections.map((section) =>
-					section.id === activeSection
-						? { ...section, content: editableContent }
-						: section,
-				)
-				const newMarkdown = combineMarkdownSections(updatedSections)
-				setSections(updatedSections)
-				setFullMarkdown(newMarkdown)
-				if (projectName && documentName) {
-					setDocumentContent(projectName, documentName, newMarkdown)
+			// Ensure latest section edits are merged into fullMarkdown via offsets
+			if (activeSection) {
+				const fresh = parseMarkdownSections(fullMarkdown)
+				const target = fresh.find((s) => s.id === activeSection)
+				if (target) {
+					const newMd = replaceSectionContent(
+						fullMarkdown,
+						target,
+						editableContent,
+					)
+					setSections(parseMarkdownSections(newMd))
+					if (projectName && documentName)
+						setDocumentContent(projectName, documentName, newMd)
 				}
 			}
 
-			const content =
-				activeSection && editableContent.trim()
-					? combineMarkdownSections(
-							sections.map((s) =>
-								s.id === activeSection ? { ...s, content: editableContent } : s,
-							),
-						)
-					: fullMarkdown
+			const content = fullMarkdown
 
 			if (!content?.trim()) return
 
@@ -745,8 +747,7 @@ This is a new document. Add your content here.
 				}
 				const newContent = await response.text()
 
-				// Update local state
-				setFullMarkdown(newContent)
+				// Update local state and persist
 				setSections(parseMarkdownSections(newContent))
 				if (projectName && documentName) {
 					setDocumentContent(projectName, documentName, newContent)
@@ -801,7 +802,7 @@ This is a new document. Add your content here.
 	)
 
 	// Load versions from thread metadata when opening History
-	const handleToggleVersions = React.useCallback(() => {
+	const handleToggleVersions = () => {
 		if (!showVersions) {
 			try {
 				const meta = (activeThread as unknown as { metadata?: unknown })
@@ -832,7 +833,7 @@ This is a new document. Add your content here.
 			}
 		}
 		setShowVersions((v) => !v)
-	}, [showVersions, activeThread, projectName, documentName])
+	}
 
 	return (
 		<div className="flex flex-col space-y-4 pb-4 px-4 size-full">
@@ -885,26 +886,24 @@ This is a new document. Add your content here.
 					</div>
 
 					<WorkspaceTextEditor
-						sections={sections}
-						setSections={setSections}
-						activeSection={activeSection}
-						setActiveSection={setActiveSection}
-						editableContent={editableContent}
-						setEditableContent={setEditableContent}
-						fullMarkdown={fullMarkdown}
-						setFullMarkdown={setFullMarkdown}
 						viewMode={viewMode}
-						sectionTextareaRef={sectionTextareaRef}
+						sections={sections}
+						fullMarkdown={fullMarkdown}
+						activeSection={activeSection}
+						editableContent={editableContent}
 						sourceTextareaRef={sourceTextareaRef}
-						handleContentChange={handleContentChange}
-						handleCursorPositionChange={handleCursorPositionChange}
-						handleSectionClick={handleSectionClick}
+						sectionTextareaRef={sectionTextareaRef}
+						setSections={setSections}
 						markUserTyping={markUserTyping}
-						setCursorPosition={setCursorPosition}
-						debouncedSaveFullSource={debouncedSaveFullSource}
-						handleExpandSection={handleExpandSection}
-						handleRewriteSection={handleRewriteSection}
+						setActiveSection={setActiveSection}
+						handleSectionClick={handleSectionClick}
+						setEditableContent={setEditableContent}
 						handleSectionUpdate={handleSectionUpdate}
+						handleExpandSection={handleExpandSection}
+						handleContentChange={handleContentChange}
+						handleRewriteSection={handleRewriteSection}
+						debouncedSaveFullSource={debouncedSaveFullSource}
+						handleCursorPositionChange={handleCursorPositionChange}
 					/>
 				</div>
 			)}
@@ -968,19 +967,12 @@ This is a new document. Add your content here.
 	)
 }
 
-interface WorkspaceContentProps {
-	className?: string
-	isLoading?: boolean
-	chatbot?: Chatbot
-}
-
 export function WorkspaceContent({
 	className,
-	isLoading = false,
 	chatbot,
 }: WorkspaceContentProps) {
 	return (
-		<WorkspaceContentWrapper className={className} isLoading={isLoading}>
+		<WorkspaceContentWrapper className={className}>
 			{({ projectName, documentName, documentType }) => (
 				<WorkspaceContentInternal
 					projectName={projectName}
@@ -991,4 +983,57 @@ export function WorkspaceContent({
 			)}
 		</WorkspaceContentWrapper>
 	)
+}
+
+function isThreadDocVersion(v: unknown): v is WorkspaceDocumentVersion {
+	return (
+		!!v &&
+		typeof (v as WorkspaceDocumentVersion).version === 'number' &&
+		typeof (v as WorkspaceDocumentVersion).updatedAt === 'string' &&
+		typeof (v as WorkspaceDocumentVersion).checksum === 'string' &&
+		typeof (v as WorkspaceDocumentVersion).url === 'string'
+	)
+}
+
+function isThreadDocMeta(d: unknown): d is WorkspaceDocumentMetadata {
+	const doc = d as WorkspaceDocumentMetadata
+	const versionsOk =
+		!doc.versions ||
+		(Array.isArray(doc.versions) && doc.versions.every(isThreadDocVersion))
+	return !!doc && typeof doc.id === 'string' && versionsOk
+}
+
+interface WorkspaceContentProps {
+	className?: string
+	chatbot?: Chatbot
+}
+
+// Minimal typing for useWorkspace fields we rely on here
+type WorkspaceHookSlice = {
+	documentContent: Record<string, string>
+	setDocumentContent: (
+		project: string,
+		document: string,
+		content: string,
+	) => void
+	activeOrganization: string | null
+	activeDepartment: string | null
+	organizationList: string[]
+	projectList: string[]
+	documentList: Record<string, string[]>
+	textDocuments: Record<string, string[]>
+	imageDocuments: Record<string, string[]>
+	spreadsheetDocuments: Record<string, string[]>
+	projectsByDept: Record<string, Record<string, string[]>>
+	departmentList: Record<string, string[]>
+}
+
+// Workspace server cache payload (mirrors /api/workspace/state)
+// Workspace server cache types are imported from '@/lib/workspace-state'
+
+interface WorkspaceContentInternalProps {
+	projectName: string
+	documentName: string
+	documentType: 'text' | 'image' | 'spreadsheet'
+	chatbot?: Chatbot
 }

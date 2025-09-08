@@ -1,3 +1,8 @@
+import type {
+	WorkspaceDocumentMetadata,
+	WorkspaceDocumentVersion,
+} from '@/types/thread.types'
+
 // Helper utilities for interacting with /api/workspace/state
 
 export type WorkspaceStatePayload = {
@@ -27,6 +32,46 @@ export async function getWorkspaceState(): Promise<{
 		return { data: null, checksum: null, error: `GET failed: ${res.status}` }
 	}
 	return res.json()
+}
+
+export async function getDocumentPreviousVersion(
+	project: string,
+	document: string,
+): Promise<string | null> {
+	try {
+		const { data: workspaceState } = await getWorkspaceState()
+		if (!workspaceState) return null
+
+		const threadMetadata = workspaceState as unknown as {
+			metadata?: { documents?: WorkspaceDocumentMetadata[] }
+		}
+		const documents = threadMetadata?.metadata?.documents
+		if (!documents) return null
+
+		const doc = documents.find(
+			(d) => d.project === project && d.name === document,
+		)
+		if (!doc || !doc.versions || doc.versions.length < 2) return null
+
+		// Sort versions by version number descending
+		const sortedVersions = [...doc.versions].sort(
+			(a, b) => b.version - a.version,
+		)
+
+		// The latest is at index 0, so the previous is at index 1
+		const previousVersion = sortedVersions[1]
+
+		if (previousVersion?.url) {
+			const res = await fetch(previousVersion.url)
+			if (res.ok) {
+				return res.text()
+			}
+		}
+	} catch (error) {
+		console.error('Error fetching previous document version:', error)
+	}
+
+	return null
 }
 
 export async function postWorkspaceState(
