@@ -1,5 +1,6 @@
 'use client'
 
+import { useCategorySelections } from '@/lib/hooks/use-category-selections'
 import { urlBuilders } from '@/lib/url'
 import { getCategories, getUserBySlug } from '@/services/hasura'
 import type { Category, Chatbot } from 'mb-genql'
@@ -43,7 +44,7 @@ interface SidebarContext {
 	setActiveChatbot: React.Dispatch<React.SetStateAction<Chatbot | null>>
 	setActiveCategory: React.Dispatch<React.SetStateAction<number | null>>
 	setSelectedChatbots: React.Dispatch<React.SetStateAction<number[]>>
-	setSelectedCategories: React.Dispatch<React.SetStateAction<number[]>>
+	setCategories: React.Dispatch<React.SetStateAction<number[]>>
 	setExpandedCategories: React.Dispatch<React.SetStateAction<number[]>>
 	toggleChatbotSelection: (chatbotId: number) => void
 }
@@ -74,11 +75,15 @@ type NavigateToParams<
 }
 
 export function SidebarProvider({ children }: SidebarProviderProps) {
-	const [selectedCategories, setSelectedCategories] = React.useState<number[]>(
-		[],
-	)
+	const {
+		selectedCategories,
+		setCategories,
+		isLoaded: isCategoryStorageLoaded,
+	} = useCategorySelections()
 	const [selectedChatbots, setSelectedChatbots] = React.useState<number[]>([])
 	const { data: session } = useSession()
+
+	// Removed auto-clear and auto-select logic to preserve user selections across reloads
 	const { userSlug } = useParams()
 	const pathname = usePathname()
 	const router = useRouter()
@@ -109,20 +114,41 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 		const pathParts = pathname.split('/')
 		const prevPathParts = (prevPath.current || '').split('/')
 
+		//? Handle category and chatbot selections based on stored preferences
+		//? Only update selections when navigating to browse page or when we have stored selections
 		if (
-			(prevPath.current !== pathname &&
-				pathParts[1] !== prevPathParts[1] &&
-				pathParts[1] === 'c') ||
-			(selectedCategories.length === 0 && selectedChatbots.length === 0)
+			prevPath.current !== pathname &&
+			pathParts[1] !== prevPathParts[1] &&
+			pathParts[1] === 'c'
 		) {
-			setSelectedCategories(categoriesObj.categoriesId)
-			setSelectedChatbots(categoriesObj.chatbotsId)
+			if (selectedCategories.length > 0) {
+				const selectedChatbotsFromCategories = categoriesObj.categoriesChatbots
+					.filter(
+						(category) =>
+							category?.categoryId &&
+							selectedCategories.includes(category.categoryId),
+					)
+					.flatMap(
+						(category) =>
+							category.chatbots
+								?.map((chatbot) => chatbot?.chatbotId)
+								.filter(Boolean) || [],
+					)
+				setSelectedChatbots(selectedChatbotsFromCategories)
+			}
 		}
 
 		prevPath.current = pathname
 
 		return categoriesObj
-	}, [pathname, prevPath.current, userSlug])
+	}, [
+		pathname,
+		prevPath.current,
+		userSlug,
+		selectedCategories,
+		session?.user,
+		isCategoryStorageLoaded,
+	])
 
 	const [isSidebarOpen, setSidebarOpen] = React.useState(false)
 	const [isLoading, setLoading] = React.useState(true)
@@ -148,10 +174,29 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 	)
 
 	React.useEffect(() => {
-		const value = localStorage.getItem(LOCAL_STORAGE_KEY)
-		if (value) {
-			setSidebarOpen(JSON.parse(value))
+		if (!categories) return
+		if (selectedCategories.length === 0) {
+			setSelectedChatbots([])
+			return
 		}
+		const categoriesChatbots = categories.categoriesChatbots || []
+		const chatbotsFromSelectedCategories = categoriesChatbots
+			.filter((category) => selectedCategories.includes(category.categoryId))
+			.flatMap((category) => category.chatbots.map((c) => c.chatbotId))
+			.filter(Boolean) as number[]
+
+		setSelectedChatbots((prev) => {
+			const merged = new Set<number>([
+				...prev,
+				...chatbotsFromSelectedCategories,
+			])
+			return Array.from(merged)
+		})
+	}, [selectedCategories, categories])
+
+	React.useEffect(() => {
+		const value = localStorage.getItem(LOCAL_STORAGE_KEY)
+		setSidebarOpen(value ? JSON.parse(value) : window.innerWidth >= 1024)
 		setLoading(false)
 	}, [])
 
@@ -221,7 +266,7 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 	 *
 	 * @param {number} chatbotId - The ID of the chatbot to toggle selection for.
 	 */
-
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const toggleChatbotSelection = React.useCallback(
 		(chatbotId: number) => {
 			setSelectedChatbots((prev) =>
@@ -230,7 +275,7 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 					: [...prev, chatbotId],
 			)
 			const categoriesChatbots = categories ? categories.categoriesChatbots : []
-			// setSelectedCategories((prev) =>
+			// setCategories((prev) =>
 			// 	categoriesChatbots
 			// 		.filter((category) =>
 			// 			category.chatbots.some(
@@ -262,7 +307,7 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 			// 			),
 			// )
 
-			setSelectedCategories((prevSelectedCategories) => {
+			setCategories((prevSelectedCategories) => {
 				const relatedCategories = categoriesChatbots.filter((category) =>
 					category.chatbots.some((chatbot) => chatbot.chatbotId === chatbotId),
 				)
@@ -281,7 +326,6 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 		setTab(cate)
 	}
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const filteredCategories = React.useMemo(() => {
 		const categoriesChatbots = categories?.categoriesChatbots || []
 
@@ -301,13 +345,15 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 						selectedCategories.includes(category.categoryId),
 					)
 					.filter((category) =>
-						category.chatbots.some((chatbot) =>
-							selectedChatbots.includes(chatbot.chatbotId),
-						),
+						selectedChatbots.length === 0
+							? true
+							: category.chatbots.some((chatbot) =>
+									selectedChatbots.includes(chatbot.chatbotId),
+								),
 					)
 	}, [
-		selectedChatbots.length,
-		selectedCategories.length,
+		selectedChatbots,
+		selectedCategories,
 		filterValue,
 		isFilterMode,
 		categories,
@@ -359,7 +405,7 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 				setActiveCategory,
 				setSelectedChatbots,
 				setExpandedCategories,
-				setSelectedCategories,
+				setCategories,
 				toggleChatbotSelection,
 			}}
 		>
