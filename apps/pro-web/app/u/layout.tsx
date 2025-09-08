@@ -1,21 +1,30 @@
+import { ProfileLayoutContent } from '@/components/layout/profile/layout'
 import { BrowseProvider } from '@/lib/hooks/use-browse'
+import { getUserBySlug } from '@/services/hasura'
+import type { PageProps } from '@/types'
+import type { User } from 'mb-genql'
+import { getServerSession } from 'next-auth'
 
-interface BrowseLayoutProps {
+interface ProfileLayoutProps extends PageProps {
 	children: React.ReactNode
 }
 
-export default async function ProfileLayout({ children }: BrowseLayoutProps) {
+export default async function ProfilePageLayout({
+	children,
+	params,
+}: ProfileLayoutProps) {
+	const session = await getServerSession()
+	const { userSlug } = await params
+	const { user } = await getUserBySlug({
+		slug: userSlug as string,
+		isSameUser: session?.user.slug === userSlug,
+	})
 	return (
+		// <section className="flex flex-col p-0">
 		<BrowseProvider>
-			{/* <NextTopLoader color="#1ED761" initialPosition={0.2} /> */}
-			<main className="flex flex-col h-[calc(100vh-theme(spacing.16))]">
-				<section
-					className="w-full overflow-auto group scrollbar"
-					id="thread-scroll-section"
-				>
-					{children}
-				</section>
-			</main>
+			<ProfileLayoutContent user={user as User}>
+				{children}
+			</ProfileLayoutContent>
 		</BrowseProvider>
 	)
 }

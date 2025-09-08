@@ -7,7 +7,7 @@ export function SidebarSkeleton() {
 	return (
 		<aside
 			className={cn(
-				'peer absolute min-h-[inherit] h-full flex flex-col z-40 inset-y-0 border-r',
+				'hidden lg:flex peer absolute min-h-[inherit] h-full flex-col z-40 inset-y-0 border-r',
 				'w-[300px] lg:w-[250px] xl:w-[300px]',
 				'bg-[#fae8ff] dark:bg-[#000000]',
 			)}
