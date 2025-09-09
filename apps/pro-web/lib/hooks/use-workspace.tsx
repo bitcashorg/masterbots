@@ -16,7 +16,7 @@ import {
 
 export interface WorkspaceContextType {
 	isWorkspaceActive: boolean
-	toggleWorkspace: () => void
+	toggleWorkspace: (isWorkspaceMode?: boolean) => void
 	activeOrganization: string | null
 	setActiveOrganization: (organization: string | null) => void
 	activeDepartment: string | null
@@ -58,6 +58,15 @@ export interface WorkspaceContextType {
 			{ name: string; content: (name: string, project: string) => string }
 		>
 	>
+	// Add getWorkspaceState helper for external access
+	getWorkspaceState: () => {
+		organizationList: string[]
+		departmentList: Record<string, string[]>
+		projectsByDept: Record<string, Record<string, string[]>>
+		activeOrganization: string | null
+		activeDepartment: string | null
+		activeProject: string | null
+	}
 }
 
 const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
@@ -250,11 +259,11 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 		[isWorkspaceActive, activeProject, activeDocument],
 	)
 
-	const toggleWorkspace = useCallback(() => {
+	const toggleWorkspace = useCallback((isWorkspaceMode?: boolean) => {
 		// Log the action before making the change
 		console.log('Workspace: toggling workspace state')
 		setIsWorkspaceActive((prev) => {
-			const newState = !prev
+			const newState = isWorkspaceMode !== undefined ? isWorkspaceMode : !prev
 			console.log('Workspace: changing to: ', newState)
 			return newState
 		})
@@ -491,7 +500,12 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 						updateBreadcrumbNavigation(d)
 					}
 				})
-				.catch(() => {})
+				.catch((error: Error) => {
+					console.warn(
+						'Workspace persistence fetch failed. Getting remote state',
+						error,
+					)
+				})
 		} catch (e) {
 			console.warn('Workspace persistence hydrate failed', e)
 		} finally {
@@ -574,6 +588,14 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 				activeDocumentType,
 				...stableSetters,
 				setDocumentContent,
+				getWorkspaceState: () => ({
+					organizationList,
+					departmentList: departmentsByOrg,
+					projectsByDept,
+					activeOrganization,
+					activeDepartment,
+					activeProject,
+				}),
 			}}
 		>
 			{children}

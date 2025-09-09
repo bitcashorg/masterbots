@@ -184,7 +184,7 @@ export function DocumentCrumb({
 }: {
 	activeProject: string
 	activeDocument: string
-	userDocuments: WorkspaceDocumentMetadata[]
+	userDocuments: { name: string }[]
 	activeThread: Thread | null
 	documentOptions: string[]
 	threadDocsByName: Map<string, { type?: 'text' | 'image' | 'spreadsheet' }>

@@ -19,8 +19,6 @@ export function ChatLayoutSection({ children }: { children: React.ReactNode }) {
 		? 'max-h-[97vh]'
 		: 'max-h-[calc(97vh-26px)]'
 
-	console.log('isOpenPopup', isOpenPopup)
-
 	return (
 		<section
 			ref={sectionRef as React.Ref<HTMLDivElement>}

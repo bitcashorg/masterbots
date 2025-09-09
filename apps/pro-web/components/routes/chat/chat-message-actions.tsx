@@ -105,10 +105,7 @@ export function ChatMessageActions({
 			setDocumentContent(activeProject, docTitle, structuredContent)
 			setActiveDocument(docTitle)
 
-			// Enable workspace mode if not already active
-			if (!isWorkspaceActive) {
-				toggleWorkspace()
-			}
+			toggleWorkspace(true)
 
 			customSonner({
 				type: 'success',
@@ -131,7 +128,7 @@ export function ChatMessageActions({
 	return (
 		<div
 			className={cn(
-				'flex items-center justify-end transition-opacity group-hover:opacity-100 md:absolute md:-right-10 md:-top-2 md:opacity-0',
+				'flex gap-1.5 items-center justify-end transition-opacity group-hover:opacity-100 md:absolute md:-right-10 md:-top-2 md:opacity-0',
 				className,
 			)}
 			key={messageId}

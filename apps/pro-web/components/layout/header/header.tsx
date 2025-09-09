@@ -25,7 +25,7 @@ import { getCanonicalDomain } from '@/lib/url'
 import { cn, getRouteColor, getRouteType } from '@/lib/utils'
 
 import type { WorkspaceDocumentMetadata } from '@/types/thread.types'
-import { uniq } from 'lodash'
+import { pick, uniq } from 'lodash'
 import { nanoid } from 'nanoid'
 import { useSession } from 'next-auth/react'
 import { useTheme } from 'next-themes'
@@ -128,10 +128,7 @@ export function Header() {
 		() => getUserIndexedDBKeys(session?.user?.id),
 		[session?.user?.id],
 	)
-	const { getItem, getAllItemsRaw } = useIndexedDB(dbKeys) as unknown as {
-		getItem: (id: IDBValidKey) => Promise<IndexedDBItem>
-		getAllItemsRaw: () => Promise<IndexedDBItem[]>
-	}
+	const { getItem } = useIndexedDB(dbKeys)
 
 	// Unified thread documents (from metadata + local IDB where applicable)
 	const { userDocuments } = useThreadDocuments()
@@ -151,7 +148,18 @@ export function Header() {
 			attemptedDocsRefreshRef.current !== threadId
 		) {
 			attemptedDocsRefreshRef.current = threadId
-			void refreshActiveThread({ threadId })
+			void refreshActiveThread({ threadId }).then((newActiveThread) => {
+				const activeThreadDocuments: WorkspaceDocumentMetadata[] =
+					newActiveThread?.metadata?.documents || []
+				const [firstDoc, ...restDocs] = activeThreadDocuments
+				setActiveOrganization(firstDoc?.organization)
+				setActiveDepartment(firstDoc?.department)
+				setActiveProject(firstDoc?.project)
+				setActiveDocumentType(firstDoc?.type)
+				setActiveDocument(firstDoc?.name || null)
+
+				console.log('UPDATED!', { newActiveThread })
+			})
 		}
 	}, [activeThread, session?.user?.hasuraJwt])
 
@@ -469,12 +477,8 @@ export function Header() {
 		...userDocuments,
 		...Object.values(documentList)
 			.flat()
-			.map((name) => ({ name }) as unknown as WorkspaceDocumentMetadata),
-	]).filter((document) =>
-		activeThread
-			? document.threadSlug === activeThread.slug || !document.versions
-			: true,
-	)
+			.map((name) => ({ name }) as { name: string }),
+	])
 
 	return (
 		<header className="sticky top-0 z-50 flex items-center justify-between w-full h-16 px-4 border-b shrink-0 bg-gradient-to-b from-background/10 via-background/50 to-background/80 backdrop-blur-xl">
@@ -616,23 +620,5 @@ export function Header() {
 				setIsDocumentDialogOpen={setIsDocumentDialogOpen}
 			/>
 		</header>
-	)
-}
-
-// Narrow unknown IndexedDB records that represent workspace documents
-function isWorkspaceDocItem(it: unknown): it is {
-	id?: string
-	project?: string
-	name?: string
-	type?: 'text' | 'image' | 'spreadsheet'
-	url?: string
-	content?: string
-} {
-	if (!it || typeof it !== 'object') return false
-	const o = it as Record<string, unknown>
-	return (
-		typeof o.project === 'string' &&
-		typeof o.name === 'string' &&
-		(o.type === 'text' || o.type === 'image' || o.type === 'spreadsheet')
 	)
 }
