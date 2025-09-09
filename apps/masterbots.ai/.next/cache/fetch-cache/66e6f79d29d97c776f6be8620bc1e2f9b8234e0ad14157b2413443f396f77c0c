@@ -1,1 +1,0 @@
-{"kind":"FETCH","data":{"headers":{"content-length":"22","content-type":"application/json; charset=utf-8","date":"Thu, 20 Feb 2025 14:05:34 GMT","x-request-id":"8f9ce3c9-5d7f-497c-9359-c3b7b9a7b0cc"},"body":"eyJkYXRhIjp7InRocmVhZCI6W119fQ==","status":200,"url":"http://localhost:8080/v1/graphql"},"revalidate":31536000,"tags":[]}
