@@ -46,8 +46,7 @@ export const generateMetadataFromSEO = async (
 		description: pageSeo.description || '',
 		metadataBase: new URL(
 			process.env.BASE_URL ||
-				'http://localhost:3000' ||
-				'https://masterbots.ai',
+				'http://localhost:3000'
 		),
 		openGraph: {
 			type: pageSeo.ogType as OgType,
