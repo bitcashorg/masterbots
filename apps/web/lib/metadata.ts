@@ -44,10 +44,7 @@ export const generateMetadataFromSEO = async (
 	const data = {
 		title: pageSeo.title || '',
 		description: pageSeo.description || '',
-		metadataBase: new URL(
-			process.env.BASE_URL ||
-				'http://localhost:3000'
-		),
+		metadataBase: new URL(process.env.BASE_URL || 'http://localhost:3000'),
 		openGraph: {
 			type: pageSeo.ogType as OgType,
 			title: pageSeo.title,
