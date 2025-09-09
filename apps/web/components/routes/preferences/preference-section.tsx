@@ -536,7 +536,11 @@ export function PreferenceSection({ title, items }: PreferenceSectionProps) {
 												}
 											/>
 										)}
-										{item.type === 'translation' && <GoogleTranslate />}
+										{item.type === 'translation' && (
+											<div className="w-[140px]">
+												<GoogleTranslate />
+											</div>
+										)}
 										{item.type === 'dropdown' && (
 											<div className="w-[140px]">
 												<Select
