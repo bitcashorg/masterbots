@@ -652,3 +652,16 @@ export interface OnboardingSectionProps {
 	isOpen: boolean
 	onClose: () => void
 }
+
+declare global {
+	interface Window {
+		googleTranslateElementInit: () => void
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		google: any
+	}
+}
+
+export interface GoogleTranslateProps {
+	pageLanguage?: string
+	includedLanguages?: string
+}

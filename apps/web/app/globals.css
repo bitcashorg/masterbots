@@ -1069,3 +1069,17 @@
 .nextstep-card:hover::after {
 	left: 100%;
 }
+
+/* Hide Google Translate banner */
+
+.skiptranslate {
+	visibility: hidden !important;
+}
+
+.VIpgJd-ZVi9od-ORHb-OEVmcd {
+	visibility: hidden !important;
+}
+
+iframe {
+	visibility: hidden !important;
+}

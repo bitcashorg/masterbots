@@ -20,6 +20,24 @@ import { NextStep, NextStepProvider, type Step } from 'nextstepjs'
 export default function RootLayout({ children }: RootLayoutProps) {
 	return (
 		<html lang="en" suppressHydrationWarning>
+			{/* Google Translate init function */}
+			<Script id="google-translate-init" strategy="beforeInteractive">
+				{`
+            function googleTranslateElementInit() {
+              new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                includedLanguages: 'es,fr,de,it,pt,ru,ja,ko,zh',
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+              }, 'google_translate_element');
+            }
+          `}
+			</Script>
+
+			{/* Google Translate script */}
+			<Script
+				src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
+				strategy="beforeInteractive"
+			/>
 			{appConfig.ads.twitterAds.enabled && (
 				<head>
 					<Script id="twitter-pixel">

@@ -206,3 +206,17 @@ export const preferences = [
 		] as PreferenceItemType[],
 	},
 ] as const
+
+export const languageOptions = [
+	{ value: 'en', label: 'English', flag: '🇺🇸' },
+	{ value: 'es', label: 'Spanish', flag: '🇪🇸' },
+	{ value: 'pt', label: 'Portuguese', flag: '🇧🇷' },
+	{ value: 'fr', label: 'French', flag: '🇫🇷' },
+	{ value: 'zh', label: 'Chinese', flag: '🇨🇳' },
+	{ value: 'ko', label: 'Korean', flag: '🇰🇷' },
+	{ value: 'de', label: 'German', flag: '🇩🇪' },
+	{ value: 'it', label: 'Italian', flag: '🇮🇹' },
+	{ value: 'ru', label: 'Russian', flag: '🇷🇺' },
+	{ value: 'ja', label: 'Japanese', flag: '🇯🇵' },
+	{ value: 'ar', label: 'Arabic', flag: '🇸🇦' },
+]

@@ -1,73 +1,82 @@
-// components/GoogleTranslate.tsx
 'use client'
 
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select'
+import { languageOptions } from '@/lib/constants/preferences'
+import type { GoogleTranslateProps } from '@/types/types'
 import { useEffect, useRef, useState } from 'react'
-
-declare global {
-	interface Window {
-		googleTranslateElementInit: () => void
-		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-		google: any
-	}
-}
-
-interface GoogleTranslateProps {
-	pageLanguage?: string
-	includedLanguages?: string
-	layout?: 'SIMPLE' | 'HORIZONTAL' | 'VERTICAL'
-	autoDisplay?: boolean
-	useCustomDropdown?: boolean
-}
 
 const GoogleTranslate: React.FC<GoogleTranslateProps> = ({
 	pageLanguage = 'en',
 	includedLanguages = 'es,fr,de,it,pt,ru,ja,ko,zh,ar',
-	layout = 'SIMPLE',
-	autoDisplay = false,
-	useCustomDropdown = false,
 }) => {
 	const initialized = useRef(false)
 	const containerRef = useRef<HTMLDivElement>(null)
-	const [isOpen, setIsOpen] = useState(false)
-	const [currentLanguage, setCurrentLanguage] = useState('English')
+	const [currentLanguage, setCurrentLanguage] = useState('en')
 
-	// Language mapping for custom dropdown
-	const languageMap: { [key: string]: string } = {
-		en: 'English',
-		es: 'Spanish',
-		fr: 'French',
-		de: 'German',
-		it: 'Italian',
-		pt: 'Portuguese',
-		ru: 'Russian',
-		ja: 'Japanese',
-		ko: 'Korean',
-		zh: 'Chinese',
-		ar: 'Arabic',
-	}
+	const handleLanguageChange = (langCode: string) => {
+		setCurrentLanguage(langCode)
 
-	const handleLanguageSelect = (langCode: string) => {
-		const selectElement = document.querySelector(
-			'.goog-te-combo',
-		) as HTMLSelectElement
-		if (selectElement) {
-			selectElement.value = langCode
-			selectElement.dispatchEvent(new Event('change'))
-			setCurrentLanguage(languageMap[langCode] || 'English')
-			setIsOpen(false)
+		// biome-ignore lint/complexity/useOptionalChain: <explanation>
+		if (window.google && window.google.translate) {
+			try {
+				const translateInstance = window.google.translate._getInstanceIfExists()
+				if (translateInstance) {
+					translateInstance.translatePage(pageLanguage, langCode)
+					console.log('Translation triggered via Google API')
+					return
+				}
+			} catch (error) {
+				console.log('Method 1 failed:', error)
+			}
+		}
+
+		try {
+			const currentUrl = window.location.href
+			const baseUrl = currentUrl.split('#')[0].split('?')[0]
+
+			if (langCode === 'en') {
+				// Reset to original language
+				if (currentUrl.includes('googtrans')) {
+					window.location.href = baseUrl
+					return
+				}
+			} else {
+				// Redirect with Google Translate parameters
+				const translateUrl = `${baseUrl}#googtrans(${pageLanguage}|${langCode})`
+				window.location.href = translateUrl
+				window.location.reload()
+				return
+			}
+		} catch (error) {
+			console.log('Method 2 failed:', error)
+		}
+
+		try {
+			document.cookie = `googtrans=/en/${langCode}; domain=${window.location.hostname}; path=/`
+			window.location.reload()
+		} catch (error) {
+			console.log('Method 3 failed:', error)
 		}
 	}
 
-	// Remove this redundant declaration to avoid conflicts
+	const getSelectedLanguage = () => {
+		return (
+			languageOptions.find((lang) => lang.value === currentLanguage) ||
+			languageOptions[0]
+		)
+	}
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
-		// Prevent double initialization
 		if (initialized.current) return
 
 		const initializeTranslate = () => {
 			if (window.google?.translate?.TranslateElement && containerRef.current) {
-				// Clear any existing content
 				containerRef.current.innerHTML = ''
 
 				new window.google.translate.TranslateElement(
@@ -75,21 +84,20 @@ const GoogleTranslate: React.FC<GoogleTranslateProps> = ({
 						pageLanguage: pageLanguage,
 						includedLanguages: includedLanguages,
 						layout:
-							window.google.translate.TranslateElement.InlineLayout[layout],
-						autoDisplay: autoDisplay,
+							window.google.translate.TranslateElement.InlineLayout.SIMPLE,
+						autoDisplay: false,
 						multilanguagePage: true,
 					},
 					containerRef.current,
 				)
 
 				initialized.current = true
+				console.log('Google Translate initialized')
 			}
 		}
 
-		// Set up global callback
 		window.googleTranslateElementInit = initializeTranslate
 
-		// Load script if not already loaded
 		if (!document.querySelector('script[src*="translate.google.com"]')) {
 			const script = document.createElement('script')
 			script.src =
@@ -100,143 +108,60 @@ const GoogleTranslate: React.FC<GoogleTranslateProps> = ({
 			initializeTranslate()
 		}
 
+		// Check URL on load for existing translation
+		const checkCurrentTranslation = () => {
+			const url = window.location.href
+			const hash = window.location.hash
+
+			if (hash.includes('googtrans')) {
+				const match = hash.match(/googtrans\([^|]*\|([^)]*)\)/)
+				// biome-ignore lint/complexity/useOptionalChain: <explanation>
+				if (match && match[1]) {
+					setCurrentLanguage(match[1])
+				}
+			}
+		}
+
+		checkCurrentTranslation()
+
 		return () => {
-			// Reset on unmount
 			initialized.current = false
 			if (containerRef.current) {
 				containerRef.current.innerHTML = ''
 			}
 		}
-	}, []) // Empty dependency array
+	}, [pageLanguage, includedLanguages])
 
 	return (
-		<div className="google-translate-container">
-			{useCustomDropdown ? (
-				<div className="custom-translate-dropdown">
-					<button
-						type="button"
-						onClick={() => setIsOpen(!isOpen)}
-						className="translate-button"
-					>
-						{currentLanguage}
-						<svg
-							className={`dropdown-arrow ${isOpen ? 'rotate-180' : ''}`}
-							width="12"
-							height="12"
-							viewBox="0 0 12 12"
-							fill="currentColor"
-						>
-							<title>dropdown-arrow</title>
-							<path
-								d="M3 4.5L6 7.5L9 4.5"
-								stroke="currentColor"
-								strokeWidth="1.5"
-								fill="none"
-							/>
-						</svg>
-					</button>
-
-					{isOpen && (
-						<div className="dropdown-menu">
-							{Object.entries(languageMap).map(([code, name]) => (
-								<button
-									type="button"
-									key={code}
-									onClick={() => handleLanguageSelect(code)}
-									className={`dropdown-item ${currentLanguage === name ? 'active' : ''}`}
-								>
-									{name}
-								</button>
-							))}
+		<>
+			<Select value={currentLanguage} onValueChange={handleLanguageChange}>
+				<SelectTrigger className="w-[160px] bg-[#1a1a1a] border-[#333333] text-white hover:bg-[#2a2a2a]">
+					<SelectValue>
+						<div className="flex items-center gap-2">
+							<span>{getSelectedLanguage().flag}</span>
+							<span>{getSelectedLanguage().label}</span>
 						</div>
-					)}
+					</SelectValue>
+				</SelectTrigger>
+				<SelectContent className="bg-[#1a1a1a] border-[#333333]">
+					{languageOptions.map((lang) => (
+						<SelectItem
+							key={lang.value}
+							value={lang.value}
+							className="text-white hover:bg-[#2a2a2a] focus:bg-[#2a2a2a]"
+						>
+							<div className="flex items-center gap-2">
+								<span>{lang.flag}</span>
+								<span>{lang.label}</span>
+							</div>
+						</SelectItem>
+					))}
+				</SelectContent>
+			</Select>
 
-					{/* Hidden Google Translate widget */}
-					<div ref={containerRef} style={{ display: 'none' }} />
-				</div>
-			) : (
-				<div ref={containerRef} />
-			)}
-
-			<style jsx>{`
-        .custom-translate-dropdown {
-          position: relative;
-          display: inline-block;
-        }
-
-        .translate-button {
-          background: #1f1f1f;
-          color: white;
-          border: 1px solid #333;
-          border-radius: 6px;
-          padding: 8px 16px;
-          font-size: 14px;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          min-width: 120px;
-          justify-content: space-between;
-          transition: all 0.2s ease;
-        }
-
-        .translate-button:hover {
-          background: #2a2a2a;
-          border-color: #444;
-        }
-
-        .dropdown-arrow {
-          transition: transform 0.2s ease;
-        }
-
-        .rotate-180 {
-          transform: rotate(180deg);
-        }
-
-        .dropdown-menu {
-          position: absolute;
-          top: 100%;
-          left: 0;
-          right: 0;
-          background: #1f1f1f;
-          border: 1px solid #333;
-          border-radius: 6px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-          z-index: 1000;
-          margin-top: 4px;
-        }
-
-        .dropdown-item {
-          display: block;
-          width: 100%;
-          padding: 10px 16px;
-          background: none;
-          border: none;
-          color: white;
-          text-align: left;
-          cursor: pointer;
-          font-size: 14px;
-          transition: background 0.2s ease;
-        }
-
-        .dropdown-item:hover {
-          background: #2a2a2a;
-        }
-
-        .dropdown-item.active {
-          background: #333;
-          color: #4ade80;
-        }
-
-        .dropdown-item:first-child {
-          border-radius: 6px 6px 0 0;
-        }
-
-        .dropdown-item:last-child {
-          border-radius: 0 0 6px 6px;
-        }
-      `}</style>
-		</div>
+			{/* Hidden Google Translate widget - keeping it visible for debugging */}
+			<div ref={containerRef} />
+		</>
 	)
 }
 
