@@ -17,3 +17,7 @@ bun.lockb
 gcp-serv-acct-key.json
 
 tsconfig.tsbuildinfo
+.next/
+.next/cache/
+*/.next/
+*/.next/cache/
