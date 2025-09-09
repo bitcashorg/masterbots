@@ -16,13 +16,11 @@ export async function GET() {
 		const prices = await stripe.prices.list({
 			expand: ['data.product'],
 		})
-		const stripeSecret = process.env.STRIPE_SECRET_KEY
 		const stripe_publishable = process.env.STRIPE_PUBLISHABLE_KEY
 
 		return new Response(
 			JSON.stringify({
 				plans: prices.data,
-				stripeSecret,
 				stripe_publishable,
 			}),
 			{

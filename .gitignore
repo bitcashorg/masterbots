@@ -10,7 +10,10 @@ __dev
 .vscode/
 
 .vercel
+.next
 
 bun.lockb
 
 gcp-serv-acct-key.json
+
+tsconfig.tsbuildinfo

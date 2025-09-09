@@ -30,7 +30,7 @@ export function OnboardingMobileChatbotDetails({
 			className="md:hidden mt-10 mid:h-[calc(50vh-196px)] flex items-center justify-center -translate-y-8"
 			data-route={routeType}
 		>
-			<Card className="w-full relative bg-white dark:bg-[#09090B]">
+			<Card className="w-full relative overflow-hidden border-2 shadow-lg backdrop-blur-sm bg-white/95 dark:bg-[#09090B]/95 transition-all duration-300 ease-in-out hover:shadow-xl">
 				{/* Background image layer */}
 				<div
 					className={`absolute inset-0 rounded-md bg-center bg-cover opacity-20 ${bgImage}`}

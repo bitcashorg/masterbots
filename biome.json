@@ -8,8 +8,8 @@
 	"files": {
 		"ignoreUnknown": false,
 		"ignore": [
-			"./apps/masterbots.ai/.next",
 			"./apps/web/.next",
+			"./apps/pro-web/.next",
 			".vercel",
 			".vscode",
 			"node_modules",
