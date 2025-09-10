@@ -13,7 +13,7 @@ import { useEffect, useRef, useState } from 'react'
 
 const GoogleTranslate: React.FC<GoogleTranslateProps> = ({
 	pageLanguage = 'en',
-	includedLanguages = 'es,fr,de,it,pt,ru,ja,ko,zh,ar',
+	includedLanguages = 'es,fr,de,it,pt,ru,ja,ko,zh,ar,en',
 }) => {
 	const initialized = useRef(false)
 	const containerRef = useRef<HTMLDivElement>(null)
