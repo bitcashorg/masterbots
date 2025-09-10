@@ -230,16 +230,6 @@ export function ChatPanelPro({
 	// Keep a local mirror for UI only, but source of truth is workspace
 	const documentType =
 		activeDocumentType === 'all' ? 'text' : activeDocumentType
-	const setDocumentType = (v: 'text' | 'image' | 'spreadsheet') =>
-		setActiveDocumentType(v)
-
-	// Sync selection dropdowns to respect null/None
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-	useEffect(() => {
-		if (activeDocument === undefined) {
-			setActiveDocument(null)
-		}
-	}, [activeDocument])
 
 	// Use departmentList as departmentsByOrg since they contain the same data
 	const departmentsByOrg = departmentList

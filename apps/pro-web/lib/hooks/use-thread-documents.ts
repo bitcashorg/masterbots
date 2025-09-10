@@ -1,7 +1,10 @@
 import { getAllUserThreadDocumentsMetadata } from '@/app/actions'
 import { type IndexedDBItem, useIndexedDB } from '@/lib/hooks/use-indexed-db'
 import { useThread } from '@/lib/hooks/use-thread'
-import { useWorkspace } from '@/lib/hooks/use-workspace'
+import {
+	type WorkspaceContextType,
+	useWorkspace,
+} from '@/lib/hooks/use-workspace'
 import { getRouteType } from '@/lib/utils'
 import type { WorkspaceDocumentMetadata } from '@/types/thread.types'
 import { isEqual, pick, uniq } from 'lodash'
@@ -10,7 +13,7 @@ import { useMemo } from 'react'
 import { useAsync } from 'react-use'
 import { getUserIndexedDBKeys } from './use-chat-attachments'
 
-export function useThreadDocuments() {
+export function useThreadDocuments(workspaceContext?: WorkspaceContextType) {
 	const { data: session } = useSession()
 	const { activeThread, isNewResponse, loadingState } = useThread()
 	// Reuse the same per-user DB keys convention as attachments via helper
@@ -19,6 +22,14 @@ export function useThreadDocuments() {
 		dbName,
 		storeName,
 	})
+	let activeWorkspace: WorkspaceContextType | undefined
+
+	if (workspaceContext) {
+		activeWorkspace = workspaceContext
+	} else {
+		activeWorkspace = useWorkspace()
+	}
+
 	const {
 		organizationList,
 		departmentList,
@@ -30,7 +41,7 @@ export function useThreadDocuments() {
 		addOrganization,
 		addDepartment,
 		addProject,
-	} = useWorkspace()
+	} = activeWorkspace
 
 	const { value, loading, error } = useAsync(async () => {
 		// Fallback to thread metadata when not ready to read IndexedDB
@@ -54,10 +65,9 @@ export function useThreadDocuments() {
 			(!loadingState || loadingState === 'finished') &&
 			route === 'pro'
 
-		console.log('fallbackDocs (return 1)', fallbackDocs)
-
 		// If we cannot or should not read from IDB, return only the documents explicitly linked to the active thread
 		if (!canUseIDB) {
+			console.log('fallbackDocs (return 1)', fallbackDocs)
 			return fallbackDocs
 		}
 

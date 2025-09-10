@@ -148,18 +148,7 @@ export function Header() {
 			attemptedDocsRefreshRef.current !== threadId
 		) {
 			attemptedDocsRefreshRef.current = threadId
-			void refreshActiveThread({ threadId }).then((newActiveThread) => {
-				const activeThreadDocuments: WorkspaceDocumentMetadata[] =
-					newActiveThread?.metadata?.documents || []
-				const [firstDoc, ...restDocs] = activeThreadDocuments
-				setActiveOrganization(firstDoc?.organization)
-				setActiveDepartment(firstDoc?.department)
-				setActiveProject(firstDoc?.project)
-				setActiveDocumentType(firstDoc?.type)
-				setActiveDocument(firstDoc?.name || null)
-
-				console.log('UPDATED!', { newActiveThread })
-			})
+			void refreshActiveThread({ threadId })
 		}
 	}, [activeThread, session?.user?.hasuraJwt])
 
@@ -212,34 +201,23 @@ export function Header() {
 	const { documentOptions, threadDocsByName } = useMemo(() => {
 		// Helper to dedupe while preserving order
 		const dedupe = (arr: string[]) => Array.from(new Set(arr))
-		console.log('userDocuments', userDocuments)
-		// Prefer documents from unified hook; fall back to thread metadata when empty
-		const threadDocs = (
-			userDocuments?.length
-				? userDocuments
-				: (activeThread?.metadata
-						?.documents as Array<WorkspaceDocumentMetadata>) || []
-		) as Array<WorkspaceDocumentMetadata>
-
 		const byName = new Map<string, WorkspaceDocumentMetadata>()
 
-		if (threadDocs.length) {
+		if (userDocuments.length) {
 			// Filter by current type (unless 'all') and activeProject (if set)
-			const filtered = threadDocs.filter((d) => {
+			const filteredDocuments = userDocuments.filter((d) => {
 				const nameOk = Boolean(d?.name)
 				const typeOk =
-					activeDocumentType === 'all' ||
-					!d?.type ||
-					d?.type === activeDocumentType
+					activeDocumentType === 'all' || d?.type === activeDocumentType
 				return nameOk && typeOk
 			})
 
-			for (const d of filtered) {
-				const name = (d.name || '') as string
+			for (const document of filteredDocuments) {
+				const name = (document.name || '') as string
 				if (!name) continue
 				if (!byName.has(name)) {
 					byName.set(name, {
-						...d,
+						...document,
 						name,
 					})
 				}
@@ -304,7 +282,6 @@ export function Header() {
 		}
 	}, [
 		userDocuments,
-		activeThread?.metadata?.documents,
 		activeProject,
 		activeDocumentType,
 		textDocuments,

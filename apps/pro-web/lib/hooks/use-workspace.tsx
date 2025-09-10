@@ -2,6 +2,8 @@
 
 import type { WorkspaceStatePayload } from '@/app/api/workspace/state/route'
 import { workspaceDocTemplates } from '@/lib/constants/workspace-templates'
+import { useThread } from '@/lib/hooks/use-thread'
+import { useThreadDocuments } from '@/lib/hooks/use-thread-documents'
 import { debounce } from 'lodash'
 import { useSession } from 'next-auth/react'
 import type * as React from 'react'
@@ -113,6 +115,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 		() => ({ ...textDocuments, ...imageDocuments, ...spreadsheetDocuments }),
 		[textDocuments, imageDocuments, spreadsheetDocuments],
 	)
+	const { activeThread } = useThread()
 
 	// Dynamic add helpers
 	const addOrganization = useCallback((name: string) => {
@@ -269,6 +272,49 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 		})
 	}, [])
 
+	// Stable reference to state update functions
+	const stableSetters = {
+		setActiveOrganization,
+		setActiveDepartment,
+		setActiveProject,
+		setActiveDocument,
+		setDocumentContent,
+		toggleWorkspace,
+		addOrganization,
+		addDepartment,
+		addProject,
+		addDocument,
+		setActiveDocumentType,
+		getWorkspaceState: () => ({
+			organizationList,
+			departmentList: departmentsByOrg,
+			projectsByDept,
+			activeOrganization,
+			activeDepartment,
+			activeProject,
+		}),
+	}
+	const contextValue = {
+		projectList,
+		templates,
+		documentList,
+		activeProject,
+		textDocuments,
+		imageDocuments,
+		activeDocument,
+		departmentList: departmentsByOrg,
+		projectsByDept,
+		documentContent,
+		activeDepartment,
+		organizationList,
+		isWorkspaceActive,
+		activeOrganization,
+		spreadsheetDocuments,
+		activeDocumentType,
+		...stableSetters,
+	}
+	const { userDocuments } = useThreadDocuments(contextValue)
+
 	// Memoize organization departments to prevent unnecessary recalculations
 	const orgDepts = useMemo(() => {
 		if (!activeOrganization || !departmentsByOrg) return null
@@ -365,14 +411,37 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const projectDocs = useMemo(() => {
 		if (!activeProject) return null
-		if (activeDocumentType === 'all') return documentList[activeProject] || null
-		const source =
-			activeDocumentType === 'text'
-				? textDocuments
-				: activeDocumentType === 'image'
-					? imageDocuments
-					: spreadsheetDocuments
-		return source[activeProject] || null
+
+		// Get static documents from workspace state
+		let staticDocs: string[] = []
+		if (activeDocumentType === 'all') {
+			staticDocs = documentList[activeProject] || []
+		} else {
+			const source =
+				activeDocumentType === 'text'
+					? textDocuments
+					: activeDocumentType === 'image'
+						? imageDocuments
+						: spreadsheetDocuments
+			staticDocs = source[activeProject] || []
+		}
+
+		// Get dynamic documents from userDocuments (filtered by project and type)
+		const dynamicDocs =
+			userDocuments
+				?.filter((doc) => {
+					// Filter by project
+					if (doc.project !== activeProject) return false
+					// Filter by document type if not 'all'
+					if (activeDocumentType !== 'all' && doc.type !== activeDocumentType)
+						return false
+					return true
+				})
+				.map((doc) => doc.name) || []
+
+		// Merge and deduplicate
+		const allDocs = [...new Set([...staticDocs, ...dynamicDocs])]
+		return allDocs.length > 0 ? allDocs : null
 	}, [
 		activeDepartment,
 		activeProject,
@@ -381,6 +450,8 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 		textDocuments,
 		imageDocuments,
 		spreadsheetDocuments,
+		activeThread,
+		userDocuments,
 	])
 
 	// When project changes, set default document only if current document is invalid
@@ -403,6 +474,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 				}
 				return
 			}
+			console.log('projectDocs', projectDocs)
 
 			// Check if current document is valid for this project
 			const isCurrentDocValid =
@@ -422,21 +494,6 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 		// Clean up the animation frame on unmount
 		return () => cancelAnimationFrame(frameId)
 	}, [activeProject, projectDocs, activeDocument])
-
-	// Stable reference to state update functions
-	const stableSetters = {
-		setActiveOrganization,
-		setActiveDepartment,
-		setActiveProject,
-		setActiveDocument,
-		setDocumentContent,
-		toggleWorkspace,
-		addOrganization,
-		addDepartment,
-		addProject,
-		addDocument,
-		setActiveDocumentType,
-	}
 
 	// Persistence constants
 	const PERSIST_KEY = 'mb.workspace.v1'
@@ -462,6 +519,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 	}, [])
 
 	const updateBreadcrumbNavigation = (data: WorkspaceStatePayload) => {
+		console.info('Updating breadcrumb navigation')
 		setOrganizationList(data.organizations)
 		setDepartmentsByOrg(data.departmentsByOrg)
 		setProjectsByDept(data.projectsByDept)
@@ -496,8 +554,51 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 					if (!remote || !remote.data) return
 					// If remote is newer than local, adopt it
 					if (!localTimestamp || remote.data.updatedAt > localTimestamp) {
-						const d = remote.data as WorkspaceStatePayload
-						updateBreadcrumbNavigation(d)
+						const remoteData = remote.data as WorkspaceStatePayload
+
+						if (activeThread) {
+							const activeThreadDocuments =
+								activeThread.metadata?.documents || []
+
+							for (const doc of activeThreadDocuments) {
+								const breadcrumbNavigationData = remoteData.projectsByDept?.[
+									doc.organization
+								]?.[doc.department]?.includes(doc.project)
+								if (!breadcrumbNavigationData) {
+									remoteData.activeOrganization = doc.organization
+									remoteData.activeDepartment = doc.department
+									remoteData.activeProject = doc.project
+									remoteData.activeDocument =
+										doc.metadata?.documents?.[0]?.name || null
+								} else {
+									// If the document's project exists, ensure the document is set and we remove any document not related to the active thread (and drafts documents)
+									const draftDocuments = Object.keys(
+										remoteData.documentContent || {},
+									).filter((key) =>
+										userDocuments.some(
+											(d) =>
+												`${d.project}:${d.name}` === key &&
+												!d.versions?.length &&
+												activeDocumentType !== 'all' &&
+												d.type === activeDocumentType,
+										),
+									)
+									remoteData.activeDocument = doc.name
+									remoteData.documentContent = {
+										[`${doc.project}:${doc.name}`]: doc.content || '',
+										...draftDocuments.reduce(
+											(acc, curr) => {
+												acc[curr] = remoteData.documentContent?.[curr] || ''
+												return acc
+											},
+											{} as Record<string, string>,
+										),
+									}
+								}
+							}
+						}
+
+						updateBreadcrumbNavigation(remoteData)
 					}
 				})
 				.catch((error: Error) => {
@@ -511,7 +612,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 		} finally {
 			setHydrated(true)
 		}
-	}, [session?.user?.id])
+	}, [session?.user?.id, activeThread])
 
 	// Persist when key structures change (debounced via requestAnimationFrame batch)
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
@@ -565,39 +666,11 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 		activeProject,
 		activeDocument,
 		documentContent,
+		activeThread,
 	])
 
 	return (
-		<WorkspaceContext.Provider
-			value={{
-				projectList,
-				templates,
-				documentList,
-				activeProject,
-				textDocuments,
-				imageDocuments,
-				activeDocument,
-				departmentList: departmentsByOrg,
-				projectsByDept,
-				documentContent,
-				activeDepartment,
-				organizationList,
-				isWorkspaceActive,
-				activeOrganization,
-				spreadsheetDocuments,
-				activeDocumentType,
-				...stableSetters,
-				setDocumentContent,
-				getWorkspaceState: () => ({
-					organizationList,
-					departmentList: departmentsByOrg,
-					projectsByDept,
-					activeOrganization,
-					activeDepartment,
-					activeProject,
-				}),
-			}}
-		>
+		<WorkspaceContext.Provider value={contextValue}>
 			{children}
 		</WorkspaceContext.Provider>
 	)
