@@ -8,6 +8,7 @@ export default function OgBgImage({ isLightTheme }: { isLightTheme: boolean }) {
 				bottom: 0,
 				right: 0,
 				display: 'flex',
+				zIndex: 0,
 			}}
 		>
 			<svg width="100%" height="100%" viewBox="0 0 1200 630" fill="none">
