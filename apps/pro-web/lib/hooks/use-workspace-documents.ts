@@ -13,7 +13,7 @@ import { useMemo } from 'react'
 import { useAsync } from 'react-use'
 import { getUserIndexedDBKeys } from './use-chat-attachments'
 
-export function useThreadDocuments(workspaceContext?: WorkspaceContextType) {
+export function useWorkspaceDocuments(workspaceContext: WorkspaceContextType) {
 	const { data: session } = useSession()
 	const { activeThread, isNewResponse, loadingState } = useThread()
 	// Reuse the same per-user DB keys convention as attachments via helper
@@ -22,14 +22,6 @@ export function useThreadDocuments(workspaceContext?: WorkspaceContextType) {
 		dbName,
 		storeName,
 	})
-	let activeWorkspace: WorkspaceContextType | undefined
-
-	if (workspaceContext) {
-		activeWorkspace = workspaceContext
-	} else {
-		activeWorkspace = useWorkspace()
-	}
-
 	const {
 		organizationList,
 		departmentList,
@@ -41,7 +33,7 @@ export function useThreadDocuments(workspaceContext?: WorkspaceContextType) {
 		addOrganization,
 		addDepartment,
 		addProject,
-	} = activeWorkspace
+	} = workspaceContext
 
 	const { value, loading, error } = useAsync(async () => {
 		// Fallback to thread metadata when not ready to read IndexedDB

@@ -3,7 +3,7 @@
 import type { WorkspaceStatePayload } from '@/app/api/workspace/state/route'
 import { workspaceDocTemplates } from '@/lib/constants/workspace-templates'
 import { useThread } from '@/lib/hooks/use-thread'
-import { useThreadDocuments } from '@/lib/hooks/use-thread-documents'
+import { useWorkspaceDocuments } from '@/lib/hooks/use-workspace-documents'
 import { debounce } from 'lodash'
 import { useSession } from 'next-auth/react'
 import type * as React from 'react'
@@ -313,7 +313,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 		activeDocumentType,
 		...stableSetters,
 	}
-	const { userDocuments } = useThreadDocuments(contextValue)
+	const { userDocuments } = useWorkspaceDocuments(contextValue)
 
 	// Memoize organization departments to prevent unnecessary recalculations
 	const orgDepts = useMemo(() => {

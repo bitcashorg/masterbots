@@ -19,8 +19,8 @@ import { getUserIndexedDBKeys } from '@/lib/hooks/use-chat-attachments'
 import { type IndexedDBItem, useIndexedDB } from '@/lib/hooks/use-indexed-db'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
-import { useThreadDocuments } from '@/lib/hooks/use-thread-documents'
 import { useWorkspace } from '@/lib/hooks/use-workspace'
+import { useWorkspaceDocuments } from '@/lib/hooks/use-workspace-documents'
 import { getCanonicalDomain } from '@/lib/url'
 import { cn, getRouteColor, getRouteType } from '@/lib/utils'
 
@@ -85,6 +85,7 @@ function HeaderLink({
 export function Header() {
 	const { activeCategory, activeChatbot, setActiveCategory, setActiveChatbot } =
 		useSidebar()
+	const workspaceContext = useWorkspace()
 	const {
 		activeOrganization,
 		activeDepartment,
@@ -111,7 +112,7 @@ export function Header() {
 		addDepartment,
 		addProject,
 		addDocument,
-	} = useWorkspace()
+	} = workspaceContext
 	const {
 		isOpenPopup,
 		activeThread,
@@ -131,7 +132,7 @@ export function Header() {
 	const { getItem } = useIndexedDB(dbKeys)
 
 	// Unified thread documents (from metadata + local IDB where applicable)
-	const { userDocuments } = useThreadDocuments()
+	const { userDocuments } = useWorkspaceDocuments(workspaceContext)
 
 	// Ensure thread documents metadata is hydrated even if popup is closed
 	const attemptedDocsRefreshRef = React.useRef<string | null>(null)
