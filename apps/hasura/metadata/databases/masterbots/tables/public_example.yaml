@@ -34,7 +34,6 @@ select_permissions:
         - example_id
       filter: {}
     comment: ""
-<<<<<<< HEAD
   - role: moderator
     permission:
       columns:
@@ -49,8 +48,6 @@ select_permissions:
         - example_id
       filter: {}
     comment: ""
-=======
->>>>>>> 84cd6897 (update)
   - role: user
     permission:
       columns:
