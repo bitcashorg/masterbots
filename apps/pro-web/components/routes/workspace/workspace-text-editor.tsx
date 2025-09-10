@@ -76,7 +76,6 @@ export function WorkspaceTextEditor({
 	// Local source state for responsive typing; sync from prop on external updates
 	const [sourceValue, setSourceValue] = useState(fullMarkdown)
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		if (sourceValue !== fullMarkdown) setSourceValue(fullMarkdown)
 	}, [fullMarkdown, sourceValue])
@@ -95,7 +94,6 @@ export function WorkspaceTextEditor({
 	}, [activeSection, setGlobalSelectionRange])
 
 	// Simplified overlay renderer for persisted selection
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const renderSelectionOverlay = useCallback(() => {
 		if (isFocused || !persistedSelection || isLoading) return null
 

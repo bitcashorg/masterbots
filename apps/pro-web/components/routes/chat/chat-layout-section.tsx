@@ -34,7 +34,7 @@ export function ChatLayoutSection({ children }: { children: React.ReactNode }) {
 					/>
 				</div>
 			)}
-		
+
 			<div className="flex flex-col gap-5 px-4 pt-5 mx-auto w-full max-w-screen-xl h-full md:px-10">
 				{children}
 			</div>
