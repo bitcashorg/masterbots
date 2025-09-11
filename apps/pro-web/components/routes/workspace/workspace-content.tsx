@@ -465,7 +465,7 @@ This is a new document. Add your content here.
 			documentName,
 			documentType,
 			sections,
-			sectionTitle,
+			activeSectionTitle: sectionTitle,
 		})
 
 		if (!metaPrompt) return
@@ -493,7 +493,7 @@ This is a new document. Add your content here.
 			documentName,
 			documentType,
 			sections,
-			sectionTitle,
+			activeSectionTitle: sectionTitle,
 		})
 
 		if (!metaPrompt) return

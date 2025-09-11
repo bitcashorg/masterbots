@@ -376,7 +376,7 @@ export function ChatPanelPro({
 				documentName: activeDocument as string,
 				documentType,
 				sections: parseMarkdownSections(currentContent),
-				sectionTitle: activeWorkspaceSection as string,
+				activeSectionTitle: activeWorkspaceSection as string,
 			})
 
 			// Then process workspace edit
