@@ -552,13 +552,27 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 				.then((r) => (r.ok ? r.json() : null))
 				.then((remote) => {
 					if (!remote || !remote.data) return
-					// If remote is newer than local, adopt it
 					if (!localTimestamp || remote.data.updatedAt > localTimestamp) {
+						// TODO: Add here the Read of remote threads instead only activeThread to update the doc list and breadcrumb navigation
+						// ! [use-workspace-documents.tsx -> userDocuments] should take care of that
+						// If remote is newer than local, adopt it
 						const remoteData = remote.data as WorkspaceStatePayload
 
 						if (activeThread) {
 							const activeThreadDocuments =
 								activeThread.metadata?.documents || []
+							// If the document's project exists, ensure the document is set and we remove any document not related to the active thread (and drafts documents)
+							const draftDocuments = Object.keys(
+								remoteData.documentContent || {},
+							).filter((key) =>
+								userDocuments.some(
+									(d) =>
+										`${d.project}:${d.name}` === key &&
+										!d.versions?.length &&
+										activeDocumentType !== 'all' &&
+										d.type === activeDocumentType,
+								),
+							)
 
 							for (const doc of activeThreadDocuments) {
 								const breadcrumbNavigationData = remoteData.projectsByDept?.[
@@ -568,22 +582,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 									remoteData.activeOrganization = doc.organization
 									remoteData.activeDepartment = doc.department
 									remoteData.activeProject = doc.project
-									remoteData.activeDocument =
-										doc.metadata?.documents?.[0]?.name || null
 								} else {
-									// If the document's project exists, ensure the document is set and we remove any document not related to the active thread (and drafts documents)
-									const draftDocuments = Object.keys(
-										remoteData.documentContent || {},
-									).filter((key) =>
-										userDocuments.some(
-											(d) =>
-												`${d.project}:${d.name}` === key &&
-												!d.versions?.length &&
-												activeDocumentType !== 'all' &&
-												d.type === activeDocumentType,
-										),
-									)
-									remoteData.activeDocument = doc.name
 									remoteData.documentContent = {
 										[`${doc.project}:${doc.name}`]: doc.content || '',
 										...draftDocuments.reduce(
@@ -595,6 +594,9 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 										),
 									}
 								}
+								// Selecting the first document on the list when having a doc related to the active thread
+								remoteData.activeDocument =
+									activeThreadDocuments[0]?.name || draftDocuments[0] || null
 							}
 						}
 
