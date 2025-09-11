@@ -458,8 +458,6 @@ export default function UserThreadPanel({
 		}
 	}, [searchTerm])
 
-	console.log({ isContinuousThread, threads, searchTerm, loading, page })
-
 	return (
 		<>
 			{!isContinuousThread && (threads.length !== 0 || searchTerm) && (

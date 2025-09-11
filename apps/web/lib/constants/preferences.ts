@@ -100,7 +100,6 @@ export const preferences = [
 							label: 'large',
 							icon: LetterText,
 						},
-						// x-large option removed for simplicity
 						{
 							value: 'x-large',
 							label: 'X-Large',

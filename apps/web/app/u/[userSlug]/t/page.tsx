@@ -31,7 +31,6 @@ export default async function ProfilePage(props: {
 		slug,
 		isSameUser: session?.user.slug === slug,
 	})
-	console.log('getUserBySlug result:', user)
 	if (error)
 		return <ErrorComponent message={`Error loading profile: ${error}`} />
 	if (!user) return <ErrorComponent message="User not found" />
@@ -63,8 +62,6 @@ export default async function ProfilePage(props: {
 	}
 
 	threadsResults = await fetchThreads()
-
-	console.log('threadsResults:', threadsResults)
 
 	return (
 		<UserThreadList
