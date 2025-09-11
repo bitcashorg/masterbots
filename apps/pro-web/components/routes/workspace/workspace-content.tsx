@@ -154,7 +154,10 @@ This is a new document. Add your content here.
 	// State management
 	// Derive fullMarkdown from savedContent (SSoT) so UI reacts to workspace/state updates
 	const fullMarkdown = useMemo(
-		() => savedContent ?? initialContent,
+		() =>
+			savedContent?.startsWith('data:text/markdown;base64')
+				? atob(savedContent.split(',')[1])
+				: (savedContent ?? initialContent),
 		[savedContent, initialContent],
 	)
 	const [sections, setSections] = useState<MarkdownSection[]>(
@@ -437,6 +440,9 @@ This is a new document. Add your content here.
 			// Switching back to section view: ensure store has latest source
 			setDocumentContent(projectName, documentName, fullMarkdown)
 		}
+
+		// Set view mode after content is synchronized
+		setViewMode(fullView ? 'source' : 'sections')
 	}
 
 	const handleExpandSection = async (sectionTitle: string) => {
@@ -889,7 +895,6 @@ This is a new document. Add your content here.
 						<button
 							type="button"
 							onClick={() => {
-								setViewMode('sections')
 								handleViewSourceToggle(false)
 							}}
 							className={cn(
@@ -904,7 +909,6 @@ This is a new document. Add your content here.
 						<button
 							type="button"
 							onClick={() => {
-								setViewMode('source')
 								handleViewSourceToggle(true)
 							}}
 							className={cn(

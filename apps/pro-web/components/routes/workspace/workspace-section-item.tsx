@@ -1,6 +1,13 @@
 'use client'
 
+import {
+	Accordion,
+	AccordionContent,
+	AccordionItem,
+	AccordionTrigger,
+} from '@/components/ui/accordion'
 import { Button } from '@/components/ui/button'
+import { useWorkspaceChat } from '@/lib/hooks/use-workspace-chat'
 import type { MarkdownSection } from '@/lib/markdown-utils'
 import { cn } from '@/lib/utils'
 import {
@@ -9,6 +16,7 @@ import {
 	Edit3Icon,
 	PlusIcon,
 	RotateCcwIcon,
+	Trash2Icon,
 	XIcon,
 } from 'lucide-react'
 import React, { useState } from 'react'
@@ -19,6 +27,7 @@ interface WorkspaceSectionItemProps {
 	onSectionClick: (sectionId: string) => void
 	onExpandSection: (sectionTitle: string) => void
 	onRewriteSection: (sectionTitle: string) => void
+	onDeleteSection: (sectionTitle: string) => void
 	onRenameSection: (sectionId: string, newTitle: string) => void
 	level: number
 	children?: React.ReactNode
@@ -31,27 +40,19 @@ export function WorkspaceSectionItem({
 	onExpandSection,
 	onRewriteSection,
 	onRenameSection,
+	onDeleteSection,
 	level,
 	children,
 }: WorkspaceSectionItemProps) {
-	const [isCollapsed, setIsCollapsed] = useState(false)
-	const [isEditing, setIsEditing] = useState(false)
-	const [editingTitle, setEditingTitle] = useState(section.title)
+	const { setInput } = useWorkspaceChat()
 	const [isHovered, setIsHovered] = useState(false)
 
 	// Calculate indentation based on section level (h2=0, h3=1, h4=2)
 	const indentLevel = Math.max(0, section.level - 2)
 	const indentPx = indentLevel * 16 // 16px per level
 
-	const handleToggleCollapse = (e: React.MouseEvent) => {
-		e.stopPropagation()
-		setIsCollapsed(!isCollapsed)
-	}
-
 	const handleSectionClick = () => {
-		if (!isEditing) {
-			onSectionClick(section.id)
-		}
+		onSectionClick(section.id)
 	}
 
 	const handleExpandClick = (e: React.MouseEvent) => {
@@ -66,41 +67,35 @@ export function WorkspaceSectionItem({
 
 	const handleEditClick = (e: React.MouseEvent) => {
 		e.stopPropagation()
-		setIsEditing(true)
-		setEditingTitle(section.title)
-	}
 
-	const handleEditSave = () => {
-		if (editingTitle.trim() && editingTitle !== section.title) {
-			onRenameSection(section.id, editingTitle.trim())
-		}
-		setIsEditing(false)
-	}
+		// Focus the chat textarea using the same pattern as chat-panel-pro.tsx
+		setTimeout(() => {
+			// Look for the prompt form textarea by its ID pattern
+			const textarea = document.querySelector(
+				'[id^=prompt-textarea-]',
+			) as HTMLTextAreaElement
+			if (textarea) {
+				textarea.focus()
+				const currentValue = textarea.value
+				const editPrompt = `Edit the "${section.title}" section to `
 
-	const handleEditCancel = () => {
-		setIsEditing(false)
-		setEditingTitle(section.title)
-	}
-
-	const handleKeyDown = (e: React.KeyboardEvent) => {
-		if (e.key === 'Enter') {
-			e.preventDefault()
-			handleEditSave()
-		} else if (e.key === 'Escape') {
-			e.preventDefault()
-			handleEditCancel()
-		}
+				if (!currentValue.includes(editPrompt) && setInput) {
+					console.log('ℹ️ changing prompt to [editPrompt]: ', editPrompt)
+					setInput(editPrompt)
+				}
+			}
+		}, 0)
 	}
 
 	const hasChildren = children && React.Children.count(children) > 0
 
-	return (
-		<div className="w-full relative">
-			{/* Main section item */}
+	if (!hasChildren) {
+		// Non-collapsible item (no children)
+		return (
 			<button
 				type="button"
 				className={cn(
-					'group flex-1 flex items-center gap-3 w-full text-left px-3 py-2 rounded-md text-sm transition-colors cursor-pointer',
+					'min-w-full group flex items-center gap-1 text-left ml-3 px-1.5 py-2 rounded-md text-sm transition-colors cursor-pointer',
 					isActive
 						? 'bg-primary/10 text-primary font-medium'
 						: 'hover:bg-muted',
@@ -119,121 +114,164 @@ export function WorkspaceSectionItem({
 				onMouseEnter={() => setIsHovered(true)}
 				onMouseLeave={() => setIsHovered(false)}
 			>
-				{/* Collapse/Expand Arrow */}
-				{hasChildren && (
+				{/* Side Action buttons (show on hover or when editing) */}
+				<div
+					className={cn(
+						'flex items-center transition-opacity duration-200',
+						isHovered ? 'opacity-100' : 'opacity-0',
+					)}
+				>
 					<Button
 						variant="ghost"
 						size="sm"
-						className="h-4 w-4 p-0 hover:bg-transparent"
-						onClick={handleToggleCollapse}
+						className="absolute left-1 size-6 p-0 text-destructive-foreground/70 hover:text-destructive-foreground hover:bg-destructive"
+						onClick={(e) => {
+							e.stopPropagation()
+							onDeleteSection(section.title)
+						}}
+						title={`Delete ${section.title} section`}
 					>
-						<ChevronDown
-							className={cn(
-								'h-3 w-3 transition-transform duration-200',
-								isCollapsed ? '-rotate-90' : 'rotate-0',
-							)}
-						/>
+						<XIcon className="size-3" />
 					</Button>
-				)}
-
-				{/* Section level indicator */}
-				{/* <span className="text-xs text-muted-foreground font-mono min-w-[24px]">
-					h{section.level}
-				</span> */}
+				</div>
 
 				{/* Section title (editable or display) */}
-				<div className="w-full flex-1 flex items-center gap-2">
-					{isEditing ? (
-						<input
-							type="text"
-							value={editingTitle}
-							onChange={(e) => setEditingTitle(e.target.value)}
-							onKeyDown={handleKeyDown}
-							onBlur={handleEditSave}
-							className="flex-1 bg-background border border-border rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-						/>
-					) : (
-						<span className="whitespace-nowrap overflow-hidden text-ellipsis">
-							{section.title}
-						</span>
-					)}
+				<div className="w-full flex items-center text-left gap-2 whitespace-nowrap">
+					{section.title}
 				</div>
 
 				{/* Action buttons (show on hover or when editing) */}
 				<div
 					className={cn(
 						'sticky right-1 flex items-center gap-1 transition-opacity duration-200',
-						isHovered || isEditing ? 'opacity-100' : 'opacity-0',
+						isHovered ? 'opacity-100' : 'opacity-0',
 					)}
 				>
-					{isEditing ? (
-						<>
-							<Button
-								variant="ghost"
-								size="sm"
-								className="h-6 w-6 p-0 hover:bg-green-100 hover:text-green-600"
-								onClick={(e) => {
-									e.stopPropagation()
-									handleEditSave()
-								}}
-								title="Save changes"
-							>
-								<CheckIcon className="h-3 w-3" />
-							</Button>
-							<Button
-								variant="ghost"
-								size="sm"
-								className="h-6 w-6 p-0 hover:bg-red-100 hover:text-red-600"
-								onClick={(e) => {
-									e.stopPropagation()
-									handleEditCancel()
-								}}
-								title="Cancel editing"
-							>
-								<XIcon className="h-3 w-3" />
-							</Button>
-						</>
-					) : (
-						<>
-							{/* Expand CTA */}
-							<Button
-								variant="ghost"
-								size="sm"
-								className="h-6 w-6 p-0 hover:bg-blue-100 hover:text-blue-600"
-								onClick={handleExpandClick}
-								title={`Expand ${section.title} section`}
-							>
-								<PlusIcon className="h-3 w-3" />
-							</Button>
-
-							{/* Rewrite CTA */}
-							<Button
-								variant="ghost"
-								size="sm"
-								className="h-6 w-6 p-0 hover:bg-orange-100 hover:text-orange-600"
-								onClick={handleRewriteClick}
-								title={`Rewrite ${section.title} section`}
-							>
-								<RotateCcwIcon className="h-3 w-3" />
-							</Button>
-
-							{/* Edit CTA */}
-							<Button
-								variant="ghost"
-								size="sm"
-								className="h-6 w-6 p-0 hover:bg-purple-100 hover:text-purple-600"
-								onClick={handleEditClick}
-								title={`Edit ${section.title} title`}
-							>
-								<Edit3Icon className="h-3 w-3" />
-							</Button>
-						</>
-					)}
+					<Button
+						variant="ghost"
+						size="sm"
+						className="h-6 w-6 p-0 hover:bg-blue-100 hover:text-blue-600"
+						onClick={handleExpandClick}
+						title={`Expand ${section.title} section`}
+					>
+						<PlusIcon className="h-3 w-3" />
+					</Button>
+					<Button
+						variant="ghost"
+						size="sm"
+						className="h-6 w-6 p-0 hover:bg-orange-100 hover:text-orange-600"
+						onClick={handleRewriteClick}
+						title={`Rewrite ${section.title} section`}
+					>
+						<RotateCcwIcon className="h-3 w-3" />
+					</Button>
+					<Button
+						variant="ghost"
+						size="sm"
+						className="h-6 w-6 p-0 hover:bg-purple-100 hover:text-purple-600"
+						onClick={handleEditClick}
+						title={`Edit ${section.title} title`}
+					>
+						<Edit3Icon className="h-3 w-3" />
+					</Button>
 				</div>
 			</button>
+		)
+	}
 
-			{/* Children sections (collapsible) */}
-			{hasChildren && !isCollapsed && <div className="ml-4">{children}</div>}
-		</div>
+	// Collapsible item (has children) - use Accordion
+	return (
+		<Accordion
+			type="single"
+			collapsible
+			defaultValue={section.id}
+			className="flex min-w-max w-full"
+			style={{ marginLeft: `${indentPx}px` }}
+		>
+			<AccordionItem value={section.id} className="border-b-0 min-w-full">
+				<AccordionTrigger
+					className={cn(
+						'group min-w-full flex items-center justify-start gap-1 text-left ml-3 px-1.5 py-2 rounded-md text-sm transition-colors cursor-pointer hover:no-underline',
+						isActive
+							? 'bg-primary/10 text-primary font-medium'
+							: 'hover:bg-muted',
+						'border-l-2 rounded-l-sm',
+						isActive ? 'border-primary' : 'border-transparent',
+					)}
+					onClick={handleSectionClick}
+					onMouseEnter={() => setIsHovered(true)}
+					onMouseLeave={() => setIsHovered(false)}
+					chevronLeft
+				>
+					{/* Side Action buttons (show on hover or when editing) */}
+					<div
+						className={cn(
+							'flex items-center transition-opacity duration-200',
+							isHovered ? 'opacity-100' : 'opacity-0',
+						)}
+					>
+						<Button
+							variant="ghost"
+							size="sm"
+							className="absolute left-1 size-6 p-0 text-destructive-foreground/70 hover:text-destructive-foreground hover:bg-destructive"
+							onClick={(e) => {
+								e.stopPropagation()
+								onDeleteSection(section.title)
+							}}
+							title={`Delete ${section.title} section`}
+						>
+							<XIcon className="size-3" />
+						</Button>
+					</div>
+					{/* Section title (editable or display) */}
+					<div className="w-full flex items-center text-left gap-2 whitespace-nowrap font-bold">
+						{section.title}
+					</div>
+
+					{/* Action buttons (show on hover or when editing) */}
+					<div
+						className={cn(
+							'sticky right-1 flex items-center gap-1 transition-opacity duration-200',
+							isHovered ? 'opacity-100' : 'opacity-0',
+						)}
+					>
+						<Button
+							variant="ghost"
+							size="sm"
+							className="h-6 w-6 p-0 hover:bg-blue-100 hover:text-blue-600"
+							onClick={handleExpandClick}
+							title={`Expand ${section.title} section`}
+						>
+							<PlusIcon className="h-3 w-3" />
+						</Button>
+						<Button
+							variant="ghost"
+							size="sm"
+							className="h-6 w-6 p-0 hover:bg-orange-100 hover:text-orange-600"
+							onClick={handleRewriteClick}
+							title={`Rewrite ${section.title} section`}
+						>
+							<RotateCcwIcon className="h-3 w-3" />
+						</Button>
+						<Button
+							variant="ghost"
+							size="sm"
+							className="h-6 w-6 p-0 hover:bg-purple-100 hover:text-purple-600"
+							onClick={handleEditClick}
+							title={`Edit ${section.title} title`}
+						>
+							<Edit3Icon className="h-3 w-3" />
+						</Button>
+					</div>
+				</AccordionTrigger>
+
+				<AccordionContent
+					className="pb-0 pt-0 min-w-max w-full ml-4 overflow-visible"
+					asChild
+				>
+					{children}
+				</AccordionContent>
+			</AccordionItem>
+		</Accordion>
 	)
 }
