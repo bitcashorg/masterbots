@@ -86,11 +86,6 @@ export const preferences = [
 					switchName: 'font-size',
 					items: [
 						{
-							value: 'normal',
-							label: 'Normal',
-							icon: LetterText,
-						},
-						{
 							value: 'small',
 							label: 'Small',
 							icon: LetterText,
@@ -103,6 +98,12 @@ export const preferences = [
 						{
 							value: 'large',
 							label: 'large',
+							icon: LetterText,
+						},
+						// x-large option removed for simplicity
+						{
+							value: 'x-large',
+							label: 'X-Large',
 							icon: LetterText,
 						},
 					],

@@ -269,8 +269,9 @@ export function PreferenceSection({ title, items }: PreferenceSectionProps) {
 		setIsLoading(true)
 
 		try {
-			const { username, email } = inputValue
+			const { username } = inputValue
 			const slug = currentUser?.slug || session.user?.slug
+			const email = currentUser?.email
 
 			await updateUserDetails(email ?? null, username ?? null, slug ?? null)
 
@@ -300,7 +301,7 @@ export function PreferenceSection({ title, items }: PreferenceSectionProps) {
 		}
 	}
 
-	async function SendVerificationEmail() {
+	async function sendVerificationEmail() {
 		const jwt = session?.user?.hasuraJwt
 		if (!jwt || !session.user?.id) {
 			customSonner({
@@ -497,7 +498,7 @@ export function PreferenceSection({ title, items }: PreferenceSectionProps) {
 													<Button
 														id={item.props?.buttonId}
 														disabled={sendindVEmail}
-														onClick={SendVerificationEmail}
+														onClick={sendVerificationEmail}
 														className="mt-2"
 													>
 														{sendindVEmail && (
@@ -565,7 +566,14 @@ export function PreferenceSection({ title, items }: PreferenceSectionProps) {
 																}) => (
 																	<SelectItem value={opt.value} key={opt.value}>
 																		<div className="flex items-center gap-2">
-																			<opt.icon className="h-4 w-4" />
+																			<opt.icon
+																				className={`
+        ${item?.props?.switchId === 'font-size' && opt.value === 'small' ? 'h-2 w-2' : 'h-4 w-4'}
+        ${item?.props?.switchId === 'font-size' && opt.value === 'medium' ? 'h-4 w-4' : 'h-4 w-4'}
+        ${item?.props?.switchId === 'font-size' && opt.value === 'large' ? 'h-6 w-6' : 'h-4 w-4'}
+		${item?.props?.switchId === 'font-size' && opt.value === 'x-large' ? 'h-8 w-8' : 'h-4 w-4'}
+      `}
+																			/>
 																			<span>{opt.label}</span>
 																		</div>
 																	</SelectItem>
