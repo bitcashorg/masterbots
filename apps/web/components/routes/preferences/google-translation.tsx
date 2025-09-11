@@ -135,7 +135,7 @@ const GoogleTranslate: React.FC<GoogleTranslateProps> = ({
 	return (
 		<>
 			<Select value={currentLanguage} onValueChange={handleLanguageChange}>
-				<SelectTrigger className="w-[160px] bg-[#1a1a1a] border-[#333333] text-white hover:bg-[#2a2a2a]">
+				<SelectTrigger>
 					<SelectValue>
 						<div className="flex items-center gap-2">
 							<span>{getSelectedLanguage().flag}</span>
@@ -143,13 +143,9 @@ const GoogleTranslate: React.FC<GoogleTranslateProps> = ({
 						</div>
 					</SelectValue>
 				</SelectTrigger>
-				<SelectContent className="bg-[#1a1a1a] border-[#333333]">
+				<SelectContent>
 					{languageOptions.map((lang) => (
-						<SelectItem
-							key={lang.value}
-							value={lang.value}
-							className="text-white hover:bg-[#2a2a2a] focus:bg-[#2a2a2a]"
-						>
+						<SelectItem key={lang.value} value={lang.value}>
 							<div className="flex items-center gap-2">
 								<span>{lang.flag}</span>
 								<span>{lang.label}</span>

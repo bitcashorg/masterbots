@@ -20,7 +20,6 @@ import {
 	createMbClient,
 	everything,
 } from 'mb-genql'
-import { nanoid } from 'nanoid'
 import type {
 	CreateThreadParams,
 	GetBrowseThreadsParams,
@@ -32,7 +31,6 @@ import type {
 	GetThreadsParams,
 	SaveNewMessageParams,
 	UpdateUserArgs,
-	UpdateUserDArgs,
 	UpsertUserParams,
 } from './hasura.service.type'
 
@@ -2045,7 +2043,7 @@ export async function updateUser({
 		}
 
 		// Build update arguments based on non-null values
-		const updateArgs: UpdateUserDArgs = {
+		const updateArgs: UpdateUserArgs = {
 			pkColumns: { userId },
 		}
 
