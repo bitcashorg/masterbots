@@ -19,13 +19,13 @@ import { getUserIndexedDBKeys } from '@/lib/hooks/use-chat-attachments'
 import { type IndexedDBItem, useIndexedDB } from '@/lib/hooks/use-indexed-db'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
-import { useThreadDocuments } from '@/lib/hooks/use-thread-documents'
 import { useWorkspace } from '@/lib/hooks/use-workspace'
+import { useWorkspaceDocuments } from '@/lib/hooks/use-workspace-documents'
 import { getCanonicalDomain } from '@/lib/url'
 import { cn, getRouteColor, getRouteType } from '@/lib/utils'
 
 import type { WorkspaceDocumentMetadata } from '@/types/thread.types'
-import { uniq } from 'lodash'
+import { pick, uniq } from 'lodash'
 import { nanoid } from 'nanoid'
 import { useSession } from 'next-auth/react'
 import { useTheme } from 'next-themes'
@@ -85,6 +85,7 @@ function HeaderLink({
 export function Header() {
 	const { activeCategory, activeChatbot, setActiveCategory, setActiveChatbot } =
 		useSidebar()
+	const workspaceContext = useWorkspace()
 	const {
 		activeOrganization,
 		activeDepartment,
@@ -111,7 +112,7 @@ export function Header() {
 		addDepartment,
 		addProject,
 		addDocument,
-	} = useWorkspace()
+	} = workspaceContext
 	const {
 		isOpenPopup,
 		activeThread,
@@ -128,13 +129,10 @@ export function Header() {
 		() => getUserIndexedDBKeys(session?.user?.id),
 		[session?.user?.id],
 	)
-	const { getItem, getAllItemsRaw } = useIndexedDB(dbKeys) as unknown as {
-		getItem: (id: IDBValidKey) => Promise<IndexedDBItem>
-		getAllItemsRaw: () => Promise<IndexedDBItem[]>
-	}
+	const { getItem } = useIndexedDB(dbKeys)
 
 	// Unified thread documents (from metadata + local IDB where applicable)
-	const { userDocuments } = useThreadDocuments()
+	const { userDocuments } = useWorkspaceDocuments(workspaceContext)
 
 	// Ensure thread documents metadata is hydrated even if popup is closed
 	const attemptedDocsRefreshRef = React.useRef<string | null>(null)
@@ -204,34 +202,23 @@ export function Header() {
 	const { documentOptions, threadDocsByName } = useMemo(() => {
 		// Helper to dedupe while preserving order
 		const dedupe = (arr: string[]) => Array.from(new Set(arr))
-		console.log('userDocuments', userDocuments)
-		// Prefer documents from unified hook; fall back to thread metadata when empty
-		const threadDocs = (
-			userDocuments?.length
-				? userDocuments
-				: (activeThread?.metadata
-						?.documents as Array<WorkspaceDocumentMetadata>) || []
-		) as Array<WorkspaceDocumentMetadata>
-
 		const byName = new Map<string, WorkspaceDocumentMetadata>()
 
-		if (threadDocs.length) {
+		if (userDocuments.length) {
 			// Filter by current type (unless 'all') and activeProject (if set)
-			const filtered = threadDocs.filter((d) => {
+			const filteredDocuments = userDocuments.filter((d) => {
 				const nameOk = Boolean(d?.name)
 				const typeOk =
-					activeDocumentType === 'all' ||
-					!d?.type ||
-					d?.type === activeDocumentType
+					activeDocumentType === 'all' || d?.type === activeDocumentType
 				return nameOk && typeOk
 			})
 
-			for (const d of filtered) {
-				const name = (d.name || '') as string
+			for (const document of filteredDocuments) {
+				const name = (document.name || '') as string
 				if (!name) continue
 				if (!byName.has(name)) {
 					byName.set(name, {
-						...d,
+						...document,
 						name,
 					})
 				}
@@ -296,7 +283,6 @@ export function Header() {
 		}
 	}, [
 		userDocuments,
-		activeThread?.metadata?.documents,
 		activeProject,
 		activeDocumentType,
 		textDocuments,
@@ -469,12 +455,8 @@ export function Header() {
 		...userDocuments,
 		...Object.values(documentList)
 			.flat()
-			.map((name) => ({ name }) as unknown as WorkspaceDocumentMetadata),
-	]).filter((document) =>
-		activeThread
-			? document.threadSlug === activeThread.slug || !document.versions
-			: true,
-	)
+			.map((name) => ({ name }) as { name: string }),
+	])
 
 	return (
 		<header className="sticky top-0 z-50 flex items-center justify-between w-full h-16 px-4 border-b shrink-0 bg-gradient-to-b from-background/10 via-background/50 to-background/80 backdrop-blur-xl">
@@ -616,23 +598,5 @@ export function Header() {
 				setIsDocumentDialogOpen={setIsDocumentDialogOpen}
 			/>
 		</header>
-	)
-}
-
-// Narrow unknown IndexedDB records that represent workspace documents
-function isWorkspaceDocItem(it: unknown): it is {
-	id?: string
-	project?: string
-	name?: string
-	type?: 'text' | 'image' | 'spreadsheet'
-	url?: string
-	content?: string
-} {
-	if (!it || typeof it !== 'object') return false
-	const o = it as Record<string, unknown>
-	return (
-		typeof o.project === 'string' &&
-		typeof o.name === 'string' &&
-		(o.type === 'text' || o.type === 'image' || o.type === 'spreadsheet')
 	)
 }
