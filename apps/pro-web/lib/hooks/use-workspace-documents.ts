@@ -1,25 +1,19 @@
 import { getAllUserThreadDocumentsMetadata } from '@/app/actions'
 import { type IndexedDBItem, useIndexedDB } from '@/lib/hooks/use-indexed-db'
 import { useThread } from '@/lib/hooks/use-thread'
+import {
+	type WorkspaceContextType,
+	useWorkspace,
+} from '@/lib/hooks/use-workspace'
 import { getRouteType } from '@/lib/utils'
 import type { WorkspaceDocumentMetadata } from '@/types/thread.types'
-import { isEqual, uniq } from 'lodash'
+import { isEqual, pick, uniq } from 'lodash'
 import { useSession } from 'next-auth/react'
+import { useMemo } from 'react'
 import { useAsync } from 'react-use'
 import { getUserIndexedDBKeys } from './use-chat-attachments'
 
-function isThreadWorkspaceDocument(x: unknown): x is WorkspaceDocumentMetadata {
-	if (!x || typeof x !== 'object') return false
-	const obj = x as Record<string, unknown>
-	return (
-		typeof obj.id === 'string' &&
-		typeof obj.project === 'string' &&
-		typeof obj.name === 'string' &&
-		(obj.type === 'text' || obj.type === 'image' || obj.type === 'spreadsheet')
-	)
-}
-
-export function useThreadDocuments() {
+export function useWorkspaceDocuments(workspaceContext: WorkspaceContextType) {
 	const { data: session } = useSession()
 	const { activeThread, isNewResponse, loadingState } = useThread()
 	// Reuse the same per-user DB keys convention as attachments via helper
@@ -27,12 +21,19 @@ export function useThreadDocuments() {
 	const { mounted, getAllItemsRaw, addItem, updateItem } = useIndexedDB({
 		dbName,
 		storeName,
-	}) as unknown as {
-		mounted: boolean
-		getAllItemsRaw: () => Promise<unknown[]>
-		addItem: (item: IndexedDBItem) => void
-		updateItem: (id: string, item: IndexedDBItem) => void
-	}
+	})
+	const {
+		organizationList,
+		departmentList,
+		projectList,
+		projectsByDept,
+		activeOrganization,
+		activeDepartment,
+		activeProject,
+		addOrganization,
+		addDepartment,
+		addProject,
+	} = workspaceContext
 
 	const { value, loading, error } = useAsync(async () => {
 		// Fallback to thread metadata when not ready to read IndexedDB
@@ -57,10 +58,20 @@ export function useThreadDocuments() {
 			route === 'pro'
 
 		// If we cannot or should not read from IDB, return only the documents explicitly linked to the active thread
-		if (!canUseIDB) return fallbackDocs
+		if (!canUseIDB) {
+			console.log('fallbackDocs (return 1)', fallbackDocs)
+			return fallbackDocs
+		}
 
 		try {
-			const items = await getAllItemsRaw()
+			const items = (await getAllItemsRaw()) as unknown as
+				| WorkspaceDocumentMetadata[]
+				| []
+			if (!items || items.length === 0) {
+				// If no local items, return fallbackDocs (may be empty)
+				console.log('fallbackDocs (return 2)', fallbackDocs)
+				return fallbackDocs
+			}
 			// Pick items that look like documents (project+name+type)
 			const localDocs = items.filter(
 				isThreadWorkspaceDocument,
@@ -79,6 +90,10 @@ export function useThreadDocuments() {
 
 			// If we have no thread metadata yet, try to use local docs that are linked to the current thread via threadSlug
 			if (!fallbackDocs?.length && activeThread) {
+				console.log(
+					'localDocs as fallback (return 3)',
+					localDocs.filter((d) => d.threadSlug === activeThread.slug),
+				)
 				return localDocs.filter((d) => d.threadSlug === activeThread.slug)
 			}
 
@@ -120,6 +135,7 @@ export function useThreadDocuments() {
 
 				// If local is already in sync with remote, return local immediately
 				if (isEqual(localCheck, remoteCheck)) {
+					console.log('localDocs are equal as remote (return 4)', localDocs)
 					return localDocs
 				}
 
@@ -175,9 +191,26 @@ export function useThreadDocuments() {
 							// Ignore individual failures
 						}
 					}
-					return uniq([...localDocs, ...downloadedItems])
+					console.log(
+						'localDocs are merged with downloadedItems (return 5)',
+						uniq([...localDocs, ...downloadedItems]),
+					)
+					const mergedDocs = uniq([...localDocs, ...downloadedItems])
+					updateWorkspaceFromDocuments(mergedDocs, {
+						organizationList,
+						departmentList,
+						projectsByDept,
+						addOrganization,
+						addDepartment,
+						addProject,
+					})
+					return mergedDocs
 				}
 
+				console.log(
+					'If not strictly remote > local, keep local view (return 6)',
+					localDocs,
+				)
 				// If not strictly remote > local, keep local view
 				return localDocs
 			}
@@ -234,9 +267,27 @@ export function useThreadDocuments() {
 						// ignore individual fetch errors
 					}
 				})
+				console.log(
+					'Running in background to update localDocs (return 7)',
+					tasks,
+				)
 				// Run in background; do not block UI on backfill completion
 				void Promise.allSettled(tasks)
 			}
+
+			// Updating the Organizations, Departments and Projects according to the merged documents
+			console.log('Merged (before)::>', merged)
+
+			updateWorkspaceFromDocuments(merged, {
+				organizationList,
+				departmentList,
+				projectsByDept,
+				addOrganization,
+				addDepartment,
+				addProject,
+			})
+
+			console.log('Merged (after)::>', merged)
 
 			return merged
 		} catch {
@@ -245,9 +296,153 @@ export function useThreadDocuments() {
 		}
 	}, [session?.user, mounted, isNewResponse, activeThread, loadingState])
 
+	const filteredUserDocuments = useMemo(() => {
+		// Validate document belongs to current workspace context
+		const isValidWorkspaceDocument = (document: WorkspaceDocumentMetadata) => {
+			// Check if document's organization exists in organizationList
+			if (
+				document.organization &&
+				!organizationList.includes(document.organization)
+			) {
+				return false
+			}
+
+			// Check if document's department exists in departmentList for its organization
+			if (document.organization && document.department) {
+				const orgDepartments = departmentList[document.organization] || []
+				if (!orgDepartments.includes(document.department)) {
+					return false
+				}
+			}
+
+			// Check if document's project exists in projectsByDept for its organization/department
+			if (document.organization && document.department && document.project) {
+				const orgProjects =
+					projectsByDept[document.organization]?.[document.department] || []
+				if (!orgProjects.includes(document.project)) {
+					return false
+				}
+			}
+
+			if (!document.organization || !document.department || !document.project) {
+				// Document has no workspace context, consider it invalid
+				return false
+			}
+
+			return true
+		}
+		return (
+			value?.filter((document) => {
+				// First, validate the document belongs to the current workspace
+				if (!isValidWorkspaceDocument(document)) {
+					return false
+				}
+
+				// Filter by project relation with department and organization
+				if (
+					activeProject &&
+					(document.project !== activeProject ||
+						document.department !== activeDepartment ||
+						document.organization !== activeOrganization)
+				) {
+					return false
+				}
+
+				// Then apply thread-specific filtering
+				if (activeThread) {
+					// Show documents that belong to this thread OR are drafts (no versions)
+					return (
+						document.threadSlug === activeThread.slug ||
+						!document.versions?.length
+					)
+				}
+
+				// If no active thread, show all documents for the project (or all if no project selected)
+				return true
+			}) || []
+		)
+	}, [
+		value,
+		organizationList,
+		departmentList,
+		projectsByDept,
+		activeOrganization,
+		activeDepartment,
+		activeProject,
+		activeThread,
+	])
+
 	return {
-		userDocuments: (value || []) as WorkspaceDocumentMetadata[],
+		userDocuments: filteredUserDocuments,
 		loading,
 		error,
+	}
+}
+
+function isThreadWorkspaceDocument(x: unknown): x is WorkspaceDocumentMetadata {
+	if (!x || typeof x !== 'object') return false
+	const obj = x as Record<string, unknown>
+	return (
+		typeof obj.id === 'string' &&
+		typeof obj.project === 'string' &&
+		typeof obj.name === 'string' &&
+		(obj.type === 'text' || obj.type === 'image' || obj.type === 'spreadsheet')
+	)
+}
+
+function updateWorkspaceFromDocuments(
+	documents: WorkspaceDocumentMetadata[],
+	{
+		organizationList,
+		departmentList,
+		projectsByDept,
+		addOrganization,
+		addDepartment,
+		addProject,
+	}: {
+		organizationList: string[]
+		departmentList: Record<string, string[]>
+		projectsByDept: Record<string, Record<string, string[]>>
+		addOrganization: (org: string) => void
+		addDepartment: (org: string, dept: string) => void
+		addProject: (org: string, dept: string, project: string) => void
+	},
+) {
+	const processedOrgs = new Set<string>()
+	const processedDepts = new Set<string>()
+	const processedProjects = new Set<string>()
+
+	for (const doc of documents) {
+		if (doc.organization) {
+			if (!processedOrgs.has(doc.organization)) {
+				processedOrgs.add(doc.organization)
+				if (!organizationList.includes(doc.organization)) {
+					addOrganization(doc.organization)
+				}
+			}
+		}
+
+		if (doc.department && doc.organization) {
+			const deptKey = `${doc.organization}:${doc.department}`
+			if (!processedDepts.has(deptKey)) {
+				processedDepts.add(deptKey)
+				const existingDepts = departmentList[doc.organization] || []
+				if (!existingDepts.includes(doc.department)) {
+					addDepartment(doc.organization, doc.department)
+				}
+			}
+		}
+
+		if (doc.project && doc.organization && doc.department) {
+			const projectKey = `${doc.organization}:${doc.department}:${doc.project}`
+			if (!processedProjects.has(projectKey)) {
+				processedProjects.add(projectKey)
+				const existingProjects =
+					projectsByDept[doc.organization]?.[doc.department] || []
+				if (!existingProjects.includes(doc.project)) {
+					addProject(doc.organization, doc.department, doc.project)
+				}
+			}
+		}
 	}
 }

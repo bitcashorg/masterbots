@@ -16,12 +16,10 @@ export function ChatLayoutSection({ children }: { children: React.ReactNode }) {
 	const { activeChatbot, isDashboardOpen, setIsDashboardOpen, allCategories } =
 		useSidebar()
 	const pathname = usePathname()
-	const isPublic = getRouteType(pathname) === 'public'
+	const isOrg = getRouteType(pathname) === 'org'
 	const chatClassNames = activeChatbot
 		? 'max-h-[97vh]'
 		: 'max-h-[calc(97vh-26px)]'
-
-	console.log('isOpenPopup', isOpenPopup)
 
 	return (
 		<>
@@ -34,11 +32,20 @@ export function ChatLayoutSection({ children }: { children: React.ReactNode }) {
 					/>
 				</div>
 			)}
-
-			<div className="flex flex-col gap-5 px-4 pt-5 mx-auto w-full max-w-screen-xl h-full md:px-10">
-				{children}
-			</div>
-			{isOpenPopup && <ThreadPopup />}
+			<section
+				ref={sectionRef as React.Ref<HTMLDivElement>}
+				className={cn(
+					isOrg ? 'max-h-full md:max-h-[calc(97vh-100px)]' : chatClassNames,
+					'flex h-full group w-full overflow-auto animate-in duration-300 ease-in-out relative',
+					'lg:w-[calc(100%-250px)] xl:w-[calc(100%-300px)] lg:ml-[250px] xl:ml-[300px]',
+					'scrollbar',
+				)}
+			>
+				<div className="flex flex-col gap-5 px-4 pt-5 mx-auto w-full max-w-screen-xl h-full md:px-10">
+					{children}
+				</div>
+				{isOpenPopup && <ThreadPopup />}
+			</section>
 		</>
 	)
 }

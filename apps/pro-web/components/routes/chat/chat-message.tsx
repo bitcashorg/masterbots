@@ -1,6 +1,7 @@
 import { ChatMessageActions } from '@/components/routes/chat/chat-message-actions'
 import { GeneratedImage } from '@/components/shared/generated-image'
 import { MemoizedReactMarkdown } from '@/components/shared/markdown'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
 	cleanClickableText,
 	extractFollowUpContext,
@@ -126,8 +127,13 @@ export function ChatMessage({
 			<div className="mt-4 space-y-4 w-full">
 				{images.map((image, i) => {
 					if (!image.base64) {
-						console.warn(`Image ${i} has no base64 data`)
-						return null
+						console.warn(`Image ${i + 1} (${i}) has no base64 data`)
+						return (
+							<Skeleton
+								key={`skeleton-image-${i + 1}`}
+								className="w-full aspect-video"
+							/>
+						)
 					}
 					//? Create a stable key based on the image content
 					const imageKey = `${message.messageId}-${image.base64.slice(0, 32)}`

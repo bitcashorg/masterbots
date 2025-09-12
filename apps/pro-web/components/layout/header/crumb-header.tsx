@@ -184,7 +184,7 @@ export function DocumentCrumb({
 }: {
 	activeProject: string
 	activeDocument: string
-	userDocuments: WorkspaceDocumentMetadata[]
+	userDocuments: { name: string }[]
 	activeThread: Thread | null
 	documentOptions: string[]
 	threadDocsByName: Map<string, { type?: 'text' | 'image' | 'spreadsheet' }>
@@ -253,7 +253,7 @@ export function DocumentCrumb({
 									return <FileSpreadsheetIcon className="size-4" />
 								return null
 							})()
-						) : opt !== 'None' && threadDocsByName.size > 0 ? (
+						) : opt !== 'None' ? (
 							<span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
 								Draft
 							</span>

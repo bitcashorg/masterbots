@@ -27,7 +27,7 @@ const AccordionTrigger = ({
 	ref,
 	...props
 }: AccordionPrimitive.AccordionTriggerProps &
-	React.RefAttributes<HTMLButtonElement>) => (
+	React.RefAttributes<HTMLButtonElement> & { chevronLeft?: boolean }) => (
 	<AccordionPrimitive.Header className="flex">
 		<AccordionPrimitive.Trigger
 			ref={ref}
@@ -37,8 +37,13 @@ const AccordionTrigger = ({
 			)}
 			{...props}
 		>
+			{props.chevronLeft && (
+				<ChevronDown className="size-4 shrink-0 !top-1 transition-transform duration-200" />
+			)}
 			{children}
-			<ChevronDown className="size-4 shrink-0 !top-1 transition-transform duration-200" />
+			{!props.chevronLeft && (
+				<ChevronDown className="size-4 shrink-0 !top-1 transition-transform duration-200" />
+			)}
 		</AccordionPrimitive.Trigger>
 	</AccordionPrimitive.Header>
 )
