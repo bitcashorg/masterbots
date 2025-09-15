@@ -2043,3 +2043,18 @@ export const deleteMessages = async (
 		}
 	}
 }
+
+export async function isUsernameTaken(username: string, jwt?: string) {
+	const client = getHasuraClient({ jwt })
+
+	const result = await client.query({
+		user: {
+			__args: {
+				where: { username: { _eq: username } },
+			},
+			userId: true,
+		},
+	})
+
+	return result.user.length > 0
+}

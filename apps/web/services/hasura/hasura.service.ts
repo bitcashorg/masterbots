@@ -2000,7 +2000,7 @@ export const deleteMessages = async (
 	}
 }
 
-async function isUsernameTaken(username: string, jwt: string) {
+export async function isUsernameTaken(username: string, jwt?: string) {
 	const client = getHasuraClient({ jwt })
 
 	const result = await client.query({

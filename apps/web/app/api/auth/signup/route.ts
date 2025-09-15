@@ -5,6 +5,7 @@ import { insertAdminUserPreferences } from '@/app/actions/admin.actions'
 import { sendEmailVerification } from '@/lib/email'
 import { generateUsername } from '@/lib/username'
 import { delayFetch } from '@/lib/utils'
+import { isUsernameTaken } from '@/services/hasura/hasura.service'
 import bcryptjs from 'bcryptjs'
 import { appConfig } from 'mb-env'
 import { getHasuraClient, toSlug } from 'mb-lib'
@@ -22,6 +23,16 @@ export async function POST(req: NextRequest) {
 			{ error: 'Missing email or password' },
 			{ status: 400 },
 		)
+	}
+
+	if (username) {
+		const taken = await isUsernameTaken(username)
+		if (taken) {
+			return NextResponse.json(
+				{ error: 'Username is already taken' },
+				{ status: 409 },
+			)
+		}
 	}
 
 	const client = getHasuraClient()
