@@ -372,7 +372,7 @@ export async function createResponseStream(
 							// 	},
 							// },
 						}
-					: {
+					: ({
 							temperature: OPEN_AI_ENV_CONFIG.TEMPERATURE,
 							topP: OPEN_AI_ENV_CONFIG.TOP_P,
 							messages: coreMessages,
@@ -381,7 +381,7 @@ export async function createResponseStream(
 							maxRetries: 2,
 							maxSteps: 3,
 							tools,
-						}
+						} as StreamTextParams)
 				console.log('openAiStreamConfig', openAiStreamConfig)
 				if (appConfig.features.experimentalAiConfig) {
 					// @ts-ignore: It does exist in the config
