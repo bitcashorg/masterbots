@@ -89,8 +89,7 @@ export async function GET(req: NextRequest) {
 				amount:
 					(typeof subPlan?.unit_amount === 'number'
 						? subPlan?.unit_amount
-						: // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-							(subPlan as any)?.amount) || 0,
+						: subPlan?.amount) || 0,
 				interval: subPlan?.interval || 'month',
 				product: {
 					name: subProduct?.name || 'Pro Plan',

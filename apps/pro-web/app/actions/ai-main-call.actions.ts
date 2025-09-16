@@ -382,7 +382,7 @@ export async function createResponseStream(
 							maxSteps: 3,
 							tools,
 						} as StreamTextParams)
-				console.log('openAiStreamConfig', openAiStreamConfig)
+				// console.log('openAiStreamConfig', openAiStreamConfig)
 				if (appConfig.features.experimentalAiConfig) {
 					// @ts-ignore: It does exist in the config
 					openAiStreamConfig.experimental_transform = smoothStream({
