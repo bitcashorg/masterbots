@@ -20,7 +20,8 @@ export function useCopyToClipboard({
 		if (!value) {
 			return
 		}
-
+		// TODO: Add html clipboard content with navigator.clipboard.write() fn.
+		// ? Create the HTML based either on the MemoizedReactMarkdown ref or creating the html string programmatically.
 		navigator.clipboard.writeText(value).then(() => {
 			setIsCopied(true)
 
