@@ -64,10 +64,11 @@ export function useWorkspaceDocuments(workspaceContext: WorkspaceContextType) {
 		}
 
 		try {
+			const remoteDocsRaw = (await getAllUserThreadDocumentsMetadata()) || []
 			const items = (await getAllItemsRaw()) as unknown as
 				| WorkspaceDocumentMetadata[]
 				| []
-			if (!items || items.length === 0) {
+			if ((!items || items.length === 0) && !remoteDocsRaw?.length) {
 				// If no local items, return fallbackDocs (may be empty)
 				console.log('fallbackDocs (return 2)', fallbackDocs)
 				return fallbackDocs
@@ -125,7 +126,6 @@ export function useWorkspaceDocuments(workspaceContext: WorkspaceContextType) {
 
 			// Global docs mode: when not in an activeThread, check remote docs across all threads and sync local if needed (similar to getAllItems for attachments)
 			if (!activeThread) {
-				const remoteDocsRaw = (await getAllUserThreadDocumentsMetadata()) || []
 				const remoteDocs = (remoteDocsRaw as unknown[])
 					.filter(isThreadWorkspaceDocument)
 					.map((d) => ({ ...d })) as WorkspaceDocumentMetadata[]
