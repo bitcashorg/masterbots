@@ -21,14 +21,14 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
 	)
 
 	const publicCategoryUrls = categories.map((category) =>
-		urlBuilders.topicThreadListUrl({ type: 'public', category: category.name }),
+		urlBuilders.topicThreadListUrl({ type: 'org', category: category.name }),
 	)
 
 	// Use urlBuilders for nested URLs
 	const publicNestedUrls = categories.flatMap((category) =>
 		category.chatbots.map(({ chatbot }) =>
 			urlBuilders.chatbotThreadListUrl({
-				type: 'public',
+				type: 'org',
 				category: category.name,
 				domain: getCanonicalDomain(chatbot.name),
 				chatbot: chatbot.name,

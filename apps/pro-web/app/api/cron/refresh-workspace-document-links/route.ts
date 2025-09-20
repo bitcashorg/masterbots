@@ -1,7 +1,7 @@
 import { refreshWorkspaceDocumentLinks } from '@/lib/cron/refresh-workspace-document-links'
 import { NextResponse } from 'next/server'
 
-export async function POST() {
+export async function GET() {
 	try {
 		const result = await refreshWorkspaceDocumentLinks()
 		return NextResponse.json({

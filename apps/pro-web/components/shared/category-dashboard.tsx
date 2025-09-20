@@ -139,7 +139,7 @@ export function CategoryDashboard({
 									onClick={handleApplySelection}
 									className={cn(
 										'px-4 py-2 text-sm font-medium text-white rounded-lg shadow-sm transition-colors',
-										routeType === 'chat'
+										routeType === 'pro'
 											? 'bg-purple-600 hover:bg-purple-700'
 											: 'bg-green-600 hover:bg-green-700',
 									)}
@@ -183,14 +183,14 @@ function CategoryCard({
 
 	const getBorderClasses = () => {
 		if (isSelected) {
-			return routeType === 'chat' ? 'border-purple-500' : 'border-green-500'
+			return routeType === 'pro' ? 'border-purple-500' : 'border-green-500'
 		}
 		return 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
 	}
 
 	const getBackgroundClasses = () => {
 		if (isSelected) {
-			return routeType === 'chat' ? 'bg-purple-500/10' : 'bg-green-500/10'
+			return routeType === 'pro' ? 'bg-purple-500/10' : 'bg-green-500/10'
 		}
 		return 'bg-white dark:bg-zinc-900'
 	}

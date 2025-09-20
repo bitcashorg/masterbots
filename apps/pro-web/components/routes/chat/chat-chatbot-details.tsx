@@ -24,7 +24,7 @@ export default function ChatChatbotDetails() {
 
 	const isWelcomeView = !activeChatbot
 	const routeType = getRouteType(pathname)
-	const isChatRoute = routeType === 'chat'
+	const isChatRoute = routeType === 'pro'
 
 	// Event handlers
 	const handleFollow = async () => {

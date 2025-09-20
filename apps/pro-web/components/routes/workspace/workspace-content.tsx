@@ -662,6 +662,7 @@ This is a new document. Add your content here.
 						userId: session.user.id,
 						model: 'OPENAI',
 						isPublic: false,
+						isPro: true,
 					})
 
 					if (createdThread?.threadId) {

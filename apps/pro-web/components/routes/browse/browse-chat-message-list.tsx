@@ -115,7 +115,7 @@ export function BrowseMessagePairs({
 	const hasPrevious = activeThread?.thread?.messages
 	const pathname = usePathname()
 	const params = useParams()
-	const isPublic = getRouteType(pathname) === 'public'
+	const isOrg = getRouteType(pathname) === 'org'
 	const isProfile = getRouteType(pathname) === 'profile'
 
 	useEffect(() => {
@@ -175,7 +175,7 @@ export function BrowseMessagePairs({
 							...navigationParts,
 						}
 					: {
-							type: isPublic ? 'public' : 'personal',
+							type: isOrg ? 'org' : 'personal',
 							...navigationParts,
 						},
 			})
@@ -191,7 +191,7 @@ export function BrowseMessagePairs({
 							...navigationParts,
 						}
 					: {
-							type: isPublic ? 'public' : 'personal',
+							type: isOrg ? 'org' : 'personal',
 							...navigationParts,
 						},
 			})

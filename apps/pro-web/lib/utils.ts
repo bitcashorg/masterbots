@@ -302,10 +302,10 @@ export function numberShortener(number: number): string {
 /**
  * Determines the route type based on the pathname
  * @param pathname - The current pathname from Next.js usePathname()
- * @returns 'chat' | 'public' | ''
+ * @returns 'chat' | 'org' | ''
  */
 
-type RouteType = 'chat' | 'public' | 'profile' | 'pro' | 'bot' | 'org'
+type RouteType = 'chat' | 'org' | 'profile' | 'pro' | 'bot' | 'org'
 
 export function getRouteType(pathname: string | null): RouteType {
 	if (!pathname || pathname === '/') return 'pro'
@@ -362,7 +362,6 @@ export function getRouteColor(
 		case 'chat':
 			return 'text-black bg-gradient-to-b from-[rgba(190,23,232,0.1)] via-[rgba(187,6,232,0.5)] to-[rgba(190,23,232,0.5)] dark:text-white'
 		case 'org':
-		case 'public':
 			return 'text-black bg-gradient-to-b from-[rgba(131,229,106,0.1)] via-[rgba(131,229,106,0.5)] to-[rgba(131,229,106,0.5)] dark:text-white'
 		default:
 			return ''

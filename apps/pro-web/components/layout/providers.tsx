@@ -62,22 +62,6 @@ const onboardingSteps = [
 	},
 ]
 
-// Custom NextStep theme configuration to match your design system
-const nextStepTheme = {
-	primaryColor: '#8B5CF6', // Purple for chat routes
-	backgroundColor: '#FFFFFF',
-	textColor: '#374151',
-	overlay: 'rgba(0, 0, 0, 0.5)',
-	spotlight: '0 0 0 4px rgba(139, 92, 246, 0.3)',
-	card: {
-		backgroundColor: '#FFFFFF',
-		borderColor: '#E5E7EB',
-		borderRadius: '12px',
-		boxShadow:
-			'0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-	},
-}
-
 type ProvidersProps = {
 	children: React.ReactNode
 	attribute?: Attribute
@@ -86,7 +70,19 @@ type ProvidersProps = {
 	disableTransitionOnChange?: boolean
 }
 export function Providers({ children, ...props }: ProvidersProps) {
-	const AppProviders = ({ children }: { children: React.ReactNode }) => (
+	return (
+		<NextThemesProvider {...props}>
+			<SessionProvider>
+				<NextStepProvider>
+					<OnboardingGate>{children}</OnboardingGate>
+				</NextStepProvider>
+			</SessionProvider>
+		</NextThemesProvider>
+	)
+}
+
+function AppProviders({ children }: { children: React.ReactNode }) {
+	return (
 		<ModelProvider>
 			<PaymentProvider>
 				<SidebarProvider>
@@ -121,29 +117,19 @@ export function Providers({ children, ...props }: ProvidersProps) {
 			</PaymentProvider>
 		</ModelProvider>
 	)
+}
 
-	const OnboardingGate = ({ children }: { children: React.ReactNode }) => {
-		const { showOnboarding } = useOnboarding()
-		return showOnboarding ? (
-			<NextStep
-				steps={onboardingSteps}
-				cardComponent={(cardProps) => <CustomNextStepCard {...cardProps} />}
-			>
-				<AppProviders>{children}</AppProviders>
-			</NextStep>
-		) : (
+function OnboardingGate({ children }: { children: React.ReactNode }) {
+	const { showOnboarding } = useOnboarding()
+	return showOnboarding ? (
+		<NextStep
+			steps={onboardingSteps}
+			cardComponent={(cardProps) => <CustomNextStepCard {...cardProps} />}
+		>
 			<AppProviders>{children}</AppProviders>
-		)
-	}
-
-	return (
-		<NextThemesProvider {...props}>
-			<SessionProvider>
-				<NextStepProvider>
-					<OnboardingGate>{children}</OnboardingGate>
-				</NextStepProvider>
-			</SessionProvider>
-		</NextThemesProvider>
+		</NextStep>
+	) : (
+		<AppProviders>{children}</AppProviders>
 	)
 }
 

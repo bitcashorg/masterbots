@@ -648,6 +648,7 @@ export async function createThread({
 	userId,
 	parentThreadId,
 	isPublic = false,
+	isPro = false,
 }: Partial<CreateThreadParams>) {
 	const client = getHasuraClient({ jwt })
 	const { insertThreadOne } = await client.mutation({
@@ -658,6 +659,7 @@ export async function createThread({
 					threadId,
 					chatbotId,
 					isPublic,
+					isPro,
 					parentThreadId,
 					slug,
 					model,

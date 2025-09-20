@@ -135,11 +135,6 @@ export function WorkspaceChatProvider({
 	}, [activeWorkspaceSection])
 	const { customSonner } = useSonner()
 
-	// Create a stable chat ID that persists across renders
-	const chatId = React.useMemo(() => nanoid(), [])
-
-	// Store the current metaPrompt for system context
-	const [currentMetaPrompt, setCurrentMetaPrompt] = React.useState<string>('')
 	// Raw useChat hook for workspace mode with system message support
 	const [
 		{ allMessages: messages, isLoading, input, error },
@@ -492,6 +487,7 @@ export function WorkspaceChatProvider({
 		metaPrompt: string,
 		selectionRange?: { start: number; end: number } | null,
 	) => {
+		if (isLoading || workspaceProcessingState !== 'idle') return
 		console.log('🚀 handleWorkspaceEdit called with:', {
 			userPrompt,
 			metaPrompt: `${metaPrompt.substring(0, 100)}...`,
@@ -574,8 +570,6 @@ export function WorkspaceChatProvider({
 				userPrompt,
 			})
 
-			// First, set up the system context if it's not already set or has changed
-			setCurrentMetaPrompt(metaPrompt)
 			// Now send the user prompt as a separate user message
 			await append(
 				{

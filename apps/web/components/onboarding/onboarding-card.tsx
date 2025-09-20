@@ -42,23 +42,23 @@ export function OnboardingCard({
 	className,
 }: OnboardingCardProps) {
 	return (
-		<Card
-			className={cn(
-				'fixed z-[9999] w-80 max-w-sm',
-				'transition-all duration-300 ease-in-out',
-				'animate-in fade-in-0 zoom-in-95',
-				'overflow-hidden border-2 shadow-lg backdrop-blur-sm bg-white/95 dark:bg-[#09090B]/95',
-				className,
-			)}
-			style={{
-				top: position.top,
-				left: position.left,
-				right: position.right,
-				bottom: position.bottom,
-			}}
-		>
-			{/* Card Container with site's border-gradient styling */}
-			<div className="border-gradient onboarding-card relative">
+		<div className="relative">
+			<Card
+				className={cn(
+					'fixed z-[9999] w-80 max-w-sm',
+					'transition-all duration-300 ease-in-out',
+					'animate-in fade-in-0 zoom-in-95',
+					'overflow-hidden border-2 shadow-lg backdrop-blur-sm bg-white/95 dark:bg-[#09090B]/95',
+					'border-gradient onboarding-card relative',
+					className,
+				)}
+				style={{
+					top: position.top,
+					left: position.left,
+					right: position.right,
+					bottom: position.bottom,
+				}}
+			>
 				{/* Backdrop blur effect */}
 				<div className="absolute inset-0 rounded-[11px] bg-background/80 backdrop-blur-xl border border-accent/20" />
 
@@ -153,8 +153,7 @@ export function OnboardingCard({
 
 				{/* Glow effect for enhanced visual appeal */}
 				<div className="absolute inset-0 rounded-[11px] bg-gradient-to-br from-accent/5 via-transparent to-accent/5 pointer-events-none" />
-			</div>
-
+			</Card>
 			{/* Arrow pointer */}
 			<div
 				className={cn(
@@ -171,7 +170,7 @@ export function OnboardingCard({
 						: '',
 				)}
 			/>
-		</Card>
+		</div>
 	)
 }
 

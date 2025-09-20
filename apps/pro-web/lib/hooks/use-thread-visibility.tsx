@@ -107,7 +107,7 @@ export function ThreadVisibilityProvider({
 			setIsPublic(newIsPublic)
 			customSonner({
 				type: 'success',
-				text: `Thread is now ${newIsPublic ? 'public' : 'private'}!`,
+				text: `Thread is now ${newIsPublic ? 'org' : 'private'}!`,
 			})
 
 			isPublic = newIsPublic

@@ -61,7 +61,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 		...(await generateMetadataFromSEO(seoData, params)),
 		alternates: {
 			canonical: urlBuilders.chatbotThreadListUrl({
-				type: 'public',
+				type: 'org',
 				category: chatbot.categories?.[0]?.category?.name || 'AI',
 				domain,
 				chatbot: chatbotName as string,

@@ -159,7 +159,6 @@ export function ThreadPopup({ className }: { className?: string }) {
 
 	const routeType = getRouteType(pathname)
 	const isBrowseView =
-		routeType === 'public' ||
 		routeType === 'org' ||
 		routeType === 'profile' ||
 		(routeType === 'bot' && activeThread?.threadId)
@@ -310,7 +309,7 @@ function ThreadPopUpCardHeader({
 	const { customSonner } = useSonner()
 	const pathname = usePathname()
 	const params = useParams()
-	const isPublic = getRouteType(pathname) === 'public'
+	const isOrg = getRouteType(pathname) === 'org'
 	const isProfile = getRouteType(pathname) === 'profile'
 	const isBot = getRouteType(pathname) === 'bot'
 	const isPro = getRouteType(pathname) === 'pro'
@@ -483,7 +482,7 @@ function ThreadPopUpCardHeader({
 			urlType: 'chatbotThreadListUrl',
 			shallow: true,
 			navigationParams: {
-				type: isPublic ? 'public' : 'personal',
+				type: isOrg ? 'org' : 'personal',
 				category: activeThread?.chatbot?.categories?.[0]?.category?.name || '',
 				domain: canonicalDomain,
 				chatbot: activeThread?.chatbot?.name || '',
