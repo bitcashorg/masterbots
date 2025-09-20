@@ -51,6 +51,12 @@ export async function refreshWorkspaceDocumentLinks() {
 							expirationBufferSeconds.toString(),
 						)} seconds')
           )`,
+			// ? Use this codeblock for debugging
+			// sql`${thread.metadata}::jsonb ? 'documents' AND
+			//     jsonb_array_length(${thread.metadata}::jsonb->'documents') > 0 AND
+			//     EXISTS (
+			//       SELECT 1 FROM jsonb_array_elements(${thread.metadata}::jsonb->'documents') AS doc
+			//     )`,
 		)
 
 	console.log(
@@ -124,23 +130,41 @@ async function processThread(
 			try {
 				if (!document.expires) continue
 
+				// const expiry = 0 // temp force update all documents
 				const expiry = new Date(document.expires).getTime()
 				const now = Date.now()
 
 				// Check if the document link is expiring soon
 				if (expiry - now < EXPIRATION_BUFFER_MS) {
-					console.log(
-						`Refreshing expiring link for document: ${document.name} in thread: ${threadRecord.slug}`,
-					)
-
-					// Find the current version to refresh
+					// console.log(
+					// 	`Refreshing expiring link for document: ${document.name} in thread: ${threadRecord.slug} (expires: ${document.expires}, currentVersion: ${document.currentVersion})`,
+					// )
 					const currentVersion = document.versions?.find(
 						(v) => v.version === document.currentVersion,
 					)
 
 					if (!currentVersion?.content) {
-						const errorMsg = `No current version found for document ${document.id}`
-						console.warn(errorMsg)
+						// Handle case where current version doesn't exist in versions array
+						if (!document.versions || document.versions.length === 0) {
+							result.errors.push(
+								`Document ${document.id} has corrupted version data - no versions array`,
+							)
+							continue
+						}
+
+						// Check if currentVersion exists at all
+						const versionExists = document.versions.some(
+							(v) => v.version === document.currentVersion,
+						)
+						if (!versionExists) {
+							result.errors.push(
+								`Document ${document.id} currentVersion ${document.currentVersion} not found in versions array`,
+							)
+							continue
+						}
+
+						// If we get here, there's some other issue with the current version
+						const errorMsg = `Current version ${document.currentVersion} exists but has no content for document ${document.id}`
 						result.errors.push(errorMsg)
 						continue
 					}
@@ -168,37 +192,86 @@ async function processThread(
 						continue
 					}
 
-					// Generate new signed URL
+					// Generate new signed URL expiry time
 					const newExpiry = now + NEW_EXPIRY_DURATION_MS
-					const [signedUrl] = await file.getSignedUrl({
-						version: 'v4',
-						action: 'read',
-						expires: newExpiry,
-					})
+
+					// Generate signed URLs for all unique bucket keys in the versions
+					const uniqueBucketKeys = [
+						...new Set(
+							document.versions?.map((v) => v.content).filter(Boolean) || [],
+						),
+					]
+					const signedUrls = new Map<string, string>()
+
+					for (const key of uniqueBucketKeys) {
+						const file = bucket.file(key)
+						const [exists] = await file.exists()
+						if (!exists) {
+							console.warn(`File not found in bucket: ${key}`)
+							continue
+						}
+
+						const [signedUrl] = await file.getSignedUrl({
+							version: 'v4',
+							action: 'read',
+							expires: newExpiry,
+						})
+						signedUrls.set(key, signedUrl)
+					}
 
 					// Update document with new URL and expiry
-					const updatedVersions = document.versions?.map((v) =>
-						v.version === document.currentVersion
-							? {
+					let updatedVersions = document.versions
+					if (updatedVersions && updatedVersions.length > 0) {
+						// console.log(`Updating ${updatedVersions.length} versions for document ${document.name}`)
+
+						updatedVersions = updatedVersions.map((v) => {
+							const versionSignedUrl = signedUrls.get(v.content)
+							if (versionSignedUrl) {
+								// console.log(`Updating version ${v.version} with its own signed URL`)
+								return {
 									...v,
-									url: signedUrl,
+									url: versionSignedUrl,
 									updatedAt: new Date().toISOString(),
 								}
-							: v,
-					)
+							}
+							return v
+						})
+
+						const updatedCount = updatedVersions.filter(
+							(v, i) => updatedVersions[i] !== document.versions?.[i],
+						).length
+						// console.log(`Successfully updated ${updatedCount} versions with new signed URLs`)
+					} else {
+						// console.warn(`Document ${document.id} has no versions array during update - this should not happen`)
+						result.errors.push(
+							`Document ${document.id} missing versions array during update`,
+						)
+						continue
+					}
+
+					// Use the current version's signed URL for the document-level URL
+					const currentVersionSignedUrl = signedUrls.get(currentVersion.content)
 
 					updatedDocuments[i] = {
 						...document,
-						url: signedUrl,
+						url: currentVersionSignedUrl || document.url,
 						expires: new Date(newExpiry).toISOString(),
 						versions: updatedVersions,
 					}
+
+					console.log(`Final updated document ${document.name}:`)
+					console.log(`  URL: ${currentVersionSignedUrl?.substring(0, 50)}...`)
+					console.log(`  Expires: ${new Date(newExpiry).toISOString()}`)
+					console.log(`  Current version: ${document.currentVersion}`)
+					console.log(
+						`  Updated ${updatedVersions?.filter((v, i) => v !== document.versions?.[i]).length || 0} versions with new URLs`,
+					)
 
 					hasUpdates = true
 					result.documentsRefreshed++
 
 					console.log(
-						`Successfully refreshed link for document: ${document.name}`,
+						`Successfully refreshed links for document: ${document.name} (${updatedVersions?.filter((v, i) => v !== document.versions?.[i]).length || 0} versions updated)`,
 					)
 				}
 			} catch (documentError) {
@@ -210,21 +283,39 @@ async function processThread(
 
 		// Update the thread in a transaction if any documents were refreshed
 		if (hasUpdates) {
-			await db.transaction(async (tx) => {
-				await tx
-					.update(thread)
-					.set({
-						metadata: {
-							...metadata,
-							documents: updatedDocuments,
-						},
-					})
-					.where(eq(thread.threadId, threadRecord.threadId))
-			})
-
 			console.log(
-				`Updated thread ${threadRecord.slug} with ${result.documentsRefreshed} refreshed document links`,
+				`About to update thread ${threadRecord.slug} with ${result.documentsRefreshed} refreshed documents`,
 			)
+			console.log(`Updated documents count: ${updatedDocuments.length}`)
+
+			try {
+				await db.transaction(async (tx) => {
+					const updateResult = await tx
+						.update(thread)
+						.set({
+							metadata: {
+								...metadata,
+								documents: updatedDocuments,
+							},
+						})
+						.where(eq(thread.threadId, threadRecord.threadId))
+
+					console.log(
+						`Database update result for thread ${threadRecord.slug}:`,
+						updateResult,
+					)
+				})
+
+				console.log(
+					`Updated thread ${threadRecord.slug} with ${result.documentsRefreshed} refreshed document links`,
+				)
+			} catch (dbError) {
+				const errorMsg = `Database update failed for thread ${threadRecord.threadId}: ${dbError instanceof Error ? dbError.message : 'Unknown error'}`
+				console.error(errorMsg)
+				result.errors.push(errorMsg)
+			}
+		} else {
+			console.log(`No updates needed for thread ${threadRecord.slug}`)
 		}
 	} catch (threadError) {
 		const errorMsg = `Error processing thread ${threadRecord.threadId}: ${threadError instanceof Error ? threadError.message : 'Unknown error'}`
