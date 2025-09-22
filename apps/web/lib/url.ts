@@ -310,12 +310,15 @@ export const urlBuilders = {
 
 			// Return the URL with the thread slug
 			const pathParts = basePath ? ['', basePath] : ['']
+
 			pathParts.push(
 				normalizeCategorySlug(category),
 				normalizeDomainSlug(domain, raw),
 				chatbot.toLowerCase(),
 				threadSlug,
 			)
+
+			console.log('threadUrl function called with parameters:', pathParts)
 			return pathParts.join('/')
 		} catch (error) {
 			if (appConfig.features.devMode)
@@ -412,6 +415,11 @@ export const urlBuilders = {
 				threadSlug,
 				threadQuestionSlug,
 			)
+			console.log({
+				'reach here for pathParts': {
+					pathParts,
+				},
+			})
 			return pathParts.join('/')
 		} catch (error) {
 			if (appConfig.features.devMode)
@@ -874,6 +882,11 @@ export function parsePath(pathname: string): PathParams {
 	const segments = pathname.split('/').filter(Boolean)
 	const isProfileThread = segments[0] === 'u' && segments[2] === 't'
 	const isBotProfile = segments[0] === 'b'
+	const isChatPage = segments[0] === 'c'
+
+	if (isChatPage) {
+		segments.shift()
+	}
 
 	if (isBotProfile) {
 		return {
