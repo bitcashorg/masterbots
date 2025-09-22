@@ -152,36 +152,36 @@ export function ChatMessage({
 
 	return (
 		<div
-			className={cn('group relative flex items-start p-1 w-full')}
+			className={cn(
+				'relative flex-1 pr-1 space-y-2 overflow-hidden group flex items-start p-1 w-full',
+			)}
 			{...props}
 		>
-			<div className="flex-1 pr-1 space-y-2 overflow-hidden">
-				<MemoizedReactMarkdown
-					className="min-w-full prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
-					components={memoizedMarkdownComponents(
-						!(isBrowseView || isProfileView || isBotView)
-							? {
-									handleClickableClick,
-									shouldPreProcessChildren: true,
-								}
-							: undefined,
-					)}
-				>
-					{cleanMessage.content}
-				</MemoizedReactMarkdown>
-
-				{ImagesSection}
-
-				{actionRequired && (
-					<ChatMessageActions
-						className="md:!right-0"
-						message={message}
-						onConvertToWorkspaceDocument={onConvertToWorkspaceDocument}
-					/>
+			<MemoizedReactMarkdown
+				className="min-w-full prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
+				components={memoizedMarkdownComponents(
+					!(isBrowseView || isProfileView || isBotView)
+						? {
+								handleClickableClick,
+								shouldPreProcessChildren: true,
+							}
+						: undefined,
 				)}
+			>
+				{cleanMessage.content}
+			</MemoizedReactMarkdown>
 
-				<ReferencesSection />
-			</div>
+			{ImagesSection}
+
+			{actionRequired && (
+				<ChatMessageActions
+					className="md:!right-0"
+					message={message}
+					onConvertToWorkspaceDocument={onConvertToWorkspaceDocument}
+				/>
+			)}
+
+			<ReferencesSection />
 		</div>
 	)
 }
