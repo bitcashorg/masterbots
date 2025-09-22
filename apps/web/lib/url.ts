@@ -277,7 +277,11 @@ export const urlBuilders = {
 		raw = false,
 	}: ThreadUrlParams): string {
 		try {
-			if (!category || !chatbot || !threadSlug || !domain) {
+			if (
+				!chatbot ||
+				!threadSlug ||
+				(type !== 'bot' && (!domain || !category))
+			) {
 				const threadUrlEntries = { category, chatbot, domain, threadSlug }
 				const missing = Object.entries(threadUrlEntries)
 					.filter(([_, value]) => !value)
@@ -302,6 +306,9 @@ export const urlBuilders = {
 				case 'pro':
 					basePath = 'pro'
 					break
+				case 'bot':
+					basePath = 'b'
+					break
 				default:
 					if (appConfig.features.devMode)
 						console.error('Invalid thread URL type:', type)
@@ -310,12 +317,18 @@ export const urlBuilders = {
 
 			// Return the URL with the thread slug
 			const pathParts = basePath ? ['', basePath] : ['']
+
 			pathParts.push(
 				normalizeCategorySlug(category),
 				normalizeDomainSlug(domain, raw),
 				chatbot.toLowerCase(),
 				threadSlug,
 			)
+
+			if (type === 'bot') {
+				pathParts.splice(2, 2)
+			}
+
 			return pathParts.join('/')
 		} catch (error) {
 			if (appConfig.features.devMode)
@@ -412,6 +425,11 @@ export const urlBuilders = {
 				threadSlug,
 				threadQuestionSlug,
 			)
+			console.log({
+				'reach here for pathParts': {
+					pathParts,
+				},
+			})
 			return pathParts.join('/')
 		} catch (error) {
 			if (appConfig.features.devMode)
@@ -874,6 +892,11 @@ export function parsePath(pathname: string): PathParams {
 	const segments = pathname.split('/').filter(Boolean)
 	const isProfileThread = segments[0] === 'u' && segments[2] === 't'
 	const isBotProfile = segments[0] === 'b'
+	const isChatPage = segments[0] === 'c'
+
+	if (isChatPage) {
+		segments.shift()
+	}
 
 	if (isBotProfile) {
 		return {
