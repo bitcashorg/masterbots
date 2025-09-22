@@ -277,7 +277,11 @@ export const urlBuilders = {
 		raw = false,
 	}: ThreadUrlParams): string {
 		try {
-			if (!category || !chatbot || !threadSlug || !domain) {
+			if (
+				!chatbot ||
+				!threadSlug ||
+				(type !== 'bot' && (!domain || !category))
+			) {
 				const threadUrlEntries = { category, chatbot, domain, threadSlug }
 				const missing = Object.entries(threadUrlEntries)
 					.filter(([_, value]) => !value)
@@ -302,6 +306,9 @@ export const urlBuilders = {
 				case 'pro':
 					basePath = 'pro'
 					break
+				case 'bot':
+					basePath = 'b'
+					break
 				default:
 					if (appConfig.features.devMode)
 						console.error('Invalid thread URL type:', type)
@@ -318,7 +325,10 @@ export const urlBuilders = {
 				threadSlug,
 			)
 
-			console.log('threadUrl function called with parameters:', pathParts)
+			if (type === 'bot') {
+				pathParts.splice(2, 2)
+			}
+
 			return pathParts.join('/')
 		} catch (error) {
 			if (appConfig.features.devMode)
