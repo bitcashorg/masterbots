@@ -12,7 +12,6 @@ export function UserThreadList({
 	count: number
 }) {
 	if (!user) return null
-
 	return (
 		<div className="max-w-screen-xl mx-auto w-full">
 			<UserThreadPanel

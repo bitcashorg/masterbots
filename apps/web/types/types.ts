@@ -395,7 +395,8 @@ export type PreferenceItemType = {
 	title: string
 	description: string
 	type?: string
-	props?: Record<string, string>
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+	props?: Record<string, any>
 	defaultChecked?: boolean
 	icon?: React.ElementType
 	buttonText?: string
@@ -657,4 +658,17 @@ export interface HomePageProps {
 export interface OnboardingSectionProps {
 	isOpen: boolean
 	onClose: () => void
+}
+
+declare global {
+	interface Window {
+		googleTranslateElementInit: () => void
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		google: any
+	}
+}
+
+export interface GoogleTranslateProps {
+	pageLanguage?: string
+	includedLanguages?: string
 }

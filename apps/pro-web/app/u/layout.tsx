@@ -14,17 +14,10 @@ export default async function ProfilePageLayout({
 	params,
 }: ProfileLayoutProps) {
 	const session = await getServerSession()
-	const { userSlug } = await params
-	const { user } = await getUserBySlug({
-		slug: userSlug as string,
-		isSameUser: session?.user.slug === userSlug,
-	})
 	return (
 		// <section className="flex flex-col p-0">
 		<BrowseProvider>
-			<ProfileLayoutContent user={user as User}>
-				{children}
-			</ProfileLayoutContent>
+			<ProfileLayoutContent>{children}</ProfileLayoutContent>
 		</BrowseProvider>
 	)
 }

@@ -108,7 +108,7 @@ export const UserProfileSidebar = ({
 					'lg:pl-0 lg:pr-0 max-w-screen-xl mx-auto': !isMainProfilePage,
 				})}
 			>
-				{!isMainProfilePage && (
+				{/* {!isMainProfilePage && (
 					<Breadcrumb className="px-4 py-2">
 						<BreadcrumbList>
 							<BreadcrumbItem>
@@ -126,7 +126,7 @@ export const UserProfileSidebar = ({
 							</BreadcrumbItem>
 						</BreadcrumbList>
 					</Breadcrumb>
-				)}
+				)} */}
 				<div className="flex flex-col w-full gap-10 pt-5 mb-10 mx-auto flex-grow ">
 					{children}
 				</div>

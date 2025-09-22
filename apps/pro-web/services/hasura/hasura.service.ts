@@ -243,12 +243,24 @@ export async function getThreads({
 	jwt,
 	limit,
 	offset,
+	keyword,
 }: GetThreadsParams) {
 	const client = getHasuraClient({ jwt })
+
 	const baseThreadsArguments = {
-		...(chatbotName || categoryId
+		...(chatbotName || categoryId || keyword || userId || domain
 			? {
 					where: {
+						...(keyword
+							? {
+									messages: {
+										_or: [
+											{ content: { _iregex: keyword } },
+											{ content: { _eq: keyword } },
+										],
+									},
+								}
+							: {}),
 						chatbot: {
 							...(chatbotName
 								? {
@@ -743,6 +755,17 @@ export async function getBrowseThreads({
 	const client = getHasuraClient({})
 	const baseLimit = limit || 20
 	const baseWhereConditions = {
+		...(keyword
+			? {
+					messages: {
+						_or: [
+							{ content: { _iregex: keyword } },
+							{ content: { _eq: keyword } },
+						],
+					},
+				}
+			: {}),
+
 		...(categoryId
 			? {
 					chatbot: {
@@ -824,16 +847,6 @@ export async function getBrowseThreads({
 				role: true,
 				__args: {
 					orderBy: [{ createdAt: 'ASC' }],
-					...(keyword
-						? {
-								where: {
-									_or: [
-										{ content: { _iregex: keyword } },
-										{ content: { _eq: keyword } },
-									],
-								},
-							}
-						: ''),
 					limit: 2,
 				},
 			},
@@ -2029,4 +2042,19 @@ export const deleteMessages = async (
 			error: error instanceof Error ? error.message : 'Unknown error',
 		}
 	}
+}
+
+export async function isUsernameTaken(username: string, jwt?: string) {
+	const client = getHasuraClient({ jwt })
+
+	const result = await client.query({
+		user: {
+			__args: {
+				where: { username: { _eq: username } },
+			},
+			userId: true,
+		},
+	})
+
+	return result.user.length > 0
 }

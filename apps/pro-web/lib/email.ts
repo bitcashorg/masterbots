@@ -30,6 +30,7 @@ if (process.env.NEXT_PUBLIC_APP_ENV === 'prod') {
 	})
 } else {
 	// * Mailtrap configuration for development on local and test environments
+
 	transporter = nodemailer.createTransport({
 		host: 'sandbox.smtp.mailtrap.io',
 		port: 2525,
@@ -80,7 +81,6 @@ export async function sendEmailVerification(
 ) {
 	const baseUrl = getAppUrl()
 	const verificationUrl = `${baseUrl}/auth/verify?token=${verificationToken}`
-
 	const mailOptions = {
 		from: process.env.EMAIL_FROM,
 		to: email,
@@ -93,6 +93,6 @@ export async function sendEmailVerification(
 		console.log(`Verification email sent to ${email}`)
 	} catch (error) {
 		console.error('Error sending verification email:', error)
-		throw new Error('Failed to send verification email')
+		throw new Error(`Failed to send verification email: ${error}`)
 	}
 }
