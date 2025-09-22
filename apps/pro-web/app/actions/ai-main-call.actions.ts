@@ -365,12 +365,12 @@ export async function createResponseStream(
 							tools,
 							temperature: 1,
 							reasoning_effort: isPowerUp ? 'high' : 'medium',
-							providerOptions: {
-								openai: {
-									reasoningEffort: 'low',
-									reasoningSummary: 'auto',
-								},
-							},
+							// providerOptions: {
+							// 	openai: {
+							// 		reasoningEffort: 'low',
+							// 		reasoningSummary: 'auto',
+							// 	},
+							// },
 						}
 					: ({
 							temperature: OPEN_AI_ENV_CONFIG.TEMPERATURE,

@@ -57,6 +57,7 @@ export function UserCard({ user: userProps, loading }: UserCardProps) {
 	const { customSonner } = useSonner()
 	const [displayedBio, setDisplayedBio] = useState<string>('')
 
+	// console.log("userProps", userProps)
 	const userQuestions = useMemo(
 		() =>
 			(userProps?.threads || [])
@@ -169,7 +170,6 @@ export function UserCard({ user: userProps, loading }: UserCardProps) {
 		handleUpdateUserInfo()
 
 		if (userData?.profilePicture && !userProfilePicture) {
-			console.log('user.profilePicture', userData.profilePicture)
 			updateUserProfilePicture(userData.profilePicture)
 		}
 	}, [lastMessage, generateType, userProps?.profilePicture])

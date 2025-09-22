@@ -112,6 +112,7 @@ select_permissions:
         - deletion_requested_at
         - email
         - favourite_topic
+        - is_verified
         - last_login
         - pro_user_subscription_id
         - profile_picture
