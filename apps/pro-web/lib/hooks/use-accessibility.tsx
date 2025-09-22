@@ -22,7 +22,7 @@ export function AccessibilityProvider({
 }) {
 	const [fontSize, setFontSize] = useLocalStorage<FontSize>(
 		'mb-font-size',
-		'large',
+		'normal',
 	)
 
 	useEffect(() => {

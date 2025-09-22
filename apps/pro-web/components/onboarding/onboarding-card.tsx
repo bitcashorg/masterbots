@@ -42,14 +42,14 @@ export function OnboardingCard({
 	className,
 }: OnboardingCardProps) {
 	return (
-		<div className="relative">
+		<div className="relative z-[9999]">
 			<Card
 				className={cn(
-					'fixed z-[9999] w-80 max-w-sm',
+					'fixed w-80 max-w-sm',
 					'transition-all duration-300 ease-in-out',
 					'animate-in fade-in-0 zoom-in-95',
 					'overflow-hidden border-2 shadow-lg backdrop-blur-sm bg-white/95 dark:bg-[#09090B]/95',
-					'border-gradient onboarding-card relative',
+					'border-gradient onboarding-card',
 					className,
 				)}
 				style={{

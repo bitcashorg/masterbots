@@ -109,7 +109,7 @@ export async function generateMetadata(
 		...baseMetadata,
 		alternates: {
 			canonical: urlBuilders.threadUrl({
-				type: 'org',
+				type: 'public',
 				category: topic.name,
 				domain,
 				chatbot: chatbotName,

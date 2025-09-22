@@ -1325,6 +1325,7 @@ export async function getUserBySlug({
 				bio: true,
 				favouriteTopic: true,
 				proUserSubscriptionId: true,
+				isVerified: true,
 				threads: {
 					__args: {
 						where: isSameUser
@@ -2059,4 +2060,59 @@ export async function isUsernameTaken(username: string, jwt?: string) {
 	})
 
 	return result.user.length > 0
+}
+
+export async function updateUser({
+	userId,
+	email,
+	username,
+	slug,
+	jwt,
+}: {
+	userId: string | undefined
+	email: string | null
+	username: string | null
+	slug: string | null
+	jwt: string | undefined
+}) {
+	try {
+		if (!jwt) {
+			throw new Error('Authentication required to update user')
+		}
+
+		const client = getHasuraClient({ jwt })
+
+		if (username) {
+			const taken = await isUsernameTaken(username, jwt)
+			if (taken) {
+				throw new Error('Username is already taken')
+			}
+		}
+
+		// Build update arguments based on non-null values
+		const updateArgs: UpdateUserArgs = {
+			pkColumns: { userId },
+		}
+
+		updateArgs._set = {
+			// ...(email !== null && { email }),
+			...(username !== null && { username }),
+			...(slug !== null && { slug }),
+		}
+
+		await client.mutation({
+			updateUserByPk: {
+				__args: updateArgs,
+				userId: true,
+				email: true,
+				username: true,
+				slug: true,
+			},
+		})
+
+		return { success: true }
+	} catch (error) {
+		console.error('Error updating user:', error)
+		throw error
+	}
 }

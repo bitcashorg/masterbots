@@ -11,7 +11,7 @@ import {
 	getThreads,
 	getUserBySlug,
 } from '@/services/hasura/hasura.service'
-import type { PageProps } from '@/types'
+import type { PageProps } from '@/types/types'
 import type { Thread, User } from 'mb-genql'
 import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
@@ -104,7 +104,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 		...(await generateMetadataFromSEO(seoData, params)),
 		alternates: {
 			canonical: urlBuilders.chatbotThreadListUrl({
-				type: 'org',
+				type: 'public',
 				category: chatbot.categories?.[0]?.category?.name || 'AI',
 				domain,
 				chatbot: chatbotName as string,

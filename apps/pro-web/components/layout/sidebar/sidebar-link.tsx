@@ -244,8 +244,8 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(
 		const { selectedChatbots, toggleChatbotSelection, navigateTo } =
 			useSidebar()
 		const pathname = usePathname()
-		const isOrg = !/^\/(?:c|u)(?:\/|$)/.test(pathname)
 		const routeType = getRouteType(pathname)
+		const isOrg = routeType === 'org'
 		const { userSlug, domain } = useParams()
 		const { setIsOpenPopup, setActiveThread } = useThread()
 		const { setSearchTerm } = useThreadSearch()

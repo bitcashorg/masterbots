@@ -1,4 +1,4 @@
-import type { PageProps } from '@/types'
+import type { PageProps } from '@/types/types'
 import { redirect } from 'next/navigation'
 
 export default async function ProfilePageDefaultRedirect(props: PageProps) {

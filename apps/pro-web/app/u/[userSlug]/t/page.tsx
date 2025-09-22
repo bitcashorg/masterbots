@@ -8,7 +8,7 @@ import {
 	getUserBySlug,
 	getUserInfoFromBrowse,
 } from '@/services/hasura'
-import type { PageProps } from '@/types'
+import type { PageProps } from '@/types/types'
 import type { Thread, User } from 'mb-genql'
 import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
@@ -31,7 +31,6 @@ export default async function ProfilePage(props: {
 		slug,
 		isSameUser: session?.user.slug === slug,
 	})
-
 	if (error)
 		return <ErrorComponent message={`Error loading profile: ${error}`} />
 	if (!user) return <ErrorComponent message="User not found" />
