@@ -30,21 +30,65 @@ import {
 	userToken,
 } from './schema'
 
-export const promptRelations = relations(prompt, ({ one, many }) => ({
-	promptTypeEnum: one(promptTypeEnum, {
-		fields: [prompt.type],
-		references: [promptTypeEnum.value],
+export const modelsRelations = relations(models, ({ one }) => ({
+	modelsEnum: one(modelsEnum, {
+		fields: [models.model],
+		references: [modelsEnum.value],
 	}),
-	promptChatbots: many(promptChatbot),
-	promptUsers: many(promptUser),
 }))
 
-export const promptTypeEnumRelations = relations(
-	promptTypeEnum,
+export const modelsEnumRelations = relations(modelsEnum, ({ many }) => ({
+	models: many(models),
+	threads: many(thread),
+}))
+
+export const chatbotRelations = relations(chatbot, ({ one, many }) => ({
+	complexityEnum: one(complexityEnum, {
+		fields: [chatbot.defaultComplexity],
+		references: [complexityEnum.value],
+	}),
+	lengthEnum: one(lengthEnum, {
+		fields: [chatbot.defaultLength],
+		references: [lengthEnum.value],
+	}),
+	toneEnum: one(toneEnum, {
+		fields: [chatbot.defaultTone],
+		references: [toneEnum.value],
+	}),
+	typeEnum: one(typeEnum, {
+		fields: [chatbot.defaultType],
+		references: [typeEnum.value],
+	}),
+	preferences: many(preference),
+	socialFollowings: many(socialFollowing),
+	chatbotCategories: many(chatbotCategory),
+	promptChatbots: many(promptChatbot),
+	chatbotDomains: many(chatbotDomain),
+	threads: many(thread),
+}))
+
+export const complexityEnumRelations = relations(
+	complexityEnum,
 	({ many }) => ({
-		prompts: many(prompt),
+		chatbots: many(chatbot),
+		preferences: many(preference),
 	}),
 )
+
+export const lengthEnumRelations = relations(lengthEnum, ({ many }) => ({
+	chatbots: many(chatbot),
+	preferences: many(preference),
+}))
+
+export const toneEnumRelations = relations(toneEnum, ({ many }) => ({
+	chatbots: many(chatbot),
+	preferences: many(preference),
+}))
+
+export const typeEnumRelations = relations(typeEnum, ({ many }) => ({
+	chatbots: many(chatbot),
+	preferences: many(preference),
+}))
 
 export const preferenceRelations = relations(preference, ({ one }) => ({
 	chatbot: one(chatbot, {
@@ -73,54 +117,6 @@ export const preferenceRelations = relations(preference, ({ one }) => ({
 	}),
 }))
 
-export const chatbotRelations = relations(chatbot, ({ one, many }) => ({
-	preferences: many(preference),
-	complexityEnum: one(complexityEnum, {
-		fields: [chatbot.defaultComplexity],
-		references: [complexityEnum.value],
-	}),
-	lengthEnum: one(lengthEnum, {
-		fields: [chatbot.defaultLength],
-		references: [lengthEnum.value],
-	}),
-	toneEnum: one(toneEnum, {
-		fields: [chatbot.defaultTone],
-		references: [toneEnum.value],
-	}),
-	typeEnum: one(typeEnum, {
-		fields: [chatbot.defaultType],
-		references: [typeEnum.value],
-	}),
-	socialFollowings: many(socialFollowing),
-	chatbotCategories: many(chatbotCategory),
-	promptChatbots: many(promptChatbot),
-	chatbotDomains: many(chatbotDomain),
-	threads: many(thread),
-}))
-
-export const complexityEnumRelations = relations(
-	complexityEnum,
-	({ many }) => ({
-		preferences: many(preference),
-		chatbots: many(chatbot),
-	}),
-)
-
-export const lengthEnumRelations = relations(lengthEnum, ({ many }) => ({
-	preferences: many(preference),
-	chatbots: many(chatbot),
-}))
-
-export const toneEnumRelations = relations(toneEnum, ({ many }) => ({
-	preferences: many(preference),
-	chatbots: many(chatbot),
-}))
-
-export const typeEnumRelations = relations(typeEnum, ({ many }) => ({
-	preferences: many(preference),
-	chatbots: many(chatbot),
-}))
-
 export const userRelations = relations(user, ({ many }) => ({
 	preferences: many(preference),
 	referrals_userId: many(referral, {
@@ -139,6 +135,22 @@ export const userRelations = relations(user, ({ many }) => ({
 	userTokens: many(userToken),
 	threads: many(thread),
 }))
+
+export const promptRelations = relations(prompt, ({ one, many }) => ({
+	promptTypeEnum: one(promptTypeEnum, {
+		fields: [prompt.type],
+		references: [promptTypeEnum.value],
+	}),
+	promptChatbots: many(promptChatbot),
+	promptUsers: many(promptUser),
+}))
+
+export const promptTypeEnumRelations = relations(
+	promptTypeEnum,
+	({ many }) => ({
+		prompts: many(prompt),
+	}),
+)
 
 export const referralRelations = relations(referral, ({ one }) => ({
 	user_userId: one(user, {
@@ -203,18 +215,6 @@ export const socialFollowingRelations = relations(
 		}),
 	}),
 )
-
-export const modelsRelations = relations(models, ({ one }) => ({
-	modelsEnum: one(modelsEnum, {
-		fields: [models.model],
-		references: [modelsEnum.value],
-	}),
-}))
-
-export const modelsEnumRelations = relations(modelsEnum, ({ many }) => ({
-	models: many(models),
-	threads: many(thread),
-}))
 
 export const chatbotCategoryRelations = relations(
 	chatbotCategory,
@@ -302,10 +302,6 @@ export const threadRelations = relations(thread, ({ one, many }) => ({
 		fields: [thread.userId],
 		references: [user.userId],
 	}),
-	modelsEnum: one(modelsEnum, {
-		fields: [thread.model],
-		references: [modelsEnum.name],
-	}),
 	thread: one(thread, {
 		fields: [thread.parentThreadId],
 		references: [thread.threadId],
@@ -313,6 +309,10 @@ export const threadRelations = relations(thread, ({ one, many }) => ({
 	}),
 	threads: many(thread, {
 		relationName: 'thread_parentThreadId_thread_threadId',
+	}),
+	modelsEnum: one(modelsEnum, {
+		fields: [thread.model],
+		references: [modelsEnum.name],
 	}),
 	messages: many(message),
 }))
