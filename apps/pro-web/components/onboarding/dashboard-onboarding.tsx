@@ -1,5 +1,6 @@
 'use client'
 
+import { getRouteType } from '@/lib/utils'
 import { usePathname } from 'next/navigation'
 import { useNextStep } from 'nextstepjs'
 import { useCallback, useEffect, useState } from 'react'
@@ -15,7 +16,8 @@ export function DashboardOnboarding({
 }: DashboardOnboardingProps) {
 	const [hasShownOnboarding, setHasShownOnboarding] = useState(false)
 	const pathname = usePathname()
-	const isChatRoute = /^\/c(?:\/|$)/.test(pathname)
+	const routeType = getRouteType(pathname)
+	const isProRoute = routeType === 'pro'
 	const { startNextStep, currentTour, isNextStepVisible } = useNextStep()
 
 	// Handle completion when tour ends
@@ -39,7 +41,7 @@ export function DashboardOnboarding({
 
 	useEffect(() => {
 		// Check if user is on /c route and hasn't seen onboarding
-		if (isChatRoute && userId && !hasShownOnboarding) {
+		if (isProRoute && userId && !hasShownOnboarding) {
 			const hasSeenOnboarding = localStorage.getItem(
 				`dashboard-onboarding-${userId}`,
 			)
@@ -53,7 +55,7 @@ export function DashboardOnboarding({
 				return () => clearTimeout(timer)
 			}
 		}
-	}, [isChatRoute, userId, hasShownOnboarding, startNextStep])
+	}, [isProRoute, userId, hasShownOnboarding, startNextStep])
 
 	// This component doesn't render anything visible,
 	// it just triggers the tour when conditions are met
