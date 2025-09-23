@@ -131,7 +131,7 @@ export function useImageGeneration(): UseImageGenerationReturn {
 		(mode: 'chat' | 'edit' = 'chat') => {
 			if (!generatedImage) return
 
-			if (mode === 'pro') {
+			if (mode === 'chat') {
 				//* Create image message and append to chat
 				const imageMessage = imageHelpers.createImageMessage(generatedImage)
 				append(imageMessage)
