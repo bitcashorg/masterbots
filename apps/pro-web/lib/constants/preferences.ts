@@ -1,4 +1,4 @@
-import type { PreferenceItemType } from '@/types/types'
+import type { PreferenceItemType } from '@/types'
 import {
 	LetterText,
 	MessageSquareX,

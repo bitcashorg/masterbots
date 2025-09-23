@@ -11,7 +11,7 @@ import {
 	getThreads,
 	getUserBySlug,
 } from '@/services/hasura/hasura.service'
-import type { PageProps } from '@/types/types'
+import type { PageProps } from '@/types'
 import type { Thread, User } from 'mb-genql'
 import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
