@@ -162,6 +162,7 @@
 	[data-font-size="normal"] {
 		font-size: var(--font-size-base);
 	}
+
 	[data-font-size="small"] {
 		font-size: calc(var(--font-size-base) * 0.8);
 	}

@@ -30,7 +30,6 @@ if (process.env.NEXT_PUBLIC_APP_ENV === 'prod') {
 	})
 } else {
 	// * Mailtrap configuration for development on local and test environments
-
 	transporter = nodemailer.createTransport({
 		host: 'sandbox.smtp.mailtrap.io',
 		port: 2525,

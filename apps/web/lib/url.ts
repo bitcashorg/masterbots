@@ -317,7 +317,6 @@ export const urlBuilders = {
 
 			// Return the URL with the thread slug
 			const pathParts = basePath ? ['', basePath] : ['']
-
 			pathParts.push(
 				normalizeCategorySlug(category),
 				normalizeDomainSlug(domain, raw),
