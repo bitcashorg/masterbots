@@ -11,7 +11,7 @@ export function OnboardingMobileView() {
 
 	// Get appropriate CTA text based on route type
 	const getCTAText = () => {
-		if (routeType === 'public' || routeType === 'bot') {
+		if (routeType === 'org' || routeType === 'bot') {
 			return 'Browse and select a bot to explore conversations'
 		}
 		return 'Go To Sidebar And Select One Bot'

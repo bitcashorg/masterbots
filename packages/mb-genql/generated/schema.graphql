@@ -930,6 +930,7 @@ type Chatbot {
     """
     where: SocialFollowingBoolExp
   ): SocialFollowingAggregate!
+  isPro: Boolean!
 
   """
   An object relationship
@@ -1057,6 +1058,7 @@ type Chatbot {
     """
     where: PreferenceBoolExp
   ): PreferenceAggregate!
+  proExclusive: Boolean
 
   """
   An array relationship
@@ -1286,6 +1288,7 @@ input ChatbotBoolExp {
   disabled: BooleanComparisonExp
   followers: SocialFollowingBoolExp
   followersAggregate: SocialFollowingAggregateBoolExp
+  isPro: BooleanComparisonExp
   lengthEnum: LengthEnumBoolExp
   metadata: ChatbotDomainBoolExp
   metadataAggregate: ChatbotDomainAggregateBoolExp
@@ -1293,6 +1296,7 @@ input ChatbotBoolExp {
   order: IntComparisonExp
   preferences: PreferenceBoolExp
   preferencesAggregate: PreferenceAggregateBoolExp
+  proExclusive: BooleanComparisonExp
   prompts: PromptChatbotBoolExp
   promptsAggregate: PromptChatbotAggregateBoolExp
   threads: ThreadBoolExp
@@ -2115,11 +2119,13 @@ input ChatbotInsertInput {
   description: String
   disabled: Boolean
   followers: SocialFollowingArrRelInsertInput
+  isPro: Boolean
   lengthEnum: LengthEnumObjRelInsertInput
   metadata: ChatbotDomainArrRelInsertInput
   name: String
   order: Int
   preferences: PreferenceArrRelInsertInput
+  proExclusive: Boolean
   prompts: PromptChatbotArrRelInsertInput
   threads: ThreadArrRelInsertInput
   toneEnum: ToneEnumObjRelInsertInput
@@ -2242,11 +2248,13 @@ input ChatbotOrderBy {
   description: OrderBy
   disabled: OrderBy
   followersAggregate: SocialFollowingAggregateOrderBy
+  isPro: OrderBy
   lengthEnum: LengthEnumOrderBy
   metadataAggregate: ChatbotDomainAggregateOrderBy
   name: OrderBy
   order: OrderBy
   preferencesAggregate: PreferenceAggregateOrderBy
+  proExclusive: OrderBy
   promptsAggregate: PromptChatbotAggregateOrderBy
   threadsAggregate: ThreadAggregateOrderBy
   toneEnum: ToneEnumOrderBy
@@ -2312,12 +2320,22 @@ enum ChatbotSelectColumn {
   """
   column name
   """
+  isPro
+
+  """
+  column name
+  """
   name
 
   """
   column name
   """
   order
+
+  """
+  column name
+  """
+  proExclusive
 }
 
 """
@@ -2328,6 +2346,16 @@ enum ChatbotSelectColumnChatbotAggregateBoolExpBool_andArgumentsColumns {
   column name
   """
   disabled
+
+  """
+  column name
+  """
+  isPro
+
+  """
+  column name
+  """
+  proExclusive
 }
 
 """
@@ -2338,6 +2366,16 @@ enum ChatbotSelectColumnChatbotAggregateBoolExpBool_orArgumentsColumns {
   column name
   """
   disabled
+
+  """
+  column name
+  """
+  isPro
+
+  """
+  column name
+  """
+  proExclusive
 }
 
 """
@@ -2353,8 +2391,10 @@ input ChatbotSetInput {
   defaultType: String
   description: String
   disabled: Boolean
+  isPro: Boolean
   name: String
   order: Int
+  proExclusive: Boolean
 }
 
 """
@@ -2433,8 +2473,10 @@ input ChatbotStreamCursorValueInput {
   defaultType: String
   description: String
   disabled: Boolean
+  isPro: Boolean
   name: String
   order: Int
+  proExclusive: Boolean
 }
 
 """
@@ -2505,12 +2547,22 @@ enum ChatbotUpdateColumn {
   """
   column name
   """
+  isPro
+
+  """
+  column name
+  """
   name
 
   """
   column name
   """
   order
+
+  """
+  column name
+  """
+  proExclusive
 }
 
 input ChatbotUpdates {
@@ -9448,6 +9500,7 @@ type Thread {
   createdAt: timestamptz!
   isApproved: Boolean
   isBlocked: Boolean
+  isPro: Boolean
   isPublic: Boolean
 
   """
@@ -9692,6 +9745,7 @@ input ThreadBoolExp {
   createdAt: TimestamptzComparisonExp
   isApproved: BooleanComparisonExp
   isBlocked: BooleanComparisonExp
+  isPro: BooleanComparisonExp
   isPublic: BooleanComparisonExp
   messages: MessageBoolExp
   messagesAggregate: MessageAggregateBoolExp
@@ -9772,6 +9826,7 @@ input ThreadInsertInput {
   createdAt: timestamptz
   isApproved: Boolean
   isBlocked: Boolean
+  isPro: Boolean
   isPublic: Boolean
   messages: MessageArrRelInsertInput
   metadata: jsonb
@@ -9889,6 +9944,7 @@ input ThreadOrderBy {
   createdAt: OrderBy
   isApproved: OrderBy
   isBlocked: OrderBy
+  isPro: OrderBy
   isPublic: OrderBy
   messagesAggregate: MessageAggregateOrderBy
   metadata: OrderBy
@@ -9943,6 +9999,11 @@ enum ThreadSelectColumn {
   column name
   """
   isBlocked
+
+  """
+  column name
+  """
+  isPro
 
   """
   column name
@@ -10007,6 +10068,11 @@ enum ThreadSelectColumnThreadAggregateBoolExpBool_andArgumentsColumns {
   """
   column name
   """
+  isPro
+
+  """
+  column name
+  """
   isPublic
 }
 
@@ -10027,6 +10093,11 @@ enum ThreadSelectColumnThreadAggregateBoolExpBool_orArgumentsColumns {
   """
   column name
   """
+  isPro
+
+  """
+  column name
+  """
   isPublic
 }
 
@@ -10038,6 +10109,7 @@ input ThreadSetInput {
   createdAt: timestamptz
   isApproved: Boolean
   isBlocked: Boolean
+  isPro: Boolean
   isPublic: Boolean
   metadata: jsonb
   model: ModelsEnumEnum
@@ -10114,6 +10186,7 @@ input ThreadStreamCursorValueInput {
   createdAt: timestamptz
   isApproved: Boolean
   isBlocked: Boolean
+  isPro: Boolean
   isPublic: Boolean
   metadata: jsonb
   model: ModelsEnumEnum
@@ -10162,6 +10235,11 @@ enum ThreadUpdateColumn {
   column name
   """
   isBlocked
+
+  """
+  column name
+  """
+  isPro
 
   """
   column name

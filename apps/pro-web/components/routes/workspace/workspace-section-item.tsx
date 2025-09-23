@@ -44,7 +44,7 @@ export function WorkspaceSectionItem({
 	level,
 	children,
 }: WorkspaceSectionItemProps) {
-	const { setInput } = useWorkspaceChat()
+	const { setInput, workspaceProcessingState, isLoading } = useWorkspaceChat()
 	const [isHovered, setIsHovered] = useState(false)
 
 	// Calculate indentation based on section level (h2=0, h3=1, h4=2)
@@ -130,6 +130,7 @@ export function WorkspaceSectionItem({
 							onDeleteSection(section.title)
 						}}
 						title={`Delete ${section.title} section`}
+						disabled={isLoading || workspaceProcessingState !== 'idle'}
 					>
 						<XIcon className="size-3" />
 					</Button>
@@ -153,6 +154,7 @@ export function WorkspaceSectionItem({
 						className="h-6 w-6 p-0 hover:bg-blue-100 hover:text-blue-600"
 						onClick={handleExpandClick}
 						title={`Expand ${section.title} section`}
+						disabled={isLoading || workspaceProcessingState !== 'idle'}
 					>
 						<PlusIcon className="h-3 w-3" />
 					</Button>
@@ -162,6 +164,7 @@ export function WorkspaceSectionItem({
 						className="h-6 w-6 p-0 hover:bg-orange-100 hover:text-orange-600"
 						onClick={handleRewriteClick}
 						title={`Rewrite ${section.title} section`}
+						disabled={isLoading || workspaceProcessingState !== 'idle'}
 					>
 						<RotateCcwIcon className="h-3 w-3" />
 					</Button>
@@ -171,6 +174,7 @@ export function WorkspaceSectionItem({
 						className="h-6 w-6 p-0 hover:bg-purple-100 hover:text-purple-600"
 						onClick={handleEditClick}
 						title={`Edit ${section.title} title`}
+						disabled={isLoading || workspaceProcessingState !== 'idle'}
 					>
 						<Edit3Icon className="h-3 w-3" />
 					</Button>
@@ -219,6 +223,7 @@ export function WorkspaceSectionItem({
 								onDeleteSection(section.title)
 							}}
 							title={`Delete ${section.title} section`}
+							disabled={isLoading || workspaceProcessingState !== 'idle'}
 						>
 							<XIcon className="size-3" />
 						</Button>
@@ -241,6 +246,7 @@ export function WorkspaceSectionItem({
 							className="h-6 w-6 p-0 hover:bg-blue-100 hover:text-blue-600"
 							onClick={handleExpandClick}
 							title={`Expand ${section.title} section`}
+							disabled={isLoading || workspaceProcessingState !== 'idle'}
 						>
 							<PlusIcon className="h-3 w-3" />
 						</Button>
@@ -250,6 +256,7 @@ export function WorkspaceSectionItem({
 							className="h-6 w-6 p-0 hover:bg-orange-100 hover:text-orange-600"
 							onClick={handleRewriteClick}
 							title={`Rewrite ${section.title} section`}
+							disabled={isLoading || workspaceProcessingState !== 'idle'}
 						>
 							<RotateCcwIcon className="h-3 w-3" />
 						</Button>
@@ -259,6 +266,7 @@ export function WorkspaceSectionItem({
 							className="h-6 w-6 p-0 hover:bg-purple-100 hover:text-purple-600"
 							onClick={handleEditClick}
 							title={`Edit ${section.title} title`}
+							disabled={isLoading || workspaceProcessingState !== 'idle'}
 						>
 							<Edit3Icon className="h-3 w-3" />
 						</Button>

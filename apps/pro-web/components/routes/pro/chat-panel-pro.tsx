@@ -1,9 +1,6 @@
 'use client'
 
-import {
-	updateThreadDocumentsMetadata,
-	uploadWorkspaceDocumentToBucket,
-} from '@/app/actions/thread.actions'
+import { updateThreadDocumentsMetadata } from '@/app/actions/thread.actions'
 import { ChatShareDialog } from '@/components/routes/chat/chat-share-dialog'
 import { PromptForm } from '@/components/routes/chat/prompt-form'
 import { WorkspaceContent } from '@/components/routes/workspace/workspace-content'

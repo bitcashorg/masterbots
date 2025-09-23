@@ -3,7 +3,7 @@
 import { Card, CardContent } from '@/components/ui/card'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { cn, getRouteType } from '@/lib/utils'
-import type { CategoryCardProps, OnboardingSectionProps } from '@/types/index'
+import type { CategoryCardProps, OnboardingSectionProps } from '@/types'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 

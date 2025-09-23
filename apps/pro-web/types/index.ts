@@ -652,3 +652,8 @@ export interface OnboardingSectionProps {
 	isOpen: boolean
 	onClose: () => void
 }
+
+export interface GoogleTranslateProps {
+	pageLanguage?: string
+	includedLanguages?: string
+}

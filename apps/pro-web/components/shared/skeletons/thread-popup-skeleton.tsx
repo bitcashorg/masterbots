@@ -15,7 +15,7 @@ export function ThreadPopupContentSkeleton({
 	const pathname = usePathname()
 	const routeType = getRouteType(pathname)
 	const isBrowseView =
-		routeType === 'public' ||
+		routeType === 'org' ||
 		routeType === 'profile' ||
 		(routeType === 'bot' && activeThread?.threadId)
 	const isBotView = routeType === 'bot'
@@ -40,7 +40,7 @@ export function ThreadPopupSkeleton({ className }: { className?: string }) {
 	const pathname = usePathname()
 	const routeType = getRouteType(pathname)
 	const isBrowseView =
-		routeType === 'public' ||
+		routeType === 'org' ||
 		routeType === 'profile' ||
 		(routeType === 'bot' && activeThread?.threadId)
 	const isBotView = routeType === 'bot'

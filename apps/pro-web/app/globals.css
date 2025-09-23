@@ -163,6 +163,14 @@
 		font-size: var(--font-size-base);
 	}
 
+	[data-font-size="small"] {
+		font-size: calc(var(--font-size-base) * 0.8);
+	}
+
+	[data-font-size="medium"] {
+		font-size: calc(var(--font-size-base) * 1.1);
+	}
+
 	[data-font-size="large"] {
 		font-size: calc(var(--font-size-base) * 1.2);
 	}
@@ -1039,10 +1047,12 @@
 	z-index: 10 !important;
 }
 
+[data-route="pro"] .nextstep-card .nextstep-step-indicator,
 [data-route="chat"] .nextstep-card .nextstep-step-indicator {
 	background: rgb(139 92 246) !important;
 }
 
+[data-route="org"] .nextstep-card .nextstep-step-indicator,
 [data-route="public"] .nextstep-card .nextstep-step-indicator {
 	background: rgb(34 197 94) !important;
 }
@@ -1068,4 +1078,18 @@
 
 .nextstep-card:hover::after {
 	left: 100%;
+}
+
+/* Hide Google Translate banner */
+
+.skiptranslate {
+	visibility: hidden !important;
+}
+
+.VIpgJd-ZVi9od-ORHb-OEVmcd {
+	visibility: hidden !important;
+}
+
+iframe {
+	visibility: hidden !important;
 }

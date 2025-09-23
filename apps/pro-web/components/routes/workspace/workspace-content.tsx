@@ -1,8 +1,6 @@
-import {
-	updateThreadDocumentsMetadata,
-	uploadWorkspaceDocumentToBucket,
-} from '@/app/actions/thread.actions'
+import { updateThreadDocumentsMetadata } from '@/app/actions/thread.actions'
 import { Button } from '@/components/ui/button'
+import { uploadWorkspaceDocument } from '@/lib/api/documents'
 import { computeChecksum } from '@/lib/checksum'
 import {
 	type WorkspaceTaskType,
@@ -664,6 +662,7 @@ This is a new document. Add your content here.
 						userId: session.user.id,
 						model: 'OPENAI',
 						isPublic: false,
+						isPro: true,
 					})
 
 					if (createdThread?.threadId) {
@@ -694,20 +693,44 @@ This is a new document. Add your content here.
 			}
 
 			// Upload document content to bucket (server handles official versioning + checksum)
-			const { document, existed } = await uploadWorkspaceDocumentToBucket({
-				threadSlug,
-				organization: activeOrganization as string,
-				department: activeDepartment as string,
-				project: projectName,
-				name: documentName,
-				content,
-				type,
-			})
+			const uploadResult = await uploadWorkspaceDocument(
+				{
+					name: documentName,
+					content,
+					type,
+				},
+				{
+					organization: activeOrganization as string,
+					department: activeDepartment as string,
+					project: projectName,
+				},
+				{ slug: threadSlug },
+			)
 
-			if (existed) {
+			if (uploadResult.error) {
+				customSonner({
+					type: 'error',
+					text: uploadResult.error,
+				})
+				setIsSaving(false)
+				return
+			}
+
+			const document = uploadResult.data
+			if (!document) {
+				customSonner({
+					type: 'error',
+					text: 'Failed to upload document.',
+				})
+				setIsSaving(false)
+				return
+			}
+
+			// Check if document existed (similar logic to original)
+			if (document.currentVersion && document.currentVersion > 1) {
 				customSonner({
 					type: 'info',
-					text: 'This version already exists and has been restored.',
+					text: 'Document updated with new version.',
 				})
 			}
 
@@ -752,7 +775,8 @@ This is a new document. Add your content here.
 				setVersions(document.versions)
 			}
 
-			if (!existed) {
+			// Show success message for new saves
+			if (document.currentVersion === 1) {
 				customSonner({ type: 'success', text: `${type} document saved.` })
 			}
 		} catch (e) {

@@ -32,7 +32,7 @@ export function SidebarLink({
 	const router = useRouter()
 	const pathname = usePathname()
 	const routeType = getRouteType(pathname)
-	const isPublic = routeType === 'public'
+	const isOrg = routeType === 'org'
 	const { userSlug } = useParams()
 	const { isOpenPopup, activeThread, setIsOpenPopup, setActiveThread } =
 		useThread()
@@ -169,16 +169,16 @@ export function SidebarLink({
 					})
 		}
 
-		const fallbackUrl = isPro ? '/' : isPublic ? '/org' : '/c'
+		const fallbackUrl = isPro ? '/' : isOrg ? '/org' : '/c'
 
 		// For personal routes
 		return category.categoryId && isNewCategory
 			? urlBuilders.topicThreadListUrl({
-					type: isPro ? 'pro' : isPublic ? 'org' : 'personal',
+					type: isPro ? 'pro' : isOrg ? 'org' : 'personal',
 					category: category.name,
 				})
 			: fallbackUrl
-	}, [category, activeCategory, isPublic, page, userSlug, isPro])
+	}, [category, activeCategory, isOrg, page, userSlug, isPro])
 
 	if (isFilterMode) {
 		return (
@@ -244,8 +244,8 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(
 		const { selectedChatbots, toggleChatbotSelection, navigateTo } =
 			useSidebar()
 		const pathname = usePathname()
-		const isPublic = !/^\/(?:c|u)(?:\/|$)/.test(pathname)
 		const routeType = getRouteType(pathname)
+		const isOrg = routeType === 'org'
 		const { userSlug, domain } = useParams()
 		const { setIsOpenPopup, setActiveThread } = useThread()
 		const { setSearchTerm } = useThreadSearch()
@@ -287,7 +287,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(
 				return navigateTo({
 					urlType: 'chatbotThreadListUrl',
 					navigationParams: {
-						type: isPro ? 'pro' : isPublic ? 'public' : 'personal',
+						type: isPro ? 'pro' : isOrg ? 'org' : 'personal',
 						category: category.name,
 						domain: chatbotDomain,
 						chatbot: chatbot.name,
@@ -316,7 +316,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(
 						chatbot: chatbot?.name,
 					})
 				: urlBuilders.chatbotThreadListUrl({
-						type: isPro ? 'pro' : isPublic ? 'public' : 'personal',
+						type: isPro ? 'pro' : isOrg ? 'org' : 'personal',
 						category: category.name,
 						domain: chatbotDomain,
 						chatbot: chatbot?.name,

@@ -1001,6 +1001,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						? (continuousThreadId as string)
 						: undefined,
 					jwt: session?.user?.hasuraJwt,
+					isPro: true,
 				})
 			}
 

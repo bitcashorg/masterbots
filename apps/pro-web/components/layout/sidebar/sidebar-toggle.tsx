@@ -29,7 +29,7 @@ export function SidebarToggle() {
 	return (
 		<Button
 			variant="ghost"
-			className="flex p-0 -ml-2 size-9 lg:hidden"
+			className="flex p-0 mr-2 -ml-2 size-9 lg:hidden"
 			onClick={(e) => {
 				e.stopPropagation()
 				toggleSidebar()

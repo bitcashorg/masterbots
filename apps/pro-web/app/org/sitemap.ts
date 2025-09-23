@@ -28,7 +28,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
 	const publicCategoryUrls = categories.map((category) => ({
 		url: urlBuilders.topicThreadListUrl({
-			type: 'public',
+			type: 'org',
 			category: category.name,
 		}),
 		lastModified: new Date(),
@@ -40,7 +40,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 	const publicNestedUrls = categories.flatMap((category) =>
 		category.chatbots.map(({ chatbot }) => ({
 			url: urlBuilders.chatbotThreadListUrl({
-				type: 'public',
+				type: 'org',
 				category: category.name,
 				domain: getCanonicalDomain(chatbot.name),
 				chatbot: chatbot.name,

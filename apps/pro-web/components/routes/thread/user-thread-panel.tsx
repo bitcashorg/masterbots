@@ -107,12 +107,12 @@ export default function UserThreadPanel({
 	const { userSlug, category, chatbot, botSlug } = params
 	const continuousThreadId = searchParams.get('continuousThreadId')
 	const [adminThreads, setAdminThreads] = useState<Thread[]>(initialThreads)
-	const isPublic = !/^\/(?:c|u)(?:\/|$)/.test(usePathname())
 	const fetchIdRef = useRef<number>(0)
 	const prevPathRef = useRef('')
 	const pathname = usePathname()
 	const routeType = getRouteType(pathname)
-	const isChatRoute = routeType === 'chat'
+	const isOrg = routeType === 'org'
+	const isProRoute = routeType === 'pro'
 	const [state, setState] = useSetState<{
 		threads: Thread[]
 		count: number
@@ -240,7 +240,6 @@ export default function UserThreadPanel({
 	) => {
 		const thread = await getThread({
 			threadId: continuousThreadId,
-			isPersonal: !isPublic,
 			jwt: session.user?.hasuraJwt,
 		})
 
@@ -462,7 +461,7 @@ export default function UserThreadPanel({
 		<>
 			{!isContinuousThread && (threads.length !== 0 || searchTerm) && (
 				<>
-					{isChatRoute && <ChatChatbotDetails />}
+					{isProRoute && <ChatChatbotDetails />}
 					<div className={searchInputContainerClassName}>
 						{/* <ThreadSearchInput setThreads={setState} onSearch={setSearchTerm} /> */}
 						<GlobalSearchInput />
@@ -489,7 +488,7 @@ export default function UserThreadPanel({
 							description={`There are no threads available for ${userProps?.username} yet.`}
 						/>
 					) : (
-						isChatRoute && <ChatChatbotDetails />
+						isProRoute && <ChatChatbotDetails />
 					)
 				) : (
 					<ThreadList

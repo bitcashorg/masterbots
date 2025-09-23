@@ -16,8 +16,7 @@ import { useMemo } from 'react'
 
 export function ProfileAvatar({ thread }: { thread: Thread }) {
 	const pathname = usePathname()
-	// TODO: use a better way to get the route type. Only one!
-	const { isPublic, isAdminMode } = useThreadVisibility()
+	const { isAdminMode } = useThreadVisibility()
 	const routeType = getRouteType(pathname)
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>

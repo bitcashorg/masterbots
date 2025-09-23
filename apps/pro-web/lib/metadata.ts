@@ -105,7 +105,7 @@ export async function generateMbMetadata({
 			firstResponse.length > 200 ? firstResponse.slice(0, 200) : firstResponse
 
 		const threadUrl = urlBuilders.threadUrl({
-			type: 'public', // Assuming this is for public threads, adjust as needed
+			type: 'org', // Assuming this is for public threads, adjust as needed
 			category: thread?.chatbot?.categories?.[0]?.category?.name || 'AI',
 			domain: thread?.chatbot?.metadata[0]?.domainName || 'General',
 			chatbot: thread?.chatbot?.name || 'Masterbots',
