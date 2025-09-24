@@ -49,6 +49,7 @@ function WorkspaceContentInternal({
 	documentName,
 	documentType,
 	chatbot,
+	className,
 }: WorkspaceContentInternalProps) {
 	const {
 		documentContent,
@@ -899,7 +900,7 @@ This is a new document. Add your content here.
 	}
 
 	return (
-		<div className="flex flex-col space-y-4 pb-4 px-4 size-full">
+		<div className={cn('flex flex-col gap-4 p-4 size-full', className)}>
 			<WorkspaceContentHeader
 				documentType={documentType}
 				activeSection={activeSection}
@@ -1033,13 +1034,14 @@ export function WorkspaceContent({
 	chatbot,
 }: WorkspaceContentProps) {
 	return (
-		<WorkspaceContentWrapper className={className}>
+		<WorkspaceContentWrapper>
 			{({ projectName, documentName, documentType }) => (
 				<WorkspaceContentInternal
 					projectName={projectName}
 					documentName={documentName}
 					documentType={documentType}
 					chatbot={chatbot}
+					className={className}
 				/>
 			)}
 		</WorkspaceContentWrapper>
@@ -1097,4 +1099,5 @@ interface WorkspaceContentInternalProps {
 	documentName: string
 	documentType: 'text' | 'image' | 'spreadsheet'
 	chatbot?: Chatbot
+	className?: string
 }
