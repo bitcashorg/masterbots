@@ -14,6 +14,7 @@ import {
 	setStreamerPayload,
 } from '@/lib/helpers/ai-helpers'
 import type { aiTools } from '@/lib/helpers/ai-schemas'
+import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
 import { fetchChatbotMetadata } from '@/services/hasura'
 import type {
 	AiClientType,
@@ -30,17 +31,22 @@ import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { createGroq } from '@ai-sdk/groq'
 import { createOpenAI, openai } from '@ai-sdk/openai'
 import {
+	CoreMessage,
 	type Message,
 	extractReasoningMiddleware,
+	generateObject,
+	generateText,
 	smoothStream,
 	streamObject,
 	streamText,
+	tool,
 	wrapLanguageModel,
 } from 'ai'
 import { createStreamableValue, readStreamableValue } from 'ai/rsc'
 import { appConfig } from 'mb-env'
 import type OpenAI from 'openai'
-import type { ZodType, z } from 'zod'
+import type { ZodType } from 'zod'
+import { z } from 'zod'
 
 const OPEN_AI_ENV_CONFIG = {
 	TOP_P: process.env.OPENAI_TOP_P
@@ -108,6 +114,108 @@ const initializeGoogle = (apiKey: string) => {
 	return createGoogleGenerativeAI({
 		apiKey,
 	})
+}
+
+// Web search tool definition
+const webSearchTool = tool({
+	description: 'Search the web for current information on a given topic',
+	parameters: z.object({
+		query: z.string().describe('The search query to use'),
+	}),
+	execute: async ({ query }) => {
+		try {
+			// Use a web search API (you can replace with your preferred service)
+			const searchResponse = await fetch('/api/web-search', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ query }),
+			})
+
+			if (!searchResponse.ok) {
+				throw new Error(
+					`Search request failed with status: ${searchResponse.status}`,
+				)
+			}
+
+			const searchResults = await searchResponse.json()
+
+			// Validate and structure the response
+			const results = Array.isArray(searchResults.results)
+				? searchResults.results
+				: []
+			const sources = Array.isArray(searchResults.sources)
+				? searchResults.sources
+				: []
+
+			return {
+				results,
+				query,
+				sources,
+				timestamp: new Date().toISOString(),
+				total_results: results.length,
+			}
+		} catch (error) {
+			console.error('Web search error:', error)
+			return {
+				results: [],
+				query,
+				sources: [],
+				error: `Failed to perform web search: ${error instanceof Error ? error.message : 'Unknown error'}`,
+				timestamp: new Date().toISOString(),
+				total_results: 0,
+			}
+		}
+	},
+})
+
+// LLM client factory
+function createLLMClient(clientType: AiClientType) {
+	switch (clientType) {
+		case 'OpenAI':
+			return createOpenAI({
+				apiKey: process.env.OPENAI_API_KEY,
+			})
+		case 'Anthropic':
+			return createAnthropic({
+				apiKey: process.env.ANTHROPIC_API_KEY,
+			})
+		case 'Gemini':
+			return createGoogleGenerativeAI({
+				apiKey: process.env.GOOGLE_API_KEY,
+			})
+		case 'Perplexity':
+			return createOpenAI({
+				apiKey: process.env.PERPLEXITY_API_KEY,
+				baseURL: 'https://api.perplexity.ai',
+			})
+		case 'GroqDeepSeek':
+			return createOpenAI({
+				apiKey: process.env.GROQ_API_KEY,
+				baseURL: 'https://api.groq.com/openai/v1',
+			})
+		default:
+			throw new Error(`Unsupported LLM client type: ${clientType}`)
+	}
+}
+
+// Get model identifier based on client type
+function getModelId(clientType: AiClientType, model?: string): string {
+	switch (clientType) {
+		case 'OpenAI':
+			return model || 'gpt-4o-mini'
+		case 'Anthropic':
+			return model || 'claude-3-5-sonnet-20241022'
+		case 'Gemini':
+			return model || 'gemini-1.5-flash'
+		case 'Perplexity':
+			return model || 'llama-3.1-sonar-small-128k-online'
+		case 'GroqDeepSeek':
+			return model || 'deepseek-r1-distill-llama-70b'
+		default:
+			return model || 'gpt-4o-mini'
+	}
 }
 
 // * This function improves the message using the AI
@@ -646,3 +754,325 @@ export async function classifyQuestion({
 		})
 	}
 }
+
+// Main streaming function with web search support
+export async function streamTextWithWebSearch({
+	model,
+	messages,
+	clientType = 'OpenAI',
+	webSearch: enableWebSearch = false,
+	temperature = 0.7,
+	maxTokens = 2048,
+	...options
+}: {
+	model?: string
+	messages?: (OpenAI.ChatCompletionMessageParam & {
+		experimental_attachments?: FileAttachment[]
+	})[]
+	clientType?: AiClientType
+	webSearch?: boolean
+	temperature?: number
+	maxTokens?: number
+	[key: string]: unknown
+}) {
+	const llmClient = createLLMClient(clientType)
+	const modelId = getModelId(clientType, model)
+
+	const tools = enableWebSearch ? { webSearch: webSearchTool } : undefined
+
+	// Convert messages to core messages format
+	const coreMessages = messages ? convertToCoreMessages(messages) : []
+
+	return streamText({
+		model: llmClient(modelId),
+		messages: coreMessages,
+		tools,
+		toolChoice: enableWebSearch ? 'auto' : undefined,
+		temperature,
+		maxTokens,
+		experimental_continueSteps: true,
+		...options,
+	})
+}
+
+// Generate text function with web search support
+export async function generateTextWithWebSearch({
+	model,
+	messages,
+	clientType = 'OpenAI',
+	webSearch: enableWebSearch = false,
+	temperature = 0.7,
+	maxTokens = 2048,
+	...options
+}: {
+	model?: string
+	messages?: (OpenAI.ChatCompletionMessageParam & {
+		experimental_attachments?: FileAttachment[]
+	})[]
+	clientType?: AiClientType
+	webSearch?: boolean
+	temperature?: number
+	maxTokens?: number
+	[key: string]: unknown
+}) {
+	const llmClient = createLLMClient(clientType)
+	const modelId = getModelId(clientType, model)
+
+	const tools = enableWebSearch ? { webSearch: webSearchTool } : undefined
+
+	// Convert messages to core messages format
+	const coreMessages = messages ? convertToCoreMessages(messages) : []
+
+	return generateText({
+		model: llmClient(modelId),
+		messages: coreMessages,
+		tools,
+		toolChoice: enableWebSearch ? 'auto' : undefined,
+		temperature,
+		maxTokens,
+		experimental_continueSteps: true,
+		...options,
+	})
+}
+
+// Generate object function with web search support
+export async function generateObjectWithWebSearch({
+	model,
+	messages,
+	clientType = 'OpenAI',
+	webSearch: enableWebSearch = false,
+	schema,
+	temperature = 0.7,
+	maxTokens = 2048,
+	...options
+}: {
+	model?: string
+	messages?: (OpenAI.ChatCompletionMessageParam & {
+		experimental_attachments?: FileAttachment[]
+	})[]
+	clientType?: AiClientType
+	webSearch?: boolean
+	schema: z.ZodSchema
+	temperature?: number
+	maxTokens?: number
+	[key: string]: unknown
+}) {
+	const llmClient = createLLMClient(clientType)
+	const modelId = getModelId(clientType, model)
+
+	const tools = enableWebSearch ? { webSearch: webSearchTool } : undefined
+
+	// Convert messages to core messages format
+	const coreMessages = messages ? convertToCoreMessages(messages) : []
+
+	return generateObject({
+		model: llmClient(modelId),
+		messages: coreMessages,
+		schema,
+		tools,
+		toolChoice: enableWebSearch ? 'auto' : undefined,
+		temperature,
+		maxTokens,
+		experimental_continueSteps: true,
+		...options,
+	})
+}
+
+// Web search agent function that handles multi-step reasoning
+export async function webSearchAgent({
+	query,
+	clientType = 'OpenAI',
+	model,
+	maxSteps = 3,
+	temperature = 0.7,
+	previewToken,
+}: WebSearchAgentParams): Promise<WebSearchAgentResult> {
+	const modelId = getModelId(clientType, model)
+	const searchResults: WebSearchResult[] = []
+	let step = 0
+
+	// Use the existing createLLMClient function for consistency
+	const llmClient = createLLMClient(clientType)
+	const llmModel = llmClient(modelId)
+
+	try {
+		while (step < maxSteps) {
+			const systemPrompt = `You are a helpful assistant that can search the web for current information.
+
+Previous search results: ${searchResults.length > 0 ? JSON.stringify(searchResults, null, 2) : 'None'}
+
+Based on the user's query and any previous search results, decide if you need to search for more information or if you can provide a comprehensive answer.
+
+If you need more information, use the webSearch tool. If you have enough information from previous searches, provide a comprehensive answer without using any tools.`
+
+			const result = await generateText({
+				model: llmModel,
+				messages: [
+					{
+						role: 'system',
+						content: systemPrompt,
+					},
+					{
+						role: 'user',
+						content: query,
+					},
+				],
+				tools: { webSearch: webSearchTool },
+				toolChoice: 'auto',
+				temperature,
+				maxSteps: 2,
+				maxRetries: 2,
+			})
+
+			// Collect any new search results
+			if (result.toolResults && result.toolResults.length > 0) {
+				const newSearchResults = result.toolResults
+					.filter((tr) => tr.toolName === 'webSearch')
+					.map((tr) => tr.result as WebSearchResult)
+
+				searchResults.push(...newSearchResults)
+			}
+
+			// If no tools were called, we have our final answer
+			if (!result.toolCalls || result.toolCalls.length === 0) {
+				return {
+					answer: result.text,
+					searchResults,
+					steps: step + 1,
+					clientType,
+					model: modelId,
+				}
+			}
+
+			step++
+		}
+
+		// Generate final answer with all collected information
+		const finalResult = await generateText({
+			model: llmModel,
+			messages: [
+				{
+					role: 'system',
+					content: `Based on the following search results, provide a comprehensive answer to the user's query.
+
+Search Results: ${JSON.stringify(searchResults, null, 2)}
+
+Provide a detailed, accurate response based on the search results. Include relevant sources and information where appropriate.`,
+				},
+				{
+					role: 'user',
+					content: query,
+				},
+			],
+			temperature,
+			maxRetries: 2,
+		})
+
+		return {
+			answer: finalResult.text,
+			searchResults,
+			steps: maxSteps,
+			clientType,
+			model: modelId,
+		}
+	} catch (error) {
+		console.error('Error in webSearchAgent:', error)
+		throw new Error(
+			`Web search agent failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+		)
+	}
+}
+
+// Web search agent interfaces
+interface WebSearchAgentParams {
+	query: string
+	clientType?: AiClientType
+	model?: string
+	maxSteps?: number
+	temperature?: number
+	previewToken?: string
+}
+
+interface WebSearchResult {
+	results: unknown[]
+	query: string
+	sources: unknown[]
+	error?: string
+	timestamp: string
+	total_results: number
+}
+
+interface WebSearchAgentResult {
+	answer: string
+	searchResults: WebSearchResult[]
+	steps: number
+	clientType: AiClientType
+	model: string
+}
+
+// Convenience function to create a response stream with web search agent capabilities
+export async function createResponseStreamWithWebSearch(
+	clientType: AiClientType,
+	json: JSONResponseStream & { webSearchAgent?: boolean },
+	req?: Request,
+) {
+	const { webSearchAgent: useWebSearchAgent, ...restJson } = json
+
+	// If web search agent is not requested, use the regular response stream
+	if (!useWebSearchAgent) {
+		return createResponseStream(clientType, restJson, req)
+	}
+
+	// Extract the user's query from the last message
+	const messages = restJson.messages || []
+	const lastMessage = messages[messages.length - 1]
+	const userQuery =
+		typeof lastMessage === 'object' && 'content' in lastMessage
+			? String(lastMessage.content)
+			: ''
+
+	if (!userQuery) {
+		throw new Error('No user query found for web search agent')
+	}
+
+	try {
+		// Use the web search agent to get the answer
+		const agentResult = await webSearchAgent({
+			query: userQuery,
+			clientType,
+			model: restJson.model,
+			previewToken: restJson.previewToken,
+		})
+
+		// Create a response stream with the agent's answer
+		const responseStream = new ReadableStream({
+			start(controller) {
+				// Send the agent's answer as streaming text
+				const encoder = new TextEncoder()
+				const chunks = agentResult.answer.split(' ')
+
+				let i = 0
+				const interval = setInterval(() => {
+					if (i < chunks.length) {
+						const chunk = i === 0 ? chunks[i] : ` ${chunks[i]}`
+						controller.enqueue(encoder.encode(`0:"${chunk}"`))
+						i++
+					} else {
+						clearInterval(interval)
+						controller.close()
+					}
+				}, 50) // Adjust delay as needed
+			},
+		})
+
+		return new Response(responseStream, {
+			headers: { 'Content-Type': 'text/event-stream' },
+		})
+	} catch (error) {
+		console.error('Error in createResponseStreamWithWebSearch:', error)
+		throw error
+	}
+}
+
+// Export individual tools for use in other contexts
+export { webSearchTool }
