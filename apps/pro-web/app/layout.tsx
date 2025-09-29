@@ -1,4 +1,3 @@
-import '@/app/globals.css'
 import { Header } from '@/components/layout/header/header'
 import LayoutClient from '@/components/layout/layout-client'
 import { Providers } from '@/components/layout/providers'
@@ -12,6 +11,8 @@ import { appConfig } from 'mb-env'
 import type { Metadata } from 'next'
 import Script from 'next/script'
 import NextTopLoader from 'nextjs-toploader'
+
+import '@/app/globals.css'
 
 export default function RootLayout({ children }: RootLayoutProps) {
 	return (

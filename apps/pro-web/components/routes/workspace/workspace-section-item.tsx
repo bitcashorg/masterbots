@@ -120,6 +120,8 @@ export function WorkspaceSectionItem({
 			aria-pressed={isActive}
 			onMouseEnter={() => setIsHovered(true)}
 			onMouseLeave={() => setIsHovered(false)}
+			onFocus={() => setIsHovered(true)}
+			onBlur={() => setIsHovered(false)}
 		>
 			{/* Side Action buttons (show on hover or when editing) */}
 			<div
