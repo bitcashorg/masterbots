@@ -490,7 +490,7 @@ export function WorkspaceTextEditor({
 												}}
 												rows={10}
 												className={cn(
-													'size-full min-h-full !resize-y p-3 border rounded-md focus:outline-none focus:ring-2 scrollbar resize-none font-mono text-sm selection:bg-accent selection:text-accent-foreground',
+													'size-full min-h-full p-3 border rounded-md focus:outline-none focus:ring-2 scrollbar resize-y font-mono text-sm selection:bg-accent selection:text-accent-foreground',
 													!isFocused &&
 														persistedSelection &&
 														persistedSelection.start !==
