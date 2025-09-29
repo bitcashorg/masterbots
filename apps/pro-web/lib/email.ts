@@ -80,7 +80,6 @@ export async function sendEmailVerification(
 ) {
 	const baseUrl = getAppUrl()
 	const verificationUrl = `${baseUrl}/auth/verify?token=${verificationToken}`
-
 	const mailOptions = {
 		from: process.env.EMAIL_FROM,
 		to: email,
@@ -93,6 +92,6 @@ export async function sendEmailVerification(
 		console.log(`Verification email sent to ${email}`)
 	} catch (error) {
 		console.error('Error sending verification email:', error)
-		throw new Error('Failed to send verification email')
+		throw new Error(`Failed to send verification email: ${error}`)
 	}
 }

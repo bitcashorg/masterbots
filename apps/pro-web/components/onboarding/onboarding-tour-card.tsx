@@ -7,7 +7,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
+import { cn, getRouteType } from '@/lib/utils'
 import { useTheme } from 'next-themes'
 import { usePathname } from 'next/navigation'
 
@@ -30,7 +30,8 @@ export function OnboardingTourCard({
 }: OnboardingTourCardProps) {
 	const pathname = usePathname()
 	const { theme } = useTheme()
-	const isChatRoute = /^\/c(?:\/|$)/.test(pathname)
+	const routeType = getRouteType(pathname)
+	const isProRoute = routeType === 'pro'
 
 	// Background image class matching your site's pattern
 	const bgImage =
@@ -40,7 +41,7 @@ export function OnboardingTourCard({
 
 	// Route-based styling (chat = purple, public = green)
 	const getRouteStyles = () => {
-		if (isChatRoute) {
+		if (isProRoute) {
 			return {
 				border: 'border-purple-500/30',
 				gradient: 'from-purple-500/5 to-purple-500/20',

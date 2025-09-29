@@ -137,8 +137,8 @@ export function Header() {
 							<Image
 								src={logoSrc}
 								alt="Masterbots Logo"
-								width={38}
-								height={38}
+								width={46}
+								height={46}
 								quality={100}
 								priority
 							/>

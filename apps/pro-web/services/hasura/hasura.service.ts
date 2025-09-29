@@ -243,12 +243,24 @@ export async function getThreads({
 	jwt,
 	limit,
 	offset,
+	keyword,
 }: GetThreadsParams) {
 	const client = getHasuraClient({ jwt })
+
 	const baseThreadsArguments = {
-		...(chatbotName || categoryId
+		...(chatbotName || categoryId || keyword || userId || domain
 			? {
 					where: {
+						...(keyword
+							? {
+									messages: {
+										_or: [
+											{ content: { _iregex: keyword } },
+											{ content: { _eq: keyword } },
+										],
+									},
+								}
+							: {}),
 						chatbot: {
 							...(chatbotName
 								? {
@@ -269,11 +281,16 @@ export async function getThreads({
 								: {}),
 						},
 						...(userId ? { userId: { _eq: userId } } : {}),
+						isPro: { _eq: true },
 					},
 				}
 			: userId
-				? { where: { userId: { _eq: userId } } }
-				: {}),
+				? { where: { userId: { _eq: userId }, isPro: { _eq: true } } }
+				: {
+						where: {
+							isPro: { _eq: true },
+						},
+					}),
 	}
 
 	const { thread, threadAggregate } = await client.query({
@@ -419,6 +436,7 @@ export async function getThread({
 				__scalar: true,
 				__args: {
 					where: {
+						isPro: { _eq: true },
 						...(threadId ? { threadId: { _eq: threadId } } : {}),
 						...(threadSlug ? { slug: { _eq: threadSlug } } : {}),
 						...(domain
@@ -648,6 +666,7 @@ export async function createThread({
 	userId,
 	parentThreadId,
 	isPublic = false,
+	isPro = false,
 }: Partial<CreateThreadParams>) {
 	const client = getHasuraClient({ jwt })
 	const { insertThreadOne } = await client.mutation({
@@ -658,6 +677,7 @@ export async function createThread({
 					threadId,
 					chatbotId,
 					isPublic,
+					isPro,
 					parentThreadId,
 					slug,
 					model,
@@ -743,6 +763,17 @@ export async function getBrowseThreads({
 	const client = getHasuraClient({})
 	const baseLimit = limit || 20
 	const baseWhereConditions = {
+		...(keyword
+			? {
+					messages: {
+						_or: [
+							{ content: { _iregex: keyword } },
+							{ content: { _eq: keyword } },
+						],
+					},
+				}
+			: {}),
+
 		...(categoryId
 			? {
 					chatbot: {
@@ -793,6 +824,7 @@ export async function getBrowseThreads({
 			: {}),
 		isPublic: { _eq: true },
 		isApproved: { _eq: !isAdminMode },
+		isPro: { _eq: true },
 	}
 
 	const { thread: allThreads, threadAggregate } = await client.query({
@@ -824,16 +856,6 @@ export async function getBrowseThreads({
 				role: true,
 				__args: {
 					orderBy: [{ createdAt: 'ASC' }],
-					...(keyword
-						? {
-								where: {
-									_or: [
-										{ content: { _iregex: keyword } },
-										{ content: { _eq: keyword } },
-									],
-								},
-							}
-						: ''),
 					limit: 2,
 				},
 			},
@@ -861,6 +883,7 @@ export async function getBrowseThreads({
 			},
 			isApproved: true,
 			isPublic: true,
+			isPro: true,
 			__scalar: true,
 			__args: {
 				orderBy: [{ updatedAt: 'DESC' }],
@@ -1050,6 +1073,9 @@ export async function getThreadsWithoutJWT() {
 			},
 			...everything,
 			__args: {
+				where: {
+					isPro: { _eq: true },
+				},
 				orderBy: [{ createdAt: 'DESC' }],
 			},
 		},
@@ -1244,7 +1270,10 @@ export async function getUnapprovedThreads({ jwt }: { jwt: string }) {
 	const { thread } = await client.query({
 		thread: {
 			__args: {
-				where: { isApproved: { _eq: false } },
+				where: {
+					isApproved: { _eq: false },
+					isPro: { _eq: true },
+				},
 				orderBy: [{ createdAt: 'DESC' }],
 				limit: 20,
 			},
@@ -1277,6 +1306,7 @@ export async function getUnapprovedThreads({ jwt }: { jwt: string }) {
 			},
 			isApproved: true,
 			isPublic: true,
+			isPro: true,
 			__scalar: true,
 		},
 	})
@@ -1310,6 +1340,7 @@ export async function getUserBySlug({
 				bio: true,
 				favouriteTopic: true,
 				proUserSubscriptionId: true,
+				isVerified: true,
 				threads: {
 					__args: {
 						where: isSameUser
@@ -1836,6 +1867,7 @@ export async function deleteUserMessagesAndThreads({
 				userId: { _eq: userId },
 				isPublic: { _eq: true },
 				isApproved: { _eq: true },
+				isPro: { _eq: true },
 			},
 		}
 		await client.mutation({
@@ -1977,7 +2009,10 @@ export async function getThreadMetadataBySlug({
 		const { thread } = await client.query({
 			thread: {
 				__args: {
-					where: { slug: { _eq: slug } },
+					where: {
+						slug: { _eq: slug },
+						isPro: { _eq: true },
+					},
 				},
 				metadata: true,
 			},
@@ -2028,5 +2063,75 @@ export const deleteMessages = async (
 			success: false,
 			error: error instanceof Error ? error.message : 'Unknown error',
 		}
+	}
+}
+
+export async function isUsernameTaken(username: string, jwt?: string) {
+	const client = getHasuraClient({ jwt })
+
+	const result = await client.query({
+		user: {
+			__args: {
+				where: { username: { _eq: username } },
+			},
+			userId: true,
+		},
+	})
+
+	return result.user.length > 0
+}
+
+export async function updateUser({
+	userId,
+	email,
+	username,
+	slug,
+	jwt,
+}: {
+	userId: string | undefined
+	email: string | null
+	username: string | null
+	slug: string | null
+	jwt: string | undefined
+}) {
+	try {
+		if (!jwt) {
+			throw new Error('Authentication required to update user')
+		}
+
+		const client = getHasuraClient({ jwt })
+
+		if (username) {
+			const taken = await isUsernameTaken(username, jwt)
+			if (taken) {
+				throw new Error('Username is already taken')
+			}
+		}
+
+		// Build update arguments based on non-null values
+		const updateArgs: UpdateUserArgs = {
+			pkColumns: { userId },
+		}
+
+		updateArgs._set = {
+			// ...(email !== null && { email }),
+			...(username !== null && { username }),
+			...(slug !== null && { slug }),
+		}
+
+		await client.mutation({
+			updateUserByPk: {
+				__args: updateArgs,
+				userId: true,
+				email: true,
+				username: true,
+				slug: true,
+			},
+		})
+
+		return { success: true }
+	} catch (error) {
+		console.error('Error updating user:', error)
+		throw error
 	}
 }

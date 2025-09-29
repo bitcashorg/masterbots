@@ -40,9 +40,11 @@ insert_permissions:
         - created_at
         - is_approved
         - is_blocked
+        - is_pro
         - is_public
         - model
         - parent_thread_id
+        - short_link
         - slug
         - thread_id
         - updated_at
@@ -58,9 +60,11 @@ insert_permissions:
         - created_at
         - is_approved
         - is_blocked
+        - is_pro
         - is_public
         - model
         - parent_thread_id
+        - short_link
         - slug
         - thread_id
         - updated_at
@@ -74,6 +78,7 @@ select_permissions:
         - created_at
         - is_approved
         - is_blocked
+        - is_pro
         - is_public
         - metadata
         - model
@@ -93,6 +98,7 @@ select_permissions:
         - created_at
         - is_approved
         - is_blocked
+        - is_pro
         - is_public
         - metadata
         - model
@@ -112,6 +118,7 @@ select_permissions:
         - created_at
         - is_approved
         - is_blocked
+        - is_pro
         - is_public
         - metadata
         - model

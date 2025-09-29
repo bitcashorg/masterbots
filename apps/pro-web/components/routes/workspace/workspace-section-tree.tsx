@@ -11,6 +11,7 @@ interface WorkspaceSectionTreeProps {
 	onExpandSection: (sectionTitle: string) => void
 	onRewriteSection: (sectionTitle: string) => void
 	onRenameSection: (sectionId: string, newTitle: string) => void
+	onDeleteSection: (sectionId: string) => void
 }
 
 export function WorkspaceSectionTree({
@@ -20,6 +21,7 @@ export function WorkspaceSectionTree({
 	onExpandSection,
 	onRewriteSection,
 	onRenameSection,
+	onDeleteSection,
 }: WorkspaceSectionTreeProps) {
 	const renderSectionNodes = (
 		nodes: SectionTreeNode[],
@@ -31,6 +33,7 @@ export function WorkspaceSectionTree({
 				section={node.section}
 				isActive={activeSection === node.section.id}
 				onSectionClick={onSectionClick}
+				onDeleteSection={onDeleteSection}
 				onExpandSection={onExpandSection}
 				onRewriteSection={onRewriteSection}
 				onRenameSection={onRenameSection}
@@ -43,5 +46,9 @@ export function WorkspaceSectionTree({
 		))
 	}
 
-	return <div className="space-y-1">{renderSectionNodes(tree)}</div>
+	return (
+		<div className="size-full max-w-[98%] ml-[1%] max-h-[calc(100%-56px)] flex flex-col gap-1 overflow-auto scrollbar relative">
+			{renderSectionNodes(tree)}
+		</div>
+	)
 }

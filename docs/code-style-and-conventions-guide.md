@@ -145,7 +145,6 @@ React is at the core of our front-end development. Here are some conventions to 
    ```
 
 2. **Order your component file:** Organize your React component files in the following order:
-
    1. Imports
    2. Component declaration
    3. Styled components (if any)

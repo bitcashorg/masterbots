@@ -1,8 +1,6 @@
-import {
-	updateThreadDocumentsMetadata,
-	uploadWorkspaceDocumentToBucket,
-} from '@/app/actions/thread.actions'
+import { updateThreadDocumentsMetadata } from '@/app/actions/thread.actions'
 import { Button } from '@/components/ui/button'
+import { uploadWorkspaceDocument } from '@/lib/api/documents'
 import { computeChecksum } from '@/lib/checksum'
 import {
 	type WorkspaceTaskType,
@@ -51,6 +49,7 @@ function WorkspaceContentInternal({
 	documentName,
 	documentType,
 	chatbot,
+	className,
 }: WorkspaceContentInternalProps) {
 	const {
 		documentContent,
@@ -154,7 +153,10 @@ This is a new document. Add your content here.
 	// State management
 	// Derive fullMarkdown from savedContent (SSoT) so UI reacts to workspace/state updates
 	const fullMarkdown = useMemo(
-		() => savedContent ?? initialContent,
+		() =>
+			savedContent?.startsWith('data:text/markdown;base64')
+				? atob(savedContent.split(',')[1])
+				: (savedContent ?? initialContent),
 		[savedContent, initialContent],
 	)
 	const [sections, setSections] = useState<MarkdownSection[]>(
@@ -437,6 +439,9 @@ This is a new document. Add your content here.
 			// Switching back to section view: ensure store has latest source
 			setDocumentContent(projectName, documentName, fullMarkdown)
 		}
+
+		// Set view mode after content is synchronized
+		setViewMode(fullView ? 'source' : 'sections')
 	}
 
 	const handleExpandSection = async (sectionTitle: string) => {
@@ -459,7 +464,7 @@ This is a new document. Add your content here.
 			documentName,
 			documentType,
 			sections,
-			sectionTitle,
+			activeSectionTitle: sectionTitle,
 		})
 
 		if (!metaPrompt) return
@@ -487,7 +492,7 @@ This is a new document. Add your content here.
 			documentName,
 			documentType,
 			sections,
-			sectionTitle,
+			activeSectionTitle: sectionTitle,
 		})
 
 		if (!metaPrompt) return
@@ -658,6 +663,7 @@ This is a new document. Add your content here.
 						userId: session.user.id,
 						model: 'OPENAI',
 						isPublic: false,
+						isPro: true,
 					})
 
 					if (createdThread?.threadId) {
@@ -688,20 +694,44 @@ This is a new document. Add your content here.
 			}
 
 			// Upload document content to bucket (server handles official versioning + checksum)
-			const { document, existed } = await uploadWorkspaceDocumentToBucket({
-				threadSlug,
-				organization: activeOrganization as string,
-				department: activeDepartment as string,
-				project: projectName,
-				name: documentName,
-				content,
-				type,
-			})
+			const uploadResult = await uploadWorkspaceDocument(
+				{
+					name: documentName,
+					content,
+					type,
+				},
+				{
+					organization: activeOrganization as string,
+					department: activeDepartment as string,
+					project: projectName,
+				},
+				{ slug: threadSlug },
+			)
 
-			if (existed) {
+			if (uploadResult.error) {
+				customSonner({
+					type: 'error',
+					text: uploadResult.error,
+				})
+				setIsSaving(false)
+				return
+			}
+
+			const document = uploadResult.data
+			if (!document) {
+				customSonner({
+					type: 'error',
+					text: 'Failed to upload document.',
+				})
+				setIsSaving(false)
+				return
+			}
+
+			// Check if document existed (similar logic to original)
+			if (document.currentVersion && document.currentVersion > 1) {
 				customSonner({
 					type: 'info',
-					text: 'This version already exists and has been restored.',
+					text: 'Document updated with new version.',
 				})
 			}
 
@@ -746,7 +776,8 @@ This is a new document. Add your content here.
 				setVersions(document.versions)
 			}
 
-			if (!existed) {
+			// Show success message for new saves
+			if (document.currentVersion === 1) {
 				customSonner({ type: 'success', text: `${type} document saved.` })
 			}
 		} catch (e) {
@@ -869,7 +900,7 @@ This is a new document. Add your content here.
 	}
 
 	return (
-		<div className="flex flex-col space-y-4 pb-4 px-4 size-full">
+		<div className={cn('flex flex-col gap-4 p-4 size-full', className)}>
 			<WorkspaceContentHeader
 				documentType={documentType}
 				activeSection={activeSection}
@@ -889,7 +920,6 @@ This is a new document. Add your content here.
 						<button
 							type="button"
 							onClick={() => {
-								setViewMode('sections')
 								handleViewSourceToggle(false)
 							}}
 							className={cn(
@@ -904,7 +934,6 @@ This is a new document. Add your content here.
 						<button
 							type="button"
 							onClick={() => {
-								setViewMode('source')
 								handleViewSourceToggle(true)
 							}}
 							className={cn(
@@ -1005,13 +1034,14 @@ export function WorkspaceContent({
 	chatbot,
 }: WorkspaceContentProps) {
 	return (
-		<WorkspaceContentWrapper className={className}>
+		<WorkspaceContentWrapper>
 			{({ projectName, documentName, documentType }) => (
 				<WorkspaceContentInternal
 					projectName={projectName}
 					documentName={documentName}
 					documentType={documentType}
 					chatbot={chatbot}
+					className={className}
 				/>
 			)}
 		</WorkspaceContentWrapper>
@@ -1069,4 +1099,5 @@ interface WorkspaceContentInternalProps {
 	documentName: string
 	documentType: 'text' | 'image' | 'spreadsheet'
 	chatbot?: Chatbot
+	className?: string
 }

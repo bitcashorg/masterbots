@@ -866,6 +866,11 @@ export function parsePath(pathname: string): PathParams {
 	const segments = pathname.split('/').filter(Boolean)
 	const isProfileThread = segments[0] === 'u' && segments[2] === 't'
 	const isBotProfile = segments[0] === 'b'
+	const isOrgPage = segments[0] === 'org'
+
+	if (isOrgPage) {
+		segments.shift()
+	}
 
 	if (isBotProfile) {
 		return {

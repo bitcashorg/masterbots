@@ -72,6 +72,7 @@ export function Pro({
 	})
 
 	// Debounced scroll to bottom
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	let timeoutId: any
 	const debounceScrollToBottom = (element: HTMLElement | null) => {
 		clearTimeout(timeoutId)
@@ -95,6 +96,7 @@ export function Pro({
 	const chatSearchMessage = (
 		isNewChat: boolean,
 		isContinuousThread: boolean,
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		allMessages: any[],
 	) => {
 		const threadTitle = allMessages.filter((m) => m.role === 'user')[0]?.content

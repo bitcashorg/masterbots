@@ -1,6 +1,10 @@
 'use client'
 
-import { getUserBySlug, updateUserPersonality } from '@/services/hasura'
+import {
+	getUserBySlug,
+	updateUser,
+	updateUserPersonality,
+} from '@/services/hasura'
 import type { User } from 'mb-genql'
 import { useSession } from 'next-auth/react'
 import * as React from 'react'
@@ -17,6 +21,11 @@ interface profileContextProps {
 	) => void
 	currentUser: User | null
 	setCurrentUser: React.Dispatch<React.SetStateAction<User | null>>
+	updateUserDetails: (
+		email: string | null,
+		name: string | null,
+		slug: string | null,
+	) => void
 }
 
 const profileContext = React.createContext<profileContextProps | undefined>(
@@ -103,6 +112,42 @@ export function ProfileProvider({ children }: ProfileProviderProps) {
 		}
 	}
 
+	const updateUserDetails = async (
+		email: string | null,
+		username: string | null,
+		slug: string | null,
+	) => {
+		try {
+			const jwt = session?.user?.hasuraJwt
+			if (!jwt || !session.user?.id) {
+				throw new Error('User not authenticated')
+			}
+
+			const result = await updateUser({
+				userId: session.user.id,
+				jwt,
+				email,
+				username,
+				slug,
+			})
+			if (!result.success) {
+				throw new Error('An error occurred while updating user details')
+			}
+			setCurrentUser((prevUser) => {
+				if (!prevUser) return null
+				return {
+					...prevUser,
+					email: email || prevUser.email || '',
+					username: username || prevUser.username || '',
+					slug: slug || prevUser.slug || '',
+				}
+			})
+		} catch (error) {
+			console.error('Failed to update user details', error)
+			throw error
+		}
+	}
+
 	return (
 		<profileContext.Provider
 			value={{
@@ -111,6 +156,7 @@ export function ProfileProvider({ children }: ProfileProviderProps) {
 				updateUserInfo,
 				currentUser,
 				setCurrentUser,
+				updateUserDetails,
 			}}
 		>
 			{children}

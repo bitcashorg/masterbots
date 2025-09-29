@@ -89,5 +89,17 @@ export interface UpdateUserArgs {
 	_set?: {
 		bio?: string
 		favouriteTopic?: string
+		username?: string
+		email?: string
+		slug?: string
+	}
+}
+
+export interface UpdateUserDArgs {
+	pkColumns: { userId: string | undefined }
+	_set?: {
+		username?: string
+		email?: string
+		slug?: string
 	}
 }

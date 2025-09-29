@@ -4,7 +4,7 @@ import type React from 'react'
 import { createContext, useContext, useEffect } from 'react'
 import { useLocalStorage } from './use-local-storage'
 
-type FontSize = 'normal' | 'large' | 'x-large'
+type FontSize = 'normal' | 'large' | 'x-large' | 'small' | 'medium'
 
 interface AccessibilityState {
 	fontSize: FontSize

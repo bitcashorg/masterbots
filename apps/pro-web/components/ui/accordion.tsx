@@ -27,18 +27,23 @@ const AccordionTrigger = ({
 	ref,
 	...props
 }: AccordionPrimitive.AccordionTriggerProps &
-	React.RefAttributes<HTMLButtonElement>) => (
+	React.RefAttributes<HTMLButtonElement> & { chevronLeft?: boolean }) => (
 	<AccordionPrimitive.Header className="flex">
 		<AccordionPrimitive.Trigger
 			ref={ref}
 			className={cn(
-				'flex flex-1 items-center justify-between py-4 font-medium transition-all hover:underline [&[data-state=open]>svg]:rotate-180',
+				'flex flex-1 items-center justify-between py-4 font-medium transition-all hover:underline [&[data-state=open]>svg]:-rotate-90',
 				className,
 			)}
 			{...props}
 		>
+			{props.chevronLeft && (
+				<ChevronDown className="size-4 shrink-0 !top-1 transition-transform duration-200" />
+			)}
 			{children}
-			<ChevronDown className="size-4 shrink-0 !top-1 transition-transform duration-200" />
+			{!props.chevronLeft && (
+				<ChevronDown className="size-4 shrink-0 !top-1 transition-transform duration-200" />
+			)}
 		</AccordionPrimitive.Trigger>
 	</AccordionPrimitive.Header>
 )

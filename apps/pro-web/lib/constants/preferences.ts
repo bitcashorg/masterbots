@@ -1,32 +1,111 @@
 import type { PreferenceItemType } from '@/types'
-import { MessageSquareX, UserRoundX } from 'lucide-react'
+import {
+	LetterText,
+	MessageSquareX,
+	Moon,
+	Save,
+	Sun,
+	UserRoundX,
+} from 'lucide-react'
 
 export const preferences = [
 	{
 		title: 'General',
 		items: [
-			// {
-			// 	title: 'Preferred Language',
-			// 	description: 'Receive emails about new products, features, and more.',
-			// 	type: 'switch',
-			// },
+			{
+				title: 'Email',
+				description: 'Change your email address to receive notifications.',
+				type: 'input',
+				props: {
+					inputId: 'email',
+					inputName: 'Email',
+					inputPlaceholder: 'Enter your email address',
+					defaultValue: '',
+					inputReadOnly: true,
+				},
+			},
+			{
+				title: 'Email not verified',
+				description:
+					'Your email is not verified. Please check your inbox for the verification email.',
+				type: 'emailVerification',
+				props: {
+					buttonText: 'Re-send Email Verification',
+					buttonId: 'resend_verification_email',
+					buttonDisabled: false,
+				},
+			},
+			{
+				title: 'Username',
+				description: 'Change your username to something unique.',
+				type: 'input',
+				props: {
+					inputId: 'username',
+					inputName: 'Username',
+					inputPlaceholder: 'Enter your username',
+					defaultValue: '',
+					asInlineButton: true,
+					buttonText: 'Save',
+					icon: Save,
+				},
+			},
+			{
+				title: 'Preferred Language',
+				description:
+					'Choose your language of preference in the thread conversations and content',
+				type: 'translation',
+			},
 			{
 				title: 'Masterbots Theme',
 				description: 'Change the default theme for the Masterbots site.',
-				type: 'switch',
+				type: 'dropdown',
 				props: {
 					switchId: 'theme',
 					switchName: 'theme',
+					items: [
+						{
+							value: 'dark',
+							label: 'Dark',
+							icon: Moon,
+						},
+						{
+							value: 'light',
+							label: 'Light',
+							icon: Sun,
+						},
+					],
 				},
 			},
 			{
 				title: 'Default Font Size',
 				description:
 					'Change overall font-size website (does not change your browser font-size).',
-				type: 'toggleGroup',
+				type: 'dropdown',
 				props: {
 					switchId: 'font-size',
 					switchName: 'font-size',
+					items: [
+						{
+							value: 'small',
+							label: 'Small',
+							icon: LetterText,
+						},
+						{
+							value: 'medium',
+							label: 'Medium',
+							icon: LetterText,
+						},
+						{
+							value: 'large',
+							label: 'large',
+							icon: LetterText,
+						},
+						{
+							value: 'x-large',
+							label: 'X-Large',
+							icon: LetterText,
+						},
+					],
 				},
 			},
 		] as PreferenceItemType[],
@@ -127,3 +206,17 @@ export const preferences = [
 		] as PreferenceItemType[],
 	},
 ] as const
+
+export const languageOptions = [
+	{ value: 'en', label: 'English', flag: '🇺🇸' },
+	{ value: 'es', label: 'Spanish', flag: '🇪🇸' },
+	{ value: 'pt', label: 'Portuguese', flag: '🇧🇷' },
+	{ value: 'fr', label: 'French', flag: '🇫🇷' },
+	{ value: 'zh', label: 'Chinese', flag: '🇨🇳' },
+	{ value: 'ko', label: 'Korean', flag: '🇰🇷' },
+	{ value: 'de', label: 'German', flag: '🇩🇪' },
+	{ value: 'it', label: 'Italian', flag: '🇮🇹' },
+	{ value: 'ru', label: 'Russian', flag: '🇷🇺' },
+	{ value: 'ja', label: 'Japanese', flag: '🇯🇵' },
+	{ value: 'ar', label: 'Arabic', flag: '🇸🇦' },
+]

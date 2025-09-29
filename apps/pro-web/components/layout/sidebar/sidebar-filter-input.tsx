@@ -73,7 +73,7 @@ export function FilterInput({ className, userId }: FilterInputProps) {
 					onClick={handleDashboardToggle}
 					aria-label="Open category dashboard"
 					className="btn-gradient"
-					data-route={isBrowse ? 'public' : 'chat'}
+					data-route={isBrowse ? 'org' : 'chat'}
 					data-onboarding-dashboard
 				>
 					<IconDashboard className="size-4" />
@@ -84,7 +84,7 @@ export function FilterInput({ className, userId }: FilterInputProps) {
 					onClick={handleFilterModeToggle}
 					aria-label="Toggle filter mode"
 					className="btn-gradient"
-					data-route={isBrowse ? 'public' : 'chat'}
+					data-route={isBrowse ? 'org' : 'chat'}
 					data-onboarding-filter
 				>
 					<IconFilter className={cn('size-4', isFilterMode && 'text-white')} />

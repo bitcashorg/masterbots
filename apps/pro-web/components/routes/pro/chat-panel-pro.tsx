@@ -1,9 +1,6 @@
 'use client'
 
-import {
-	updateThreadDocumentsMetadata,
-	uploadWorkspaceDocumentToBucket,
-} from '@/app/actions/thread.actions'
+import { updateThreadDocumentsMetadata } from '@/app/actions/thread.actions'
 import { ChatShareDialog } from '@/components/routes/chat/chat-share-dialog'
 import { PromptForm } from '@/components/routes/chat/prompt-form'
 import { WorkspaceContent } from '@/components/routes/workspace/workspace-content'
@@ -230,16 +227,6 @@ export function ChatPanelPro({
 	// Keep a local mirror for UI only, but source of truth is workspace
 	const documentType =
 		activeDocumentType === 'all' ? 'text' : activeDocumentType
-	const setDocumentType = (v: 'text' | 'image' | 'spreadsheet') =>
-		setActiveDocumentType(v)
-
-	// Sync selection dropdowns to respect null/None
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-	useEffect(() => {
-		if (activeDocument === undefined) {
-			setActiveDocument(null)
-		}
-	}, [activeDocument])
 
 	// Use departmentList as departmentsByOrg since they contain the same data
 	const departmentsByOrg = departmentList
@@ -386,7 +373,7 @@ export function ChatPanelPro({
 				documentName: activeDocument as string,
 				documentType,
 				sections: parseMarkdownSections(currentContent),
-				sectionTitle: activeWorkspaceSection as string,
+				activeSectionTitle: activeWorkspaceSection as string,
 			})
 
 			// Then process workspace edit
@@ -422,7 +409,7 @@ export function ChatPanelPro({
 						className={cn(
 							'size-full px-4 md:px-10',
 							'lg:max-w-[calc(100%-250px)] xl:max-w-[calc(100%-300px)] lg:left-[250px] xl:left-[300px]',
-							'flex justify-center items-end fixed bottom-0 pb-[192px] pt-[10%] left-0',
+							'flex justify-center items-end fixed bottom-0 pb-[192px] pt-[1.5%] left-0',
 							'h-[calc(100vh-4rem)] backdrop-blur-sm ease-in-out duration-500 z-20',
 							'transition-all',
 							className,
@@ -445,7 +432,7 @@ export function ChatPanelPro({
 						>
 							<WorkspaceContent
 								key={`workspace-${activeProject}-${activeDocument}-${activeDocumentType}`}
-								className="size-full overflow-auto scrollbar"
+								className="size-full"
 								chatbot={chatbot}
 							/>
 						</motion.div>

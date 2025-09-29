@@ -163,6 +163,14 @@
 		font-size: var(--font-size-base);
 	}
 
+	[data-font-size="small"] {
+		font-size: calc(var(--font-size-base) * 0.8);
+	}
+
+	[data-font-size="medium"] {
+		font-size: calc(var(--font-size-base) * 1.1);
+	}
+
 	[data-font-size="large"] {
 		font-size: calc(var(--font-size-base) * 1.2);
 	}
@@ -1068,4 +1076,18 @@
 
 .nextstep-card:hover::after {
 	left: 100%;
+}
+
+/* Hide Google Translate banner */
+
+.skiptranslate {
+	visibility: hidden !important;
+}
+
+.VIpgJd-ZVi9od-ORHb-OEVmcd {
+	visibility: hidden !important;
+}
+
+iframe {
+	visibility: hidden !important;
 }

@@ -229,6 +229,7 @@ export interface Chatbot {
   followers: SocialFollowing[];
   /** An aggregate relationship */
   followersAggregate: SocialFollowingAggregate;
+  isPro: Scalars["Boolean"];
   /** An object relationship */
   lengthEnum: LengthEnum | null;
   /** An array relationship */
@@ -241,6 +242,7 @@ export interface Chatbot {
   preferences: Preference[];
   /** An aggregate relationship */
   preferencesAggregate: PreferenceAggregate;
+  proExclusive: Scalars["Boolean"] | null;
   /** An array relationship */
   prompts: PromptChatbot[];
   /** An aggregate relationship */
@@ -575,16 +577,20 @@ export type ChatbotSelectColumn =
   | "defaultType"
   | "description"
   | "disabled"
+  | "isPro"
   | "name"
-  | "order";
+  | "order"
+  | "proExclusive";
 
 /** select "chatbotAggregateBoolExpBool_andArgumentsColumns" columns of table "chatbot" */
 export type ChatbotSelectColumnChatbotAggregateBoolExpBool_andArgumentsColumns =
-  "disabled";
+  "disabled" | "isPro" | "proExclusive";
 
 /** select "chatbotAggregateBoolExpBool_orArgumentsColumns" columns of table "chatbot" */
 export type ChatbotSelectColumnChatbotAggregateBoolExpBool_orArgumentsColumns =
-  "disabled";
+  | "disabled"
+  | "isPro"
+  | "proExclusive";
 
 /** aggregate stddev on columns */
 export interface ChatbotStddevFields {
@@ -625,8 +631,10 @@ export type ChatbotUpdateColumn =
   | "defaultType"
   | "description"
   | "disabled"
+  | "isPro"
   | "name"
-  | "order";
+  | "order"
+  | "proExclusive";
 
 /** aggregate varPop on columns */
 export interface ChatbotVarPopFields {
@@ -2257,6 +2265,7 @@ export interface Thread {
   createdAt: Scalars["timestamptz"];
   isApproved: Scalars["Boolean"] | null;
   isBlocked: Scalars["Boolean"] | null;
+  isPro: Scalars["Boolean"] | null;
   isPublic: Scalars["Boolean"] | null;
   /** An array relationship */
   messages: Message[];
@@ -2360,6 +2369,7 @@ export type ThreadSelectColumn =
   | "createdAt"
   | "isApproved"
   | "isBlocked"
+  | "isPro"
   | "isPublic"
   | "metadata"
   | "model"
@@ -2374,12 +2384,14 @@ export type ThreadSelectColumn =
 export type ThreadSelectColumnThreadAggregateBoolExpBool_andArgumentsColumns =
   | "isApproved"
   | "isBlocked"
+  | "isPro"
   | "isPublic";
 
 /** select "threadAggregateBoolExpBool_orArgumentsColumns" columns of table "thread" */
 export type ThreadSelectColumnThreadAggregateBoolExpBool_orArgumentsColumns =
   | "isApproved"
   | "isBlocked"
+  | "isPro"
   | "isPublic";
 
 /** aggregate stddev on columns */
@@ -2412,6 +2424,7 @@ export type ThreadUpdateColumn =
   | "createdAt"
   | "isApproved"
   | "isBlocked"
+  | "isPro"
   | "isPublic"
   | "metadata"
   | "model"
@@ -4212,6 +4225,7 @@ export interface ChatbotGenqlSelection {
       where?: SocialFollowingBoolExp | null;
     };
   };
+  isPro?: boolean | number;
   /** An object relationship */
   lengthEnum?: LengthEnumGenqlSelection;
   /** An array relationship */
@@ -4276,6 +4290,7 @@ export interface ChatbotGenqlSelection {
       where?: PreferenceBoolExp | null;
     };
   };
+  proExclusive?: boolean | number;
   /** An array relationship */
   prompts?: PromptChatbotGenqlSelection & {
     __args?: {
@@ -4438,6 +4453,7 @@ export interface ChatbotBoolExp {
   disabled?: BooleanComparisonExp | null;
   followers?: SocialFollowingBoolExp | null;
   followersAggregate?: SocialFollowingAggregateBoolExp | null;
+  isPro?: BooleanComparisonExp | null;
   lengthEnum?: LengthEnumBoolExp | null;
   metadata?: ChatbotDomainBoolExp | null;
   metadataAggregate?: ChatbotDomainAggregateBoolExp | null;
@@ -4445,6 +4461,7 @@ export interface ChatbotBoolExp {
   order?: IntComparisonExp | null;
   preferences?: PreferenceBoolExp | null;
   preferencesAggregate?: PreferenceAggregateBoolExp | null;
+  proExclusive?: BooleanComparisonExp | null;
   prompts?: PromptChatbotBoolExp | null;
   promptsAggregate?: PromptChatbotAggregateBoolExp | null;
   threads?: ThreadBoolExp | null;
@@ -5048,11 +5065,13 @@ export interface ChatbotInsertInput {
   description?: Scalars["String"] | null;
   disabled?: Scalars["Boolean"] | null;
   followers?: SocialFollowingArrRelInsertInput | null;
+  isPro?: Scalars["Boolean"] | null;
   lengthEnum?: LengthEnumObjRelInsertInput | null;
   metadata?: ChatbotDomainArrRelInsertInput | null;
   name?: Scalars["String"] | null;
   order?: Scalars["Int"] | null;
   preferences?: PreferenceArrRelInsertInput | null;
+  proExclusive?: Scalars["Boolean"] | null;
   prompts?: PromptChatbotArrRelInsertInput | null;
   threads?: ThreadArrRelInsertInput | null;
   toneEnum?: ToneEnumObjRelInsertInput | null;
@@ -5157,11 +5176,13 @@ export interface ChatbotOrderBy {
   description?: OrderBy | null;
   disabled?: OrderBy | null;
   followersAggregate?: SocialFollowingAggregateOrderBy | null;
+  isPro?: OrderBy | null;
   lengthEnum?: LengthEnumOrderBy | null;
   metadataAggregate?: ChatbotDomainAggregateOrderBy | null;
   name?: OrderBy | null;
   order?: OrderBy | null;
   preferencesAggregate?: PreferenceAggregateOrderBy | null;
+  proExclusive?: OrderBy | null;
   promptsAggregate?: PromptChatbotAggregateOrderBy | null;
   threadsAggregate?: ThreadAggregateOrderBy | null;
   toneEnum?: ToneEnumOrderBy | null;
@@ -5184,8 +5205,10 @@ export interface ChatbotSetInput {
   defaultType?: Scalars["String"] | null;
   description?: Scalars["String"] | null;
   disabled?: Scalars["Boolean"] | null;
+  isPro?: Scalars["Boolean"] | null;
   name?: Scalars["String"] | null;
   order?: Scalars["Int"] | null;
+  proExclusive?: Scalars["Boolean"] | null;
 }
 
 /** aggregate stddev on columns */
@@ -5249,8 +5272,10 @@ export interface ChatbotStreamCursorValueInput {
   defaultType?: Scalars["String"] | null;
   description?: Scalars["String"] | null;
   disabled?: Scalars["Boolean"] | null;
+  isPro?: Scalars["Boolean"] | null;
   name?: Scalars["String"] | null;
   order?: Scalars["Int"] | null;
+  proExclusive?: Scalars["Boolean"] | null;
 }
 
 /** aggregate sum on columns */
@@ -9652,6 +9677,7 @@ export interface ThreadGenqlSelection {
   createdAt?: boolean | number;
   isApproved?: boolean | number;
   isBlocked?: boolean | number;
+  isPro?: boolean | number;
   isPublic?: boolean | number;
   /** An array relationship */
   messages?: MessageGenqlSelection & {
@@ -9827,6 +9853,7 @@ export interface ThreadBoolExp {
   createdAt?: TimestamptzComparisonExp | null;
   isApproved?: BooleanComparisonExp | null;
   isBlocked?: BooleanComparisonExp | null;
+  isPro?: BooleanComparisonExp | null;
   isPublic?: BooleanComparisonExp | null;
   messages?: MessageBoolExp | null;
   messagesAggregate?: MessageAggregateBoolExp | null;
@@ -9872,6 +9899,7 @@ export interface ThreadInsertInput {
   createdAt?: Scalars["timestamptz"] | null;
   isApproved?: Scalars["Boolean"] | null;
   isBlocked?: Scalars["Boolean"] | null;
+  isPro?: Scalars["Boolean"] | null;
   isPublic?: Scalars["Boolean"] | null;
   messages?: MessageArrRelInsertInput | null;
   metadata?: Scalars["jsonb"] | null;
@@ -9971,6 +9999,7 @@ export interface ThreadOrderBy {
   createdAt?: OrderBy | null;
   isApproved?: OrderBy | null;
   isBlocked?: OrderBy | null;
+  isPro?: OrderBy | null;
   isPublic?: OrderBy | null;
   messagesAggregate?: MessageAggregateOrderBy | null;
   metadata?: OrderBy | null;
@@ -10004,6 +10033,7 @@ export interface ThreadSetInput {
   createdAt?: Scalars["timestamptz"] | null;
   isApproved?: Scalars["Boolean"] | null;
   isBlocked?: Scalars["Boolean"] | null;
+  isPro?: Scalars["Boolean"] | null;
   isPublic?: Scalars["Boolean"] | null;
   metadata?: Scalars["jsonb"] | null;
   model?: ModelsEnumEnum | null;
@@ -10065,6 +10095,7 @@ export interface ThreadStreamCursorValueInput {
   createdAt?: Scalars["timestamptz"] | null;
   isApproved?: Scalars["Boolean"] | null;
   isBlocked?: Scalars["Boolean"] | null;
+  isPro?: Scalars["Boolean"] | null;
   isPublic?: Scalars["Boolean"] | null;
   metadata?: Scalars["jsonb"] | null;
   model?: ModelsEnumEnum | null;
@@ -18074,18 +18105,24 @@ export const enumChatbotSelectColumn = {
   defaultType: "defaultType" as const,
   description: "description" as const,
   disabled: "disabled" as const,
+  isPro: "isPro" as const,
   name: "name" as const,
   order: "order" as const,
+  proExclusive: "proExclusive" as const,
 };
 
 export const enumChatbotSelectColumnChatbotAggregateBoolExpBoolAndArgumentsColumns =
   {
     disabled: "disabled" as const,
+    isPro: "isPro" as const,
+    proExclusive: "proExclusive" as const,
   };
 
 export const enumChatbotSelectColumnChatbotAggregateBoolExpBoolOrArgumentsColumns =
   {
     disabled: "disabled" as const,
+    isPro: "isPro" as const,
+    proExclusive: "proExclusive" as const,
   };
 
 export const enumChatbotUpdateColumn = {
@@ -18098,8 +18135,10 @@ export const enumChatbotUpdateColumn = {
   defaultType: "defaultType" as const,
   description: "description" as const,
   disabled: "disabled" as const,
+  isPro: "isPro" as const,
   name: "name" as const,
   order: "order" as const,
+  proExclusive: "proExclusive" as const,
 };
 
 export const enumComplexityEnumConstraint = {
@@ -18476,6 +18515,7 @@ export const enumThreadSelectColumn = {
   createdAt: "createdAt" as const,
   isApproved: "isApproved" as const,
   isBlocked: "isBlocked" as const,
+  isPro: "isPro" as const,
   isPublic: "isPublic" as const,
   metadata: "metadata" as const,
   model: "model" as const,
@@ -18491,6 +18531,7 @@ export const enumThreadSelectColumnThreadAggregateBoolExpBoolAndArgumentsColumns
   {
     isApproved: "isApproved" as const,
     isBlocked: "isBlocked" as const,
+    isPro: "isPro" as const,
     isPublic: "isPublic" as const,
   };
 
@@ -18498,6 +18539,7 @@ export const enumThreadSelectColumnThreadAggregateBoolExpBoolOrArgumentsColumns 
   {
     isApproved: "isApproved" as const,
     isBlocked: "isBlocked" as const,
+    isPro: "isPro" as const,
     isPublic: "isPublic" as const,
   };
 
@@ -18506,6 +18548,7 @@ export const enumThreadUpdateColumn = {
   createdAt: "createdAt" as const,
   isApproved: "isApproved" as const,
   isBlocked: "isBlocked" as const,
+  isPro: "isPro" as const,
   isPublic: "isPublic" as const,
   metadata: "metadata" as const,
   model: "model" as const,

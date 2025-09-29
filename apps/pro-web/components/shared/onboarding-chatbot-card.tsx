@@ -28,7 +28,7 @@ export function OnboardingChatbotCard({
 
 	// Get appropriate CTA text based on route type
 	const getCTAText = () => {
-		if (routeType === 'public' || routeType === 'bot') {
+		if (routeType === 'org' || routeType === 'bot') {
 			return 'Browse and select a bot to explore conversations'
 		}
 		return 'Go to sidebar and select one bot'

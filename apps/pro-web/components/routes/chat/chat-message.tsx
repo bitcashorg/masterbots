@@ -1,6 +1,7 @@
 import { ChatMessageActions } from '@/components/routes/chat/chat-message-actions'
 import { GeneratedImage } from '@/components/shared/generated-image'
 import { MemoizedReactMarkdown } from '@/components/shared/markdown'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
 	cleanClickableText,
 	extractFollowUpContext,
@@ -41,7 +42,7 @@ export function ChatMessage({
 }: ChatMessageProps) {
 	const pathname = usePathname()
 	const routeType = getRouteType(pathname)
-	const isBrowseView = routeType === 'public'
+	const isBrowseView = routeType === 'org'
 	const isProfileView = routeType === 'profile'
 	const isBotView = routeType === 'bot'
 	// Clean the message content and update the message object.
@@ -126,8 +127,13 @@ export function ChatMessage({
 			<div className="mt-4 space-y-4 w-full">
 				{images.map((image, i) => {
 					if (!image.base64) {
-						console.warn(`Image ${i} has no base64 data`)
-						return null
+						console.warn(`Image ${i + 1} (${i}) has no base64 data`)
+						return (
+							<Skeleton
+								key={`skeleton-image-${i + 1}`}
+								className="w-full aspect-video"
+							/>
+						)
 					}
 					//? Create a stable key based on the image content
 					const imageKey = `${message.messageId}-${image.base64.slice(0, 32)}`
@@ -146,36 +152,36 @@ export function ChatMessage({
 
 	return (
 		<div
-			className={cn('group relative flex items-start p-1 w-full')}
+			className={cn(
+				'relative flex-1 pr-1 space-y-2 overflow-hidden group flex items-start p-1 w-full',
+			)}
 			{...props}
 		>
-			<div className="flex-1 pr-1 space-y-2 overflow-hidden">
-				<MemoizedReactMarkdown
-					className="min-w-full prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
-					components={memoizedMarkdownComponents(
-						!(isBrowseView || isProfileView || isBotView)
-							? {
-									handleClickableClick,
-									shouldPreProcessChildren: true,
-								}
-							: undefined,
-					)}
-				>
-					{cleanMessage.content}
-				</MemoizedReactMarkdown>
-
-				{ImagesSection}
-
-				{actionRequired && (
-					<ChatMessageActions
-						className="md:!right-0"
-						message={message}
-						onConvertToWorkspaceDocument={onConvertToWorkspaceDocument}
-					/>
+			<MemoizedReactMarkdown
+				className="min-w-full prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
+				components={memoizedMarkdownComponents(
+					!(isBrowseView || isProfileView || isBotView)
+						? {
+								handleClickableClick,
+								shouldPreProcessChildren: true,
+							}
+						: undefined,
 				)}
+			>
+				{cleanMessage.content}
+			</MemoizedReactMarkdown>
 
-				<ReferencesSection />
-			</div>
+			{ImagesSection}
+
+			{actionRequired && (
+				<ChatMessageActions
+					className="md:!right-0"
+					message={message}
+					onConvertToWorkspaceDocument={onConvertToWorkspaceDocument}
+				/>
+			)}
+
+			<ReferencesSection />
 		</div>
 	)
 }

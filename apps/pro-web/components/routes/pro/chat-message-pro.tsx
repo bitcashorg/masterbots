@@ -36,7 +36,7 @@ export function ChatMessagePro({
 }: ChatMessageProps & { onConvertToDocument?: (messageId: string) => void }) {
 	const pathname = usePathname()
 	const routeType = getRouteType(pathname)
-	const isBrowseView = routeType === 'public'
+	const isBrowseView = routeType === 'org'
 	const isProfileView = routeType === 'profile'
 	// Clean the message content and update the message object.
 	const content = cleanPrompt(message.content)

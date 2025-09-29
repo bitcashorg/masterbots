@@ -89,5 +89,8 @@ export interface UpdateUserArgs {
 	_set?: {
 		bio?: string
 		favouriteTopic?: string
+		username?: string
+		email?: string
+		slug?: string
 	}
 }

@@ -1,7 +1,7 @@
 import { authOptions } from '@/auth'
-import { Pro } from '@/components/routes/pro/pro'
 import Subscription from '@/components/routes/subscription/subscription'
-import ThreadPanel from '@/components/routes/thread/thread-panel'
+import { MainContentSkeleton } from '@/components/shared/skeletons/chat-page-skeleton'
+import { ChatPanelSkeleton } from '@/components/shared/skeletons/chat-panel-skeleton'
 import { botNames } from '@/lib/constants/bots-names'
 import { PAGE_SIZE } from '@/lib/constants/hasura'
 import { generateMetadataFromSEO } from '@/lib/metadata'
@@ -9,7 +9,21 @@ import { getChatbot, getThreads } from '@/services/hasura'
 import { isTokenExpired } from 'mb-lib'
 import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
+import dynamic from 'next/dynamic'
 import { redirect } from 'next/navigation'
+
+const ThreadPanel = dynamic(
+	() => import('@/components/routes/thread/thread-panel'),
+	{
+		loading: () => <MainContentSkeleton />,
+	},
+)
+const Pro = dynamic(
+	() => import('@/components/routes/pro/pro').then((mod) => mod.Pro),
+	{
+		loading: () => <ChatPanelSkeleton />,
+	},
+)
 
 export default async function BotThreadsPage(props: {
 	params: Promise<{ category: string; chatbot: string }>

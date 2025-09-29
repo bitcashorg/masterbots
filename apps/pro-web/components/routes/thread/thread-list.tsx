@@ -123,11 +123,11 @@ export default function ThreadList({
 		[],
 	)
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		if (activeThread) return
 		getOpeningActiveThread()
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [activeThread, getOpeningActiveThread])
+	}, [])
 
 	if (loadingThread) {
 		return (

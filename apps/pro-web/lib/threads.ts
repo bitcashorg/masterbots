@@ -62,10 +62,10 @@ export async function getOpeningActiveThreadHelper(
 	const pathname = window.location.pathname
 	const pathNameParts = pathname.split('/')
 	const routeType = getRouteType(pathname)
-	const isPublic = routeType === 'public'
+	const isOrg = routeType === 'org'
 	const isProfile = routeType === 'profile'
 	const isBotProfile = routeType === 'bot'
-	const isPersonal = routeType === 'chat'
+	const isPersonal = routeType === 'pro'
 
 	// ? We repeat the pathname parts here to make it simple to read
 	// ? We could use a switch case here, but it would be more verbose
@@ -111,12 +111,12 @@ export async function getOpeningActiveThreadHelper(
 	// console.log('pathname', {
 	// 	pathNameParts,
 	// 	isPersonal,
-	// 	isPublic,
+	// 	isOrg,
 	// 	isProfile,
 	// 	isBotProfile,
 	// })
 
-	if (isPublic && !publicThreadSlug && !publicThreadQuestionSlug) return
+	if (isOrg && !publicThreadSlug && !publicThreadQuestionSlug) return
 	if (isPersonal && !personalThreadSlug && !personalThreadQuestionSlug) return
 	if (
 		isBotProfile &&
@@ -128,7 +128,7 @@ export async function getOpeningActiveThreadHelper(
 		return
 
 	const threadSlug =
-		(isPublic && publicThreadSlug) ||
+		(isOrg && publicThreadSlug) ||
 		(isPersonal && personalThreadSlug) ||
 		(isProfile && userProfileThreadSlug) ||
 		(isBotProfile && chatbotProfileThreadSlug) ||
@@ -146,7 +146,7 @@ export async function getOpeningActiveThreadHelper(
 		return
 	}
 	if (
-		(isPublic && (publicThreadQuestionSlug || publicThreadSlug)) ||
+		(isOrg && (publicThreadQuestionSlug || publicThreadSlug)) ||
 		(isProfile && (userProfileThreadQuestionSlug || userProfileThreadSlug)) ||
 		(isPersonal && (personalThreadQuestionSlug || personalThreadSlug)) ||
 		(isBotProfile &&

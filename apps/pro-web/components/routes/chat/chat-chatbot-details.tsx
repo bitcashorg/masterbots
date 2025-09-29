@@ -24,7 +24,7 @@ export default function ChatChatbotDetails() {
 
 	const isWelcomeView = !activeChatbot
 	const routeType = getRouteType(pathname)
-	const isChatRoute = routeType === 'chat'
+	const isProRoute = routeType === 'pro'
 
 	// Event handlers
 	const handleFollow = async () => {
@@ -126,7 +126,7 @@ export default function ChatChatbotDetails() {
 
 	return (
 		<>
-			{isChatRoute ? (
+			{isProRoute ? (
 				<OnboardingChatbotCard {...sharedProps} />
 			) : (
 				<OnboardingChatbotDetails {...sharedProps} />

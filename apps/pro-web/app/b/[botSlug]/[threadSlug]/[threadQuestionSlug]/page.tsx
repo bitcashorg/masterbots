@@ -26,7 +26,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 		...baseMetadata,
 		alternates: {
 			canonical: urlBuilders.threadQuestionUrl({
-				type: 'public',
+				type: 'org',
 				category: topic.name,
 				domain,
 				chatbot: chatbotName,

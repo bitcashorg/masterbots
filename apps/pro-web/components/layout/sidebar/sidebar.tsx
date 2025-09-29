@@ -43,7 +43,7 @@ export function Sidebar({
 				data-state={isSidebarOpen ? 'open' : 'closed'}
 				className={cn(
 					className,
-					'min-h-[inherit] h-full flex flex-col z-40',
+					'min-h-[inherit] h-full flex flex-col z-[60]',
 					isBrowse || isProfile
 						? 'bg-[#eeffea] dark:bg-[#000000]' // For /c and /u routes only
 						: 'bg-[#fae8ff] dark:bg-[#000000]', // For other routes

@@ -54,7 +54,7 @@ export const ChatAccordion = ({
 	//* Sets the initial open state based on defaultState prop
 	const initialState = defaultState
 	const profilePage = /^\/u\/[^/]+\/t(?:\/|$)/.test(pathname)
-	const isPublic = !/^\/(?:c|u)(?:\/|$)/.test(pathname)
+	const isOrg = !/^\/(?:c|u)(?:\/|$)/.test(pathname)
 
 	const [open, setOpen] = React.useState(initialState)
 	const isMainThread = !isOpenPopup
@@ -100,7 +100,7 @@ export const ChatAccordion = ({
 					urlType: 'threadUrl',
 					shallow: true,
 					navigationParams: {
-						type: isPublic ? 'public' : 'personal',
+						type: isOrg ? 'org' : 'personal',
 						chatbot: thread?.chatbot?.name || '',
 						category: thread?.chatbot?.categories?.[0]?.category?.name || '',
 						domain: thread?.chatbot?.metadata[0]?.domainName || '',
