@@ -1,14 +1,22 @@
 import { authOptions } from '@/auth'
 import { Pro } from '@/components/routes/pro/pro'
 import Subscription from '@/components/routes/subscription/subscription'
-import ThreadPanel from '@/components/routes/thread/thread-panel'
+import { MainContentSkeleton } from '@/components/shared/skeletons/chat-page-skeleton'
 import { PAGE_SIZE } from '@/lib/constants/hasura'
 import { generateMetadataFromSEO } from '@/lib/metadata'
 import { getCategories, getThreads } from '@/services/hasura'
 import { isTokenExpired, toSlug } from 'mb-lib'
 import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
+import dynamic from 'next/dynamic'
 import { redirect } from 'next/navigation'
+
+const ThreadPanel = dynamic(
+	() => import('@/components/routes/thread/thread-panel'),
+	{
+		loading: () => <MainContentSkeleton />,
+	},
+)
 
 export default async function ChatCategoryPage(props: {
 	params: Promise<{ category: string }>

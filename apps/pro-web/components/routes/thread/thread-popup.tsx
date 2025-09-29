@@ -224,10 +224,9 @@ export function ThreadPopup({ className }: { className?: string }) {
 									transition={{ duration: 0.35, ease: 'easeInOut' }}
 									key="workspace-content-thread-pop-up"
 								>
-									{/* Removed duplicate document type dropdown. Breadcrumb is source of truth. */}
 									<WorkspaceContent
 										key={`workspace-${activeProject}-${activeDocument}-${activeDocumentType}`}
-										className="size-full overflow-auto scrollbar"
+										className="size-full"
 										chatbot={activeThread?.chatbot}
 									/>
 								</motion.div>

@@ -403,9 +403,9 @@ export function WorkspaceTextEditor({
 		<div className="space-y-4 h-full max-h-max">
 			{/* Section editor view with tree UI */}
 			{viewMode === 'sections' && (
-				<div className="h-full max-h-[calc(100%-60px)] grid grid-cols-12 gap-4">
+				<div className="size-full max-h-[calc(100%-60px)] inline-flex gap-4">
 					{/* section navigation with tree structure */}
-					<div className="col-span-4 border rounded-lg size-full relative">
+					<div className="w-4/12 h-full gap-2 content-start border rounded-lg">
 						<h1 className="font-medium mb-2 px-4 py-2 text-xl">
 							Document Sections
 						</h1>
@@ -423,12 +423,11 @@ export function WorkspaceTextEditor({
 					{/* Content area */}
 					<div
 						className={cn(
-							'col-span-8 border rounded-lg p-4 h-full',
-							isPreview ? 'overflow-y-auto scrollbar' : '',
+							'w-8/12 border rounded-lg p-4 h-full overflow-y-auto scrollbar',
 						)}
 					>
 						{activeSection ? (
-							<div className="flex flex-col space-y-4 size-full">
+							<div className="flex flex-col gap-4 w-full min-h-full">
 								<div className="flex items-center gap-4 justify-between w-full">
 									<h3 className="font-semibold">
 										{sections.find((s) => s.id === activeSection)?.title}
@@ -489,8 +488,9 @@ export function WorkspaceTextEditor({
 														position
 													setGlobalSelectionRange({ start: position, end })
 												}}
+												rows={10}
 												className={cn(
-													'size-full p-3 border rounded-md focus:outline-none focus:ring-2 scrollbar resize-none font-mono text-sm selection:bg-accent selection:text-accent-foreground',
+													'size-full min-h-full p-3 border rounded-md focus:outline-none focus:ring-2 scrollbar resize-y font-mono text-sm selection:bg-accent selection:text-accent-foreground',
 													!isFocused &&
 														persistedSelection &&
 														persistedSelection.start !==

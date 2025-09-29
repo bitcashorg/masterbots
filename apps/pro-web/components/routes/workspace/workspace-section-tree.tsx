@@ -47,7 +47,7 @@ export function WorkspaceSectionTree({
 	}
 
 	return (
-		<div className="min-size-full w-full flex flex-col gap-1 overflow-auto scrollbar">
+		<div className="size-full max-w-[98%] ml-[1%] max-h-[calc(100%-56px)] flex flex-col gap-1 overflow-auto scrollbar relative">
 			{renderSectionNodes(tree)}
 		</div>
 	)

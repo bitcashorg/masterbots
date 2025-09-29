@@ -1,13 +1,26 @@
 import { authOptions } from '@/auth'
-import { Chat as ChatChatbot } from '@/components/routes/chat/chat'
-import { Pro } from '@/components/routes/pro/pro'
-import ThreadPanel from '@/components/routes/thread/thread-panel'
+import { MainContentSkeleton } from '@/components/shared/skeletons/chat-page-skeleton'
+import { ChatPanelSkeleton } from '@/components/shared/skeletons/chat-panel-skeleton'
 import { botNames } from '@/lib/constants/bots-names'
 import { PAGE_SIZE } from '@/lib/constants/hasura'
 import { getChatbot, getThreads } from '@/services/hasura'
 import { isTokenExpired } from 'mb-lib'
 import { getServerSession } from 'next-auth'
+import dynamic from 'next/dynamic'
 import { redirect } from 'next/navigation'
+
+const ThreadPanel = dynamic(
+	() => import('@/components/routes/thread/thread-panel'),
+	{
+		loading: () => <MainContentSkeleton />,
+	},
+)
+const Pro = dynamic(
+	() => import('@/components/routes/pro/pro').then((mod) => mod.Pro),
+	{
+		loading: () => <ChatPanelSkeleton />,
+	},
+)
 
 export { generateMbMetadata as generateMetadata } from '@/lib/metadata'
 

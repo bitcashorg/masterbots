@@ -43,9 +43,5 @@ export function WorkspaceContentWrapper({
 		)
 	}
 
-	return (
-		<div className={className}>
-			{children({ projectName, documentName, documentType })}
-		</div>
-	)
+	return children({ projectName, documentName, documentType })
 }
