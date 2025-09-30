@@ -14,6 +14,7 @@ import {
 	aiExampleClassification,
 	processUserMessage,
 } from '@/lib/helpers/ai-classification'
+import type { WorkspaceDocumentMetadata } from '@/types/thread.types'
 
 import {
 	cleanPrompt,
@@ -530,8 +531,8 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				}
 
 				throttle(async () => {
-					// Upload workspace documents to bucket if present
-					let uploadedDocuments = newDocuments
+					let uploadedDocuments: WorkspaceDocumentMetadata[] = []
+
 					if (newDocuments.length > 0 && activeThread?.slug) {
 						try {
 							const uploadPromises = newDocuments.map(async (doc) => {
@@ -552,11 +553,14 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 								if (uploadResult.data) {
 									return {
 										...uploadResult.data,
-										threadSlug: activeThread.slug || '',
 										messageIds: doc.messageIds,
-									}
+									} as WorkspaceDocumentMetadata
 								}
-								return doc // fallback to original if upload fails
+
+								return {
+									...doc,
+									versions: [] as WorkspaceDocumentMetadata['versions'],
+								} as WorkspaceDocumentMetadata
 							})
 
 							uploadedDocuments = await Promise.all(uploadPromises)
