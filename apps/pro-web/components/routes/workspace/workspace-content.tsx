@@ -611,86 +611,11 @@ This is a new document. Add your content here.
 
 			setIsSaving(true)
 
-			let threadSlug = activeThread?.slug
+			const threadSlug = activeThread?.slug
 			if (!threadSlug) {
-				// Need session and chatbot to create a thread
-				if (!session?.user?.hasuraJwt || !chatbot) {
-					customSonner({
-						type: 'error',
-						text: 'Cannot create thread: missing session or chatbot.',
-					})
-					setIsSaving(false)
-					return
-				}
-
-				const newThreadId = crypto.randomUUID()
-				const newThreadSlug = `${chatbot.name
-					.toLowerCase()
-					.replace(/\s+/g, '-')}-${newThreadId}`
-
-				try {
-					// Preseed metadata with workspace context and initial doc entry
-					const threadMetadata = {
-						documents: [
-							{
-								id: docId,
-								url: '',
-								content: '',
-								size: 0,
-								threadSlug: newThreadSlug,
-								organization: activeOrganization as string,
-								department: activeDepartment as string,
-								project: projectName,
-								name: documentName,
-								type,
-								currentVersion: 1,
-								versions: [],
-								expires: new Date(
-									Date.now() + 7 * 24 * 60 * 60 * 1000,
-								).toISOString(),
-							} as WorkspaceDocumentMetadata,
-						],
-						organization: activeOrganization,
-						department: activeDepartment,
-						isWorkspaceThread: true,
-					}
-
-					const createdThread = await createThread({
-						threadId: newThreadId,
-						chatbotId: chatbot.chatbotId,
-						slug: newThreadSlug,
-						jwt: session.user.hasuraJwt,
-						userId: session.user.id,
-						model: 'OPENAI',
-						isPublic: false,
-						isPro: true,
-					})
-
-					if (createdThread?.threadId) {
-						threadSlug = createdThread.slug || newThreadSlug
-						try {
-							await updateThreadDocumentsMetadata({
-								threadSlug,
-								documents: threadMetadata.documents,
-							})
-							// Refresh to pull latest metadata
-							await refreshActiveThread({ threadId: createdThread.threadId })
-						} catch (metadataError) {
-							console.warn('Failed to update thread metadata:', metadataError)
-						}
-					} else {
-						customSonner({ type: 'error', text: 'Failed to create thread.' })
-						setIsSaving(false)
-						return
-					}
-				} catch (error) {
-					console.error('Failed to create thread for document save:', error)
-					setIsSaving(false)
-					return
-				} finally {
-					setIsSaving(false)
-				}
-				return
+				console.log(
+					'📝 No active thread yet - document will be saved locally. Thread will be created when first message is sent.',
+				)
 			}
 
 			// Upload document content to bucket (server handles official versioning + checksum)
