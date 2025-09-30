@@ -1,4 +1,4 @@
-# masterbots
+# <a href="https://deepwiki.com/bitcashorg/masterbots"><img src="https://deepwiki.com/badge.svg" width="164" height="164" alt="Ask DeepWiki"></a> MasterBots
 
 **MasterBots is a UX-focused open-source chatbot aggregator platform and alternative to ChatGPT.**
 
@@ -24,18 +24,18 @@ Contributors will earn platform credits that can be sold for cash.
 (Credits may get more valuable over time)
 
 Here is our public Trello board:
-https://trello.com/b/GDCm18zN/masterbots-chatbot-aggregator-development-board
+<https://trello.com/b/GDCm18zN/masterbots-chatbot-aggregator-development-board>
 
 ## Requirements
 
 - NodeJS. We recommend [nvm](https://github.com/nvm-sh/nvm) for version switching.
-- Hasura Cli https://hasura.io/docs/latest/hasura-cli/overview.
-- pnpm package manager https://pnpm.io/
+- Hasura Cli <https://hasura.io/docs/latest/hasura-cli/overview>.
+- pnpm package manager <https://pnpm.io/>
 - [Docker](https://docs.docker.com/engine/install/) and [Docker Compose](https://docs.docker.com/compose/install/)
-- Task manager https://taskfile.dev
-- Bun https://bun.sh/
+- Task manager <https://taskfile.dev>
+- Bun <https://bun.sh/>
 
-## Running the Backend:
+## Running the Backend
 
 In root folder, create an .env file based of .env_sample and the use `task` to execute the following commands to operate Hasura locally.
 

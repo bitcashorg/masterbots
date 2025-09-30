@@ -1,4 +1,4 @@
-# GitHub Copilot Instructions
+# AGENTS.md
 
 ## Software Architecture Role
 
@@ -52,31 +52,6 @@ Before implementing solutions, always consider the environment and tools you're 
 5. **Add observability** - Include logging/debugging to understand actual behavior
 6. **Test incrementally** - Verify each step works before building on it
 
-### Implementation Guidelines
-
-**For DOM/Browser Work:**
-
-- Use feature detection before modern APIs
-- Implement progressive enhancement (basic functionality first, enhancements after)
-- Add timing delays or RAF when DOM needs to settle
-- Verify operations completed successfully
-
-**For React/State Management:**
-
-- Minimize useEffect dependencies to prevent loops
-- Use refs for values that shouldn't trigger re-renders
-- Consider component lifecycle timing for DOM operations
-- Separate concerns: state updates vs DOM manipulation
-
-**For Any Environment:**
-
-- Start with the simplest approach that could work
-- Add complexity only when simple approaches fail
-- Document why complex solutions are needed
-- Make code readable - future developers need to understand the constraints you solved for
-
-This approach applies whether working with databases, APIs, file systems, mobile environments, or any other development context. The key is understanding your tools and environment before implementing solutions.
-
 ## Setup Commands
 
 ### Initial Setup
@@ -113,11 +88,11 @@ bun format-and-lint:fix    # Format and lint all code with Biome
 cd apps/web && bun lint:fix  # Fix Next.js specific linting
 ```
 
-## Masterbots Monorepo Architecture
+## Project Architecture
 
-### Understanding the System Architecture
+### Monorepo Structure
 
-The masterbots platform follows modern web application patterns with clear separation of concerns:
+This is a Bun workspace monorepo with the following structure:
 
 **Core Applications:**
 
@@ -150,84 +125,6 @@ The masterbots platform follows modern web application patterns with clear separ
 - **Core entities**: `user`, `chatbot`, `thread`, `message`, `category`, social features
 - **Enum tables** for structured data (categories, complexity, tone, etc.)
 - **Seeds** for initial data population
-
-### State Management Patterns
-
-When working with the masterbots codebase, follow established patterns:
-
-**Provider Architecture:**
-
-- Use hierarchical provider structure for global state
-- Custom hooks (`useMBChat`, `useThread`, `useSidebar`, `useModel`) manage domain-specific concerns
-- Keep providers focused and compose them hierarchically
-
-**Data Flow:**
-
-- Follow unidirectional data flow: User Input → Component State → Custom Hooks → Server Actions → Database
-- Use `hasura.service.ts` for all GraphQL operations
-- Leverage IndexedDB for local caching and immediate UI updates
-
-**Component Composition:**
-
-- Build complex components by composing smaller, focused components
-- Separate presentation from business logic
-- Use custom hooks to encapsulate complex state logic
-
-### AI Integration Environment
-
-The platform integrates multiple AI providers with specific patterns:
-
-**Model Management:**
-
-- Use `getModelClientType()` to determine appropriate AI client
-- Route through `ai-main-call.actions` for unified AI API handling
-- Support multiple providers (OpenAI, Anthropic, etc.) through consistent interfaces
-
-**Chat System:**
-
-- `useMBChat` orchestrates all chat functionality
-- Integrate with AI SDK's `useChat` hook for streaming responses
-- Handle file attachments through hybrid storage (IndexedDB + Cloud Storage)
-
-### GraphQL Integration
-
-All data operations follow consistent patterns:
-
-**Service Layer:**
-
-- Use `hasura.service.ts` as the single point of GraphQL interaction
-- Generated types from `mb-genql` ensure type safety
-- Abstract Hasura-specific details behind service methods
-
-**Error Handling:**
-
-- GraphQL operations can fail at network, parsing, or business logic levels
-- Always handle partial success scenarios
-- Provide meaningful fallbacks for degraded functionality
-
-### Development Guidelines
-
-**File Organization:**
-
-- Components: `components/routes/[feature]/` for page-specific components
-- Shared Components: `components/shared/` for reusable UI elements
-- Hooks: `lib/hooks/` for custom React hooks
-- Services: `services/` for external API integrations
-- Types: `types/` for TypeScript definitions
-
-**External Documentation:**
-
-- [DeepWiki Documentation](https://deepwiki.com/bitcashorg/masterbots) - Comprehensive system overview
-- [Hasura GraphQL](https://hasura.io/docs/) - GraphQL API patterns
-- [Next.js App Router](https://nextjs.org/docs/app) - Routing and server components
-- [AI SDK](https://sdk.vercel.ai/docs) - AI integration patterns
-
-**Working with Pro Workspace:**
-
-- Editor components follow controlled/uncontrolled patterns
-- Markdown processing uses dedicated utility functions
-- Section management requires careful state synchronization
-- Auto-scroll and DOM manipulation need timing considerations (as demonstrated in recent work)
 
 ## Code Style and Conventions
 
@@ -272,9 +169,9 @@ function saySomething() {
 export default { helloMessage, saySomething };
 ```
 
-5. **Receive an Object, Return an Object (RORO)**: When defining functions, especially those interacting with external services, prefer taking an object as input and returning an object as output. This makes the function's interface more explicit and easier to use.
+1. **Receive an Object, Return an Object (RORO)**: When defining functions, especially those interacting with external services, prefer taking an object as input and returning an object as output. This makes the function's interface more explicit and easier to use.
 
-6. **Use regular function calls on components**: When attaching event handlers or other callbacks to components, use regular function calls instead of arrow functions. This prevents unnecessary re-renders and potential build errors due to hoisting.
+2. **Use regular function calls on components**: When attaching event handlers or other callbacks to components, use regular function calls instead of arrow functions. This prevents unnecessary re-renders and potential build errors due to hoisting.
 
 ### TypeScript Conventions
 
@@ -284,7 +181,7 @@ export default { helloMessage, saySomething };
    - `const` for literal types or constants
    - `enum` for enumerations with a fixed set of values
 
-2. **Avoid `any`**: The `any` type should be used sparingly, as it essentially opts out of type checking. If you find yourself using `any`, consider if there's a more specific type that could be used instead.
+2. **Avoid `any`**: The `any` type should be used sparingly, as it essentially opts out of type checking. If you find yourself using `any`, consider if there's a more specific type that could be used instead. A PR with `any` will likely be pushed back for revision.
 
 3. **Leverage type inference**: TypeScript is often able to infer types based on the context. When the type is clear from the context, you can omit the explicit type annotation to keep your code cleaner and more readable.
 
@@ -411,6 +308,68 @@ Color schemes follow TailwindCSS color palette conventions. Use contrast scales 
 Color scales follow this pattern:
 
 - `main-n` (main = primary color, n = tint/shade): Primary colors with different tints/shades. Midpoint has no number, with tints ranging from 50-400 and shades from 600-900.
+
+## Development Patterns
+
+### State Management Patterns
+
+**Provider Architecture:**
+
+- Use hierarchical provider structure for global state
+- Custom hooks (`useMBChat`, `useThread`, `useSidebar`, `useModel`) manage domain-specific concerns
+- Keep providers focused and compose them hierarchically
+
+**Data Flow:**
+
+- Follow unidirectional data flow: User Input → Component State → Custom Hooks → Server Actions → Database
+- Use `hasura.service.ts` for all GraphQL operations
+- Leverage IndexedDB for local caching and immediate UI updates
+
+### GraphQL Integration
+
+All data operations follow consistent patterns:
+
+**Service Layer:**
+
+- Use `hasura.service.ts` as point of GraphQL interaction. Create more following same pattern as needed.
+- Generated types from `mb-genql` ensure type safety
+- Abstract Hasura-specific details behind service methods
+
+**Error Handling:**
+
+- GraphQL operations can fail at network, parsing, or business logic levels
+- Always handle partial success scenarios
+- Provide meaningful fallbacks for degraded functionality
+
+### AI Integration Environment
+
+The platform integrates multiple AI providers with specific patterns:
+
+**Model Management:**
+
+- Use `getModelClientType()` to determine appropriate AI client
+- Route through `ai-main-call.actions` for unified AI API handling
+- Support multiple providers (OpenAI, Anthropic, etc.) through consistent interfaces
+
+**Chat System:**
+
+- `useMBChat` orchestrates all chat functionality
+- Integrate with AI SDK's `useChat` hook for streaming responses
+- Handle file attachments through hybrid storage (IndexedDB + Cloud Storage)
+
+## File Organization
+
+**Components:**
+
+- `components/routes/[feature]/` for page-specific components
+- `components/shared/` for reusable UI elements
+- `components/ui/` follow Radix UI patterns
+
+**Hooks:** `lib/hooks/` for custom React hooks
+
+**Services:** `services/` for external API integrations
+
+**Types:** `types/` for TypeScript definitions
 
 ## Testing Guidelines
 
