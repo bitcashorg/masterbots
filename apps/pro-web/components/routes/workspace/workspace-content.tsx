@@ -614,8 +614,48 @@ This is a new document. Add your content here.
 			const threadSlug = activeThread?.slug
 			if (!threadSlug) {
 				console.log(
-					'📝 No active thread yet - document will be saved locally. Thread will be created when first message is sent.',
+					'📝 No active thread yet - document will be saved locally only. Thread will be created when first message is sent.',
 				)
+				const base64 = await new Promise<string>((resolve, reject) => {
+					try {
+						const blob = new Blob([content], { type: 'text/markdown' })
+						const reader = new FileReader()
+						reader.onloadend = () => resolve(reader.result as string)
+						reader.onerror = reject
+						reader.readAsDataURL(blob)
+					} catch (e) {
+						reject(e)
+					}
+				})
+
+				const item = {
+					id: docId,
+					name: documentName,
+					organization: activeOrganization,
+					department: activeDepartment,
+					project: projectName,
+					type,
+					url: base64,
+					content: base64,
+					size: new Blob([content]).size,
+					messageIds: [],
+					expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+					threadSlug: undefined,
+					version: 1,
+				} as unknown as IndexedDBItem
+
+				try {
+					updateIndexedItem(docId, item)
+				} catch {
+					addIndexedItem(item)
+				}
+
+				customSonner({
+					type: 'success',
+					text: 'Document saved locally. Will sync when thread is created.',
+				})
+				setIsSaving(false)
+				return
 			}
 
 			// Upload document content to bucket (server handles official versioning + checksum)
