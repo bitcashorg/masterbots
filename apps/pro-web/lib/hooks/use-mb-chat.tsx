@@ -2,6 +2,7 @@
 
 import { getChatbotMetadata } from '@/app/actions'
 import { formatSystemPrompts } from '@/lib/actions'
+import { uploadWorkspaceDocument } from '@/lib/api/documents'
 import {
 	examplesPrompt,
 	followingImagesPrompt,
@@ -529,12 +530,51 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				}
 
 				throttle(async () => {
+					// Upload workspace documents to bucket if present
+					let uploadedDocuments = newDocuments
+					if (newDocuments.length > 0 && activeThread?.slug) {
+						try {
+							const uploadPromises = newDocuments.map(async (doc) => {
+								const uploadResult = await uploadWorkspaceDocument(
+									{
+										name: doc.name,
+										content: doc.content,
+										type: doc.type,
+									},
+									{
+										organization: doc.organization,
+										department: doc.department,
+										project: doc.project,
+									},
+									{ slug: activeThread.slug || '' },
+								)
+
+								if (uploadResult.data) {
+									return {
+										...uploadResult.data,
+										threadSlug: activeThread.slug || '',
+										messageIds: doc.messageIds,
+									}
+								}
+								return doc // fallback to original if upload fails
+							})
+
+							uploadedDocuments = await Promise.all(uploadPromises)
+							console.log(
+								'📤 Uploaded workspace documents to bucket:',
+								uploadedDocuments,
+							)
+						} catch (error) {
+							console.error('❌ Error uploading workspace documents:', error)
+						}
+					}
+
 					const newThread = activeThread
 						? {
 								...activeThread,
 								messages: [...activeThread.messages, ...newThreadMessages],
 								metadata:
-									newAttachments.length || newDocuments.length
+									newAttachments.length || uploadedDocuments.length
 										? {
 												attachments: uniqBy(
 													[
@@ -545,7 +585,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 												),
 												documents: uniqBy(
 													[
-														...newDocuments.map((doc) => ({
+														...uploadedDocuments.map((doc) => ({
 															...doc,
 															threadSlug: activeThread.slug || '',
 														})),
