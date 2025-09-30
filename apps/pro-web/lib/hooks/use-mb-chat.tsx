@@ -393,16 +393,35 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						}))
 					: []
 				const newDocuments =
-					activeProject && activeDocument
+					activeProject &&
+					activeDocument &&
+					activeOrganization &&
+					activeDepartment
 						? [
 								{
 									id: `${activeProject}:${activeDocument}`,
 									name: activeDocument,
 									project: activeProject,
+									organization: activeOrganization,
+									department: activeDepartment,
 									type: (activeDocumentType && activeDocumentType !== 'all'
 										? activeDocumentType
 										: 'text') as 'text' | 'image' | 'spreadsheet',
 									currentVersion: 1,
+									url: '',
+									content:
+										documentContent?.[`${activeProject}:${activeDocument}`] ||
+										'',
+									size: new Blob([
+										documentContent?.[`${activeProject}:${activeDocument}`] ||
+											'',
+									]).size,
+									threadSlug: '',
+									versions: [],
+									expires: new Date(
+										Date.now() + 7 * 24 * 60 * 60 * 1000,
+									).toISOString(),
+									messageIds: [userMessageId, assistantMessageId],
 								},
 							]
 						: []
@@ -526,7 +545,10 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 												),
 												documents: uniqBy(
 													[
-														...newDocuments,
+														...newDocuments.map((doc) => ({
+															...doc,
+															threadSlug: activeThread.slug || '',
+														})),
 														...(activeThread?.metadata?.documents || []),
 													],
 													(d) =>
