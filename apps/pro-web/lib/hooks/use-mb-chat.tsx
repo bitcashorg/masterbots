@@ -13,7 +13,6 @@ import {
 	aiExampleClassification,
 	processUserMessage,
 } from '@/lib/helpers/ai-classification'
-import type { WorkspaceDocumentMetadata } from '@/types/thread.types'
 
 import {
 	cleanPrompt,
@@ -394,35 +393,16 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						}))
 					: []
 				const newDocuments =
-					activeProject &&
-					activeDocument &&
-					activeOrganization &&
-					activeDepartment
+					activeProject && activeDocument
 						? [
 								{
 									id: `${activeProject}:${activeDocument}`,
 									name: activeDocument,
 									project: activeProject,
-									organization: activeOrganization,
-									department: activeDepartment,
 									type: (activeDocumentType && activeDocumentType !== 'all'
 										? activeDocumentType
 										: 'text') as 'text' | 'image' | 'spreadsheet',
 									currentVersion: 1,
-									url: '',
-									content:
-										documentContent?.[`${activeProject}:${activeDocument}`] ||
-										'',
-									size: new Blob([
-										documentContent?.[`${activeProject}:${activeDocument}`] ||
-											'',
-									]).size,
-									threadSlug: '',
-									versions: [],
-									expires: new Date(
-										Date.now() + 7 * 24 * 60 * 60 * 1000,
-									).toISOString(),
-									messageIds: [userMessageId, assistantMessageId],
 								},
 							]
 						: []
@@ -529,108 +509,13 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					setIsContinuousThread(false)
 				}
 
-				let uploadedDocuments: WorkspaceDocumentMetadata[] = []
-
-				if (newDocuments.length > 0) {
-					const currentThreadSlug = activeThread?.slug
-					if (!currentThreadSlug) {
-						console.warn('⚠️ No thread slug available for document upload')
-					} else {
-						try {
-							const existingDocs = activeThread?.metadata?.documents || []
-							console.log(
-								'📋 Uploading documents for thread:',
-								currentThreadSlug,
-							)
-
-							const uploadPromises = newDocuments.map(async (doc) => {
-								const existingDoc = existingDocs.find(
-									(d: WorkspaceDocumentMetadata) =>
-										d.id === doc.id ||
-										(d.name === doc.name && d.project === doc.project),
-								)
-
-								const needsUpload =
-									!existingDoc || existingDoc.content !== doc.content
-
-								if (!needsUpload && existingDoc) {
-									console.log(
-										'📝 Document already exists, merging messageIds:',
-										doc.name,
-									)
-									return {
-										...existingDoc,
-										messageIds: [
-											...new Set([
-												...(existingDoc.messageIds || []),
-												...doc.messageIds,
-											]),
-										],
-									} as WorkspaceDocumentMetadata
-								}
-
-								console.log('📤 Uploading document to bucket:', doc.name)
-								const response = await fetch('/api/documents/upload', {
-									method: 'POST',
-									headers: { 'Content-Type': 'application/json' },
-									body: JSON.stringify({
-										document: {
-											name: doc.name,
-											content: doc.content,
-											type: doc.type,
-										},
-										workspace: {
-											organization: doc.organization,
-											department: doc.department,
-											project: doc.project,
-										},
-										thread: { slug: currentThreadSlug },
-									}),
-								})
-
-								if (!response.ok) {
-									const errorText = await response.text()
-									console.error('❌ Failed to upload document:', errorText)
-									return {
-										...doc,
-										versions: [] as WorkspaceDocumentMetadata['versions'],
-									} as WorkspaceDocumentMetadata
-								}
-
-								const result = await response.json()
-
-								if (result.data) {
-									console.log('✅ Document uploaded successfully:', result.data)
-									return {
-										...result.data,
-										messageIds: doc.messageIds,
-									} as WorkspaceDocumentMetadata
-								}
-
-								return {
-									...doc,
-									versions: [] as WorkspaceDocumentMetadata['versions'],
-								} as WorkspaceDocumentMetadata
-							})
-
-							uploadedDocuments = await Promise.all(uploadPromises)
-							console.log(
-								'✅ All workspace documents processed:',
-								uploadedDocuments.length,
-							)
-						} catch (error) {
-							console.error('❌ Error processing workspace documents:', error)
-						}
-					}
-				}
-
 				throttle(async () => {
 					const newThread = activeThread
 						? {
 								...activeThread,
 								messages: [...activeThread.messages, ...newThreadMessages],
 								metadata:
-									newAttachments.length || uploadedDocuments.length
+									newAttachments.length || newDocuments.length
 										? {
 												attachments: uniqBy(
 													[
@@ -641,10 +526,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 												),
 												documents: uniqBy(
 													[
-														...uploadedDocuments.map((doc) => ({
-															...doc,
-															threadSlug: activeThread.slug || '',
-														})),
+														...newDocuments,
 														...(activeThread?.metadata?.documents || []),
 													],
 													(d) =>
