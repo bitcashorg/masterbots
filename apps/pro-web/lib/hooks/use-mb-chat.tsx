@@ -2,7 +2,6 @@
 
 import { getChatbotMetadata } from '@/app/actions'
 import { formatSystemPrompts } from '@/lib/actions'
-import { uploadWorkspaceDocument } from '@/lib/api/documents'
 import {
 	examplesPrompt,
 	followingImagesPrompt,
@@ -535,24 +534,64 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 					if (newDocuments.length > 0 && activeThread?.slug) {
 						try {
+							const existingDocs = activeThread?.metadata?.documents || []
+
 							const uploadPromises = newDocuments.map(async (doc) => {
-								const uploadResult = await uploadWorkspaceDocument(
-									{
-										name: doc.name,
-										content: doc.content,
-										type: doc.type,
-									},
-									{
-										organization: doc.organization,
-										department: doc.department,
-										project: doc.project,
-									},
-									{ slug: activeThread.slug || '' },
+								const existingDoc = existingDocs.find(
+									(d: WorkspaceDocumentMetadata) =>
+										d.id === doc.id ||
+										(d.name === doc.name && d.project === doc.project),
 								)
 
-								if (uploadResult.data) {
+								const needsUpload =
+									!existingDoc || existingDoc.content !== doc.content
+
+								if (!needsUpload && existingDoc) {
 									return {
-										...uploadResult.data,
+										...existingDoc,
+										messageIds: [
+											...new Set([
+												...(existingDoc.messageIds || []),
+												...doc.messageIds,
+											]),
+										],
+									} as WorkspaceDocumentMetadata
+								}
+
+								const response = await fetch('/api/documents/upload', {
+									method: 'POST',
+									headers: { 'Content-Type': 'application/json' },
+									body: JSON.stringify({
+										document: {
+											name: doc.name,
+											content: doc.content,
+											type: doc.type,
+										},
+										workspace: {
+											organization: doc.organization,
+											department: doc.department,
+											project: doc.project,
+										},
+										thread: { slug: activeThread.slug || '' },
+									}),
+								})
+
+								if (!response.ok) {
+									console.error(
+										'Failed to upload document:',
+										await response.text(),
+									)
+									return {
+										...doc,
+										versions: [] as WorkspaceDocumentMetadata['versions'],
+									} as WorkspaceDocumentMetadata
+								}
+
+								const result = await response.json()
+
+								if (result.data) {
+									return {
+										...result.data,
 										messageIds: doc.messageIds,
 									} as WorkspaceDocumentMetadata
 								}
@@ -565,11 +604,11 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 							uploadedDocuments = await Promise.all(uploadPromises)
 							console.log(
-								'📤 Uploaded workspace documents to bucket:',
+								'📤 Processed workspace documents:',
 								uploadedDocuments,
 							)
 						} catch (error) {
-							console.error('❌ Error uploading workspace documents:', error)
+							console.error('❌ Error processing workspace documents:', error)
 						}
 					}
 
