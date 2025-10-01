@@ -1,14 +1,17 @@
 'use client'
 
+import { updateThreadDocumentsMetadata } from '@/app/actions/thread.actions'
 import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
 import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { useModel } from '@/lib/hooks/use-model'
+import { useThread } from '@/lib/hooks/use-thread'
 import { useSonner } from '@/lib/hooks/useSonner'
 import {
 	parseMarkdownSections,
 	replaceSectionContent,
 } from '@/lib/markdown-utils'
 import { getDocumentPreviousVersion } from '@/lib/workspace-state'
+import type { WorkspaceDocumentMetadata } from '@/types/thread.types'
 import type { useChat } from '@ai-sdk/react'
 import type { Attachment, Message, UIMessage } from 'ai'
 import { debounce } from 'lodash'
@@ -89,7 +92,11 @@ export function WorkspaceChatProvider({
 		setDocumentContent,
 		isWorkspaceActive,
 		documentContent,
+		activeOrganization,
+		activeDepartment,
+		activeDocumentType,
 	} = useWorkspace()
+	const { activeThread } = useThread()
 
 	// Workspace processing state
 	const [workspaceProcessingState, setWorkspaceProcessingState] =
@@ -125,6 +132,8 @@ export function WorkspaceChatProvider({
 	const operationOriginalContentRef = React.useRef<string>('')
 	// Track whether we've already initialized the streaming preservation window for this operation
 	const streamingInitializedRef = React.useRef<boolean>(false)
+	const previousThreadRef = React.useRef<string | null>(null)
+	const isUploadingDocRef = React.useRef<boolean>(false)
 
 	// Add logging for active workspace section changes
 	React.useEffect(() => {
@@ -459,16 +468,41 @@ export function WorkspaceChatProvider({
 		}
 	}
 
-	// When the model finishes streaming (isLoading -> false) and we had an active streaming window,
-	// finalize and clean up once. This prevents premature cleanup between incremental updates.
+	// When the model finishes streaming (isLoading -> false), finalize and clean up.
 	React.useEffect(() => {
-		if (!isLoading && streamingInitializedRef.current) {
-			console.log('🧹 Streaming complete. Finalizing workspace update cleanup.')
-			// Notify UI that streaming is complete and sections need re-parsing
-			if (onStreamingComplete) {
-				onStreamingComplete()
-			}
-			// Mark idle
+		if (!isLoading && workspaceProcessingState !== 'idle') {
+			console.log(
+				'🧹 Loading complete. Scheduling workspace cleanup after onFinish...',
+			)
+
+			const cleanupTimeout = setTimeout(() => {
+				console.log('🧹 Executing delayed workspace cleanup')
+				// Notify UI that streaming is complete and sections need re-parsing (if streaming occurred)
+				if (streamingInitializedRef.current && onStreamingComplete) {
+					onStreamingComplete()
+				}
+				// Mark idle
+				setWorkspaceProcessingState('idle')
+				// Cleanup refs
+				preservedAfterSelectionRef.current = ''
+				preservedBeforeSelectionRef.current = ''
+				initialSelectionRangeRef.current = null
+				operationOriginalContentRef.current = ''
+				streamingInitializedRef.current = false
+				// Release selection so next edit can establish a new window
+				setSelectionRange(null)
+			}, 500)
+
+			return () => clearTimeout(cleanupTimeout)
+		}
+	}, [isLoading, workspaceProcessingState, onStreamingComplete])
+
+	React.useEffect(() => {
+		if (error) {
+			console.error(
+				'❌ Error detected in workspace chat, resetting state immediately:',
+				error,
+			)
 			setWorkspaceProcessingState('idle')
 			// Cleanup refs
 			preservedAfterSelectionRef.current = ''
@@ -476,10 +510,120 @@ export function WorkspaceChatProvider({
 			initialSelectionRangeRef.current = null
 			operationOriginalContentRef.current = ''
 			streamingInitializedRef.current = false
-			// Release selection so next edit can establish a new window
+			// Release selection
 			setSelectionRange(null)
+			customSonner({
+				type: 'error',
+				text: 'Failed to process workspace request. Please try again.',
+			})
 		}
-	}, [isLoading, onStreamingComplete])
+	}, [error, customSonner])
+
+	React.useEffect(() => {
+		const currentThreadSlug = activeThread?.slug
+		const previousThreadSlug = previousThreadRef.current
+
+		if (
+			!currentThreadSlug ||
+			currentThreadSlug === previousThreadSlug ||
+			isUploadingDocRef.current ||
+			!isWorkspaceActive
+		) {
+			previousThreadRef.current = currentThreadSlug || null
+			return
+		}
+
+		const hasWorkspaceContext =
+			activeProject &&
+			activeDocument &&
+			activeOrganization &&
+			activeDepartment &&
+			documentContent
+
+		if (!hasWorkspaceContext) {
+			previousThreadRef.current = currentThreadSlug
+			return
+		}
+
+		const documentKey = `${activeProject}:${activeDocument}`
+		const content = documentContent[documentKey]
+
+		if (!content) {
+			previousThreadRef.current = currentThreadSlug
+			return
+		}
+
+		console.log(
+			'📋 Thread created, uploading workspace document:',
+			currentThreadSlug,
+		)
+
+		isUploadingDocRef.current = true
+
+		const uploadDocument = async () => {
+			try {
+				const response = await fetch('/api/documents/upload', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({
+						document: {
+							name: activeDocument,
+							content,
+							type:
+								activeDocumentType && activeDocumentType !== 'all'
+									? activeDocumentType
+									: 'text',
+						},
+						workspace: {
+							organization: activeOrganization,
+							department: activeDepartment,
+							project: activeProject,
+						},
+						thread: { slug: currentThreadSlug },
+					}),
+				})
+
+				if (!response.ok) {
+					console.error('❌ Failed to upload document:', await response.text())
+					return
+				}
+
+				const result = await response.json()
+
+				if (result.data) {
+					console.log('✅ Document uploaded successfully:', result.data)
+
+					const doc: WorkspaceDocumentMetadata = {
+						...result.data,
+						messageIds: [],
+					}
+
+					await updateThreadDocumentsMetadata({
+						threadSlug: currentThreadSlug,
+						documents: [doc],
+					})
+
+					console.log('✅ Thread metadata updated with document')
+				}
+			} catch (error) {
+				console.error('❌ Error uploading workspace document:', error)
+			} finally {
+				isUploadingDocRef.current = false
+			}
+		}
+
+		uploadDocument()
+		previousThreadRef.current = currentThreadSlug
+	}, [
+		activeThread?.slug,
+		activeProject,
+		activeDocument,
+		activeOrganization,
+		activeDepartment,
+		activeDocumentType,
+		documentContent,
+		isWorkspaceActive,
+	])
 
 	// Main workspace edit function
 	const handleWorkspaceEdit = async (
