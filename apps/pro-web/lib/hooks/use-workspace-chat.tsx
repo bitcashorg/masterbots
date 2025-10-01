@@ -462,21 +462,29 @@ export function WorkspaceChatProvider({
 	// When the model finishes streaming (isLoading -> false), finalize and clean up.
 	React.useEffect(() => {
 		if (!isLoading && workspaceProcessingState !== 'idle') {
-			console.log('🧹 Loading complete. Finalizing workspace update cleanup.')
-			// Notify UI that streaming is complete and sections need re-parsing (if streaming occurred)
-			if (streamingInitializedRef.current && onStreamingComplete) {
-				onStreamingComplete()
-			}
-			// Mark idle
-			setWorkspaceProcessingState('idle')
-			// Cleanup refs
-			preservedAfterSelectionRef.current = ''
-			preservedBeforeSelectionRef.current = ''
-			initialSelectionRangeRef.current = null
-			operationOriginalContentRef.current = ''
-			streamingInitializedRef.current = false
-			// Release selection so next edit can establish a new window
-			setSelectionRange(null)
+			console.log(
+				'🧹 Loading complete. Scheduling workspace cleanup after onFinish...',
+			)
+
+			const cleanupTimeout = setTimeout(() => {
+				console.log('🧹 Executing delayed workspace cleanup')
+				// Notify UI that streaming is complete and sections need re-parsing (if streaming occurred)
+				if (streamingInitializedRef.current && onStreamingComplete) {
+					onStreamingComplete()
+				}
+				// Mark idle
+				setWorkspaceProcessingState('idle')
+				// Cleanup refs
+				preservedAfterSelectionRef.current = ''
+				preservedBeforeSelectionRef.current = ''
+				initialSelectionRangeRef.current = null
+				operationOriginalContentRef.current = ''
+				streamingInitializedRef.current = false
+				// Release selection so next edit can establish a new window
+				setSelectionRange(null)
+			}, 500)
+
+			return () => clearTimeout(cleanupTimeout)
 		}
 	}, [isLoading, workspaceProcessingState, onStreamingComplete])
 
