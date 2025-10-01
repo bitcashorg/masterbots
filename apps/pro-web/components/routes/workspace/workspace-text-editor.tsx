@@ -79,8 +79,8 @@ export function WorkspaceTextEditor({
 	const [sourceValue, setSourceValue] = useState(fullMarkdown)
 
 	useEffect(() => {
-		// Only update sourceValue if it's significantly different to avoid scroll resets
-		if (sourceValue !== fullMarkdown && !isUserTypingInSource.current) {
+		// Only update sourceValue if user is not typing and content changed externally
+		if (fullMarkdown !== sourceValue && !isUserTypingInSource.current) {
 			setSourceValue(fullMarkdown)
 		}
 	}, [fullMarkdown, sourceValue])
@@ -557,14 +557,20 @@ export function WorkspaceTextEditor({
 										markUserTyping()
 										const newValue = e.target.value
 										setSourceValue(newValue)
-										// When source is changed, update sections
-										setSections(parseMarkdownSections(newValue))
 										// Track cursor position
 										const position = e.target.selectionStart || 0
 										const end = e.target.selectionEnd || position
 										setGlobalSelectionRange({ start: position, end })
-										// Save changes with debounce
+										// Save changes with debounce (sections will be parsed when switching views)
 										debouncedSaveFullSource(newValue)
+										// Mark that user is typing to prevent external updates
+										isUserTypingInSource.current = true
+										if (sourceTypingTimeoutRef.current) {
+											clearTimeout(sourceTypingTimeoutRef.current)
+										}
+										sourceTypingTimeoutRef.current = setTimeout(() => {
+											isUserTypingInSource.current = false
+										}, 1000)
 									}}
 									onFocus={handleCursorPositionChange}
 									onClick={handleCursorPositionChange}

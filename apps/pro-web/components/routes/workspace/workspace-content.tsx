@@ -298,12 +298,18 @@ This is a new document. Add your content here.
 	useEffect(() => {
 		if (!projectName || !documentName) return
 
+		const isGenerating = workspaceProcessingState !== 'idle'
+		const debounceTime = isGenerating ? 3000 : 1000 // 3s during generation, 1s otherwise
+
 		const saveTimeout = setTimeout(() => {
 			if (fullMarkdown && fullMarkdown !== (savedContent ?? initialContent)) {
-				console.log('💾 Auto-saving document changes')
+				console.log('💾 Auto-saving document changes', {
+					isGenerating,
+					debounceTime,
+				})
 				setDocumentContent(projectName, documentName, fullMarkdown)
 			}
-		}, 1000) // 1 second debounce
+		}, debounceTime)
 
 		return () => clearTimeout(saveTimeout)
 	}, [
@@ -313,6 +319,7 @@ This is a new document. Add your content here.
 		savedContent,
 		initialContent,
 		setDocumentContent,
+		workspaceProcessingState,
 	])
 
 	// Helper functions
@@ -344,6 +351,9 @@ This is a new document. Add your content here.
 				if (target) {
 					const newMd = replaceSectionContent(fullMarkdown, target, value)
 
+					const isGenerating = workspaceProcessingState !== 'idle'
+					const debounceTime = isGenerating ? 1000 : 400
+
 					// Debounce persisting to workspace store
 					if (sectionSaveTimeoutRef.current)
 						clearTimeout(sectionSaveTimeoutRef.current)
@@ -351,7 +361,7 @@ This is a new document. Add your content here.
 						if (projectName && documentName) {
 							setDocumentContent(projectName, documentName, newMd)
 						}
-					}, 400)
+					}, debounceTime)
 				}
 			}
 		},
@@ -363,6 +373,7 @@ This is a new document. Add your content here.
 			projectName,
 			documentName,
 			setDocumentContent,
+			workspaceProcessingState,
 		],
 	)
 
@@ -436,7 +447,13 @@ This is a new document. Add your content here.
 					setDocumentContent(projectName, documentName, newMd)
 			}
 		} else if (!fullView && projectName && documentName) {
-			// Switching back to section view: ensure store has latest source
+			// Switching back to section view: parse sections from latest source
+			const parsed = parseMarkdownSections(fullMarkdown)
+			setSections(parsed)
+			if (activeSection) {
+				const s = parsed.find((sec) => sec.id === activeSection)
+				if (s) setEditableContent(s.content)
+			}
 			setDocumentContent(projectName, documentName, fullMarkdown)
 		}
 
