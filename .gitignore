@@ -17,3 +17,6 @@ bun.lockb
 gcp-serv-acct-key.json
 
 tsconfig.tsbuildinfo
+
+# Taskfile binary (should be installed per-environment)
+bin/task
