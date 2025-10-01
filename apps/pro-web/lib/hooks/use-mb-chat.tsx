@@ -529,12 +529,19 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					setIsContinuousThread(false)
 				}
 
-				throttle(async () => {
-					let uploadedDocuments: WorkspaceDocumentMetadata[] = []
+				let uploadedDocuments: WorkspaceDocumentMetadata[] = []
 
-					if (newDocuments.length > 0 && activeThread?.slug) {
+				if (newDocuments.length > 0) {
+					const currentThreadSlug = activeThread?.slug
+					if (!currentThreadSlug) {
+						console.warn('⚠️ No thread slug available for document upload')
+					} else {
 						try {
 							const existingDocs = activeThread?.metadata?.documents || []
+							console.log(
+								'📋 Uploading documents for thread:',
+								currentThreadSlug,
+							)
 
 							const uploadPromises = newDocuments.map(async (doc) => {
 								const existingDoc = existingDocs.find(
@@ -547,6 +554,10 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 									!existingDoc || existingDoc.content !== doc.content
 
 								if (!needsUpload && existingDoc) {
+									console.log(
+										'📝 Document already exists, merging messageIds:',
+										doc.name,
+									)
 									return {
 										...existingDoc,
 										messageIds: [
@@ -558,6 +569,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 									} as WorkspaceDocumentMetadata
 								}
 
+								console.log('📤 Uploading document to bucket:', doc.name)
 								const response = await fetch('/api/documents/upload', {
 									method: 'POST',
 									headers: { 'Content-Type': 'application/json' },
@@ -572,15 +584,13 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 											department: doc.department,
 											project: doc.project,
 										},
-										thread: { slug: activeThread.slug || '' },
+										thread: { slug: currentThreadSlug },
 									}),
 								})
 
 								if (!response.ok) {
-									console.error(
-										'Failed to upload document:',
-										await response.text(),
-									)
+									const errorText = await response.text()
+									console.error('❌ Failed to upload document:', errorText)
 									return {
 										...doc,
 										versions: [] as WorkspaceDocumentMetadata['versions'],
@@ -590,6 +600,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 								const result = await response.json()
 
 								if (result.data) {
+									console.log('✅ Document uploaded successfully:', result.data)
 									return {
 										...result.data,
 										messageIds: doc.messageIds,
@@ -604,14 +615,16 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 							uploadedDocuments = await Promise.all(uploadPromises)
 							console.log(
-								'📤 Processed workspace documents:',
-								uploadedDocuments,
+								'✅ All workspace documents processed:',
+								uploadedDocuments.length,
 							)
 						} catch (error) {
 							console.error('❌ Error processing workspace documents:', error)
 						}
 					}
+				}
 
+				throttle(async () => {
 					const newThread = activeThread
 						? {
 								...activeThread,
