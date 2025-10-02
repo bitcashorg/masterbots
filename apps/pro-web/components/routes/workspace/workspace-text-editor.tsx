@@ -400,10 +400,10 @@ export function WorkspaceTextEditor({
 	)
 
 	return (
-		<div className="space-y-4 h-full max-h-max">
+		<div className="space-y-4 h-full max-h-[calc(100%-60px)]">
 			{/* Section editor view with tree UI */}
 			{viewMode === 'sections' && (
-				<div className="size-full max-h-[calc(100%-60px)] inline-flex gap-4">
+				<div className="size-full h-full inline-flex gap-4">
 					{/* section navigation with tree structure */}
 					<div className="w-4/12 h-full gap-2 content-start border rounded-lg">
 						<h1 className="font-medium mb-2 px-4 py-2 text-xl">
@@ -423,11 +423,11 @@ export function WorkspaceTextEditor({
 					{/* Content area */}
 					<div
 						className={cn(
-							'w-8/12 border rounded-lg p-4 h-full overflow-y-auto scrollbar',
+							'flex flex-col items-center w-8/12 border rounded-lg p-4 h-full',
 						)}
 					>
 						{activeSection ? (
-							<div className="flex flex-col gap-4 w-full min-h-full">
+							<div className="flex flex-col gap-4 w-full h-full">
 								<div className="flex items-center gap-4 justify-between w-full">
 									<h3 className="font-semibold">
 										{sections.find((s) => s.id === activeSection)?.title}
@@ -452,7 +452,7 @@ export function WorkspaceTextEditor({
 								<div className="relative size-full">
 									{isPreview ? (
 										<MemoizedReactMarkdown
-											className="flex flex-col gap-1 size-full"
+											className="flex flex-col gap-2.5 py-4 h-[calc(100%-62px)] flex flex-col w-full border-t px-4 overflow-y-auto scrollbar"
 											components={memoizedMarkdownComponents()}
 										>
 											{editableContent}
@@ -518,12 +518,11 @@ export function WorkspaceTextEditor({
 				<>
 					<div
 						className={cn(
-							'flex flex-col gap-4 border rounded-lg p-4',
+							'flex flex-col space-y-4 size-full border rounded-lg p-4',
 							isLoading ? 'opacity-50 pointer-events-none' : '',
-							isPreview ? 'h-auto' : 'h-[calc(100%-64px)]',
 						)}
 					>
-						<div className="flex items-center gap-4 justify-end w-full">
+						<div className="flex items-center space-y-4 px-4 justify-end w-full">
 							<Button
 								variant="ghost"
 								onClick={() => setIsPreview((prev) => !prev)}
@@ -543,7 +542,7 @@ export function WorkspaceTextEditor({
 						</div>
 						{isPreview ? (
 							<MemoizedReactMarkdown
-								className="flex flex-col gap-1 size-full pb-10"
+								className="flex flex-col gap-2.5 size-full py-10 flex flex-col w-full border-t px-4 h-full overflow-y-auto scrollbar"
 								components={memoizedMarkdownComponents()}
 							>
 								{fullMarkdown}
