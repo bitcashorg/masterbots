@@ -2,13 +2,13 @@
 
 import {
 	AlertDialog,
-	AlertDialogAction,
 	AlertDialogCancel,
 	AlertDialogContent,
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -19,6 +19,7 @@ import { z } from 'zod'
 
 type EntityType = 'organization' | 'department' | 'project'
 
+// Props for the CreateEntityAlert component, controlling dialog state, entity type, and callbacks.
 type CreateEntityAlertProps = {
 	open: boolean
 	type: EntityType
@@ -48,6 +49,7 @@ const entityConfig = {
 	},
 }
 
+// Zod schema for validating the entity creation form; ensures the name is non-empty and ≤ 64 characters.
 const entitySchema = z.object({
 	name: z
 		.string()
@@ -99,15 +101,13 @@ export function CreateEntityAlert({
 		onClose()
 	}
 
-	const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-		if (e.key === 'Enter' && formState.isValid && !formState.isSubmitting) {
-			e.preventDefault()
-			handleSubmit(onSubmit)()
-		}
-	}
-
 	return (
-		<AlertDialog open={open} onOpenChange={handleClose}>
+		<AlertDialog
+			open={open}
+			onOpenChange={(isOpen) => {
+				if (!isOpen) handleClose()
+			}}
+		>
 			<AlertDialogContent className="max-w-md">
 				<AlertDialogHeader>
 					<AlertDialogTitle className="flex items-center gap-2">
@@ -122,9 +122,7 @@ export function CreateEntityAlert({
 							<Input
 								id="entity-name"
 								{...register('name')}
-								onKeyDown={handleKeyDown}
 								placeholder={config.placeholder}
-								autoFocus
 								aria-invalid={!!nameError}
 								aria-describedby={
 									nameError
@@ -151,13 +149,13 @@ export function CreateEntityAlert({
 						</div>
 					</div>
 					<AlertDialogFooter>
-						<AlertDialogCancel onClick={handleClose}>Cancel</AlertDialogCancel>
-						<AlertDialogAction
+						<AlertDialogCancel>Cancel</AlertDialogCancel>
+						<Button
 							type="submit"
 							disabled={!formState.isValid || formState.isSubmitting}
 						>
 							Create
-						</AlertDialogAction>
+						</Button>
 					</AlertDialogFooter>
 				</form>
 			</AlertDialogContent>
