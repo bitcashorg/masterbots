@@ -181,6 +181,16 @@ This is a new document. Add your content here.
 	const streamingActiveRef = useRef<boolean>(false)
 	const streamThrottleTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 	const streamLastUpdateRef = useRef<number>(0)
+	const fullMarkdownRef = useRef(fullMarkdown)
+	const activeSectionRef = useRef(activeSection)
+
+	useEffect(() => {
+		fullMarkdownRef.current = fullMarkdown
+	}, [fullMarkdown])
+
+	useEffect(() => {
+		activeSectionRef.current = activeSection
+	}, [activeSection])
 
 	// Cleanup timeout on unmount
 	useEffect(() => {
@@ -232,10 +242,10 @@ This is a new document. Add your content here.
 			return
 		const handleStreamingComplete = () => {
 			console.log('🎯 Streaming complete - final state sync')
-			const parsed = parseMarkdownSections(fullMarkdown)
+			const parsed = parseMarkdownSections(fullMarkdownRef.current)
 			setSections(parsed)
-			if (activeSection) {
-				const s = parsed.find((sec) => sec.id === activeSection)
+			if (activeSectionRef.current) {
+				const s = parsed.find((sec) => sec.id === activeSectionRef.current)
 				if (s) setEditableContent(s.content)
 			}
 			console.log(
@@ -251,8 +261,6 @@ This is a new document. Add your content here.
 		workspaceProcessingState,
 		setDocumentContent,
 		setOnStreamingComplete,
-		fullMarkdown,
-		activeSection,
 	])
 
 	// When streaming ends, persist once and re-parse sections
@@ -346,14 +354,14 @@ This is a new document. Add your content here.
 		}
 		userTypingTimeoutRef.current = setTimeout(() => {
 			isUserTypingRef.current = false
-			const parsed = parseMarkdownSections(fullMarkdown)
+			const parsed = parseMarkdownSections(fullMarkdownRef.current)
 			setSections(parsed)
-			if (activeSection) {
-				const s = parsed.find((sec) => sec.id === activeSection)
+			if (activeSectionRef.current) {
+				const s = parsed.find((sec) => sec.id === activeSectionRef.current)
 				if (s) setEditableContent(s.content)
 			}
 		}, 1000)
-	}, [fullMarkdown, activeSection])
+	}, [])
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const handleContentChange = useCallback(
