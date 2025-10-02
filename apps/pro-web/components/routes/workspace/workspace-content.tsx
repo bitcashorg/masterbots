@@ -232,7 +232,12 @@ This is a new document. Add your content here.
 			return
 		const handleStreamingComplete = () => {
 			console.log('🎯 Streaming complete - final state sync')
-			const documentKey = `${projectName}:${documentName}`
+			const parsed = parseMarkdownSections(fullMarkdown)
+			setSections(parsed)
+			if (activeSection) {
+				const s = parsed.find((sec) => sec.id === activeSection)
+				if (s) setEditableContent(s.content)
+			}
 			console.log(
 				'✅ Streaming complete - state synchronized via fullMarkdown effect',
 			)
@@ -246,6 +251,8 @@ This is a new document. Add your content here.
 		workspaceProcessingState,
 		setDocumentContent,
 		setOnStreamingComplete,
+		fullMarkdown,
+		activeSection,
 	])
 
 	// When streaming ends, persist once and re-parse sections
@@ -284,15 +291,24 @@ This is a new document. Add your content here.
 		editableContent,
 	])
 
-	// Always keep sections and editableContent in sync with fullMarkdown when it changes
+	// Keep sections in sync with fullMarkdown, but only when not actively editing or generating
 	useEffect(() => {
-		const parsed = parseMarkdownSections(fullMarkdown)
-		setSections(parsed)
-		if (activeSection) {
-			const s = parsed.find((sec) => sec.id === activeSection)
-			if (s) setEditableContent(s.content)
+		if (isUserTypingRef.current || workspaceProcessingState !== 'idle') {
+			return
 		}
-	}, [fullMarkdown, activeSection])
+
+		// Debounce section parsing to avoid excessive updates
+		const parseTimeout = setTimeout(() => {
+			const parsed = parseMarkdownSections(fullMarkdown)
+			setSections(parsed)
+			if (activeSection) {
+				const s = parsed.find((sec) => sec.id === activeSection)
+				if (s) setEditableContent(s.content)
+			}
+		}, 500)
+
+		return () => clearTimeout(parseTimeout)
+	}, [fullMarkdown, activeSection, workspaceProcessingState])
 
 	// Auto-save fullMarkdown changes (with debouncing)
 	useEffect(() => {
@@ -330,8 +346,14 @@ This is a new document. Add your content here.
 		}
 		userTypingTimeoutRef.current = setTimeout(() => {
 			isUserTypingRef.current = false
+			const parsed = parseMarkdownSections(fullMarkdown)
+			setSections(parsed)
+			if (activeSection) {
+				const s = parsed.find((sec) => sec.id === activeSection)
+				if (s) setEditableContent(s.content)
+			}
 		}, 1000)
-	}, [])
+	}, [fullMarkdown, activeSection])
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const handleContentChange = useCallback(
