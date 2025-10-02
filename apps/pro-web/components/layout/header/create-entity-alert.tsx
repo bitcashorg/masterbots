@@ -11,9 +11,11 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { cn } from '@/lib/utils'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { Briefcase, Building2, FolderTree, Info } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
 
 type EntityType = 'organization' | 'department' | 'project'
 
@@ -46,6 +48,12 @@ const entityConfig = {
 	},
 }
 
+const entitySchema = z.object({
+	name: z.string().trim().min(1).max(64),
+})
+
+type EntityFormValues = z.infer<typeof entitySchema>
+
 export function CreateEntityAlert({
 	open,
 	type,
@@ -53,41 +61,44 @@ export function CreateEntityAlert({
 	onConfirm,
 	initialValue = '',
 }: CreateEntityAlertProps) {
-	const [name, setName] = useState(initialValue)
-	const inputRef = useRef<HTMLInputElement>(null)
 	const config = entityConfig[type]
 	const Icon = config.icon
 
+	const { register, handleSubmit, formState, reset, setFocus } =
+		useForm<EntityFormValues>({
+			resolver: zodResolver(entitySchema),
+			mode: 'onChange',
+			defaultValues: {
+				name: initialValue,
+			},
+		})
+
 	useEffect(() => {
 		if (open) {
-			setName(initialValue)
+			reset({ name: initialValue })
 			setTimeout(() => {
-				inputRef.current?.focus()
+				setFocus('name')
 			}, 0)
 		}
-	}, [open, initialValue])
+	}, [open, initialValue, reset, setFocus])
 
-	const handleConfirm = () => {
-		const trimmedName = name.trim()
-		if (trimmedName) {
-			onConfirm(trimmedName)
-			setName('')
-		}
+	const onSubmit = (values: EntityFormValues) => {
+		onConfirm(values.name)
+		reset()
+		onClose()
 	}
 
 	const handleClose = () => {
-		setName('')
+		reset()
 		onClose()
 	}
 
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-		if (e.key === 'Enter' && name.trim()) {
+		if (e.key === 'Enter' && formState.isValid && !formState.isSubmitting) {
 			e.preventDefault()
-			handleConfirm()
+			handleSubmit(onSubmit)()
 		}
 	}
-
-	const isValid = name.trim().length > 0
 
 	return (
 		<AlertDialog open={open} onOpenChange={handleClose}>
@@ -98,30 +109,33 @@ export function CreateEntityAlert({
 						{config.title}
 					</AlertDialogTitle>
 				</AlertDialogHeader>
-				<div className="grid gap-4 py-4">
-					<div className="grid gap-2">
-						<Label htmlFor="entity-name">Name</Label>
-						<Input
-							ref={inputRef}
-							id="entity-name"
-							value={name}
-							onChange={(e) => setName(e.target.value)}
-							onKeyDown={handleKeyDown}
-							placeholder={config.placeholder}
-							autoFocus
-						/>
-						<div className="flex items-start gap-2 text-sm text-muted-foreground">
-							<Info className="h-4 w-4 mt-0.5 flex-shrink-0" />
-							<span>{config.hint}</span>
+				<form onSubmit={handleSubmit(onSubmit)}>
+					<div className="grid gap-4 py-4">
+						<div className="grid gap-2">
+							<Label htmlFor="entity-name">Name</Label>
+							<Input
+								id="entity-name"
+								{...register('name')}
+								onKeyDown={handleKeyDown}
+								placeholder={config.placeholder}
+								autoFocus
+							/>
+							<div className="flex items-start gap-2 text-sm text-muted-foreground">
+								<Info className="h-4 w-4 mt-0.5 flex-shrink-0" />
+								<span>{config.hint}</span>
+							</div>
 						</div>
 					</div>
-				</div>
-				<AlertDialogFooter>
-					<AlertDialogCancel onClick={handleClose}>Cancel</AlertDialogCancel>
-					<AlertDialogAction onClick={handleConfirm} disabled={!isValid}>
-						Create
-					</AlertDialogAction>
-				</AlertDialogFooter>
+					<AlertDialogFooter>
+						<AlertDialogCancel onClick={handleClose}>Cancel</AlertDialogCancel>
+						<AlertDialogAction
+							type="submit"
+							disabled={!formState.isValid || formState.isSubmitting}
+						>
+							Create
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</form>
 			</AlertDialogContent>
 		</AlertDialog>
 	)
