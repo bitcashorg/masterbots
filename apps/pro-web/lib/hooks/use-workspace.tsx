@@ -13,6 +13,7 @@ import {
 	useContext,
 	useEffect,
 	useMemo,
+	useRef,
 	useState,
 } from 'react'
 
@@ -502,6 +503,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 		null,
 	)
 	const [lastUpdatedAt, setLastUpdatedAt] = useState<number>(() => Date.now())
+	const hydratedThreadRef = useRef<string | null>(null)
 
 	const computeChecksum = useCallback((obj: unknown) => {
 		try {
@@ -538,6 +540,16 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 	// Hydrate from localStorage on mount
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
+		// Only hydrate once per thread to prevent overwriting during active editing
+		const currentThreadSlug = activeThread?.slug || 'no-thread'
+		if (hydratedThreadRef.current === currentThreadSlug) {
+			console.log('⏭️ Skipping re-hydration for same thread:', currentThreadSlug)
+			return
+		}
+
+		console.log('💧 Hydrating workspace for thread:', currentThreadSlug)
+		hydratedThreadRef.current = currentThreadSlug
+
 		try {
 			const raw =
 				typeof window !== 'undefined' ? localStorage.getItem(PERSIST_KEY) : null

@@ -181,16 +181,6 @@ This is a new document. Add your content here.
 	const streamingActiveRef = useRef<boolean>(false)
 	const streamThrottleTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 	const streamLastUpdateRef = useRef<number>(0)
-	const fullMarkdownRef = useRef(fullMarkdown)
-	const activeSectionRef = useRef(activeSection)
-
-	useEffect(() => {
-		fullMarkdownRef.current = fullMarkdown
-	}, [fullMarkdown])
-
-	useEffect(() => {
-		activeSectionRef.current = activeSection
-	}, [activeSection])
 
 	// Cleanup timeout on unmount
 	useEffect(() => {
@@ -236,16 +226,16 @@ This is a new document. Add your content here.
 	}, [activeSection, setOnSectionContentUpdate])
 
 	// Set up streaming complete callback to ensure final state consistency
-	// biome-ignore lint/correctness/useExhaustiveDependencies: Every time we trigger a new document content and we reset the onStreamComplete callback, we check if the processing state is idle, so we can trigger a side-effect callback... currently not in use but in future it will...
+	// Register this callback BEFORE generation starts so it's ready when streaming completes
 	useEffect(() => {
-		if (streamingActiveRef.current || workspaceProcessingState !== 'idle')
-			return
 		const handleStreamingComplete = () => {
 			console.log('🎯 Streaming complete - final state sync')
-			const parsed = parseMarkdownSections(fullMarkdownRef.current)
+			streamingActiveRef.current = false
+			// Re-parse sections from the latest fullMarkdown
+			const parsed = parseMarkdownSections(fullMarkdown)
 			setSections(parsed)
-			if (activeSectionRef.current) {
-				const s = parsed.find((sec) => sec.id === activeSectionRef.current)
+			if (activeSection) {
+				const s = parsed.find((sec) => sec.id === activeSection)
 				if (s) setEditableContent(s.content)
 			}
 			console.log(
@@ -255,13 +245,7 @@ This is a new document. Add your content here.
 
 		setOnStreamingComplete(handleStreamingComplete)
 		return () => setOnStreamingComplete(undefined)
-	}, [
-		projectName,
-		documentName,
-		workspaceProcessingState,
-		setDocumentContent,
-		setOnStreamingComplete,
-	])
+	}, [fullMarkdown, activeSection, setOnStreamingComplete])
 
 	// When streaming ends, persist once and re-parse sections
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
@@ -299,13 +283,18 @@ This is a new document. Add your content here.
 		editableContent,
 	])
 
-	// Keep sections in sync with fullMarkdown, but only when not actively editing or generating
+	// Keep sections in sync with fullMarkdown during generation for live updates
+	// Only skip during user typing to avoid disrupting manual edits
 	useEffect(() => {
-		if (isUserTypingRef.current || workspaceProcessingState !== 'idle') {
+		if (isUserTypingRef.current) {
 			return
 		}
 
-		// Debounce section parsing to avoid excessive updates
+		// During generation, update immediately to show live changes
+		// When idle, debounce to avoid excessive re-parsing
+		const isGenerating = workspaceProcessingState !== 'idle'
+		const parseDelay = isGenerating ? 0 : 500
+
 		const parseTimeout = setTimeout(() => {
 			const parsed = parseMarkdownSections(fullMarkdown)
 			setSections(parsed)
@@ -313,19 +302,24 @@ This is a new document. Add your content here.
 				const s = parsed.find((sec) => sec.id === activeSection)
 				if (s) setEditableContent(s.content)
 			}
-		}, 500)
+		}, parseDelay)
 
 		return () => clearTimeout(parseTimeout)
 	}, [fullMarkdown, activeSection, workspaceProcessingState])
 
+	const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
 	// Auto-save fullMarkdown changes (with debouncing)
+	// Shorter debounce during generation to capture streaming updates more frequently
 	useEffect(() => {
 		if (!projectName || !documentName) return
 
 		const isGenerating = workspaceProcessingState !== 'idle'
-		const debounceTime = isGenerating ? 3000 : 1000 // 3s during generation, 1s otherwise
+		const debounceTime = isGenerating ? 300 : 1500 // 300ms during generation, 1.5s otherwise
 
-		const saveTimeout = setTimeout(() => {
+		if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
+
+		saveTimeoutRef.current = setTimeout(() => {
 			if (fullMarkdown && fullMarkdown !== (savedContent ?? initialContent)) {
 				console.log('💾 Auto-saving document changes', {
 					isGenerating,
@@ -335,7 +329,9 @@ This is a new document. Add your content here.
 			}
 		}, debounceTime)
 
-		return () => clearTimeout(saveTimeout)
+		return () => {
+			if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
+		}
 	}, [
 		fullMarkdown,
 		projectName,
@@ -354,14 +350,17 @@ This is a new document. Add your content here.
 		}
 		userTypingTimeoutRef.current = setTimeout(() => {
 			isUserTypingRef.current = false
-			const parsed = parseMarkdownSections(fullMarkdownRef.current)
-			setSections(parsed)
-			if (activeSectionRef.current) {
-				const s = parsed.find((sec) => sec.id === activeSectionRef.current)
-				if (s) setEditableContent(s.content)
+			// Only re-parse sections if we're not generating (to avoid conflicts with streaming updates)
+			if (workspaceProcessingState === 'idle') {
+				const parsed = parseMarkdownSections(fullMarkdown)
+				setSections(parsed)
+				if (activeSection) {
+					const s = parsed.find((sec) => sec.id === activeSection)
+					if (s) setEditableContent(s.content)
+				}
 			}
 		}, 1000)
-	}, [])
+	}, [workspaceProcessingState, fullMarkdown, activeSection])
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const handleContentChange = useCallback(
@@ -382,7 +381,7 @@ This is a new document. Add your content here.
 					const newMd = replaceSectionContent(fullMarkdown, target, value)
 
 					const isGenerating = workspaceProcessingState !== 'idle'
-					const debounceTime = isGenerating ? 1000 : 400
+					const debounceTime = isGenerating ? 200 : 400 // Faster during generation
 
 					// Debounce persisting to workspace store
 					if (sectionSaveTimeoutRef.current)

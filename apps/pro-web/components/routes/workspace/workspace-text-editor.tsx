@@ -238,12 +238,12 @@ export function WorkspaceTextEditor({
 
 			// Force scroll with multiple fallbacks
 			const doScroll = () => {
-				console.log(
-					'🔄 Attempting scroll to:',
-					targetScrollTop,
-					'current:',
-					textarea.scrollTop,
-				)
+				// console.log(
+				// 	'🔄 Attempting scroll to:',
+				// 	targetScrollTop,
+				// 	'current:',
+				// 	textarea.scrollTop,
+				// )
 
 				// Try smooth scroll first
 				try {
@@ -255,15 +255,15 @@ export function WorkspaceTextEditor({
 
 				// Verify scroll happened after a delay
 				setTimeout(() => {
-					console.log(
-						'📊 Post-scroll position:',
-						textarea.scrollTop,
-						'target was:',
-						targetScrollTop,
-					)
+					// console.log(
+					// 	'📊 Post-scroll position:',
+					// 	textarea.scrollTop,
+					// 	'target was:',
+					// 	targetScrollTop,
+					// )
 					// If smooth scroll failed, force instant scroll
 					if (Math.abs(textarea.scrollTop - targetScrollTop) > 50) {
-						console.log('🔧 Smooth scroll failed, forcing instant scroll')
+						// console.log('🔧 Smooth scroll failed, forcing instant scroll')
 						textarea.scrollTop = targetScrollTop
 					}
 				}, 100)
