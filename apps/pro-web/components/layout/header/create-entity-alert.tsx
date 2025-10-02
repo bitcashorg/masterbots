@@ -49,7 +49,11 @@ const entityConfig = {
 }
 
 const entitySchema = z.object({
-	name: z.string().trim().min(1).max(64),
+	name: z
+		.string()
+		.trim()
+		.min(1, { message: 'Name is required' })
+		.max(64, { message: 'Name must be 64 characters or less' }),
 })
 
 type EntityFormValues = z.infer<typeof entitySchema>
@@ -72,6 +76,8 @@ export function CreateEntityAlert({
 				name: initialValue,
 			},
 		})
+
+	const nameError = formState.errors.name
 
 	useEffect(() => {
 		if (open) {
@@ -119,8 +125,26 @@ export function CreateEntityAlert({
 								onKeyDown={handleKeyDown}
 								placeholder={config.placeholder}
 								autoFocus
+								aria-invalid={!!nameError}
+								aria-describedby={
+									nameError
+										? 'entity-name-hint entity-name-error'
+										: 'entity-name-hint'
+								}
 							/>
-							<div className="flex items-start gap-2 text-sm text-muted-foreground">
+							{nameError && (
+								<p
+									id="entity-name-error"
+									role="alert"
+									className="text-sm text-red-600 dark:text-red-400"
+								>
+									{nameError.message}
+								</p>
+							)}
+							<div
+								id="entity-name-hint"
+								className="flex items-start gap-2 text-sm text-muted-foreground"
+							>
 								<Info className="h-4 w-4 mt-0.5 flex-shrink-0" />
 								<span>{config.hint}</span>
 							</div>
