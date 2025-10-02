@@ -4,6 +4,7 @@ import {
 	AlertDialog,
 	AlertDialogCancel,
 	AlertDialogContent,
+	AlertDialogDescription,
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogTitle,
@@ -12,14 +13,13 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Briefcase, Building2, FolderTree, Info } from 'lucide-react'
+import { Briefcase, Building2, FolderTree } from 'lucide-react'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
 type EntityType = 'organization' | 'department' | 'project'
 
-// Props for the CreateEntityAlert component, controlling dialog state, entity type, and callbacks.
 type CreateEntityAlertProps = {
 	open: boolean
 	type: EntityType
@@ -33,23 +33,25 @@ const entityConfig = {
 		icon: Building2,
 		title: 'Create organization',
 		placeholder: 'Enter organization name',
-		hint: 'Organizations group departments and projects in a single workspace.',
+		description:
+			'Organizations group departments and projects in a single workspace.',
 	},
 	department: {
 		icon: FolderTree,
 		title: 'Create department',
 		placeholder: 'Enter department name',
-		hint: 'Departments organize projects and documents by area or function.',
+		description:
+			'Departments organize projects and documents by area or function.',
 	},
 	project: {
 		icon: Briefcase,
 		title: 'Create project',
 		placeholder: 'Enter project name',
-		hint: 'Projects gather documents, conversations, and settings for a specific initiative.',
+		description:
+			'Projects gather documents, conversations, and settings for a specific initiative.',
 	},
-}
+} as const
 
-// Zod schema for validating the entity creation form; ensures the name is non-empty and ≤ 64 characters.
 const entitySchema = z.object({
 	name: z
 		.string()
@@ -74,9 +76,7 @@ export function CreateEntityAlert({
 		useForm<EntityFormValues>({
 			resolver: zodResolver(entitySchema),
 			mode: 'onChange',
-			defaultValues: {
-				name: initialValue,
-			},
+			defaultValues: { name: initialValue },
 		})
 
 	const nameError = formState.errors.name
@@ -84,9 +84,7 @@ export function CreateEntityAlert({
 	useEffect(() => {
 		if (open) {
 			reset({ name: initialValue })
-			setTimeout(() => {
-				setFocus('name')
-			}, 0)
+			setTimeout(() => setFocus('name'), 0)
 		}
 	}, [open, initialValue, reset, setFocus])
 
@@ -114,7 +112,15 @@ export function CreateEntityAlert({
 						<Icon className="h-5 w-5" />
 						{config.title}
 					</AlertDialogTitle>
+
+					<AlertDialogDescription
+						id="entity-name-description"
+						className="text-sm text-muted-foreground"
+					>
+						{config.description}
+					</AlertDialogDescription>
 				</AlertDialogHeader>
+
 				<form onSubmit={handleSubmit(onSubmit)}>
 					<div className="grid gap-4 py-4">
 						<div className="grid gap-2">
@@ -126,28 +132,22 @@ export function CreateEntityAlert({
 								aria-invalid={!!nameError}
 								aria-describedby={
 									nameError
-										? 'entity-name-hint entity-name-error'
-										: 'entity-name-hint'
+										? 'entity-name-description entity-name-error'
+										: 'entity-name-description'
 								}
 							/>
 							{nameError && (
 								<p
 									id="entity-name-error"
 									role="alert"
-									className="text-sm text-red-600 dark:text-red-400"
+									className="text-sm text-destructive"
 								>
 									{nameError.message}
 								</p>
 							)}
-							<div
-								id="entity-name-hint"
-								className="flex items-start gap-2 text-sm text-muted-foreground"
-							>
-								<Info className="h-4 w-4 mt-0.5 flex-shrink-0" />
-								<span>{config.hint}</span>
-							</div>
 						</div>
 					</div>
+
 					<AlertDialogFooter>
 						<AlertDialogCancel>Cancel</AlertDialogCancel>
 						<Button
