@@ -1,18 +1,17 @@
 'use client'
 
-import { getThreadBySlug } from '@/app/actions/thread.actions'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import * as React from 'react'
 
 import { UserLogin } from '@/components/auth/user-login'
+import { CreateDocumentAlert } from '@/components/layout/header/create-document-alert'
 import { CreateEntityAlert } from '@/components/layout/header/create-entity-alert'
 import {
 	Crumb,
 	DocumentCrumb,
 	DocumentTypeCrumb,
 } from '@/components/layout/header/crumb-header'
-import { DocumentCreateAlert } from '@/components/layout/header/crumb-nav-alert'
 import { SidebarToggle } from '@/components/layout/sidebar/sidebar-toggle'
 import { Button } from '@/components/ui/button'
 import { IconSeparator } from '@/components/ui/icons'
@@ -22,12 +21,10 @@ import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useWorkspace } from '@/lib/hooks/use-workspace'
 import { useWorkspaceDocuments } from '@/lib/hooks/use-workspace-documents'
-import { getCanonicalDomain } from '@/lib/url'
 import { cn, getRouteColor, getRouteType } from '@/lib/utils'
 
 import type { WorkspaceDocumentMetadata } from '@/types/thread.types'
-import { pick, uniq } from 'lodash'
-import { nanoid } from 'nanoid'
+import { uniq } from 'lodash'
 import { useSession } from 'next-auth/react'
 import { useTheme } from 'next-themes'
 import Image from 'next/image'
@@ -84,8 +81,7 @@ function HeaderLink({
 }
 
 export function Header() {
-	const { activeCategory, activeChatbot, setActiveCategory, setActiveChatbot } =
-		useSidebar()
+	const { setActiveCategory, setActiveChatbot } = useSidebar()
 	const workspaceContext = useWorkspace()
 	const {
 		activeOrganization,
@@ -122,8 +118,6 @@ export function Header() {
 		refreshActiveThread,
 	} = useThread()
 	const { data: session } = useSession()
-	const router = useRouter()
-	const canonicalDomain = getCanonicalDomain(activeChatbot?.name || '')
 
 	// Access user-scoped IndexedDB for reading backfilled document payloads
 	const dbKeys = React.useMemo(
@@ -603,7 +597,7 @@ export function Header() {
 			/>
 
 			{/* Document Creation Dialog */}
-			<DocumentCreateAlert
+			<CreateDocumentAlert
 				isDocumentDialogOpen={isDocumentDialogOpen}
 				documentType={documentType === 'all' ? 'text' : documentType}
 				activeProject={activeProject as string}

@@ -30,7 +30,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { WorkspaceContextType, useWorkspace } from '@/lib/hooks/use-workspace'
+import { useWorkspace } from '@/lib/hooks/use-workspace'
 import { cn } from '@/lib/utils'
 import {
 	ChevronDown,
@@ -40,7 +40,7 @@ import {
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
-export function DocumentCreateAlert({
+export function CreateDocumentAlert({
 	isDocumentDialogOpen,
 	activeProject,
 	documentName,
