@@ -1,17 +1,17 @@
 'use client'
 
-import { getThreadBySlug } from '@/app/actions/thread.actions'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import * as React from 'react'
 
 import { UserLogin } from '@/components/auth/user-login'
+import { CreateDocumentAlert } from '@/components/layout/header/create-document-alert'
+import { CreateEntityAlert } from '@/components/layout/header/create-entity-alert'
 import {
 	Crumb,
 	DocumentCrumb,
 	DocumentTypeCrumb,
 } from '@/components/layout/header/crumb-header'
-import { DocumentCreateAlert } from '@/components/layout/header/crumb-nav-alert'
 import { SidebarToggle } from '@/components/layout/sidebar/sidebar-toggle'
 import { Button } from '@/components/ui/button'
 import { IconSeparator } from '@/components/ui/icons'
@@ -21,12 +21,10 @@ import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useWorkspace } from '@/lib/hooks/use-workspace'
 import { useWorkspaceDocuments } from '@/lib/hooks/use-workspace-documents'
-import { getCanonicalDomain } from '@/lib/url'
 import { cn, getRouteColor, getRouteType } from '@/lib/utils'
 
 import type { WorkspaceDocumentMetadata } from '@/types/thread.types'
-import { pick, uniq } from 'lodash'
-import { nanoid } from 'nanoid'
+import { uniq } from 'lodash'
 import { useSession } from 'next-auth/react'
 import { useTheme } from 'next-themes'
 import Image from 'next/image'
@@ -83,8 +81,7 @@ function HeaderLink({
 }
 
 export function Header() {
-	const { activeCategory, activeChatbot, setActiveCategory, setActiveChatbot } =
-		useSidebar()
+	const { setActiveCategory, setActiveChatbot } = useSidebar()
 	const workspaceContext = useWorkspace()
 	const {
 		activeOrganization,
@@ -121,8 +118,6 @@ export function Header() {
 		refreshActiveThread,
 	} = useThread()
 	const { data: session } = useSession()
-	const router = useRouter()
-	const canonicalDomain = getCanonicalDomain(activeChatbot?.name || '')
 
 	// Access user-scoped IndexedDB for reading backfilled document payloads
 	const dbKeys = React.useMemo(
@@ -153,7 +148,11 @@ export function Header() {
 		}
 	}, [activeThread, session?.user?.hasuraJwt])
 
-	// State for document creation dialog
+	const [isEntityDialogOpen, setIsEntityDialogOpen] = useState(false)
+	const [entityDialogType, setEntityDialogType] = useState<
+		'organization' | 'department' | 'project'
+	>('organization')
+
 	const [isDocumentDialogOpen, setIsDocumentDialogOpen] = useState(false)
 	const [documentName, setDocumentName] = useState('')
 	const [documentType, setDocumentType] = useState<
@@ -391,48 +390,51 @@ export function Header() {
 	const docType: 'text' | 'image' | 'spreadsheet' =
 		documentType === 'all' ? 'text' : documentType
 
-	// Generic helpers
+	// Opens the appropriate dialog for creating a new entity (organization, department, project, or document).
+	// If 'document' is selected, opens the document creation dialog; otherwise, opens the entity creation dialog.
 	const handleAddEntity = (
 		type: 'organization' | 'department' | 'project' | 'document',
 	) => {
-		let name = ''
-		if (type.match(/(organization|department|project)/)) {
-			name = prompt(`Enter new ${type} name`) || ''
-			name = name.trim()
-
-			if (!name) return
+		if (type === 'document') {
+			if (!activeProject) return
+			setActiveDocumentType(docType)
+			setIsDocumentDialogOpen(true)
+		} else {
+			setEntityDialogType(type)
+			setIsEntityDialogOpen(true)
 		}
+	}
 
-		switch (type) {
+	// Handles the creation of a new entity (organization, department, or project) after user confirmation in the dialog.
+	// Updates the workspace state and closes the dialog upon successful creation.
+	const handleCreateEntity = (name: string) => {
+		const trimmedName = name.trim()
+		if (!trimmedName) return
+
+		switch (entityDialogType) {
 			case 'organization':
-				addOrganization(name)
-				setActiveOrganization(name)
+				addOrganization(trimmedName)
+				setActiveOrganization(trimmedName)
 				setActiveDepartment(null)
 				setActiveProject(null)
 				setActiveDocument(null)
 				break
 			case 'department':
 				if (!activeOrganization) return
-				addDepartment(activeOrganization, name)
-				setActiveDepartment(name)
+				addDepartment(activeOrganization, trimmedName)
+				setActiveDepartment(trimmedName)
 				setActiveProject(null)
 				setActiveDocument(null)
 				break
 			case 'project':
 				if (!activeOrganization || !activeDepartment) return
-				addProject(activeOrganization, activeDepartment, name)
-				setActiveProject(name)
+				addProject(activeOrganization, activeDepartment, trimmedName)
+				setActiveProject(trimmedName)
 				setActiveDocument(null)
 				break
-			// ? Document
-			default: {
-				if (!activeProject) return
-				// Set initial document type based on current selection
-				setActiveDocumentType(docType)
-				setIsDocumentDialogOpen(true)
-				break
-			}
 		}
+
+		setIsEntityDialogOpen(false)
 	}
 
 	// Handle document creation from dialog
@@ -586,8 +588,16 @@ export function Header() {
 				</React.Suspense>
 			</div>
 
+			{/* Entity Creation Dialog (Organization, Department, Project) */}
+			<CreateEntityAlert
+				isOpen={isEntityDialogOpen}
+				type={entityDialogType}
+				onClose={() => setIsEntityDialogOpen(false)}
+				onConfirm={handleCreateEntity}
+			/>
+
 			{/* Document Creation Dialog */}
-			<DocumentCreateAlert
+			<CreateDocumentAlert
 				isDocumentDialogOpen={isDocumentDialogOpen}
 				documentType={documentType === 'all' ? 'text' : documentType}
 				activeProject={activeProject as string}

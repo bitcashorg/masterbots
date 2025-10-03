@@ -6,12 +6,12 @@ import {
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
-import type { WorkspaceDocumentMetadata } from '@/types/thread.types'
 import {
 	ChevronDown,
 	FileSpreadsheetIcon,
 	FileTextIcon,
 	ImageIcon,
+	Plus,
 } from 'lucide-react'
 import type { Thread } from 'mb-genql'
 
@@ -78,9 +78,9 @@ export function Crumb({
 				<DropdownMenuSeparator />
 				<DropdownMenuItem
 					onClick={() => onNewItem(addType)}
-					className="text-xs text-primary cursor-pointer"
+					className="text-xs text-primary cursor-pointer flex items-center gap-1"
 				>
-					+ New {label}
+					<Plus className="w-3.5 h-3.5" /> New {label}
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>
@@ -266,9 +266,9 @@ export function DocumentCrumb({
 				<DropdownMenuSeparator />
 				<DropdownMenuItem
 					onClick={() => onNewItem('document')}
-					className="text-xs text-primary cursor-pointer"
+					className="text-xs text-primary cursor-pointer flex items-center gap-1"
 				>
-					+ New document
+					<Plus className="w-3.5 h-3.5" /> New document
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>
