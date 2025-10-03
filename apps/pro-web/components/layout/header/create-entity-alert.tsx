@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Briefcase, Building2, FolderTree } from 'lucide-react'
+import { Briefcase, Building2, FolderTree, Loader2 } from 'lucide-react'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -21,7 +21,7 @@ import { z } from 'zod'
 type EntityType = 'organization' | 'department' | 'project'
 
 type CreateEntityAlertProps = {
-	open: boolean
+	isOpen: boolean
 	type: EntityType
 	onClose: () => void
 	onConfirm: (name: string) => void
@@ -63,7 +63,7 @@ const entitySchema = z.object({
 type EntityFormValues = z.infer<typeof entitySchema>
 
 export function CreateEntityAlert({
-	open,
+	isOpen,
 	type,
 	onClose,
 	onConfirm,
@@ -82,11 +82,11 @@ export function CreateEntityAlert({
 	const nameError = formState.errors.name
 
 	useEffect(() => {
-		if (open) {
+		if (isOpen) {
 			reset({ name: initialValue })
 			requestAnimationFrame(() => setFocus('name'))
 		}
-	}, [open, initialValue, reset, setFocus])
+	}, [isOpen, initialValue, reset, setFocus])
 
 	const onSubmit = (values: EntityFormValues) => {
 		onConfirm(values.name)
@@ -101,9 +101,9 @@ export function CreateEntityAlert({
 
 	return (
 		<AlertDialog
-			open={open}
-			onOpenChange={(isOpen) => {
-				if (!isOpen) handleClose()
+			open={isOpen}
+			onOpenChange={(open) => {
+				if (!open) handleClose()
 			}}
 		>
 			<AlertDialogContent className="max-w-md">
@@ -113,10 +113,7 @@ export function CreateEntityAlert({
 						{config.title}
 					</AlertDialogTitle>
 
-					<AlertDialogDescription
-						id="entity-name-description"
-						className="text-sm text-muted-foreground"
-					>
+					<AlertDialogDescription className="text-sm text-muted-foreground">
 						{config.description}
 					</AlertDialogDescription>
 				</AlertDialogHeader>
@@ -130,18 +127,9 @@ export function CreateEntityAlert({
 								{...register('name')}
 								placeholder={config.placeholder}
 								aria-invalid={!!nameError}
-								aria-describedby={
-									nameError
-										? 'entity-name-description entity-name-error'
-										: 'entity-name-description'
-								}
 							/>
 							{nameError && (
-								<p
-									id="entity-name-error"
-									role="alert"
-									className="text-sm text-destructive"
-								>
+								<p role="alert" className="text-sm text-destructive">
 									{nameError.message}
 								</p>
 							)}
@@ -149,12 +137,24 @@ export function CreateEntityAlert({
 					</div>
 
 					<AlertDialogFooter>
-						<AlertDialogCancel>Cancel</AlertDialogCancel>
+						<AlertDialogCancel disabled={formState.isSubmitting}>
+							Cancel
+						</AlertDialogCancel>
 						<Button
 							type="submit"
 							disabled={!formState.isValid || formState.isSubmitting}
 						>
-							Create
+							{formState.isSubmitting ? (
+								<>
+									<Loader2
+										className="w-4 h-4 animate-spin"
+										aria-hidden="true"
+									/>
+									Creating...
+								</>
+							) : (
+								'Create'
+							)}
 						</Button>
 					</AlertDialogFooter>
 				</form>

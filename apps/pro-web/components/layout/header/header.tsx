@@ -590,7 +590,7 @@ export function Header() {
 
 			{/* Entity Creation Dialog (Organization, Department, Project) */}
 			<CreateEntityAlert
-				open={isEntityDialogOpen}
+				isOpen={isEntityDialogOpen}
 				type={entityDialogType}
 				onClose={() => setIsEntityDialogOpen(false)}
 				onConfirm={handleCreateEntity}
