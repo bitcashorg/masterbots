@@ -12,6 +12,7 @@ import {
 	FileSpreadsheetIcon,
 	FileTextIcon,
 	ImageIcon,
+	Plus,
 } from 'lucide-react'
 import type { Thread } from 'mb-genql'
 
@@ -78,9 +79,9 @@ export function Crumb({
 				<DropdownMenuSeparator />
 				<DropdownMenuItem
 					onClick={() => onNewItem(addType)}
-					className="text-xs text-primary cursor-pointer"
+					className="text-xs text-primary cursor-pointer flex items-center gap-1"
 				>
-					+ New {label}
+					<Plus className="w-3.5 h-3.5" /> New {label}
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>
@@ -207,11 +208,11 @@ export function DocumentCrumb({
 					className={cn(
 						'max-w-[132px] inline-flex items-center gap-1 px-2 py-1 text-sm rounded-md border-transparent bg-background/60 backdrop-blur hover:bg-accent hover:text-accent-foreground transition',
 						!activeProject &&
-							!(
-								userDocuments?.length ||
-								activeThread?.metadata?.documents?.length
-							) &&
-							'opacity-50 cursor-not-allowed',
+						!(
+							userDocuments?.length ||
+							activeThread?.metadata?.documents?.length
+						) &&
+						'opacity-50 cursor-not-allowed',
 					)}
 				>
 					<span
@@ -266,9 +267,9 @@ export function DocumentCrumb({
 				<DropdownMenuSeparator />
 				<DropdownMenuItem
 					onClick={() => onNewItem('document')}
-					className="text-xs text-primary cursor-pointer"
+					className="text-xs text-primary cursor-pointer flex items-center gap-1"
 				>
-					+ New document
+					<Plus className="w-3.5 h-3.5" /> New document
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>
