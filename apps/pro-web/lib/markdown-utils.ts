@@ -151,15 +151,54 @@ export function combineMarkdownSections(sections: MarkdownSection[]): string {
 
 /**
  * Replace a section's content within the full markdown using absolute offsets
+ * This function replaces a section and all of its child sections (deeper levels)
  */
 export function replaceSectionContent(
 	fullMarkdown: string,
-	section: Pick<MarkdownSection, 'contentStart' | 'contentEnd'>,
+	section: Pick<MarkdownSection, 'contentStart' | 'contentEnd' | 'level'>,
 	newContent: string,
 ): string {
 	const start = Math.max(0, Math.min(section.contentStart, fullMarkdown.length))
-	const end = Math.max(start, Math.min(section.contentEnd, fullMarkdown.length))
-	return fullMarkdown.slice(0, start) + newContent + fullMarkdown.slice(end)
+
+	// Find the actual end including all child sections
+	// We need to skip past any headings that are DEEPER than this section's level
+	let end = Math.max(start, Math.min(section.contentEnd, fullMarkdown.length))
+
+	// Look ahead from contentEnd to find the next heading at same or higher level
+	const afterSectionContent = fullMarkdown.slice(end)
+	const headingRegex = /^(#{1,6})\s+(.+)$/gm
+	let match = headingRegex.exec(afterSectionContent)
+
+	while (match) {
+		const matchLevel = match[1].length
+		const matchPosition = end + (match.index ?? 0)
+
+		// If we found a heading at same or higher level (lower number), stop here
+		if (matchLevel <= section.level) {
+			break
+		}
+
+		// Otherwise, this is a child section - extend our end point past it
+		end = matchPosition
+		match = headingRegex.exec(afterSectionContent)
+	}
+
+	// If we didn't find a same/higher level heading, extend to end of document
+	if (!match && afterSectionContent.length > 0) {
+		end = fullMarkdown.length
+	}
+
+	const afterSection = fullMarkdown.slice(end)
+
+	// Only add newline spacing if there's content after AND it's a heading at the SAME or HIGHER level
+	// Child headings (deeper level) should stay directly attached to avoid duplication
+	const needsNewline =
+		afterSection &&
+		!afterSection.startsWith('\n') &&
+		!newContent.endsWith('\n') &&
+		/^#{1,6}\s/.test(afterSection)
+
+	return `${fullMarkdown.slice(0, start) + newContent}${needsNewline ? '\n\n' : ''}${afterSection}`
 }
 
 /**

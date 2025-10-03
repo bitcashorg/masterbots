@@ -13,6 +13,7 @@ import {
 	useContext,
 	useEffect,
 	useMemo,
+	useRef,
 	useState,
 } from 'react'
 
@@ -502,6 +503,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 		null,
 	)
 	const [lastUpdatedAt, setLastUpdatedAt] = useState<number>(() => Date.now())
+	const hydratedThreadRef = useRef<string | null>(null)
 
 	const computeChecksum = useCallback((obj: unknown) => {
 		try {
@@ -538,6 +540,16 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 	// Hydrate from localStorage on mount
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
+		// Only hydrate once per thread to prevent overwriting during active editing
+		const currentThreadSlug = activeThread?.slug || 'no-thread'
+		if (hydratedThreadRef.current === currentThreadSlug) {
+			console.log('⏭️ Skipping re-hydration for same thread:', currentThreadSlug)
+			return
+		}
+
+		console.log('💧 Hydrating workspace for thread:', currentThreadSlug)
+		hydratedThreadRef.current = currentThreadSlug
+
 		try {
 			const raw =
 				typeof window !== 'undefined' ? localStorage.getItem(PERSIST_KEY) : null
@@ -621,45 +633,50 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 	useEffect(() => {
 		if (!hydrated) return
 		let frame: number | null = null
-		const save = debounce(() => {
-			try {
-				const payload: WorkspaceStatePayload = {
-					organisationsVersion: 1,
-					updatedAt: Date.now(),
-					organizations: organizationList,
-					departmentsByOrg,
-					projectsByDept,
-					textDocuments,
-					imageDocuments,
-					spreadsheetDocuments,
-					documentContent,
-					activeOrganization,
-					activeDepartment,
-					activeProject,
-					activeDocument,
-					activeDocumentType,
+		const save = debounce(
+			() => {
+				try {
+					const payload: WorkspaceStatePayload = {
+						organisationsVersion: 1,
+						updatedAt: Date.now(),
+						organizations: organizationList,
+						departmentsByOrg,
+						projectsByDept,
+						textDocuments,
+						imageDocuments,
+						spreadsheetDocuments,
+						documentContent,
+						activeOrganization,
+						activeDepartment,
+						activeProject,
+						activeDocument,
+						activeDocumentType,
+					}
+					localStorage.setItem(PERSIST_KEY, JSON.stringify(payload))
+					setLastUpdatedAt(payload.updatedAt)
+					const checksum = computeChecksum(payload)
+					if (checksum !== lastSyncedChecksum) {
+						fetch('/api/workspace/state', {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify(payload),
+						})
+							.then((r) => (r.ok ? r.json() : null))
+							.then(() => setLastSyncedChecksum(checksum))
+							.catch(() => {})
+					}
+				} catch (e) {
+					console.warn('Workspace persistence save failed', e)
 				}
-				localStorage.setItem(PERSIST_KEY, JSON.stringify(payload))
-				setLastUpdatedAt(payload.updatedAt)
-				const checksum = computeChecksum(payload)
-				if (checksum !== lastSyncedChecksum) {
-					fetch('/api/workspace/state', {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify(payload),
-					})
-						.then((r) => (r.ok ? r.json() : null))
-						.then(() => setLastSyncedChecksum(checksum))
-						.catch(() => {})
-				}
-			} catch (e) {
-				console.warn('Workspace persistence save failed', e)
-			}
-		}, 125)
+			},
+			2000,
+			{ maxWait: 5000 },
+		)
 
 		frame = requestAnimationFrame(save)
 		return () => {
 			if (frame) cancelAnimationFrame(frame)
+			save.cancel()
 		}
 	}, [
 		hydrated,

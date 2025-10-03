@@ -7,6 +7,7 @@ import { useModel } from '@/lib/hooks/use-model'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useSonner } from '@/lib/hooks/useSonner'
 import {
+	type MarkdownSection,
 	parseMarkdownSections,
 	replaceSectionContent,
 } from '@/lib/markdown-utils'
@@ -130,6 +131,12 @@ export function WorkspaceChatProvider({
 	// This ensures we always compute the padEnd ("after" portion) against the original snapshot
 	// and avoid duplication when streaming updates mutate the live document.
 	const operationOriginalContentRef = React.useRef<string>('')
+	// Preserve original sections parsed at the start of the operation
+	// Used only for getting original section content for window calculations
+	const operationOriginalSectionsRef = React.useRef<MarkdownSection[]>([])
+	// Track the most recent document content during streaming to avoid stale closures
+	// This ref is updated immediately after each replacement so the next chunk sees current state
+	const currentStreamingContentRef = React.useRef<string>('')
 	// Track whether we've already initialized the streaming preservation window for this operation
 	const streamingInitializedRef = React.useRef<boolean>(false)
 	const previousThreadRef = React.useRef<string | null>(null)
@@ -200,23 +207,34 @@ export function WorkspaceChatProvider({
 		}
 
 		try {
-			// Use the original snapshot (captured at handleWorkspaceEdit start) only for FIRST streaming initialization.
-			// After that, we keep using currentContent for section parsing (structure may change) but DO NOT
-			// recalculate preserved before/after windows.
+			// Preserve original snapshot ONLY for window calculation (before/after selection)
+			// NOT for section offsets, which must track the evolving document
 			const originalSnapshot =
 				operationOriginalContentRef.current || currentContent
 
-			// Only parse from currentContent if we haven't initialized streaming yet (first call).
-			const contentToParse = streamingInitializedRef.current
-				? originalSnapshot
-				: currentContent
-			const sections = parseMarkdownSections(contentToParse)
+			// Use the streaming content ref if available (updated after each chunk)
+			// Otherwise fall back to the parameter (first call)
+			const workingContent =
+				currentStreamingContentRef.current || currentContent
+
+			console.log('📝 Working with content:', {
+				usingStreamingRef: !!currentStreamingContentRef.current,
+				contentLength: workingContent.length,
+				originalLength: originalSnapshot.length,
+				streamingChunkLength: aiResponse.length,
+			})
+
+			// ALWAYS parse sections from CURRENT content to get accurate offsets
+			// The document grows with each streaming chunk, so offsets must be recalculated
+			const sections = parseMarkdownSections(workingContent)
 
 			console.log('📝 Section parsing results:', {
 				totalSections: sections.length,
 				sectionIds: sections.map((s) => s.id),
-				sectionTitles: sections.map((s) => s.title),
+				sectionTitles: sections.map((s) => `[L${s.level}] ${s.title}`),
 				activeSection,
+				parsingFromCurrent: true,
+				lookingForSection: activeSection,
 			})
 
 			// If there's an active section, update that specific section only
@@ -226,6 +244,16 @@ export function WorkspaceChatProvider({
 				activeSection,
 				sectionIndex,
 				foundSection: sectionIndex !== -1 ? sections[sectionIndex] : null,
+				foundSectionOffsets:
+					sectionIndex !== -1
+						? {
+								contentStart: sections[sectionIndex].contentStart,
+								contentEnd: sections[sectionIndex].contentEnd,
+								contentLength:
+									sections[sectionIndex].contentEnd -
+									sections[sectionIndex].contentStart,
+							}
+						: null,
 			})
 
 			if (sectionIndex !== -1) {
@@ -234,6 +262,15 @@ export function WorkspaceChatProvider({
 				// Update the specific section with AI response
 				const updatedSections = [...sections]
 				const currentSection = updatedSections[sectionIndex]
+
+				// For calculating preserved windows, use the ORIGINAL section content (before any updates)
+				const originalSection =
+					!streamingInitializedRef.current &&
+					operationOriginalSectionsRef.current.length > 0
+						? operationOriginalSectionsRef.current.find(
+								(s) => s.id === activeSection,
+							)
+						: null
 
 				// Clean the AI response - remove any heading that matches the section title
 				let cleanedResponse = aiResponse.trim()
@@ -345,16 +382,29 @@ export function WorkspaceChatProvider({
 					)
 				}
 
-				// Replace within the full markdown using absolute offsets
+				// Replace within the CURRENT working content (not original snapshot)
+				// Since we're parsing sections from workingContent, offsets are based on workingContent
 				const newMarkdown = replaceSectionContent(
-					originalSnapshot,
+					workingContent,
 					currentSection,
 					newSectionContent,
 				)
 
-				console.log(`✅ Section "${currentSection.title}" updated successfully`)
+				console.log(
+					`✅ Section "${currentSection.title}" updated successfully`,
+					{
+						oldContentLength: workingContent.length,
+						newContentLength: newMarkdown.length,
+						sectionContentLength: newSectionContent.length,
+						aiResponseLength: aiResponse.length,
+					},
+				)
 
-				// Persist updated markdown
+				// CRITICAL: Update the streaming content ref IMMEDIATELY
+				// This ensures the next streaming chunk sees the updated content
+				currentStreamingContentRef.current = newMarkdown
+
+				// Persist updated markdown to workspace state
 				if (activeProject && activeDocument)
 					setDocumentContent(activeProject, activeDocument, newMarkdown)
 
@@ -393,6 +443,10 @@ export function WorkspaceChatProvider({
 						)
 					}
 					const newContentMarkdown = `${preservedBeforeSelectionRef.current}${aiResponse.trim()}${preservedAfterSelectionRef.current}`
+
+					// Update streaming ref immediately
+					currentStreamingContentRef.current = newContentMarkdown
+
 					if (activeProject && activeDocument) {
 						setDocumentContent(
 							activeProject,
@@ -430,6 +484,10 @@ export function WorkspaceChatProvider({
 						)
 					}
 					const newContentMarkdown = `${preservedBeforeSelectionRef.current}${aiResponse.trim()}${preservedAfterSelectionRef.current}`
+
+					// Update streaming ref immediately
+					currentStreamingContentRef.current = newContentMarkdown
+
 					if (activeProject && activeDocument) {
 						setDocumentContent(
 							activeProject,
@@ -451,6 +509,10 @@ export function WorkspaceChatProvider({
 						console.log('📍 Initialized streaming window (append mode)')
 					}
 					const newContentMarkdown = `${preservedBeforeSelectionRef.current}\n\n${aiResponse.trim()}`
+
+					// Update streaming ref immediately
+					currentStreamingContentRef.current = newContentMarkdown
+
 					if (activeProject && activeDocument) {
 						setDocumentContent(
 							activeProject,
@@ -488,6 +550,8 @@ export function WorkspaceChatProvider({
 				preservedBeforeSelectionRef.current = ''
 				initialSelectionRangeRef.current = null
 				operationOriginalContentRef.current = ''
+				operationOriginalSectionsRef.current = []
+				currentStreamingContentRef.current = ''
 				streamingInitializedRef.current = false
 				// Release selection so next edit can establish a new window
 				setSelectionRange(null)
@@ -509,6 +573,8 @@ export function WorkspaceChatProvider({
 			preservedBeforeSelectionRef.current = ''
 			initialSelectionRangeRef.current = null
 			operationOriginalContentRef.current = ''
+			operationOriginalSectionsRef.current = []
+			currentStreamingContentRef.current = ''
 			streamingInitializedRef.current = false
 			// Release selection
 			setSelectionRange(null)
@@ -659,6 +725,9 @@ export function WorkspaceChatProvider({
 			const currentContent = documentContent?.[documentKey] || ''
 			// Capture snapshot for upcoming streaming operation
 			operationOriginalContentRef.current = currentContent
+			// Parse and store original sections for window calculations
+			operationOriginalSectionsRef.current =
+				parseMarkdownSections(currentContent)
 			streamingInitializedRef.current = false
 
 			console.log('📄 Document context:', {

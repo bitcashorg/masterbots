@@ -226,13 +226,18 @@ This is a new document. Add your content here.
 	}, [activeSection, setOnSectionContentUpdate])
 
 	// Set up streaming complete callback to ensure final state consistency
-	// biome-ignore lint/correctness/useExhaustiveDependencies: Every time we trigger a new document content and we reset the onStreamComplete callback, we check if the processing state is idle, so we can trigger a side-effect callback... currently not in use but in future it will...
+	// Register this callback BEFORE generation starts so it's ready when streaming completes
 	useEffect(() => {
-		if (streamingActiveRef.current || workspaceProcessingState !== 'idle')
-			return
 		const handleStreamingComplete = () => {
 			console.log('🎯 Streaming complete - final state sync')
-			const documentKey = `${projectName}:${documentName}`
+			streamingActiveRef.current = false
+			// Re-parse sections from the latest fullMarkdown
+			const parsed = parseMarkdownSections(fullMarkdown)
+			setSections(parsed)
+			if (activeSection) {
+				const s = parsed.find((sec) => sec.id === activeSection)
+				if (s) setEditableContent(s.content)
+			}
 			console.log(
 				'✅ Streaming complete - state synchronized via fullMarkdown effect',
 			)
@@ -240,13 +245,7 @@ This is a new document. Add your content here.
 
 		setOnStreamingComplete(handleStreamingComplete)
 		return () => setOnStreamingComplete(undefined)
-	}, [
-		projectName,
-		documentName,
-		workspaceProcessingState,
-		setDocumentContent,
-		setOnStreamingComplete,
-	])
+	}, [fullMarkdown, activeSection, setOnStreamingComplete])
 
 	// When streaming ends, persist once and re-parse sections
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
@@ -284,28 +283,55 @@ This is a new document. Add your content here.
 		editableContent,
 	])
 
-	// Always keep sections and editableContent in sync with fullMarkdown when it changes
+	// Keep sections in sync with fullMarkdown during generation for live updates
+	// Only skip during user typing to avoid disrupting manual edits
 	useEffect(() => {
-		const parsed = parseMarkdownSections(fullMarkdown)
-		setSections(parsed)
-		if (activeSection) {
-			const s = parsed.find((sec) => sec.id === activeSection)
-			if (s) setEditableContent(s.content)
+		if (isUserTypingRef.current) {
+			return
 		}
-	}, [fullMarkdown, activeSection])
+
+		// During generation, update immediately to show live changes
+		// When idle, debounce to avoid excessive re-parsing
+		const isGenerating = workspaceProcessingState !== 'idle'
+		const parseDelay = isGenerating ? 0 : 500
+
+		const parseTimeout = setTimeout(() => {
+			const parsed = parseMarkdownSections(fullMarkdown)
+			setSections(parsed)
+			if (activeSection) {
+				const s = parsed.find((sec) => sec.id === activeSection)
+				if (s) setEditableContent(s.content)
+			}
+		}, parseDelay)
+
+		return () => clearTimeout(parseTimeout)
+	}, [fullMarkdown, activeSection, workspaceProcessingState])
+
+	const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
 	// Auto-save fullMarkdown changes (with debouncing)
+	// Shorter debounce during generation to capture streaming updates more frequently
 	useEffect(() => {
 		if (!projectName || !documentName) return
 
-		const saveTimeout = setTimeout(() => {
+		const isGenerating = workspaceProcessingState !== 'idle'
+		const debounceTime = isGenerating ? 300 : 1500 // 300ms during generation, 1.5s otherwise
+
+		if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
+
+		saveTimeoutRef.current = setTimeout(() => {
 			if (fullMarkdown && fullMarkdown !== (savedContent ?? initialContent)) {
-				console.log('💾 Auto-saving document changes')
+				console.log('💾 Auto-saving document changes', {
+					isGenerating,
+					debounceTime,
+				})
 				setDocumentContent(projectName, documentName, fullMarkdown)
 			}
-		}, 1000) // 1 second debounce
+		}, debounceTime)
 
-		return () => clearTimeout(saveTimeout)
+		return () => {
+			if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
+		}
 	}, [
 		fullMarkdown,
 		projectName,
@@ -313,6 +339,7 @@ This is a new document. Add your content here.
 		savedContent,
 		initialContent,
 		setDocumentContent,
+		workspaceProcessingState,
 	])
 
 	// Helper functions
@@ -323,8 +350,17 @@ This is a new document. Add your content here.
 		}
 		userTypingTimeoutRef.current = setTimeout(() => {
 			isUserTypingRef.current = false
+			// Only re-parse sections if we're not generating (to avoid conflicts with streaming updates)
+			if (workspaceProcessingState === 'idle') {
+				const parsed = parseMarkdownSections(fullMarkdown)
+				setSections(parsed)
+				if (activeSection) {
+					const s = parsed.find((sec) => sec.id === activeSection)
+					if (s) setEditableContent(s.content)
+				}
+			}
 		}, 1000)
-	}, [])
+	}, [workspaceProcessingState, fullMarkdown, activeSection])
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const handleContentChange = useCallback(
@@ -344,6 +380,9 @@ This is a new document. Add your content here.
 				if (target) {
 					const newMd = replaceSectionContent(fullMarkdown, target, value)
 
+					const isGenerating = workspaceProcessingState !== 'idle'
+					const debounceTime = isGenerating ? 200 : 400 // Faster during generation
+
 					// Debounce persisting to workspace store
 					if (sectionSaveTimeoutRef.current)
 						clearTimeout(sectionSaveTimeoutRef.current)
@@ -351,7 +390,7 @@ This is a new document. Add your content here.
 						if (projectName && documentName) {
 							setDocumentContent(projectName, documentName, newMd)
 						}
-					}, 400)
+					}, debounceTime)
 				}
 			}
 		},
@@ -363,6 +402,7 @@ This is a new document. Add your content here.
 			projectName,
 			documentName,
 			setDocumentContent,
+			workspaceProcessingState,
 		],
 	)
 
@@ -436,7 +476,13 @@ This is a new document. Add your content here.
 					setDocumentContent(projectName, documentName, newMd)
 			}
 		} else if (!fullView && projectName && documentName) {
-			// Switching back to section view: ensure store has latest source
+			// Switching back to section view: parse sections from latest source
+			const parsed = parseMarkdownSections(fullMarkdown)
+			setSections(parsed)
+			if (activeSection) {
+				const s = parsed.find((sec) => sec.id === activeSection)
+				if (s) setEditableContent(s.content)
+			}
 			setDocumentContent(projectName, documentName, fullMarkdown)
 		}
 
