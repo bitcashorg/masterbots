@@ -52,15 +52,15 @@ function HeaderLink({
 	const isActive = Boolean(
 		// Exact match for root paths
 		pathname === href ||
-			// For pro route: href is "/" and pathname starts with any route except "/org"
-			(href === '/' &&
-				routeType.match(/(pro|chat)/) &&
-				pathname.length > 1 &&
-				!pathname.startsWith('/')) ||
-			// For org route: href is "/org" and pathname starts with "/org/"
-			(href === '/org' &&
-				routeType.match(/(public|org)/) &&
-				(pathname === '/org' || pathname.startsWith('/org/'))),
+		// For pro route: href is "/" and pathname starts with any route except "/org"
+		(href === '/' &&
+			routeType.match(/(pro|chat)/) &&
+			pathname.length > 1 &&
+			!pathname.startsWith('/')) ||
+		// For org route: href is "/org" and pathname starts with "/org/"
+		(href === '/org' &&
+			routeType.match(/(public|org)/) &&
+			(pathname === '/org' || pathname.startsWith('/org/'))),
 	)
 	const routeColour = getRouteColor(isActive, pathname)
 
@@ -396,6 +396,8 @@ export function Header() {
 	const docType: 'text' | 'image' | 'spreadsheet' =
 		documentType === 'all' ? 'text' : documentType
 
+	// Opens the appropriate dialog for creating a new entity (organization, department, project, or document).
+	// If 'document' is selected, opens the document creation dialog; otherwise, opens the entity creation dialog.
 	const handleAddEntity = (
 		type: 'organization' | 'department' | 'project' | 'document',
 	) => {
@@ -409,6 +411,9 @@ export function Header() {
 		}
 	}
 
+
+	// Handles the creation of a new entity (organization, department, or project) after user confirmation in the dialog.
+	// Updates the workspace state and closes the dialog upon successful creation.
 	const handleCreateEntity = (name: string) => {
 		const trimmedName = name.trim()
 		if (!trimmedName) return
@@ -590,6 +595,14 @@ export function Header() {
 				</React.Suspense>
 			</div>
 
+			{/* Entity Creation Dialog (Organization, Department, Project) */}
+			<CreateEntityAlert
+				open={isEntityDialogOpen}
+				type={entityDialogType}
+				onClose={() => setIsEntityDialogOpen(false)}
+				onConfirm={handleCreateEntity}
+			/>
+
 			{/* Document Creation Dialog */}
 			<DocumentCreateAlert
 				isDocumentDialogOpen={isDocumentDialogOpen}
@@ -600,13 +613,6 @@ export function Header() {
 				setDocumentType={setDocumentType}
 				handleCreateDocument={handleCreateDocument}
 				setIsDocumentDialogOpen={setIsDocumentDialogOpen}
-			/>
-
-			<CreateEntityAlert
-				open={isEntityDialogOpen}
-				type={entityDialogType}
-				onClose={() => setIsEntityDialogOpen(false)}
-				onConfirm={handleCreateEntity}
 			/>
 		</header>
 	)
