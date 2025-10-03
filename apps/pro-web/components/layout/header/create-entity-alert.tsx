@@ -84,7 +84,7 @@ export function CreateEntityAlert({
 	useEffect(() => {
 		if (open) {
 			reset({ name: initialValue })
-			setTimeout(() => setFocus('name'), 0)
+			requestAnimationFrame(() => setFocus('name'))
 		}
 	}, [open, initialValue, reset, setFocus])
 

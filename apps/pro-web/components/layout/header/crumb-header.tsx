@@ -208,11 +208,11 @@ export function DocumentCrumb({
 					className={cn(
 						'max-w-[132px] inline-flex items-center gap-1 px-2 py-1 text-sm rounded-md border-transparent bg-background/60 backdrop-blur hover:bg-accent hover:text-accent-foreground transition',
 						!activeProject &&
-						!(
-							userDocuments?.length ||
-							activeThread?.metadata?.documents?.length
-						) &&
-						'opacity-50 cursor-not-allowed',
+							!(
+								userDocuments?.length ||
+								activeThread?.metadata?.documents?.length
+							) &&
+							'opacity-50 cursor-not-allowed',
 					)}
 				>
 					<span

@@ -52,15 +52,15 @@ function HeaderLink({
 	const isActive = Boolean(
 		// Exact match for root paths
 		pathname === href ||
-		// For pro route: href is "/" and pathname starts with any route except "/org"
-		(href === '/' &&
-			routeType.match(/(pro|chat)/) &&
-			pathname.length > 1 &&
-			!pathname.startsWith('/')) ||
-		// For org route: href is "/org" and pathname starts with "/org/"
-		(href === '/org' &&
-			routeType.match(/(public|org)/) &&
-			(pathname === '/org' || pathname.startsWith('/org/'))),
+			// For pro route: href is "/" and pathname starts with any route except "/org"
+			(href === '/' &&
+				routeType.match(/(pro|chat)/) &&
+				pathname.length > 1 &&
+				!pathname.startsWith('/')) ||
+			// For org route: href is "/org" and pathname starts with "/org/"
+			(href === '/org' &&
+				routeType.match(/(public|org)/) &&
+				(pathname === '/org' || pathname.startsWith('/org/'))),
 	)
 	const routeColour = getRouteColor(isActive, pathname)
 
@@ -410,7 +410,6 @@ export function Header() {
 			setIsEntityDialogOpen(true)
 		}
 	}
-
 
 	// Handles the creation of a new entity (organization, department, or project) after user confirmation in the dialog.
 	// Updates the workspace state and closes the dialog upon successful creation.
